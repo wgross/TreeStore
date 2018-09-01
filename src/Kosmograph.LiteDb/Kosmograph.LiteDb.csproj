@@ -4,4 +4,12 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="LiteDb" Version="4.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Kosmograph.Model\Kosmograph.Model.csproj" />
+  </ItemGroup>
+
 </Project>
