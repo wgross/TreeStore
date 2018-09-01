@@ -1,5 +1,6 @@
 using Kosmograph.Model;
 using LiteDB;
+using System;
 using System.IO;
 using Xunit;
 
@@ -34,7 +35,10 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var entity = new TestEntity();
+            var entity = new TestEntity
+            {
+                Name = "name"
+            };
 
             // ACT
 
@@ -42,13 +46,38 @@ namespace Kosmograph.LiteDb.Test
 
             // ASSERT
 
-            Assert.NotNull(entity.Id);
-            Assert.NotEqual(ObjectId.Empty, entity.Id);
+            Assert.NotEqual(Guid.Empty, entity.Id);
 
             var read = this.entities.FindById(entity.Id);
 
             Assert.NotNull(read);
             Assert.Equal(entity.Id, read.Id);
+            Assert.Equal("name", read.Name);
+        }
+
+        [Fact]
+        public void LiteDbRepositoryBase_updates_entity()
+        {
+            // ARRANGE
+
+            var entity = new TestEntity
+            {
+                Name = "name"
+            };
+            this.repository.Upsert(entity);
+
+            // ACT
+
+            entity.Name = "name2";
+            this.repository.Upsert(entity);
+
+            // ASSERT
+
+            var read = this.entities.FindById(entity.Id);
+
+            Assert.NotNull(read);
+            Assert.Equal(entity.Id, read.Id);
+            Assert.Equal("name2", read.Name);
         }
 
         [Fact]
@@ -56,7 +85,10 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var entity = new TestEntity();
+            var entity = new TestEntity
+            {
+                Name = "name"
+            };
             this.repository.Upsert(entity);
 
             // ACT
@@ -66,6 +98,7 @@ namespace Kosmograph.LiteDb.Test
             // ASSERT
 
             Assert.Equal(entity.Id, result.Id);
+            Assert.Equal("name", result.Name);
         }
 
         [Fact]
