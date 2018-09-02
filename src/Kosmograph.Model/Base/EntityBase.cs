@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Kosmograph.Model
+namespace Kosmograph.Model.Base
 {
     public abstract class EntityBase
     {

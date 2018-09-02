@@ -1,4 +1,4 @@
-using Kosmograph.Model;
+using Kosmograph.Model.Base;
 using LiteDB;
 using System;
 using System.IO;
@@ -14,6 +14,10 @@ namespace Kosmograph.LiteDb.Test
 
         private class TestEntity : EntityBase
         {
+            public TestEntity(string name)
+                : base(name)
+            {    
+            }
         }
 
         private class TestRepository : LiteDbRepositoryBase<TestEntity>
@@ -35,10 +39,7 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var entity = new TestEntity
-            {
-                Name = "name"
-            };
+            var entity = new TestEntity("name");
 
             // ACT
 
@@ -60,10 +61,7 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var entity = new TestEntity
-            {
-                Name = "name"
-            };
+            var entity = new TestEntity("name");
             this.repository.Upsert(entity);
 
             // ACT
@@ -85,10 +83,7 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var entity = new TestEntity
-            {
-                Name = "name"
-            };
+            var entity = new TestEntity("name");
             this.repository.Upsert(entity);
 
             // ACT
@@ -106,7 +101,7 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var entity = new TestEntity();
+            var entity = new TestEntity("name");
             this.repository.Upsert(entity);
 
             // ACT

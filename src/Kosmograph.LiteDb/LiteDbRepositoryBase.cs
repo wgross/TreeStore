@@ -1,4 +1,5 @@
 ﻿using Kosmograph.Model;
+using Kosmograph.Model.Base;
 using LiteDB;
 
 namespace Kosmograph.LiteDb

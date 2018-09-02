@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
-namespace Kosmograph.Model.Test
+namespace Kosmograph.Model.Test.Base
 {
     public class FacetedEntityTest
     {
