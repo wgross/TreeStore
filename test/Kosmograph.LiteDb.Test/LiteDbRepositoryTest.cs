@@ -14,9 +14,11 @@ namespace Kosmograph.LiteDb.Test
 
         private class TestEntity : EntityBase
         {
-            public TestEntity(string name)
-                : base(name)
-            {    
+            public TestEntity() : base()
+            { }
+
+            public TestEntity(string name) : base(name)
+            {
             }
         }
 
