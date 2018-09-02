@@ -31,7 +31,7 @@ namespace Kosmograph.Model.Test
 
             // ASSERT
 
-            Assert.Same(facet, category.OwnFacet);
+            Assert.Same(facet, category.Facet);
         }
 
         [Fact]
@@ -53,7 +53,7 @@ namespace Kosmograph.Model.Test
         }
 
         [Fact]
-        public void Catagorr_yields_own_Facet()
+        public void Category_yields_own_Facet()
         {
             // ARRANGE
 

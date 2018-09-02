@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Kosmograph.Model.Base;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace Kosmograph.Model
 {
-    public class Tag : EntityBase
+    public class Tag : FacetedEntityBase
     {
+        
     }
 }

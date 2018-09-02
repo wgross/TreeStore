@@ -1,17 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using Kosmograph.Model.Base;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Kosmograph.Model
 {
-    public class Category : EntityBase
+    public class Category : FacetedEntityBase
     {
         public Category()
         {
         }
 
         public Category(Facet ownFacet, params Category[] subcategories)
+            : base(ownFacet)
         {
-            this.OwnFacet = ownFacet;
             this.SubCategories = subcategories.Select(c =>
             {
                 c.Parent = this;
@@ -23,16 +24,9 @@ namespace Kosmograph.Model
 
         public IEnumerable<Facet> Facets()
         {
-            if(this.Parent is null)
-                return this.OwnFacet.Yield();
-            return this.OwnFacet.Yield().Union(this.Parent.Facets());
-        }
-
-        public Facet OwnFacet { get; private set; }
-
-        public void AssignFacet(Facet facet)
-        {
-            this.OwnFacet = facet;
+            if (this.Parent is null)
+                return this.Facet.Yield();
+            return this.Facet.Yield().Union(this.Parent.Facets());
         }
 
         #endregion Category owns a facet
