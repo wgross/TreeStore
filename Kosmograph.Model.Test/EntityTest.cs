@@ -28,8 +28,7 @@ namespace Kosmograph.Model.Test
             // ARRANGE
 
             var facet = new Facet();
-            var category = new Category();
-            category.AssignFacet(facet);
+            var category = new Category(facet);
 
             var entity = new Entity();
 
@@ -39,7 +38,7 @@ namespace Kosmograph.Model.Test
 
             // ASSERT
 
-            Assert.Equal(facet, entity.Facets.Single());
+            Assert.Equal(facet, entity.Facets().Single());
         }
     }
 }

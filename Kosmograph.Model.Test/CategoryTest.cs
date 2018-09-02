@@ -1,4 +1,5 @@
-﻿using Xunit;
+﻿using System.Linq;
+using Xunit;
 
 namespace Kosmograph.Model.Test
 {
@@ -30,7 +31,7 @@ namespace Kosmograph.Model.Test
 
             // ASSERT
 
-            Assert.Same(facet, category.Facet);
+            Assert.Same(facet, category.OwnFacet);
         }
 
         [Fact]
@@ -49,6 +50,42 @@ namespace Kosmograph.Model.Test
 
             Assert.Contains(subcategory, category.SubCategories);
             Assert.Equal(category, subcategory.Parent);
+        }
+
+        [Fact]
+        public void Catagorr_yields_own_Facet()
+        {
+            // ARRANGE
+
+            var facet1 = new Facet();
+            var category = new Category(facet1);
+
+            // ACT
+
+            var result = category.Facets().ToArray();
+
+            // ASSERT
+
+            Assert.Equal(new[] { facet1 }, result);
+        }
+
+        [Fact]
+        public void Category_aggregates_ancestors_facets()
+        {
+            // ARRANGE
+
+            var facet1 = new Facet();
+            var facet2 = new Facet();
+            var category = new Category(facet1, new Category(facet2));
+
+            // ACT
+
+            var result = category.SubCategories.Single().Facets().ToArray();
+
+            // ASSERT
+            // facets in ancestor order
+
+            Assert.Equal(new[] { facet2, facet1 }, result);
         }
     }
 }

@@ -7,7 +7,7 @@ namespace Kosmograph.Model
     {
         public Category Category { get; private set; }
 
-        public IEnumerable<Facet> Facets => new[] { this.Category?.Facet }.Where(f => f != null);
+        public IEnumerable<Facet> Facets() => this.Category.Facets();
 
         public void SetCategory(Category category)
         {
