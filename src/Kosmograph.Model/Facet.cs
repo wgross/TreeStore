@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Kosmograph.Model
 {
     public class Facet : EntityBase
     {
+        public static readonly Facet Empty = new Facet { Id = Guid.Empty };
+
         public Facet(params FacetProperty[] properties)
         {
             this.Properties = properties.ToArray();

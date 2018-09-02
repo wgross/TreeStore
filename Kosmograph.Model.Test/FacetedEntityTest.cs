@@ -15,7 +15,7 @@ namespace Kosmograph.Model.Test
 
         [Theory]
         [MemberData(nameof(GetFactedInstances))]
-        public void FacetedEntity_has_no_facet_at_beginning(FacetedEntityBase faceted)
+        public void FacetedEntity_has_empty_facet_at_beginning(FacetedEntityBase faceted)
         {
             // ACT
 
@@ -23,7 +23,7 @@ namespace Kosmograph.Model.Test
 
             // ASSERT
 
-            Assert.Null(result);
+            Assert.Equal(Facet.Empty, result);
         }
 
         [Theory]
