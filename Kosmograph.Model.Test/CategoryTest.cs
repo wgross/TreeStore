@@ -48,7 +48,26 @@ namespace Kosmograph.Model.Test
 
             // ASSERT
 
-            Assert.Contains(subcategory, category.SubCategories);
+            Assert.Equal(subcategory, category.SubCategories.Single());
+            Assert.Equal(category, subcategory.Parent);
+        }
+
+        [Fact]
+        public void Category_adding_subcategory_ignores_duplicate()
+        {
+            // ARRANGE
+
+            var category = new Category();
+            var subcategory = new Category();
+            category.AddSubCategory(subcategory);
+
+            // ACT
+
+            category.AddSubCategory(subcategory);
+
+            // ASSERT
+
+            Assert.Equal(subcategory, category.SubCategories.Single());
             Assert.Equal(category, subcategory.Parent);
         }
 

@@ -23,12 +23,30 @@ namespace Kosmograph.Model.Test
         }
 
         [Fact]
-        public void Entity_has_Tag()
+        public void Entity_adds_Tag()
         {
             // ARRANGE
 
             var tag = new Tag();
             var entity = new Entity();
+
+            // ACT
+
+            entity.AddTag(tag);
+
+            // ASSERT
+
+            Assert.Equal(tag, entity.Tags.Single());
+        }
+
+        [Fact]
+        public void Entity_adding_Tag_ignores_duplicate()
+        {
+            // ARRANGE
+
+            var tag = new Tag();
+            var entity = new Entity();
+            entity.AddTag(tag);
 
             // ACT
 
@@ -96,6 +114,28 @@ namespace Kosmograph.Model.Test
             // ASSERT
 
             Assert.Equal(new[] { category.Facet, tag.Facet }, result);
+        }
+
+        [Fact]
+        public void Entity_has_Facet_from_Category_and_Tag_ignores_duplicate()
+        {
+            // ARRANGE
+
+            var facet = new Facet(new FacetProperty());
+            var tag = new Tag(facet);
+            var category = new Category(facet);
+
+            var entity = new Entity();
+            entity.AddTag(tag);
+            entity.SetCategory(category);
+
+            // ACT
+
+            var result = entity.Facets().ToArray();
+
+            // ASSERT
+
+            Assert.Equal(facet, result.Single());
         }
 
         [Fact]

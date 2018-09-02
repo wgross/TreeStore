@@ -35,6 +35,25 @@ namespace Kosmograph.Model.Test
         }
 
         [Fact]
+        public void Facet_adding_Property_ignores_duplicate()
+        {
+            // ARRANGE
+
+            var facet = new Facet();
+            var property = new FacetProperty();
+
+            facet.AddProperty(property);
+
+            // ACT
+
+            facet.AddProperty(property);
+
+            // ASSERT
+
+            Assert.Equal(property, facet.Properties.Single());
+        }
+
+        [Fact]
         public void Facet_removes_Property()
         {
             // ARRANGE

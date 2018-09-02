@@ -16,7 +16,7 @@ namespace Kosmograph.Model.Test
             yield return new FacetProperty().Yield().ToArray();
         }
 
-        public static IEnumerable<object[]> GetEntityBaseInstancesForComparision()
+        public static IEnumerable<object[]> GetEntityBaseInstancesForEquality()
         {
             var refId = Guid.NewGuid();
             var differentId = Guid.NewGuid();
@@ -29,7 +29,7 @@ namespace Kosmograph.Model.Test
         }
 
         [Theory]
-        [MemberData(nameof(GetEntityBaseInstancesForComparision))]
+        [MemberData(nameof(GetEntityBaseInstancesForEquality))]
         public void EntiteBses_are_equal_if_Id_are_equal_and_Type(EntityBase refEntity, EntityBase sameId, EntityBase differentId, EntityBase differentType)
         {
             // ACT & ASSERT
