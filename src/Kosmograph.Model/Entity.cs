@@ -1,11 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Kosmograph.Model
 {
     public class Entity : EntityBase
     {
-        #region Entity has Catagories
+        private readonly IDictionary<Guid, object> values = new Dictionary<Guid, object>();
+
+        #region Entity has Categories
 
         public Category Category { get; private set; }
 
@@ -21,7 +24,7 @@ namespace Kosmograph.Model
             this.Category = category;
         }
 
-        #endregion Entity has Catagories
+        #endregion Entity has Categories
 
         #region Entity has Tags
 
@@ -33,5 +36,19 @@ namespace Kosmograph.Model
         }
 
         #endregion Entity has Tags
+
+        #region Entity has FacetProperty values
+
+        public void SetFacetProperty<T>(FacetProperty facetProperty, T value)
+        {
+            this.values[facetProperty.Id] = value;
+        }
+
+        public (bool, object) TryGetFacetProperty(FacetProperty facetProperty)
+        {
+            return (this.values.TryGetValue(facetProperty.Id, out var value), value);
+        }
+
+        #endregion Entity has FacetProperty values
     }
 }

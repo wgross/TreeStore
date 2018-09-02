@@ -4,6 +4,21 @@ namespace Kosmograph.Model
 {
     public abstract class EntityBase
     {
+        #region Construction and initialization of this instance
+
+        public EntityBase(string name)
+        {
+            this.Name = name;
+        }
+
+        public EntityBase()
+            : this(string.Empty)
+
+        {
+        }
+
+        #endregion Construction and initialization of this instance
+
         public Guid Id { get; set; } = Guid.NewGuid();
 
         public string Name { get; set; }

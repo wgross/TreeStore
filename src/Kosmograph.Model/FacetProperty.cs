@@ -1,10 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Kosmograph.Model
+﻿namespace Kosmograph.Model
 {
     public class FacetProperty : EntityBase
     {
+        #region Construction and initialization of this instance
+
+        public FacetProperty(string name)
+            : base(name)
+        { }
+
+        public FacetProperty()
+            : base()
+        {
+        }
+
+        #endregion Construction and initialization of this instance
     }
 }

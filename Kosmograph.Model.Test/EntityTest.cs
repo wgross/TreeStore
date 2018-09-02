@@ -97,5 +97,43 @@ namespace Kosmograph.Model.Test
 
             Assert.Equal(new[] { category.Facet, tag.Facet }, result);
         }
+
+        [Fact]
+        public void Entity_set_value_of_FacetProperty()
+        {
+            // ARRANGE
+
+            var facet = new Facet(new FacetProperty("name"));
+            var tag = new Tag(facet);
+            var entity = new Entity();
+            entity.AddTag(tag);
+
+            // ACT
+
+            entity.SetFacetProperty(entity.Facets().Single().Properties.Single(), 1);
+
+            // ASSERT
+
+            Assert.Equal(1, entity.TryGetFacetProperty(facet.Properties.Single()).Item2);
+        }
+
+        [Fact]
+        public void Entity_getting_value_of_FacetProperty_returns_false_on_missng_value()
+        {
+            // ARRANGE
+
+            var facet = new Facet(new FacetProperty("name"));
+            var tag = new Tag(facet);
+            var entity = new Entity();
+            entity.AddTag(tag);
+
+            // ACT
+
+            var (result, _) = entity.TryGetFacetProperty(facet.Properties.Single());
+
+            // ASSERT
+
+            Assert.False(result);
+        }
     }
 }

@@ -1,12 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 namespace Kosmograph.Model.Test
 {
     public class EntityBaseTest
     {
-        public static IEnumerable<object[]> GetEntityBaseInstances()
+        public static IEnumerable<object[]> GetEntityBaseInstancesForInitzialization()
+        {
+            yield return new Entity().Yield().ToArray();
+            yield return new Category().Yield().ToArray();
+            yield return new Tag().Yield().ToArray();
+            yield return new Facet().Yield().ToArray();
+            yield return new FacetProperty().Yield().ToArray();
+        }
+
+        public static IEnumerable<object[]> GetEntityBaseInstancesForComparision()
         {
             var refId = Guid.NewGuid();
             var differentId = Guid.NewGuid();
@@ -19,8 +29,8 @@ namespace Kosmograph.Model.Test
         }
 
         [Theory]
-        [MemberData(nameof(GetEntityBaseInstances))]
-        public void Entites_are_equal_if_Id_are_equal_and_Type(EntityBase refEntity, EntityBase sameId, EntityBase differentId, EntityBase differentType)
+        [MemberData(nameof(GetEntityBaseInstancesForComparision))]
+        public void EntiteBses_are_equal_if_Id_are_equal_and_Type(EntityBase refEntity, EntityBase sameId, EntityBase differentId, EntityBase differentType)
         {
             // ACT & ASSERT
 
@@ -32,6 +42,19 @@ namespace Kosmograph.Model.Test
             Assert.NotEqual(refEntity.GetHashCode(), differentId.GetHashCode());
             Assert.NotEqual(refEntity, differentType);
             Assert.NotEqual(refEntity.GetHashCode(), differentType.GetHashCode());
+        }
+
+        [Theory]
+        [MemberData(nameof(GetEntityBaseInstancesForInitzialization))]
+        public void EntityBases_have_empty_name(EntityBase entityBase)
+        {
+            // ACT
+
+            var result = entityBase.Name;
+
+            // ASSERT
+
+            Assert.Equal(string.Empty, result);
         }
     }
 }
