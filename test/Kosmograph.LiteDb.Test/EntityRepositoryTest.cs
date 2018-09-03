@@ -10,18 +10,20 @@ namespace Kosmograph.LiteDb.Test
     public class EntityRepositoryTest
     {
         private readonly LiteRepository liteDb;
-        private readonly EntityRepository repository;
+        private readonly EntityRepository entityRepository;
+        private readonly TagRepository tagRepository;
         private readonly LiteCollection<BsonDocument> entities;
 
         public EntityRepositoryTest()
         {
             this.liteDb = new LiteRepository(new MemoryStream());
-            this.repository = new EntityRepository(this.liteDb);
+            this.entityRepository = new EntityRepository(this.liteDb);
+            this.tagRepository = new TagRepository(this.liteDb);
             this.entities = this.liteDb.Database.GetCollection("entities");
         }
 
         [Fact]
-        public void Entity_is_written_to_repository()
+        public void EntityRepository_writes_entity_to_collection()
         {
             // ARRANGE
 
@@ -29,7 +31,7 @@ namespace Kosmograph.LiteDb.Test
 
             // ACT
 
-            this.repository.Upsert(entity);
+            this.entityRepository.Upsert(entity);
 
             // ASSERT
 
@@ -40,27 +42,77 @@ namespace Kosmograph.LiteDb.Test
         }
 
         [Fact]
-        public void Entity_is_created_and_read_from_repository()
+        public void EntityRepository_writes_entity_with_tag_to_collection()
         {
             // ARRANGE
 
-            var tag = new Entity("entity");
-            this.repository.Upsert(tag);
+            var tag = this.tagRepository.Upsert(new Tag("tag", new Facet("facet", new FacetProperty("prop"))));
+            var entity = new Entity("entity");
 
             // ACT
 
-            var result = this.repository.FindById(tag.Id);
+            entity.AddTag(tag);
+            this.entityRepository.Upsert(entity);
 
             // ASSERT
 
-            var comp = tag.DeepCompare(result);
+            var readTag = this.entities.FindById(entity.Id);
 
-            Assert.Equal(nameof(Entity.Tags), comp.Different.Types.Single());
-            Assert.Equal(nameof(Entity.Tags), comp.Different.Values.Single());
+            Assert.NotNull(readTag);
+            Assert.Equal(entity.Id, readTag.AsDocument["_id"].AsGuid);
+            Assert.Equal(entity.Tags.Single().Id, readTag["Tags"].AsArray[0].AsDocument["$id"].AsGuid);
+            Assert.Equal(TagRepository.CollectionName, readTag["Tags"].AsArray[0].AsDocument["$ref"].AsString);
         }
 
         [Fact]
-        public void Entity_is_updated_and_read_from_repository()
+        public void EntityRepository_creates_and_reads_Entity()
+        {
+            // ARRANGE
+
+            var entity = new Entity("entity");
+            this.entityRepository.Upsert(entity);
+
+            // ACT
+
+            var result = this.entityRepository.FindById(entity.Id);
+
+            // ASSERT
+
+            var comp = entity.DeepCompare(result);
+
+            Assert.Equal(nameof(Entity.Tags), comp.Different.Values.Single());
+            Assert.False(comp.Different.Types.Any());
+            Assert.False(comp.Missing.Any());
+        }
+
+        [Fact]
+        public void EntityRepository_creates_and_reads_Entity_with_Tag()
+        {
+            // ARRANGE
+
+            var tag = this.tagRepository.Upsert(new Tag("tag", new Facet("facet", new FacetProperty("prop"))));
+            var entity = new Entity("entity");
+            entity.AddTag(tag);
+
+            this.entityRepository.Upsert(entity);
+
+            // ACT
+
+            var result = this.entityRepository.FindById(entity.Id);
+
+            // ASSERT
+
+            var comp = entity.DeepCompare(result);
+
+            Assert.False(comp.Different.Values.Any());
+            Assert.False(comp.Different.Types.Any());
+            Assert.False(comp.Missing.Any());
+        }
+
+
+
+        [Fact]
+        public void EntityRepository_is_updated_and_read_from_repository()
         {
             // ARRANGE
 
@@ -68,15 +120,16 @@ namespace Kosmograph.LiteDb.Test
 
             // ACT
 
-            this.repository.Upsert(entity);
-            var result = this.repository.FindById(entity.Id);
+            this.entityRepository.Upsert(entity);
+            var result = this.entityRepository.FindById(entity.Id);
 
             // ASSERT
 
             var comp = entity.DeepCompare(result);
 
-            Assert.Equal(nameof(Entity.Tags), comp.Different.Types.Single());
             Assert.Equal(nameof(Entity.Tags), comp.Different.Values.Single());
+            Assert.False(comp.Different.Types.Any());
+            Assert.False(comp.Missing.Any());
         }
     }
 }

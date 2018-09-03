@@ -45,10 +45,11 @@ namespace Kosmograph.LiteDb.Test
 
             // ACT
 
-            this.repository.Upsert(entity);
+            var result = this.repository.Upsert(entity);
 
             // ASSERT
 
+            Assert.Same(entity, result);
             Assert.NotEqual(Guid.Empty, entity.Id);
 
             var read = this.entities.FindById(entity.Id);
@@ -69,9 +70,11 @@ namespace Kosmograph.LiteDb.Test
             // ACT
 
             entity.Name = "name2";
-            this.repository.Upsert(entity);
+            var result = this.repository.Upsert(entity);
 
             // ASSERT
+
+            Assert.Same(entity, result);
 
             var read = this.entities.FindById(entity.Id);
 

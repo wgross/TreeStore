@@ -43,11 +43,11 @@ namespace Kosmograph.Model
 
         #region Entity has Tags
 
-        public IEnumerable<Tag> Tags { get; set; } = Enumerable.Empty<Tag>();
+        public List<Tag> Tags { get; set; } = new List<Tag>();
 
         public void AddTag(Tag tag)
         {
-            this.Tags = this.Tags.Union(tag.Yield());
+            this.Tags = this.Tags.Union(tag.Yield()).ToList();
         }
 
         #endregion Entity has Tags
