@@ -9,6 +9,20 @@ namespace Kosmograph.Model
     {
         private readonly IDictionary<Guid, object> values = new Dictionary<Guid, object>();
 
+        #region Construction and initialization of this instance
+
+        public Entity(string name)
+            : base(name)
+        {
+        }
+
+        public Entity()
+            : base(string.Empty)
+        {
+        }
+
+        #endregion Construction and initialization of this instance
+
         #region Entity has Categories
 
         public Category Category { get; private set; }
@@ -29,7 +43,7 @@ namespace Kosmograph.Model
 
         #region Entity has Tags
 
-        public IEnumerable<Tag> Tags { get; private set; } = Enumerable.Empty<Tag>();
+        public IEnumerable<Tag> Tags { get; set; } = Enumerable.Empty<Tag>();
 
         public void AddTag(Tag tag)
         {

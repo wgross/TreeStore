@@ -8,17 +8,15 @@ namespace Kosmograph.LiteDb.Test
 {
     public class TagRepositoryTest
     {
-        private readonly LiteRepository database;
-        private readonly LiteDbRepositoryBase<Tag> repository;
+        private readonly LiteRepository liteDb;
+        private readonly TagRepository repository;
         private readonly LiteCollection<BsonDocument> tags;
-        private readonly LiteCollection<BsonDocument> facets;
 
         public TagRepositoryTest()
         {
-            this.database = new LiteRepository(new MemoryStream());
-            this.repository = new TagRepository(this.database);
-            this.tags = this.database.Database.GetCollection("tags");
-            this.facets = this.database.Database.GetCollection("facets");
+            this.liteDb = new LiteRepository(new MemoryStream());
+            this.repository = new TagRepository(this.liteDb);
+            this.tags = this.liteDb.Database.GetCollection("tags");
         }
 
         [Fact]
@@ -38,7 +36,6 @@ namespace Kosmograph.LiteDb.Test
 
             Assert.NotNull(readTag);
             Assert.Equal(tag.Id, readTag.AsDocument["_id"].AsGuid);
-            Assert.Equal(tag.Name, readTag.AsDocument["Name"].AsString);
         }
 
         [Fact]
@@ -47,10 +44,10 @@ namespace Kosmograph.LiteDb.Test
             // ARRANGE
 
             var tag = new Tag("tag", new Facet("facet", new FacetProperty("prop")));
-            this.repository.Upsert(tag);
 
             // ACT
 
+            this.repository.Upsert(tag);
             var result = this.repository.FindById(tag.Id);
 
             // ASSERT
