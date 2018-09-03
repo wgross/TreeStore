@@ -1,11 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Kosmograph.Model
 {
     public interface ICategoryRepository
     {
         Category Root();
+
+        Category FindById(Guid id);
+
+        Category Upsert(Category entity);
+
+        bool Delete(Guid id);
     }
 }

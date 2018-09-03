@@ -109,8 +109,6 @@ namespace Kosmograph.LiteDb.Test
             Assert.False(comp.Missing.Any());
         }
 
-
-
         [Fact]
         public void EntityRepository_is_updated_and_read_from_repository()
         {

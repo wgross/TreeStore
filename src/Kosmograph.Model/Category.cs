@@ -17,7 +17,7 @@ namespace Kosmograph.Model
             {
                 c.Parent = this;
                 return c;
-            });
+            }).ToList();
         }
 
         #region Category owns a facet
@@ -33,14 +33,24 @@ namespace Kosmograph.Model
 
         #region Category is hierarchical
 
-        public IEnumerable<Category> SubCategories { get; private set; } = Enumerable.Empty<Category>();
+        public List<Category> SubCategories
+        {
+            get => this.subCategories;
+            set
+            {
+                value.ForEach(c => c.Parent = this);
+                this.subCategories = value;
+            }
+        }
+
+        private List<Category> subCategories = new List<Category>();
 
         public Category Parent { get; set; }
 
         public void AddSubCategory(Category subcategory)
         {
             subcategory.Parent = this;
-            this.SubCategories = this.SubCategories.Union(new[] { subcategory });
+            this.SubCategories = this.SubCategories.Union(new[] { subcategory }).ToList();
         }
 
         #endregion Category is hierarchical

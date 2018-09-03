@@ -18,6 +18,36 @@ namespace Kosmograph.Model.Test
         }
 
         [Fact]
+        public void Category_corrects_Parent_for_ctor_subcategories()
+        {
+            // ACT
+
+            var result = new Category("cat", Facet.Empty, new Category());
+
+            // ASSERT
+
+            Assert.Single(result.SubCategories);
+            Assert.Equal(result, result.SubCategories.Single().Parent);
+        }
+
+        [Fact]
+        public void Category_corrects_Parent_for_assigned_subcategories()
+        {
+            // ARRANGE
+
+            var result = new Category();
+
+            // ACT
+
+            result.SubCategories = new Category().Yield().ToList();
+
+            // ASSERT
+
+            Assert.Single(result.SubCategories);
+            Assert.Equal(result, result.SubCategories.Single().Parent);
+        }
+
+        [Fact]
         public void Category_assigns_Facet()
         {
             // ARRANGE

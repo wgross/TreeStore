@@ -1,6 +1,7 @@
 ﻿using Elementary.Compare;
 using Kosmograph.Model;
 using LiteDB;
+using System;
 using System.IO;
 using System.Linq;
 using Xunit;
@@ -17,30 +18,83 @@ namespace Kosmograph.LiteDb.Test
         {
             this.liteDb = new LiteRepository(new MemoryStream());
             this.repository = new CategoryRepository(this.liteDb);
-            this.categories = this.liteDb.Database.GetCollection("categories");
+            this.categories = this.liteDb.Database.GetCollection(CategoryRepository.CollectionName);
         }
 
         [Fact]
-        public void Category_is_written_to_repository()
+        public void CategoryRepository_provides_persistent_root()
         {
-            // ARRANGE
-
-            var tag = new Category("category", Facet.Empty);
-
             // ACT
 
-            this.repository.Upsert(tag);
+            var result = this.repository.Root();
 
             // ASSERT
 
-            var readTag = this.categories.FindById(tag.Id);
+            Assert.NotNull(result);
+            Assert.Empty(result.Name);
 
-            Assert.NotNull(readTag);
-            Assert.Equal(tag.Id, readTag.AsDocument["_id"].AsGuid);
+            var readRoot = this.categories.FindById(result.Id);
+
+            Assert.NotNull(readRoot);
         }
 
         [Fact]
-        public void Category_with_Facet_is_created_and_read_from_repository()
+        public void CategoryRepository_writes_category_to_collection()
+        {
+            // ARRANGE
+
+            var category = new Category("category", Facet.Empty);
+
+            // ACT
+
+            this.repository.Upsert(category);
+
+            // ASSERT
+
+            var readTag = this.categories.FindById(category.Id);
+
+            Assert.NotNull(readTag);
+            Assert.Equal(category.Id, readTag["_id"].AsGuid);
+        }
+
+        [Fact]
+        public void CategoryRepository_writing_fails_on_orphaned_category()
+        {
+            // ARRANGE
+
+            var category = new Category("category", Facet.Empty);
+
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(() => this.repository.Upsert(category));
+
+            // ASSERT
+
+            Assert.Equal("Category must have parent.", result.Message);
+            Assert.Null(this.categories.FindById(category.Id));
+        }
+
+        [Fact]
+        public void CategoryRepository_writes_category_to_collection_with_sub_category_references()
+        {
+            // ARRANGE
+
+            var category = new Category("category", Facet.Empty, new Category("cat1", Facet.Empty));
+
+            // ACT
+
+            this.repository.Upsert(category);
+
+            // ASSERT
+
+            var readTag = this.categories.FindById(category.Id);
+
+            Assert.NotNull(readTag);
+            Assert.Equal(category.Id, readTag["_id"].AsGuid);
+        }
+
+        [Fact]
+        public void CategoryRepository_with_Facet_is_created_and_read_from_repository()
         {
             // ARRANGE
 
@@ -61,7 +115,7 @@ namespace Kosmograph.LiteDb.Test
         }
 
         [Fact]
-        public void Category_with_Facet_is_updated_and_read_from_repository()
+        public void CategoryRepository_with_Facet_is_updated_and_read_from_repository()
         {
             // ARRANGE
 
