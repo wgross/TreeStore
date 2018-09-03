@@ -41,7 +41,7 @@ namespace Kosmograph.LiteDb
 
         public Category FindById(Guid id)
         {
-            throw new NotImplementedException();
+            return this.liteDb.Database.GetCollection<Category>(CollectionName).IncludeAll(maxDepth: 10).FindById(id);
         }
 
         public Category Upsert(Category category)

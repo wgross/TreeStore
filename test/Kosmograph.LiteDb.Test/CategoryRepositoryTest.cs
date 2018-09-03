@@ -45,6 +45,9 @@ namespace Kosmograph.LiteDb.Test
 
             var category = new Category("category", Facet.Empty);
 
+            // just to add a parent
+            this.repository.Root().AddSubCategory(category);
+
             // ACT
 
             this.repository.Upsert(category);
@@ -55,6 +58,7 @@ namespace Kosmograph.LiteDb.Test
 
             Assert.NotNull(readTag);
             Assert.Equal(category.Id, readTag["_id"].AsGuid);
+            Assert.False(readTag.ContainsKey("Parent"));
         }
 
         [Fact]
@@ -79,7 +83,8 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var category = new Category("category", Facet.Empty, new Category("cat1", Facet.Empty));
+            var category = this.repository.Root();
+            category.AddSubCategory(new Category("cat1", Facet.Empty));
 
             // ACT
 
@@ -87,18 +92,21 @@ namespace Kosmograph.LiteDb.Test
 
             // ASSERT
 
-            var readTag = this.categories.FindById(category.Id);
+            var readCategory = this.categories.FindById(category.Id);
 
-            Assert.NotNull(readTag);
-            Assert.Equal(category.Id, readTag["_id"].AsGuid);
+            Assert.NotNull(readCategory);
+            Assert.Equal(category.Id, readCategory["_id"].AsGuid);
+            Assert.Equal(category.SubCategories.Single().Id, readCategory["SubCategories"].AsArray[0].AsDocument["$id"].AsGuid);
+            Assert.Equal(CategoryRepository.CollectionName, readCategory["SubCategories"].AsArray[0].AsDocument["$ref"].AsString);
         }
 
         [Fact]
-        public void CategoryRepository_with_Facet_is_created_and_read_from_repository()
+        public void CategoryRepository_writes_and_reads_category_with_Facet()
         {
             // ARRANGE
 
-            var category = new Category("category", new Facet("facet", new FacetProperty("prop")));
+            var category = this.repository.Root();
+            category.AssignFacet(new Facet("facet", new FacetProperty("prop")));
 
             // ACT
 
@@ -110,24 +118,23 @@ namespace Kosmograph.LiteDb.Test
             var comp = category.DeepCompare(result);
 
             // subcategory is Enumerable.Empty after init and List after read
-            Assert.Equal(nameof(Category.SubCategories), comp.Different.Types.Single());
+            Assert.Single(comp.Different);
             Assert.Equal(nameof(Category.SubCategories), comp.Different.Values.Single());
+            Assert.Empty(comp.Missing);
         }
 
         [Fact]
-        public void CategoryRepository_with_Facet_is_updated_and_read_from_repository()
+        public void CategoryRepository_writes_and_reads_category_with_subcategory()
         {
             // ARRANGE
 
-            var category = new Category("category", new Facet("facet", new FacetProperty("prop")));
-            this.repository.Upsert(category);
+            var category = this.repository.Root();
+            category.AddSubCategory(new Category("cat1", Facet.Empty));
 
             // ACT
 
-            category.Name = "name2";
-            category.AssignFacet(new Facet("facet2", new FacetProperty("prop2")));
-
             this.repository.Upsert(category);
+            this.repository.Upsert(category.SubCategories.Single());
             var result = this.repository.FindById(category.Id);
 
             // ASSERT
@@ -135,8 +142,9 @@ namespace Kosmograph.LiteDb.Test
             var comp = category.DeepCompare(result);
 
             // subcategory is Enumerable.Empty after init and List after read
-            Assert.Equal(nameof(Category.SubCategories), comp.Different.Types.Single());
-            Assert.Equal(nameof(Category.SubCategories), comp.Different.Values.Single());
+            Assert.Single(comp.Different);
+            Assert.Equal("Facet/Properties", comp.Different.Values.Single());
+            Assert.Empty(comp.Missing);
         }
     }
 }
