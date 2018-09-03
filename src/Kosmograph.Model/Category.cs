@@ -7,11 +7,11 @@ namespace Kosmograph.Model
     public class Category : FacetedEntityBase
     {
         public Category()
-            : this(Facet.Empty)
+            : this(string.Empty, Facet.Empty)
         { }
 
-        public Category(Facet ownFacet, params Category[] subcategories)
-            : base(ownFacet)
+        public Category(string name, Facet ownFacet, params Category[] subcategories)
+            : base(name, ownFacet)
         {
             this.SubCategories = subcategories.Select(c =>
             {

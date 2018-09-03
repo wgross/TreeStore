@@ -5,8 +5,15 @@ namespace Kosmograph.LiteDb
 {
     public class TagRepository : LiteDbRepositoryBase<Tag>
     {
-        public TagRepository(LiteDatabase db) : base(db, "tags")
+        private readonly FacetRepository facets;
+
+        public TagRepository(LiteRepository db) : base(db, "tags")
         {
+        }
+
+        public override void Upsert(Tag entity)
+        {
+            base.Upsert(entity);
         }
     }
 }

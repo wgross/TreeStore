@@ -8,7 +8,7 @@ namespace Kosmograph.LiteDb.Test
 {
     public class LiteDbRepositoryTest
     {
-        private readonly LiteDatabase database;
+        private readonly LiteRepository database;
         private readonly LiteDbRepositoryBase<TestEntity> repository;
         private readonly LiteCollection<TestEntity> entities;
 
@@ -24,16 +24,16 @@ namespace Kosmograph.LiteDb.Test
 
         private class TestRepository : LiteDbRepositoryBase<TestEntity>
         {
-            public TestRepository(LiteDatabase db)
+            public TestRepository(LiteRepository db)
                 : base(db, "entities")
             { }
         }
 
         public LiteDbRepositoryTest()
         {
-            this.database = new LiteDatabase(new MemoryStream());
+            this.database = new LiteRepository(new MemoryStream());
             this.repository = new TestRepository(this.database);
-            this.entities = this.database.GetCollection<TestEntity>("entities");
+            this.entities = this.database.Database.GetCollection<TestEntity>("entities");
         }
 
         [Fact]

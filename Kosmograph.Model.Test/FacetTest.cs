@@ -18,7 +18,7 @@ namespace Kosmograph.Model.Test
         }
 
         [Fact]
-        public void Facet_add_Property()
+        public void Facet_adds_Property()
         {
             // ARRANGE
 
@@ -60,7 +60,7 @@ namespace Kosmograph.Model.Test
 
             var property1 = new FacetProperty();
             var property2 = new FacetProperty();
-            var facet = new Facet(property1, property2);
+            var facet = new Facet("facet", property1, property2);
 
             // ACT
 

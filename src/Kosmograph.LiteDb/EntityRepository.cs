@@ -5,7 +5,7 @@ namespace Kosmograph.LiteDb
 {
     public class EntityRepository : LiteDbRepositoryBase<Entity>
     {
-        public EntityRepository(LiteDatabase db) : base(db, "entities")
+        public EntityRepository(LiteRepository  db) : base(db, "entities")
         {
         }
     }

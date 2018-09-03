@@ -1,13 +1,12 @@
-﻿using Kosmograph.Model;
-using Kosmograph.Model.Base;
+﻿using Kosmograph.Model.Base;
 using LiteDB;
 
 namespace Kosmograph.LiteDb
 {
     public abstract class LiteDbRepositoryBase<T> where T : EntityBase
     {
-        private readonly LiteDatabase db;
-        private readonly LiteCollection<T> collection;
+        private readonly LiteRepository repository;
+        private readonly string collectionName;
 
         static LiteDbRepositoryBase()
         {
@@ -15,16 +14,16 @@ namespace Kosmograph.LiteDb
                 .Entity<T>().Id(v => v.Id);
         }
 
-        public LiteDbRepositoryBase(LiteDatabase db, string collectionName)
+        public LiteDbRepositoryBase(LiteRepository repository, string collectionName)
         {
-            this.db = db;
-            this.collection = this.db.GetCollection<T>(collectionName);
+            this.repository = repository;
+            this.collectionName = collectionName;
         }
 
-        public void Upsert(T entity) => this.collection.Upsert(entity);
+        public virtual void Upsert(T entity) => this.repository.Upsert(entity, collectionName);
 
-        public T FindById(BsonValue id) => this.collection.FindById(id);
+        public T FindById(BsonValue id) => this.repository.SingleById<T>(id, collectionName);
 
-        public object Delete(BsonValue id) => this.collection.Delete(id);
+        public object Delete(BsonValue id) => this.repository.Delete<T>(id, collectionName);
     }
 }

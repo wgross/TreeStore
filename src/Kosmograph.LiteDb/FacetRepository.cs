@@ -6,9 +6,9 @@ using System.Text;
 
 namespace Kosmograph.LiteDb
 {
-    public class RelationshipRepository : LiteDbRepositoryBase<Relationship>
+    public class FacetRepository : LiteDbRepositoryBase<Facet>
     {
-        public RelationshipRepository(LiteRepository db) : base(db, "relationships")
+        public FacetRepository(LiteRepository db) : base(db, "facets")
         {
         }
     }

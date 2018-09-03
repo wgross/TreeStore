@@ -4,8 +4,9 @@ using System.Text;
 
 namespace Kosmograph.Model
 {
-    public class Model
+    public interface IKosmographPersistence
     {
 
+        ICategoryRepository Categories { get; set; }
     }
 }

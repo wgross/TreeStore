@@ -63,7 +63,7 @@ namespace Kosmograph.Model.Test
             // ARRANGE
 
             var facet = new Facet();
-            var category = new Category(facet);
+            var category = new Category("cat", facet);
             var entity = new Entity();
             entity.SetCategory(category);
 
@@ -81,7 +81,7 @@ namespace Kosmograph.Model.Test
         {
             // ARRANGE
 
-            var tag = new Tag(new Facet(new FacetProperty()));
+            var tag = new Tag("tag", new Facet("facet", new FacetProperty()));
 
             var entity = new Entity();
             entity.AddTag(tag);
@@ -100,8 +100,8 @@ namespace Kosmograph.Model.Test
         {
             // ARRANGE
 
-            var tag = new Tag(new Facet(new FacetProperty()));
-            var category = new Category(new Facet(new FacetProperty()));
+            var tag = new Tag("tag", new Facet("facet", new FacetProperty()));
+            var category = new Category("cat", new Facet("facet", new FacetProperty()));
 
             var entity = new Entity();
             entity.AddTag(tag);
@@ -121,9 +121,9 @@ namespace Kosmograph.Model.Test
         {
             // ARRANGE
 
-            var facet = new Facet(new FacetProperty());
-            var tag = new Tag(facet);
-            var category = new Category(facet);
+            var facet = new Facet("facet", new FacetProperty());
+            var tag = new Tag("tag", facet);
+            var category = new Category("cat", facet);
 
             var entity = new Entity();
             entity.AddTag(tag);
@@ -143,8 +143,8 @@ namespace Kosmograph.Model.Test
         {
             // ARRANGE
 
-            var facet = new Facet(new FacetProperty("name"));
-            var tag = new Tag(facet);
+            var facet = new Facet("facet", new FacetProperty("name"));
+            var tag = new Tag("tag", facet);
             var entity = new Entity();
             entity.AddTag(tag);
 
@@ -162,8 +162,8 @@ namespace Kosmograph.Model.Test
         {
             // ARRANGE
 
-            var facet = new Facet(new FacetProperty("name"));
-            var tag = new Tag(facet);
+            var facet = new Facet("facet", new FacetProperty("prop"));
+            var tag = new Tag("tag", facet);
             var entity = new Entity();
             entity.AddTag(tag);
 

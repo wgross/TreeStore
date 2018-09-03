@@ -5,11 +5,11 @@ namespace Kosmograph.Model
     public class Tag : FacetedEntityBase
     {
         public Tag()
-            : base(Facet.Empty)
+            : base(string.Empty, Facet.Empty)
         { }
 
-        public Tag(Facet facet)
-            : base(facet)
+        public Tag(string name, Facet facet)
+            : base(name, facet)
         { }
     }
 }

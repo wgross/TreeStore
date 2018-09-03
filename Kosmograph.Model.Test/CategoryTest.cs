@@ -77,7 +77,7 @@ namespace Kosmograph.Model.Test
             // ARRANGE
 
             var facet1 = new Facet();
-            var category = new Category(facet1);
+            var category = new Category("cat", facet1);
 
             // ACT
 
@@ -95,7 +95,7 @@ namespace Kosmograph.Model.Test
 
             var facet1 = new Facet();
             var facet2 = new Facet();
-            var category = new Category(facet1, new Category(facet2));
+            var category = new Category("cat", facet1, new Category("cat", facet2));
 
             // ACT
 

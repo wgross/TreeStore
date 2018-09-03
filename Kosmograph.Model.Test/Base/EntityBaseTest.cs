@@ -31,7 +31,7 @@ namespace Kosmograph.Model.Test
 
         [Theory]
         [MemberData(nameof(GetEntityBaseInstancesForEquality))]
-        public void EntiteBses_are_equal_if_Id_are_equal_and_Type(EntityBase refEntity, EntityBase sameId, EntityBase differentId, EntityBase differentType)
+        public void EntityBases_are_equal_if_Id_are_equal_and_Type(EntityBase refEntity, EntityBase sameId, EntityBase differentId, EntityBase differentType)
         {
             // ACT & ASSERT
 
