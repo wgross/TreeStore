@@ -117,10 +117,7 @@ namespace Kosmograph.LiteDb.Test
 
             var comp = category.DeepCompare(result);
 
-            // subcategory is Enumerable.Empty after init and List after read
-            Assert.Single(comp.Different);
-            Assert.Equal(nameof(Category.SubCategories), comp.Different.Values.Single());
-            Assert.Empty(comp.Missing);
+            Assert.True(comp.AreEqual);
         }
 
         [Fact]
@@ -141,10 +138,8 @@ namespace Kosmograph.LiteDb.Test
 
             var comp = category.DeepCompare(result);
 
-            // subcategory is Enumerable.Empty after init and List after read
-            Assert.Single(comp.Different);
-            Assert.Equal("Facet/Properties", comp.Different.Values.Single());
-            Assert.Empty(comp.Missing);
+            // types are same and nothing was left out
+            Assert.True(comp.AreEqual);
         }
     }
 }

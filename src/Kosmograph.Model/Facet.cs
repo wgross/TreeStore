@@ -14,7 +14,7 @@ namespace Kosmograph.Model
         public Facet(string name, params FacetProperty[] properties)
             : base(name)
         {
-            this.Properties = properties.ToArray();
+            this.Properties = properties.ToList();
         }
 
         public Facet()
@@ -23,16 +23,16 @@ namespace Kosmograph.Model
 
         #endregion Construction and initialization of this instance
 
-        public IEnumerable<FacetProperty> Properties { get; set; } = Enumerable.Empty<FacetProperty>();
+        public List<FacetProperty> Properties { get; set; } = new List<FacetProperty>();
 
         public void AddProperty(FacetProperty property)
         {
-            this.Properties = this.Properties.Union(property.Yield());
+            this.Properties = this.Properties.Union(property.Yield()).ToList();
         }
 
         public void RemoveProperty(FacetProperty property)
         {
-            this.Properties = this.Properties.Where(p => !p.Equals(property)).ToArray();
+            this.Properties = this.Properties.Where(p => !p.Equals(property)).ToList();
         }
     }
 }

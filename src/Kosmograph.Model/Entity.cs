@@ -7,8 +7,6 @@ namespace Kosmograph.Model
 {
     public class Entity : EntityBase
     {
-        private readonly IDictionary<Guid, object> values = new Dictionary<Guid, object>();
-
         #region Construction and initialization of this instance
 
         public Entity(string name)
@@ -54,14 +52,16 @@ namespace Kosmograph.Model
 
         #region Entity has FacetProperty values
 
+        public Dictionary<string, object> Values { get; set; } = new Dictionary<string, object>();
+
         public void SetFacetProperty<T>(FacetProperty facetProperty, T value)
         {
-            this.values[facetProperty.Id] = value;
+            this.Values[facetProperty.Id.ToString()] = value;
         }
 
         public (bool, object) TryGetFacetProperty(FacetProperty facetProperty)
         {
-            return (this.values.TryGetValue(facetProperty.Id, out var value), value);
+            return (this.Values.TryGetValue(facetProperty.Id.ToString(), out var value), value);
         }
 
         #endregion Entity has FacetProperty values

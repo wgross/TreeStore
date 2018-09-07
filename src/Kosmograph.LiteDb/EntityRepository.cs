@@ -11,7 +11,8 @@ namespace Kosmograph.LiteDb
         {
             BsonMapper.Global
                 .Entity<Entity>()
-                    .DbRef(e => e.Tags, TagRepository.CollectionName);
+                    .DbRef(e => e.Tags, TagRepository.CollectionName)
+                    .DbRef(e=> e.Category, CategoryRepository.CollectionName);
         }
 
         public EntityRepository(LiteRepository db) : base(db, CollectionName)
@@ -19,7 +20,7 @@ namespace Kosmograph.LiteDb
         }
 
         public override Entity FindById(BsonValue id)
-        {
+        {   
             return this.repository.Query<Entity>(CollectionName).Include(e => e.Tags).SingleById(id);
         }
     }
