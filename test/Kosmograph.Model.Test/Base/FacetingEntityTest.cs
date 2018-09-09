@@ -5,17 +5,17 @@ using Xunit;
 
 namespace Kosmograph.Model.Test.Base
 {
-    public class FacetedEntityTest
+    public class FacetingEntityTest
     {
-        public static IEnumerable<object[]> GetFactedInstances()
+        public static IEnumerable<object[]> GetFactingInstances()
         {
             yield return new Tag().Yield().ToArray();
             yield return new Category().Yield().ToArray();
         }
 
         [Theory]
-        [MemberData(nameof(GetFactedInstances))]
-        public void FacetedEntity_has_empty_facet_at_beginning(FacetedEntityBase faceted)
+        [MemberData(nameof(GetFactingInstances))]
+        public void FacetingEntity_has_empty_facet_at_beginning(FacetingEntityBase faceted)
         {
             // ACT
 
@@ -27,8 +27,8 @@ namespace Kosmograph.Model.Test.Base
         }
 
         [Theory]
-        [MemberData(nameof(GetFactedInstances))]
-        public void FacetedEntity_adds_facets(FacetedEntityBase faceted)
+        [MemberData(nameof(GetFactingInstances))]
+        public void FacetingEntity_adds_facets(FacetingEntityBase faceted)
         {
             // ARRANGE
 

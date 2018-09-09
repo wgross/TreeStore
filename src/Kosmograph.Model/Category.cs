@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Kosmograph.Model
 {
-    public class Category : FacetedEntityBase
+    public class Category : FacetingEntityBase
     {
         public Category()
             : this(string.Empty, Facet.Empty)

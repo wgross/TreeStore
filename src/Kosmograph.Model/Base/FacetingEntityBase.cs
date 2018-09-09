@@ -1,14 +1,14 @@
 ﻿namespace Kosmograph.Model.Base
 {
-    public class FacetedEntityBase : EntityBase
+    public class FacetingEntityBase : EntityBase
     {
-        public FacetedEntityBase(string name, Facet facet)
+        public FacetingEntityBase(string name, Facet facet)
             : base(name)
         {
             this.Facet = facet;
         }
 
-        public FacetedEntityBase()
+        public FacetingEntityBase()
             : base(string.Empty)
         {
         }

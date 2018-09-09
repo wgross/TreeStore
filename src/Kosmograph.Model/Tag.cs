@@ -2,7 +2,7 @@
 
 namespace Kosmograph.Model
 {
-    public class Tag : FacetedEntityBase
+    public class Tag : FacetingEntityBase
     {
         public Tag()
             : base(string.Empty, Facet.Empty)

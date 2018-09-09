@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Kosmograph.Model.Base
 {
-    public class FacetedValuesEntityBase : FacetedEntityBase
+    public class FacetedValuesEntityBase : FacetingEntityBase
     {
     }
 }
