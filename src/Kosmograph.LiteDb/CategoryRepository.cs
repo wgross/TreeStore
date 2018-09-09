@@ -1,7 +1,6 @@
 ﻿using Kosmograph.Model;
 using LiteDB;
 using System;
-using System.Collections.Generic;
 
 namespace Kosmograph.LiteDb
 {
@@ -11,7 +10,6 @@ namespace Kosmograph.LiteDb
 
         private readonly LiteRepository liteDb;
         private readonly Lazy<Category> rootNode;
-        private readonly Dictionary<Guid, Category> identityMap = new Dictionary<Guid, Category>();
 
         static CategoryRepository()
         {
@@ -43,26 +41,16 @@ namespace Kosmograph.LiteDb
             throw new NotImplementedException();
         }
 
-        public Category FindById(Guid id)
-        {
-            if (this.identityMap.TryGetValue(id, out var category))
-                return category;
-
-            category = this.liteDb.Database.GetCollection<Category>(CollectionName).IncludeAll(maxDepth: 10).FindById(id);
-            if (category != null)
-                this.identityMap.Add(id, category);
-
-            return category;
-        }
+        public Category FindById(Guid id) => this.Root().FindSubCategory(id);
 
         public Category Upsert(Category category)
         {
-            if (category.Parent is null && !category.Id.Equals(CategoryRootId))
+            if (category.Parent is null && category.Id != CategoryRootId)
                 throw new InvalidOperationException("Category must have parent.");
 
-            this.identityMap[category.Id] = category;
-
-            this.liteDb.Upsert(category, CollectionName);
+            if (this.liteDb.Upsert(category, CollectionName))
+                if (!(category.Parent is null))
+                    this.Upsert(category.Parent);
             return category;
         }
     }

@@ -78,6 +78,52 @@ namespace Kosmograph.LiteDb.Test
         }
 
         [Fact]
+        public void CategoryRepository_writes_category_and_parent_to_collection_on_insert()
+        {
+            // ARRANGE
+
+            var category = new Category("category", Facet.Empty);
+
+            // just to add a parent
+            this.repository.Root().AddSubCategory(category);
+
+            // ACT
+
+            this.repository.Upsert(category);
+
+            // ASSERT
+
+            // new catg is there
+            var readCat = this.categories.FindById(category.Id);
+
+            // root has been updated
+
+            var readRootCat = this.categories.FindById(this.repository.Root().Id);
+
+            Assert.Equal(category.Id, readRootCat["SubCategories"].AsArray[0].AsDocument["$id"].AsGuid);
+        }
+
+        [Fact]
+        public void CategoryRepository_writes_category_and_reads_same_instance()
+        {
+            // ARRANGE
+
+            var category = new Category("category", Facet.Empty);
+
+            // just to add a parent
+            this.repository.Root().AddSubCategory(category);
+            this.repository.Upsert(category);
+
+            // ACT
+
+            var result = this.repository.FindById(category.Id);
+
+            // ASSERT
+
+            Assert.Same(category, result);
+        }
+
+        [Fact]
         public void CategoryRepository_writing_fails_on_orphaned_category()
         {
             // ARRANGE
