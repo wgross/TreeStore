@@ -9,9 +9,10 @@ namespace Kosmograph.Model
     {
         #region Construction and initialization of this instance
 
-        public Entity(string name)
+        public Entity(string name, params Tag[] tags)
             : base(name)
         {
+            this.Tags = tags.ToList();
         }
 
         public Entity()

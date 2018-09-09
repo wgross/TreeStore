@@ -1,6 +1,7 @@
 ﻿using Kosmograph.Model;
 using LiteDB;
 using System;
+using System.Collections.Generic;
 
 namespace Kosmograph.LiteDb
 {
@@ -9,6 +10,8 @@ namespace Kosmograph.LiteDb
         public const string CollectionName = "categories";
 
         private readonly LiteRepository liteDb;
+        private readonly Lazy<Category> rootNode;
+        private readonly Dictionary<Guid, Category> identityMap = new Dictionary<Guid, Category>();
 
         static CategoryRepository()
         {
@@ -20,13 +23,14 @@ namespace Kosmograph.LiteDb
         public CategoryRepository(LiteRepository db)
         {
             this.liteDb = db;
+            this.rootNode = new Lazy<Category>(() => this.FindRootCategory() ?? this.CreateRootCategory());
         }
 
         #region There must be a persistent root
 
         private static readonly Guid CategoryRootId = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
-        public Category Root() => this.FindRootCategory() ?? this.CreateRootCategory();
+        public Category Root() => this.rootNode.Value;
 
         private Category FindRootCategory() => this.liteDb.Database.GetCollection<Category>(CollectionName).IncludeAll(maxDepth: 10).FindById(CategoryRootId);
 
@@ -41,13 +45,22 @@ namespace Kosmograph.LiteDb
 
         public Category FindById(Guid id)
         {
-            return this.liteDb.Database.GetCollection<Category>(CollectionName).IncludeAll(maxDepth: 10).FindById(id);
+            if (this.identityMap.TryGetValue(id, out var category))
+                return category;
+
+            category = this.liteDb.Database.GetCollection<Category>(CollectionName).IncludeAll(maxDepth: 10).FindById(id);
+            if (category != null)
+                this.identityMap.Add(id, category);
+
+            return category;
         }
 
         public Category Upsert(Category category)
         {
             if (category.Parent is null && !category.Id.Equals(CategoryRootId))
                 throw new InvalidOperationException("Category must have parent.");
+
+            this.identityMap[category.Id] = category;
 
             this.liteDb.Upsert(category, CollectionName);
             return category;

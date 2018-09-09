@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Elementary.Hierarchy" Version="2.1.1-alpha3" />
     <PackageReference Include="litedb" Version="4.1.4" />
   </ItemGroup>
 

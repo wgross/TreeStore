@@ -1,4 +1,6 @@
-﻿using Kosmograph.Model.Base;
+﻿using Elementary.Hierarchy.Generic;
+using Kosmograph.Model.Base;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -52,6 +54,8 @@ namespace Kosmograph.Model
             subcategory.Parent = this;
             this.SubCategories = this.SubCategories.Union(new[] { subcategory }).ToList();
         }
+
+        public Category FindSubCategory(Guid id) => this.DescendantsAndSelf(c => c.SubCategories, depthFirst: true, maxDepth: 10).FirstOrDefault(c => c.Id == id);
 
         #endregion Category is hierarchical
     }

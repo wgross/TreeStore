@@ -1,10 +1,13 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Xunit;
 
 namespace Kosmograph.Model.Test
 {
     public class CategoryTest
     {
+        #region Category hierarchy structure
+
         [Fact]
         public void Category_has_no_sub_categories()
         {
@@ -46,6 +49,42 @@ namespace Kosmograph.Model.Test
             Assert.Single(result.SubCategories);
             Assert.Equal(result, result.SubCategories.Single().Parent);
         }
+
+        [Fact]
+        public void Category_finds_subcategory_by_id()
+        {
+            // ARRANGE
+
+            var searchCat = new Category();
+            var cat = new Category("cat", Facet.Empty, new Category("cat2", Facet.Empty, searchCat));
+
+            // ACT
+
+            var result = cat.FindSubCategory(searchCat.Id);
+
+            // ASSERT
+
+            Assert.Equal(searchCat, result);
+        }
+
+        [Fact]
+        public void Category_finding_subcategory_by_id_returns_null_on_jmisisng_subcategory()
+        {
+            // ARRANGE
+
+            var searchCat = new Category();
+            var cat = new Category("cat", Facet.Empty, new Category("cat2", Facet.Empty, searchCat));
+
+            // ACT
+
+            var result = cat.FindSubCategory(Guid.NewGuid());
+
+            // ASSERT
+
+            Assert.Null(result);
+        }
+
+        #endregion Category hierarchy structure
 
         [Fact]
         public void Category_assigns_Facet()

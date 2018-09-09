@@ -39,6 +39,22 @@ namespace Kosmograph.LiteDb.Test
         }
 
         [Fact]
+        public void CategoryRepository_provides_persistent_root_with_same_transient_instance()
+        {
+            var root = this.repository.Root();
+
+            // ACT
+
+            var result1 = this.repository.Root();
+            var result2 = this.repository.FindById(root.Id);
+
+            // ASSERT
+
+            Assert.Same(root, result1);
+            Assert.Same(root, result2);
+        }
+
+        [Fact]
         public void CategoryRepository_writes_category_to_collection()
         {
             // ARRANGE
