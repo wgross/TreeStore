@@ -3,7 +3,7 @@ using LiteDB;
 
 namespace Kosmograph.LiteDb
 {
-    public class TagRepository : LiteDbRepositoryBase<Tag>
+    public class TagRepository : LiteDbRepositoryBase<Tag>, ITagRepository
     {
         public const string CollectionName = "tags";
 
@@ -11,6 +11,7 @@ namespace Kosmograph.LiteDb
 
         public TagRepository(LiteRepository db) : base(db, CollectionName)
         {
+
         }
     }
 }

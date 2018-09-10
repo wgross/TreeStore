@@ -1,0 +1,87 @@
+﻿<Window x:Class="Kosmograph.Desktop.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Kosmograph.Desktop"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Window.CommandBindings>
+        <CommandBinding Command="{x:Static local:KosmographCommands.CreateTag}"
+                        CanExecute="CreateTagCanExceute"
+                        Executed="CreateTagExecuted" />
+    </Window.CommandBindings>
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="./Resources/MainWindow.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid Name="rootPanel">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition MinWidth="150" />
+            <ColumnDefinition Width="150" MinWidth="150" />
+        </Grid.ColumnDefinitions>
+        <!--
+        Entities in the left column
+        -->
+        <DockPanel Grid.Column="0">
+            <!-- on top of the entity relationship diagram is header label and an add entity button -->
+            <Border Style="{StaticResource labelBorderStyle}" DockPanel.Dock="Top">
+                <DockPanel LastChildFill="False">
+                    <Label Style="{StaticResource entityRelationshipControlLabelStyle}"
+                           DockPanel.Dock="Left"
+                           HorizontalAlignment="Right" />
+                    <Button Style="{StaticResource createEntityButtonStyle}"
+                            DockPanel.Dock="Right"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center" />
+                </DockPanel>
+            </Border>
+            <Button DockPanel.Dock="Bottom" />
+        </DockPanel>
+        <!--
+        Splitter between entities and tags
+        -->
+        <GridSplitter
+                IsTabStop="False"
+                Margin="0,5,0,5"
+                Width="1"
+                Grid.Column="0" />
+        <!--
+        Tags in the right column
+        -->
+        <DockPanel Grid.Column="1">
+            <!--
+            Add a label and a create button to the Tags view
+            -->
+            <Border Style="{StaticResource labelBorderStyle}" DockPanel.Dock="Top">
+                <DockPanel LastChildFill="False">
+                    <Label Style="{StaticResource tagListBoxLabelStyle}"
+                            DockPanel.Dock="Left"
+                            HorizontalAlignment="Right" />
+                    <Button Style="{StaticResource createTagButtonStyle}"
+                            DockPanel.Dock="Right"
+                            Command="{x:Static local:KosmographCommands.CreateTag}"/>
+                            <!--CommandParameter="{Binding .}" />-->
+                    
+                </DockPanel>
+            </Border>
+
+            <ListBox Name="facetListBox"
+                     ItemsSource="{Binding Tags}">
+                <!--
+                MouseDoubleClick="facetListBox_MouseDoubleClick">
+                -->
+                <ListBox.InputBindings>
+
+                    <KeyBinding Key="Insert"
+                                Command="{x:Static local:KosmographCommands.CreateTag}"
+                                CommandParameter="{Binding Tags}" />
+                </ListBox.InputBindings>
+            </ListBox>
+        </DockPanel>
+    </Grid>
+</Window>

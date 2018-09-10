@@ -7,6 +7,8 @@ namespace Kosmograph.Model
     public interface IKosmographPersistence
     {
 
-        ICategoryRepository Categories { get; set; }
+        ITagRepository Tags { get; }
+
+        ICategoryRepository Categories { get; }
     }
 }

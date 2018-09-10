@@ -9,6 +9,8 @@
             this.persistence = persistence;
         }
 
+        public ITagRepository Tags => this.persistence.Tags;
+
         public Category RootCategory() => this.persistence.Categories.Root();
     }
 }

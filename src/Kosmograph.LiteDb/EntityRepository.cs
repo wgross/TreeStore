@@ -1,5 +1,6 @@
 ﻿using Kosmograph.Model;
 using LiteDB;
+using System;
 
 namespace Kosmograph.LiteDb
 {
@@ -19,7 +20,7 @@ namespace Kosmograph.LiteDb
         {
         }
 
-        public override Entity FindById(BsonValue id)
+        public override Entity FindById(Guid id)
         {   
             return this.repository.Query<Entity>(CollectionName).Include(e => e.Tags).SingleById(id);
         }
