@@ -23,6 +23,16 @@
                 Value="0,0,0,5"/>
     </Style>
 
+    <!--
+    The right column of the main window shows a list of tags.
+    - The list is headed by a label.
+    - The list is filling the remaining space
+    -->
+    
+    <Style x:Key="tagListBoxPanelStyle" TargetType="{x:Type DockPanel}">
+        <Setter Property="LastChildFill" Value="True"/>
+    </Style>
+    
     <Style x:Key="tagListBoxLabelStyle" TargetType="{x:Type Label}" >
         <Setter Property="Content"
             Value="_Tags"/>
@@ -35,6 +45,12 @@
                 Value="Left"/>
         <Setter Property="VerticalAlignment"
                 Value="Center"/>
+
     </Style>
+    <Style x:Key="tagListBoxStyle" TargetType="{x:Type ListBox}">
+        
+    </Style>
+
+   
     
 </ResourceDictionary>

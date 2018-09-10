@@ -11,7 +11,6 @@ namespace Kosmograph.LiteDb
 
         public TagRepository(LiteRepository db) : base(db, CollectionName)
         {
-
         }
     }
 }

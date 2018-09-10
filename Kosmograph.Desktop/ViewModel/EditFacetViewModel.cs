@@ -20,7 +20,7 @@ namespace Kosmograph.Desktop.ViewModel
             : base(facet)
         {
             this.Properties = new ObservableCollection<EditFacetPropertyViewModel>(
-                this.Edited.Properties.Select(p => new EditFacetPropertyViewModel(p)));
+                this.Model.Properties.Select(p => new EditFacetPropertyViewModel(p)));
         }
 
         public ObservableCollection<EditFacetPropertyViewModel> Properties { get; }

@@ -53,33 +53,32 @@
         <!--
         Tags in the right column
         -->
-        <DockPanel Grid.Column="1">
+        <DockPanel Grid.Column="1" Style="{StaticResource tagListBoxPanelStyle}">
             <!--
             Add a label and a create button to the Tags view
             -->
             <Border Style="{StaticResource labelBorderStyle}" DockPanel.Dock="Top">
                 <DockPanel LastChildFill="False">
                     <Label Style="{StaticResource tagListBoxLabelStyle}"
-                            DockPanel.Dock="Left"
-                            HorizontalAlignment="Right" />
+                           DockPanel.Dock="Left"
+                           HorizontalAlignment="Right" />
                     <Button Style="{StaticResource createTagButtonStyle}"
                             DockPanel.Dock="Right"
-                            Command="{x:Static local:KosmographCommands.CreateTag}"/>
-                            <!--CommandParameter="{Binding .}" />-->
-                    
+                            Command="{x:Static local:KosmographCommands.CreateTag}"
+                            CommandParameter="{Binding .}" />
                 </DockPanel>
             </Border>
 
-            <ListBox Name="facetListBox"
+            <ListBox Name="tagListBox"
+                     Style="{StaticResource tagListBoxStyle}"
                      ItemsSource="{Binding Tags}">
                 <!--
                 MouseDoubleClick="facetListBox_MouseDoubleClick">
                 -->
                 <ListBox.InputBindings>
-
                     <KeyBinding Key="Insert"
                                 Command="{x:Static local:KosmographCommands.CreateTag}"
-                                CommandParameter="{Binding Tags}" />
+                                CommandParameter="{Binding .}" />
                 </ListBox.InputBindings>
             </ListBox>
         </DockPanel>

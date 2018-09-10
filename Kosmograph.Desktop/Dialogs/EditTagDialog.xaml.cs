@@ -1,16 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
+﻿using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Kosmograph.Desktop.Dialogs
 {
@@ -21,7 +10,31 @@ namespace Kosmograph.Desktop.Dialogs
     {
         public EditTagDialog()
         {
-            InitializeComponent();
+            this.InitializeComponent();
+            this.CommandBindings.Add(new CommandBinding(DialogCommands.Ok, this.OkExecuted, this.OkCanExecute));
+            this.CommandBindings.Add(new CommandBinding(DialogCommands.Cancel, this.CancelExecuted, this.CancelCanExecute));
+        }
+
+        private void CancelCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+
+        private void CancelExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            this.DialogResult = false;
+            this.Close();
+        }
+
+        private void OkCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+
+        private void OkExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            this.DialogResult = true;
+            this.Close();
         }
     }
 }

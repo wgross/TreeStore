@@ -1,0 +1,21 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Kosmograph.Desktop.Dialogs">
+
+    <Style x:Key="editButtonPanelStyle" TargetType="{x:Type DockPanel}">
+        <Setter Property="LastChildFill" Value="False"/>
+    </Style>
+    
+    <Style x:Key="okButtonStyle"  TargetType="{x:Type Button}">
+        <Setter Property="Content" Value="Ok"/>
+        <Setter Property="IsDefault" Value="True"/>
+        <Setter Property="Command" Value="{x:Static local:DialogCommands.Ok}"/>
+    </Style>
+
+    <Style x:Key="cancelButtonStyle"  TargetType="{x:Type Button}">
+        <Setter Property="Content" Value="Cancel"/>
+        <Setter Property="IsCancel" Value="True"/>
+        <Setter Property="Command" Value="{x:Static local:DialogCommands.Cancel}"/>
+    </Style>
+
+</ResourceDictionary>

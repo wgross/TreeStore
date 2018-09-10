@@ -7,12 +7,12 @@ namespace Kosmograph.Desktop.ViewModel
     public class EditNamedViewModel<T> : INotifyPropertyChanged
         where T : EntityBase
     {
-        protected T Edited { get; private set; }
+        public T Model { get; private set; }
 
         public EditNamedViewModel(T edited)
         {
-            this.Edited = edited;
-            this.name = this.Edited.Name;
+            this.Model = edited;
+            this.name = this.Model.Name;
         }
 
         public string Name

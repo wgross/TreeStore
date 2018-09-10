@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Kosmograph.Desktop.Test.ViewModel
 {
-    public class EditTageViewModelTest
+    public class EditTagViewModelTest
     {
         [Fact]
         public void EditTagViewModel_mirrors_model_Tag()
