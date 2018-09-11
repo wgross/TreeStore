@@ -9,6 +9,8 @@ namespace Kosmograph.Model
 
         IEnumerable<Tag> FindAll();
 
-        Tag Upsert(Tag model);
+        Tag Upsert(Tag tag);
+
+        bool Delete(Guid id);
     }
 }

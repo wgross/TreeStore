@@ -29,10 +29,27 @@ namespace Kosmograph.Desktop.ViewModel
 
         private void Tags_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            if (e.NewItems.OfType<EditTagViewModel>().Any())
+            switch (e.Action)
             {
-                this.CommitTag(e.NewItems.OfType<EditTagViewModel>().Single().Model);
+                case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
+                    if (e.NewItems.OfType<EditTagViewModel>().Any())
+                    {
+                        this.CommitTag(e.NewItems.OfType<EditTagViewModel>().Single().Model);
+                    }
+                    break;
+
+                case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
+                    if (e.OldItems.OfType<EditTagViewModel>().Any())
+                    {
+                        this.RemoveTag(e.OldItems.OfType<EditTagViewModel>().Single().Model);
+                    }
+                    break;
             }
+        }
+
+        private void RemoveTag(Tag tag)
+        {
+            this.model.Tags.Delete(tag.Id);
         }
 
         private void CommitTag(Tag tag)

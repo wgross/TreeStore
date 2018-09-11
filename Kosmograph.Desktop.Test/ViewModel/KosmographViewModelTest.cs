@@ -74,5 +74,25 @@ namespace Kosmograph.Desktop.Test.ViewModel
             editTag.Name = "changed";
             editTag.Commit();
         }
+
+        [Fact]
+        public void KosmographViewModel_deletes_tag_from_persistence()
+        {
+            // ARRANGE
+
+            var tag = new Tag();
+
+            this.tagRepository
+                .Setup(r => r.FindAll())
+                .Returns(tag.Yield());
+
+            this.tagRepository
+                .Setup(r => r.Delete(tag.Id))
+                .Returns(true);
+
+            // ACT
+
+            this.viewModel.Tags.Remove(this.viewModel.Tags.Single());
+        }
     }
 }

@@ -18,7 +18,8 @@ namespace Kosmograph.Desktop
             this.InitializeComponent();
             this.Activated += this.MainWindow_Activated;
             this.CommandBindings.Add(new CommandBinding(KosmographCommands.CreateTag, this.CreateTagExecuted, this.CreateTagCanExceute));
-            this.CommandBindings.Add(new CommandBinding(KosmographCommands.EditTag, this.EditTag, this.EditTagCanExceute));
+            this.CommandBindings.Add(new CommandBinding(KosmographCommands.EditTag, this.EditTagExecuted, this.EditTagCanExceute));
+            this.CommandBindings.Add(new CommandBinding(KosmographCommands.DeleteTag, this.DeleteTagExecuted, this.DeleteTagCanExecute));
         }
 
         private void MainWindow_Activated(object sender, EventArgs e)
@@ -82,7 +83,7 @@ namespace Kosmograph.Desktop
             e.CanExecute = !(e.Parameter is null || e.Parameter.GetType() != typeof(EditTagViewModel));
         }
 
-        private void EditTag(object sender, ExecutedRoutedEventArgs e)
+        private void EditTagExecuted(object sender, ExecutedRoutedEventArgs e)
         {
             var viewModel = (EditTagViewModel)e.Parameter;
             var dialog = new EditTagDialog { DataContext = viewModel };
@@ -97,5 +98,20 @@ namespace Kosmograph.Desktop
         }
 
         #endregion Edit Tag
+
+        #region Delete Tag
+
+        private void DeleteTagExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            var viewModel = (KosmographViewModel)(e.Parameter);
+            viewModel.Tags.Remove(viewModel.SelectedTag);
+        }
+
+        private void DeleteTagCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = !(e.Parameter is null || e.Parameter.GetType() != typeof(KosmographViewModel));
+        }
+
+        #endregion Delete Tag
     }
 }

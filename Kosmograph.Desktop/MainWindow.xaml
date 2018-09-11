@@ -75,9 +75,9 @@
                     <KeyBinding Key="Insert"
                                 Command="{x:Static local:KosmographCommands.CreateTag}"
                                 CommandParameter="{Binding .}" />
-                    <MouseBinding Gesture="LeftDoubleClick" 
-                                  Command="{x:Static local:KosmographCommands.EditTag}"
-                                  CommandParameter="{Binding SelectedTag}"/>
+                    <KeyBinding Key="Delete"
+                                Command="{x:Static local:KosmographCommands.DeleteTag}"
+                                CommandParameter="{Binding .}" />
                 </ListBox.InputBindings>
             </ListBox>
         </DockPanel>

@@ -32,6 +32,6 @@ namespace Kosmograph.LiteDb
 
         public virtual IEnumerable<T> FindAll() => this.repository.Query<T>(collectionName).ToEnumerable();
 
-        public object Delete(BsonValue id) => this.repository.Delete<T>(id, collectionName);
+        public bool Delete(Guid id) => this.repository.Delete<T>(id, collectionName);
     }
 }
