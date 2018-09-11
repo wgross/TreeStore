@@ -15,7 +15,7 @@ namespace Kosmograph.Desktop.ViewModel
             this.model = kosmographModel;
             this.tags = new Lazy<ObservableCollection<EditTagViewModel>>(() =>
             {
-                var tags = new ObservableCollection<EditTagViewModel>(this.model.Tags.FindAll().Select(t => new EditTagViewModel(t)));
+                var tags = new ObservableCollection<EditTagViewModel>(this.model.Tags.FindAll().Select(t => new EditTagViewModel(t, this.CommitTag)));
                 tags.CollectionChanged += this.Tags_CollectionChanged;
                 return tags;
             });
@@ -25,12 +25,21 @@ namespace Kosmograph.Desktop.ViewModel
 
         public ObservableCollection<EditTagViewModel> Tags => this.tags.Value;
 
+        public EditTagViewModel SelectedTag { get; set; }
+
         private void Tags_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             if (e.NewItems.OfType<EditTagViewModel>().Any())
             {
-                this.model.Tags.Upsert(e.NewItems.OfType<EditTagViewModel>().Single().Model);
+                this.CommitTag(e.NewItems.OfType<EditTagViewModel>().Single().Model);
             }
         }
+
+        private void CommitTag(Tag tag)
+        {
+            this.model.Tags.Upsert(tag);
+        }
+
+        public EditTagViewModel CreateNewTag() => new EditTagViewModel(new Tag(string.Empty, new Facet()), this.CommitTag);
     }
 }

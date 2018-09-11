@@ -11,8 +11,10 @@
         <ResourceDictionary Source="./DialogResources.xaml" />
     </Window.Resources>
     <DockPanel LastChildFill="False">
-        <Label DockPanel.Dock="Top">Name:</Label>
-        <TextBox DockPanel.Dock="Top" Text="{Binding Name}"></TextBox>
+        <DockPanel LastChildFill="True" DockPanel.Dock="Top">
+            <Label DockPanel.Dock="Left" Style="{StaticResource nameLabelStyle}" />
+            <TextBox Text="{Binding Name}"></TextBox>
+        </DockPanel>
         <DockPanel DockPanel.Dock="Bottom"
                    Style="{StaticResource editButtonPanelStyle}">
             <Button Name="okButton" DockPanel.Dock="Right"
@@ -20,15 +22,11 @@
             <Button Name ="cancelButton" DockPanel.Dock="Right"
                     Style="{StaticResource cancelButtonStyle}" />
         </DockPanel>
-        <ListView>
-            <ListView.ItemsSource>
-                <Binding Path="Facet.Properties" />
-            </ListView.ItemsSource>
-            <ListView.ItemTemplate>
-                <DataTemplate DataType="kvm:EditFacetPropertyViewModel">
-                    <TextBox Text="{Binding Name}" />
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+        <Expander Style="{StaticResource facetPropertiesExpanderStyle}" Header="{Binding Path=Facet.Name, StringFormat={}Facet:{0}}">
+            <ItemsControl
+                Style="{StaticResource facetPropertiesItemControlStyle}"
+                ItemsSource="{Binding Facet.Properties}">
+            </ItemsControl>
+        </Expander>
     </DockPanel>
 </Window>

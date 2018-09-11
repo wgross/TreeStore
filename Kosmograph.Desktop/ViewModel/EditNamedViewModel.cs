@@ -1,4 +1,5 @@
 ﻿using Kosmograph.Model.Base;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 
@@ -13,6 +14,11 @@ namespace Kosmograph.Desktop.ViewModel
         {
             this.Model = edited;
             this.name = this.Model.Name;
+        }
+
+        public virtual void Commit()
+        {
+            this.Model.Name = this.name;
         }
 
         public string Name

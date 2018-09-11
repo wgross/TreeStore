@@ -1,5 +1,4 @@
 ﻿using Kosmograph.Desktop.ViewModel;
-using Kosmograph.LiteDb;
 using Kosmograph.Model;
 using Moq;
 using System;
@@ -31,23 +30,30 @@ namespace Kosmograph.Desktop.Test.ViewModel
         }
 
         [Fact]
-        public void KosmographViewModel_returns_observable_tags()
+        public void KosmographViewModel_writes_new_tag_to_persistence()
         {
             // ARRANGE
 
-            var model = new KosmographViewModel(new KosmographModel(new KosmographLiteDbPersistence()));
+            this.tagRepository
+                .Setup(r => r.FindAll())
+                .Returns(Enumerable.Empty<Tag>());
+
+            var editTag = this.viewModel.CreateNewTag();
+
+            this.tagRepository
+                .Setup(r => r.Upsert(editTag.Model))
+                .Returns(editTag.Model);
+
+            editTag.Name = "tag";
+            editTag.Commit();
 
             // ACT
 
-            var result = model.Tags;
-
-            // ASSERT
-
-            Assert.NotNull(result);
+            this.viewModel.Tags.Add(editTag);
         }
 
         [Fact]
-        public void KosmographViewModel_add_writes_tag_to_persistence()
+        public void KosmographViewModel_writes_modified_tag_to_persistence()
         {
             // ARRANGE
 
@@ -55,15 +61,18 @@ namespace Kosmograph.Desktop.Test.ViewModel
 
             this.tagRepository
                 .Setup(r => r.FindAll())
-                .Returns(Enumerable.Empty<Tag>());
+                .Returns(tag.Yield());
 
             this.tagRepository
                 .Setup(r => r.Upsert(tag))
                 .Returns(tag);
 
+            var editTag = this.viewModel.Tags.Single();
+
             // ACT
 
-            this.viewModel.Tags.Add(new EditTagViewModel(tag));
+            editTag.Name = "changed";
+            editTag.Commit();
         }
     }
 }

@@ -17,6 +17,8 @@ namespace Kosmograph.Desktop
         {
             this.InitializeComponent();
             this.Activated += this.MainWindow_Activated;
+            this.CommandBindings.Add(new CommandBinding(KosmographCommands.CreateTag, this.CreateTagExecuted, this.CreateTagCanExceute));
+            this.CommandBindings.Add(new CommandBinding(KosmographCommands.EditTag, this.EditTag, this.EditTagCanExceute));
         }
 
         private void MainWindow_Activated(object sender, EventArgs e)
@@ -32,7 +34,10 @@ namespace Kosmograph.Desktop
 
         private void CreateNewModel()
         {
-            this.ViewModel = new KosmographViewModel(new KosmographModel(new KosmographLiteDbPersistence()));
+            var model = new KosmographModel(new KosmographLiteDbPersistence());
+            model.Tags.Upsert(new Tag("tag1", new Facet("facet", new FacetProperty("p"))));
+
+            this.ViewModel = new KosmographViewModel(model);
 
             CommandManager.InvalidateRequerySuggested();
         }
@@ -54,7 +59,8 @@ namespace Kosmograph.Desktop
         private void CreateTagExecuted(object sender, ExecutedRoutedEventArgs e)
         {
             var viewModel = (KosmographViewModel)(e.Parameter);
-            var data = new EditTagViewModel(new Tag("tag", new Facet("facet", new FacetProperty("p"))));
+            var tag = new Tag("tag", new Facet("facet", new FacetProperty("p")));
+            var data = new EditTagViewModel(tag, delegate { });
             var dialog = new EditTagDialog { DataContext = data };
             if (dialog.ShowDialog().GetValueOrDefault())
             {
@@ -68,5 +74,28 @@ namespace Kosmograph.Desktop
         }
 
         #endregion CreateNewTagCommand
+
+        #region Edit Tag
+
+        private void EditTagCanExceute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = !(e.Parameter is null || e.Parameter.GetType() != typeof(EditTagViewModel));
+        }
+
+        private void EditTag(object sender, ExecutedRoutedEventArgs e)
+        {
+            var viewModel = (EditTagViewModel)e.Parameter;
+            var dialog = new EditTagDialog { DataContext = viewModel };
+            if (dialog.ShowDialog().GetValueOrDefault())
+            {
+            }
+        }
+
+        private void tagListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            KosmographCommands.EditTag.Execute(this.ViewModel.SelectedTag, null);
+        }
+
+        #endregion Edit Tag
     }
 }

@@ -6,15 +6,11 @@
         xmlns:local="clr-namespace:Kosmograph.Desktop"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Window.CommandBindings>
-        <CommandBinding Command="{x:Static local:KosmographCommands.CreateTag}"
-                        CanExecute="CreateTagCanExceute"
-                        Executed="CreateTagExecuted" />
-    </Window.CommandBindings>
+   
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="./Resources/MainWindow.xaml" />
+                <ResourceDictionary Source="./MainWindowResources.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
@@ -71,14 +67,17 @@
 
             <ListBox Name="tagListBox"
                      Style="{StaticResource tagListBoxStyle}"
-                     ItemsSource="{Binding Tags}">
-                <!--
-                MouseDoubleClick="facetListBox_MouseDoubleClick">
-                -->
+                     ItemsSource="{Binding Tags}"
+                     SelectedItem="{Binding SelectedTag}"
+                     MouseDoubleClick="tagListBox_MouseDoubleClick">
+                
                 <ListBox.InputBindings>
                     <KeyBinding Key="Insert"
                                 Command="{x:Static local:KosmographCommands.CreateTag}"
                                 CommandParameter="{Binding .}" />
+                    <MouseBinding Gesture="LeftDoubleClick" 
+                                  Command="{x:Static local:KosmographCommands.EditTag}"
+                                  CommandParameter="{Binding SelectedTag}"/>
                 </ListBox.InputBindings>
             </ListBox>
         </DockPanel>
