@@ -92,7 +92,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
 
             // ACT
 
-            this.viewModel.Tags.Remove(this.viewModel.Tags.Single());
+            this.viewModel.DeleteTagCommand.Execute(this.viewModel.Tags.Single());
         }
     }
 }

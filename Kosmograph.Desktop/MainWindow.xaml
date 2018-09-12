@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Kosmograph.Desktop"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-   
+
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -70,14 +70,14 @@
                      ItemsSource="{Binding Tags}"
                      SelectedItem="{Binding SelectedTag}"
                      MouseDoubleClick="tagListBox_MouseDoubleClick">
-                
+
                 <ListBox.InputBindings>
                     <KeyBinding Key="Insert"
                                 Command="{x:Static local:KosmographCommands.CreateTag}"
                                 CommandParameter="{Binding .}" />
                     <KeyBinding Key="Delete"
-                                Command="{x:Static local:KosmographCommands.DeleteTag}"
-                                CommandParameter="{Binding .}" />
+                        Command="{Binding DeleteTagCommand}"
+                        CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
                 </ListBox.InputBindings>
             </ListBox>
         </DockPanel>
