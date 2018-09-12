@@ -75,6 +75,9 @@
                     <KeyBinding Key="Insert"
                                 Command="{x:Static local:KosmographCommands.CreateTag}"
                                 CommandParameter="{Binding .}" />
+                    <KeyBinding Key="Return"
+                                Command="{x:Static local:KosmographCommands.EditTag}"
+                                CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
                     <KeyBinding Key="Delete"
                         Command="{Binding DeleteTagCommand}"
                         CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />

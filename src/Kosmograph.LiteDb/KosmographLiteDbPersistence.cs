@@ -22,5 +22,7 @@ namespace Kosmograph.LiteDb
         public ITagRepository Tags => new TagRepository(db);
 
         public ICategoryRepository Categories { get; private set; }
+
+        public IEntityRepository Entities => new EntityRepository(db);
     }
 }

@@ -10,5 +10,7 @@ namespace Kosmograph.Model
         ITagRepository Tags { get; }
 
         ICategoryRepository Categories { get; }
+
+        IEntityRepository Entities { get; }
     }
 }

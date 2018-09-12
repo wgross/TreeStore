@@ -9,7 +9,5 @@ namespace Kosmograph.Desktop
         public static RoutedCommand CreateTag = new RoutedCommand();
 
         public static RoutedCommand EditTag = new RoutedCommand();
-
-        public static RoutedCommand DeleteTag = new RoutedCommand();
     }
 }

@@ -11,6 +11,8 @@
 
         public ITagRepository Tags => this.persistence.Tags;
 
+        public IEntityRepository Entities => this.persistence.Entities;
+
         public Category RootCategory() => this.persistence.Categories.Root();
     }
 }

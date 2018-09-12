@@ -19,7 +19,6 @@ namespace Kosmograph.Desktop
             this.Activated += this.MainWindow_Activated;
             this.CommandBindings.Add(new CommandBinding(KosmographCommands.CreateTag, this.CreateTagExecuted, this.CreateTagCanExceute));
             this.CommandBindings.Add(new CommandBinding(KosmographCommands.EditTag, this.EditTagExecuted, this.EditTagCanExceute));
-            this.CommandBindings.Add(new CommandBinding(KosmographCommands.DeleteTag, this.DeleteTagExecuted, this.DeleteTagCanExecute));
         }
 
         private void MainWindow_Activated(object sender, EventArgs e)
