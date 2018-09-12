@@ -13,8 +13,8 @@ namespace Kosmograph.Desktop.ViewModel
     public class KosmographViewModel : ViewModelBase
     {
         private KosmographModel model;
-        private Lazy<ObservableCollection<EditTagViewModel>> tags;
-        private Lazy<ObservableCollection<EditEntityViewModel>> entities;
+        private Lazy<CommitableObservableCollection<EditTagViewModel>> tags;
+        private Lazy<CommitableObservableCollection<EditEntityViewModel>> entities;
         private readonly List<(NotifyCollectionChangedAction, IEnumerable<EditTagViewModel>)> changesAtTags;
         private readonly List<(NotifyCollectionChangedAction, IEnumerable<EditEntityViewModel>)> changesAtEntities;
 
@@ -81,102 +81,22 @@ namespace Kosmograph.Desktop.ViewModel
 
         #region Commit changes of Tags to model
 
-        private void OnTagCommitted(Tag tag)
-        {
-            this.model.Tags.Upsert(tag);
-        }
+        private void OnTagCommitted(EditTagViewModel tag) => this.OnTagCommitted(tag.Model);
 
-        private void OnEntityCommitted(Entity entity)
-        {
-            this.model.Entities.Upsert(entity);
-        }
+        private void OnTagCommitted(Tag tag) => this.model.Tags.Upsert(tag);
 
-        private void Tags_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            switch (e.Action)
-            {
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
-                    if (e.NewItems.OfType<EditTagViewModel>().Any())
-                    {
-                        this.changesAtTags.Add((e.Action, e.NewItems.OfType<EditTagViewModel>().ToArray()));
-                        //this.OnTagCommitted(e.NewItems.OfType<EditTagViewModel>().Single().Model);
-                    }
-                    break;
+        private void OnTagRemoved(EditTagViewModel vm) => this.model.Tags.Delete(vm.Model.Id);
 
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
-                    if (e.OldItems.OfType<EditTagViewModel>().Any())
-                    {
-                        this.changesAtTags.Add((e.Action, e.OldItems.OfType<EditTagViewModel>().ToArray()));
-                        // this.RemoveTag(e.OldItems.OfType<EditTagViewModel>().Single().Model);
-                    }
-                    break;
-            }
-        }
+        private void OnEntityCommitted(EditEntityViewModel entity) => this.OnEntityCommitted(entity.Model);
 
-        private void Entities_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            switch (e.Action)
-            {
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
-                    if (e.NewItems.OfType<EditEntityViewModel>().Any())
-                    {
-                        this.changesAtEntities.Add((e.Action, e.NewItems.OfType<EditEntityViewModel>().ToArray()));
-                    }
-                    break;
+        private void OnEntityCommitted(Entity entity) => this.model.Entities.Upsert(entity);
 
-                case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
-                    if (e.OldItems.OfType<EditEntityViewModel>().Any())
-                    {
-                        this.changesAtEntities.Add((e.Action, e.OldItems.OfType<EditEntityViewModel>().ToArray()));
-                    }
-                    break;
-            }
-        }
+        private void OnEntityRemoved(EditEntityViewModel vm) => this.model.Entities.Delete(vm.Model.Id);
 
         public void Commit()
         {
-            this.CommitTags();
-            this.CommitEntities();
-        }
-
-        private void CommitTags()
-        {
-            foreach (var (action, tags) in this.changesAtTags)
-            {
-                switch (action)
-                {
-                    case NotifyCollectionChangedAction.Add:
-                        foreach (var tag in tags)
-                            this.OnTagCommitted(tag.Model);
-                        break;
-
-                    case NotifyCollectionChangedAction.Remove:
-                        foreach (var tag in tags)
-                            this.RemoveTag(tag.Model);
-                        break;
-                }
-            }
-            this.changesAtTags.Clear();
-        }
-
-        public void CommitEntities()
-        {
-            foreach (var (action, entities) in this.changesAtEntities)
-            {
-                switch (action)
-                {
-                    case NotifyCollectionChangedAction.Add:
-                        foreach (var entity in entities)
-                            this.OnEntityCommitted(entity.Model);
-                        break;
-
-                    case NotifyCollectionChangedAction.Remove:
-                        foreach (var entity in entities)
-                            this.RemoveEntity(entity.Model);
-                        break;
-                }
-            }
-            this.changesAtEntities.Clear();
+            this.tags.Value.Commit(onAdd: this.OnTagCommitted, onRemove: this.OnTagRemoved);
+            this.entities.Value.Commit(onAdd: this.OnEntityCommitted, onRemove: this.OnEntityRemoved);
         }
 
         public void Rollback()
@@ -187,23 +107,13 @@ namespace Kosmograph.Desktop.ViewModel
 
         private void CreateLazyTagsCollection()
         {
-            this.tags = new Lazy<ObservableCollection<EditTagViewModel>>(() =>
-            {
-                var tags = new ObservableCollection<EditTagViewModel>(this.model.Tags.FindAll().Select(t => new EditTagViewModel(t, this.OnTagCommitted)));
-                tags.CollectionChanged += this.Tags_CollectionChanged;
-                return tags;
-            });
+            this.tags = new Lazy<CommitableObservableCollection<EditTagViewModel>>(() => new CommitableObservableCollection<EditTagViewModel>(this.model.Tags.FindAll().Select(t => new EditTagViewModel(t, this.OnTagCommitted))));
             this.RaisePropertyChanged(nameof(Tags));
         }
 
         private void CreateLazyEntitiesCollection()
         {
-            this.entities = new Lazy<ObservableCollection<EditEntityViewModel>>(() =>
-            {
-                var entites = new ObservableCollection<EditEntityViewModel>(this.model.Entities.FindAll().Select(e => new EditEntityViewModel(e, this.OnEntityCommitted)));
-                entites.CollectionChanged += this.Entities_CollectionChanged;
-                return entites;
-            });
+            this.entities = new Lazy<CommitableObservableCollection<EditEntityViewModel>>(() => new CommitableObservableCollection<EditEntityViewModel>(this.model.Entities.FindAll().Select(e => new EditEntityViewModel(e, this.OnEntityCommitted))));
             this.RaisePropertyChanged(nameof(Entities));
         }
 

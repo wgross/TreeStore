@@ -79,6 +79,7 @@
       <DependentUpon>EditTagDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="KosmographCommands.cs" />
+    <Compile Include="ViewModel\CommitableObservableCollection.cs" />
     <Compile Include="ViewModel\EditEntityViewModel.cs" />
     <Compile Include="ViewModel\EditFacetViewModel.cs" />
     <Compile Include="ViewModel\EditNamedViewModel.cs" />

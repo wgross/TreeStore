@@ -1,7 +1,6 @@
 ﻿using GalaSoft.MvvmLight.Command;
 using Kosmograph.Model;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Windows.Input;
@@ -25,7 +24,7 @@ namespace Kosmograph.Desktop.ViewModel
         public EditFacetViewModel(Facet facet)
             : base(facet)
         {
-            this.Properties = new ObservableCollection<EditFacetPropertyViewModel>(this.Model.Properties.Select(p => new EditFacetPropertyViewModel(p)));
+            this.Properties = new CommitableObservableCollection<EditFacetPropertyViewModel>(this.Model.Properties.Select(p => new EditFacetPropertyViewModel(p)));
             this.Properties.CollectionChanged += this.Properties_CollectionChanged;
             this.propertiesChanges = new List<(NotifyCollectionChangedAction, FacetProperty)>();
             this.CreatePropertyCommand = new RelayCommand<string>(this.CreatePropertyExecuted);
@@ -50,39 +49,23 @@ namespace Kosmograph.Desktop.ViewModel
             }
         }
 
-        public ObservableCollection<EditFacetPropertyViewModel> Properties { get; }
+        public CommitableObservableCollection<EditFacetPropertyViewModel> Properties { get; }
 
         #endregion Facet has observable collection of facet properties
 
-        #region commit changes to underlying model
+        #region Commit changes to underlying Facet
 
         public override void Commit()
         {
-            this.CommitProperties();
+            this.Properties.Commit(onAdd: this.OnAddProperty, onRemove: this.OnRemoveProperty);
             base.Commit();
         }
 
-        private void CommitProperties()
-        {
-            foreach (var (type, instance) in this.propertiesChanges)
-            {
-                switch (type)
-                {
-                    case NotifyCollectionChangedAction.Add:
-                        this.Model.Properties.Add(instance);
-                        break;
+        private void OnAddProperty(EditFacetPropertyViewModel property) => this.Model.Properties.Add(property.Model);
 
-                    case NotifyCollectionChangedAction.Remove:
-                        this.Model.Properties.Remove(instance);
-                        break;
-                }
-            }
+        private void OnRemoveProperty(EditFacetPropertyViewModel property) => this.Model.Properties.Remove(property.Model);
 
-            foreach (var property in this.Properties)
-                property.Commit();
-        }
-
-        #endregion commit changes to underlying model
+        #endregion Commit changes to underlying Facet
 
         #region Commands
 
