@@ -51,13 +51,7 @@
         <Setter Property="ItemTemplate">
             <Setter.Value>
                 <DataTemplate>
-                    <TextBlock Text="{Binding Name}">
-                        <TextBlock.InputBindings>
-                            <!--<MouseBinding Gesture="LeftDoubleClick" 
-                                          Command="{x:Static local:KosmographCommands.EditTag}"
-                                          CommandParameter="{Binding .}" />-->
-                        </TextBlock.InputBindings>
-                    </TextBlock>
+                    <TextBlock Text="{Binding Name}"/>
                 </DataTemplate>
             </Setter.Value>
         </Setter>

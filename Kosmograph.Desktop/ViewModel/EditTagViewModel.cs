@@ -1,4 +1,5 @@
-﻿using Kosmograph.Model;
+﻿using GalaSoft.MvvmLight.Command;
+using Kosmograph.Model;
 using System;
 
 namespace Kosmograph.Desktop.ViewModel

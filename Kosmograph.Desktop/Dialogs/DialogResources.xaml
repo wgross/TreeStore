@@ -10,15 +10,16 @@
 
     <Style x:Key="facetPropertiesExpanderStyle" TargetType="{x:Type Expander}">
         <Setter Property="IsExpanded" Value="True"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
     </Style>
     
-    <Style x:Key="facetPropertiesItemControlStyle" TargetType="{x:Type ItemsControl}">
+    <Style x:Key="facetPropertiesItemControlStyle" TargetType="{x:Type ListBox}">
         <Setter Property="ItemTemplate">
             <Setter.Value>
                 <DataTemplate DataType="{x:Type kvm:EditFacetPropertyViewModel}">
-                    <DockPanel LastChildFill="true">
+                    <DockPanel LastChildFill="True">
                         <Label Content="Name" DockPanel.Dock="Left" Style="{StaticResource nameLabelStyle}"/>
-                        <TextBox Text="{Binding Name}"/>
+                        <TextBox Text="{Binding Name}" HorizontalAlignment="Stretch"/>
                     </DockPanel>
                 </DataTemplate>
             </Setter.Value>
