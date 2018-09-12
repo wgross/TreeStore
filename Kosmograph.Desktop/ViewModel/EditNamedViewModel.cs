@@ -1,11 +1,10 @@
-﻿using Kosmograph.Model.Base;
-using System;
-using System.Collections.Generic;
+﻿using GalaSoft.MvvmLight;
+using Kosmograph.Model.Base;
 using System.ComponentModel;
 
 namespace Kosmograph.Desktop.ViewModel
 {
-    public class EditNamedViewModel<T> : INotifyPropertyChanged
+    public class EditNamedViewModel<T> : ViewModelBase, INotifyPropertyChanged
         where T : EntityBase
     {
         public T Model { get; private set; }
@@ -24,26 +23,9 @@ namespace Kosmograph.Desktop.ViewModel
         public string Name
         {
             get => this.name;
-            set => this.RaisePropertyChangedEvent(nameof(Name), ref this.name, value);
+            set => this.Set(nameof(Name), ref this.name, value);
         }
 
         private string name;
-
-        #region INotifyProperyChnaged
-
-        protected void RaisePropertyChangedEvent<V>(string name, ref V field, V value)
-        {
-            if (EqualityComparer<V>.Default.Equals(field, value))
-                return;
-
-            V temp = field;
-            field = value;
-
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        #endregion INotifyProperyChnaged
     }
 }

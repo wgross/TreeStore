@@ -62,10 +62,17 @@ namespace Kosmograph.Desktop
             var viewModel = (KosmographViewModel)(e.Parameter);
             var tag = new Tag("tag", new Facet("facet", new FacetProperty("p")));
             var data = new EditTagViewModel(tag, delegate { });
+
+            viewModel.Tags.Add(data);
+
             var dialog = new EditTagDialog { DataContext = data };
             if (dialog.ShowDialog().GetValueOrDefault())
             {
-                viewModel.Tags.Add(data);
+                viewModel.Commit();
+            }
+            else
+            {
+                viewModel.Rollback();
             }
         }
 

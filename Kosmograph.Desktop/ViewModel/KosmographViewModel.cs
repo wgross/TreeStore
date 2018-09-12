@@ -1,28 +1,31 @@
-﻿using GalaSoft.MvvmLight.Command;
+﻿using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Command;
 using Kosmograph.Model;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Windows.Input;
 
 namespace Kosmograph.Desktop.ViewModel
 {
-    public class KosmographViewModel
+    public class KosmographViewModel : ViewModelBase
     {
         private KosmographModel model;
-        private readonly Lazy<ObservableCollection<EditTagViewModel>> tags;
+        private Lazy<ObservableCollection<EditTagViewModel>> tags;
+        private readonly List<(NotifyCollectionChangedAction, IEnumerable<EditTagViewModel>)> changesAtTags;
 
         public KosmographViewModel(KosmographModel kosmographModel)
         {
             this.model = kosmographModel;
-            this.tags = new Lazy<ObservableCollection<EditTagViewModel>>(() =>
-            {
-                var tags = new ObservableCollection<EditTagViewModel>(this.model.Tags.FindAll().Select(t => new EditTagViewModel(t, this.OnTagCommitted)));
-                tags.CollectionChanged += this.Tags_CollectionChanged;
-                return tags;
-            });
+            this.CreateLazyTagsCollection();
+            this.changesAtTags = new List<(NotifyCollectionChangedAction, IEnumerable<EditTagViewModel>)>();
 
             this.DeleteTagCommand = new RelayCommand<EditTagViewModel>(this.DeleteTagExecuted);
+            this.CreateTagCommand = new RelayCommand<string>(this.CreateTagExecuted);
+
+            this.Rollback();
         }
 
         public KosmographModel Model => this.model;
@@ -49,6 +52,13 @@ namespace Kosmograph.Desktop.ViewModel
 
         #region Create new Tag in model
 
+        public ICommand CreateTagCommand { get; }
+
+        private void CreateTagExecuted(string name)
+        {
+            this.SelectedTag = CreateNewTag();
+        }
+
         public EditTagViewModel CreateNewTag() => new EditTagViewModel(new Tag(string.Empty, new Facet()), this.OnTagCommitted);
 
         #endregion Create new Tag in model
@@ -67,17 +77,55 @@ namespace Kosmograph.Desktop.ViewModel
                 case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
                     if (e.NewItems.OfType<EditTagViewModel>().Any())
                     {
-                        this.OnTagCommitted(e.NewItems.OfType<EditTagViewModel>().Single().Model);
+                        this.changesAtTags.Add((e.Action, e.NewItems.OfType<EditTagViewModel>().ToArray()));
+                        //this.OnTagCommitted(e.NewItems.OfType<EditTagViewModel>().Single().Model);
                     }
                     break;
 
                 case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
                     if (e.OldItems.OfType<EditTagViewModel>().Any())
                     {
-                        this.RemoveTag(e.OldItems.OfType<EditTagViewModel>().Single().Model);
+                        this.changesAtTags.Add((e.Action, e.OldItems.OfType<EditTagViewModel>().ToArray()));
+                        // this.RemoveTag(e.OldItems.OfType<EditTagViewModel>().Single().Model);
                     }
                     break;
             }
+        }
+
+        public void Commit()
+        {
+            foreach (var (action, tags) in this.changesAtTags)
+            {
+                switch (action)
+                {
+                    case NotifyCollectionChangedAction.Add:
+                        foreach (var tag in tags)
+                            this.OnTagCommitted(tag.Model);
+                        break;
+
+                    case NotifyCollectionChangedAction.Remove:
+                        foreach (var tag in tags)
+                            this.RemoveTag(tag.Model);
+                        break;
+                }
+            }
+            this.changesAtTags.Clear();
+        }
+
+        public void Rollback()
+        {
+            this.CreateLazyTagsCollection();
+        }
+
+        private void CreateLazyTagsCollection()
+        {
+            this.tags = new Lazy<ObservableCollection<EditTagViewModel>>(() =>
+            {
+                var tags = new ObservableCollection<EditTagViewModel>(this.model.Tags.FindAll().Select(t => new EditTagViewModel(t, this.OnTagCommitted)));
+                tags.CollectionChanged += this.Tags_CollectionChanged;
+                return tags;
+            });
+            this.RaisePropertyChanged(nameof(Tags));
         }
 
         #endregion Commit changes of Tags to model

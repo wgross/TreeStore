@@ -30,6 +30,101 @@ namespace Kosmograph.Desktop.Test.ViewModel
         }
 
         [Fact]
+        public void KosmographViewModel_mirrors_KosmographModel()
+        {
+            // ARRANGE
+
+            this.tagRepository
+                .Setup(r => r.FindAll())
+                .Returns(new Tag().Yield());
+
+            // ASSERT
+
+            Assert.Single(this.viewModel.Tags);
+        }
+
+        [Fact]
+        public void KosmographViewModel_delays_changes_at_KosmographModel()
+        {
+            // ARRANGE
+
+            var tag = new Tag("t", Facet.Empty);
+            this.tagRepository
+                .Setup(r => r.FindAll())
+                .Returns(tag.Yield());
+
+            var editTag = this.viewModel.CreateNewTag();
+
+            // ACT
+
+            this.viewModel.Tags.Add(this.viewModel.CreateNewTag());
+            this.viewModel.DeleteTagCommand.Execute(this.viewModel.Tags.First());
+
+            // ASSERT
+
+            Assert.Single(this.viewModel.Tags);
+            Assert.Equal(string.Empty, this.viewModel.Tags.Single().Name);
+        }
+
+        [Fact]
+        public void KosmographViewModel_commits_changes_at_KosmographModel()
+        {
+            // ARRANGE
+
+            var tag = new Tag("t", Facet.Empty);
+            this.tagRepository
+                .Setup(r => r.FindAll())
+                .Returns(tag.Yield());
+
+            this.tagRepository
+                .Setup(r => r.Upsert(It.IsAny<Tag>()))
+                .Returns<Tag>(t => t);
+
+            this.tagRepository
+                .Setup(r => r.Delete(tag.Id))
+                .Returns(true);
+
+            var editTag = this.viewModel.CreateNewTag();
+
+            this.viewModel.Tags.Add(this.viewModel.CreateNewTag());
+            this.viewModel.DeleteTagCommand.Execute(this.viewModel.Tags.First());
+
+            // ACT
+
+            this.viewModel.Commit();
+
+            // ASSERT
+
+            Assert.Single(this.viewModel.Tags);
+            Assert.Equal(string.Empty, this.viewModel.Tags.Single().Name);
+        }
+
+        [Fact]
+        public void KosmographViewModel_reverts_changes_from_KosmographModel()
+        {
+            // ARRANGE
+
+            var tag = new Tag("t", Facet.Empty);
+            this.tagRepository
+                .Setup(r => r.FindAll())
+                .Returns(tag.Yield());
+
+            var editTag = this.viewModel.CreateNewTag();
+
+            this.viewModel.Tags.Add(this.viewModel.CreateNewTag());
+            this.viewModel.DeleteTagCommand.Execute(this.viewModel.Tags.First());
+
+            // ACT
+
+            this.viewModel.Rollback();
+
+            // ASSERT
+
+            Assert.Single(this.viewModel.Tags);
+            Assert.Equal("t", this.viewModel.Tags.Single().Name);
+        }
+
+        [Fact]
         public void KosmographViewModel_writes_new_tag_to_persistence()
         {
             // ARRANGE
@@ -73,26 +168,6 @@ namespace Kosmograph.Desktop.Test.ViewModel
 
             editTag.Name = "changed";
             editTag.Commit();
-        }
-
-        [Fact]
-        public void KosmographViewModel_deletes_tag_from_persistence()
-        {
-            // ARRANGE
-
-            var tag = new Tag();
-
-            this.tagRepository
-                .Setup(r => r.FindAll())
-                .Returns(tag.Yield());
-
-            this.tagRepository
-                .Setup(r => r.Delete(tag.Id))
-                .Returns(true);
-
-            // ACT
-
-            this.viewModel.DeleteTagCommand.Execute(this.viewModel.Tags.Single());
         }
     }
 }
