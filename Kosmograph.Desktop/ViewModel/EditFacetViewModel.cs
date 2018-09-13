@@ -57,7 +57,10 @@ namespace Kosmograph.Desktop.ViewModel
 
         public override void Commit()
         {
+            // commit properties
             this.Properties.Commit(onAdd: this.OnAddProperty, onRemove: this.OnRemoveProperty);
+            this.Properties.ForEach(p => p.Commit());
+
             base.Commit();
         }
 
@@ -66,6 +69,19 @@ namespace Kosmograph.Desktop.ViewModel
         private void OnRemoveProperty(EditFacetPropertyViewModel property) => this.Model.Properties.Remove(property.Model);
 
         #endregion Commit changes to underlying Facet
+
+        #region Revert changes to underlying Facet
+
+        public override void Rollback()
+        {
+            // rollback properties
+            this.Properties.Rollback();
+            this.Properties.ForEach(p => p.Rollback());
+
+            base.Rollback();
+        }
+
+        #endregion Revert changes to underlying Facet
 
         #region Commands
 

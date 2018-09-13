@@ -39,6 +39,8 @@ namespace Kosmograph.Desktop.Test.ViewModel
 
             Assert.Single(this.facet.Properties);
             Assert.Equal("p1", this.facet.Properties.Single().Name);
+            Assert.Single(this.editTag.Facet.Properties);
+            Assert.Equal("p2", this.editTag.Facet.Properties.Single().Name);
         }
 
         [Fact]
@@ -46,19 +48,39 @@ namespace Kosmograph.Desktop.Test.ViewModel
         {
             // ARRANGE
 
-            this.editTag.Facet.Name = "changed";
             this.editTag.Facet.CreatePropertyCommand.Execute("p2");
             this.editTag.Facet.RemovePropertyCommand.Execute(editTag.Facet.Properties.First());
 
             // ACT
 
-            this.editTag.Facet.Commit();
+            this.editTag.Commit();
 
             // ASSERT
 
-            Assert.Equal("changed", this.facet.Name);
             Assert.Single(this.facet.Properties);
             Assert.Equal("p2", this.facet.Properties.Single().Name);
+            Assert.Single(this.editTag.Facet.Properties);
+            Assert.Equal("p2", this.facet.Properties.Single().Name);
+        }
+
+        [Fact]
+        public void EditFacetViewModel_reverts_changes_to_Facet()
+        {
+            // ARRANGE
+
+            this.editTag.Facet.CreatePropertyCommand.Execute("p2");
+            this.editTag.Facet.RemovePropertyCommand.Execute(editTag.Facet.Properties.First());
+
+            // ACT
+
+            this.editTag.Rollback();
+
+            // ASSERT
+
+            Assert.Single(this.facet.Properties);
+            Assert.Equal("p1", this.facet.Properties.Single().Name);
+            Assert.Single(this.editTag.Facet.Properties);
+            Assert.Equal("p1", this.editTag.Facet.Properties.Single().Name);
         }
     }
 }

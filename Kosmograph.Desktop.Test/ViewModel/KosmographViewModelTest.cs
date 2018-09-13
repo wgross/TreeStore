@@ -2,6 +2,7 @@
 using Kosmograph.Model;
 using Moq;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
@@ -68,23 +69,26 @@ namespace Kosmograph.Desktop.Test.ViewModel
                 .Setup(r => r.FindAll())
                 .Returns(entity.Yield());
 
-            var editTag = this.viewModel.CreateNewTag();
-            var editEntity = this.viewModel.CreateNewEntity();
-
             // ACT
+            // create new model item and remove existing
 
-            this.viewModel.Tags.Add(editTag);
+            this.viewModel.CreateTagCommand.Execute(null);
+            this.viewModel.CreateEntityCommand.Execute(null);
             this.viewModel.DeleteTagCommand.Execute(this.viewModel.Tags.First());
-            this.viewModel.Entities.Add(editEntity);
             this.viewModel.DeleteEntityCommand.Execute(this.viewModel.Entities.First());
 
             // ASSERT
             // change of collection doesn't trigger DB update
 
+            Assert.NotNull(this.viewModel.SelectedTag);
             Assert.Single(this.viewModel.Tags);
-            Assert.Equal(string.Empty, this.viewModel.Tags.Single().Name);
+            Assert.Contains(this.viewModel.SelectedTag, this.viewModel.Tags);
+            Assert.Equal("new tag", this.viewModel.Tags.Single().Name);
+
+            Assert.NotNull(this.viewModel.SelectedEntity);
             Assert.Single(this.viewModel.Entities);
-            Assert.Equal(string.Empty, this.viewModel.Entities.Single().Name);
+            Assert.Contains(this.viewModel.SelectedEntity, this.viewModel.Entities);
+            Assert.Equal("new entity", this.viewModel.Entities.Single().Name);
         }
 
         [Fact]
@@ -105,8 +109,6 @@ namespace Kosmograph.Desktop.Test.ViewModel
                 .Setup(r => r.Delete(tag.Id))
                 .Returns(true);
 
-            var editTag = this.viewModel.CreateNewTag();
-
             var entity = new Entity("e", tag);
             this.entityRepository
                 .Setup(r => r.FindAll())
@@ -120,10 +122,10 @@ namespace Kosmograph.Desktop.Test.ViewModel
                 .Setup(r => r.Delete(entity.Id))
                 .Returns(true);
 
-            this.viewModel.Tags.Add(this.viewModel.CreateNewTag());
+            // create new model items and remove existing items
+            this.viewModel.CreateTagCommand.Execute(null);
             this.viewModel.DeleteTagCommand.Execute(this.viewModel.Tags.First());
-
-            this.viewModel.Entities.Add(this.viewModel.CreateNewEntity());
+            this.viewModel.CreateEntityCommand.Execute(null);
             this.viewModel.DeleteEntityCommand.Execute(this.viewModel.Entities.First());
 
             // ACT
@@ -133,9 +135,9 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // ASSERT
 
             Assert.Single(this.viewModel.Tags);
-            Assert.Equal(string.Empty, this.viewModel.Tags.Single().Name);
+            Assert.Equal("new tag", this.viewModel.Tags.Single().Name);
             Assert.Single(this.viewModel.Entities);
-            Assert.Equal(string.Empty, this.viewModel.Entities.Single().Name);
+            Assert.Equal("new entity", this.viewModel.Entities.Single().Name);
         }
 
         [Fact]
@@ -148,19 +150,17 @@ namespace Kosmograph.Desktop.Test.ViewModel
                 .Setup(r => r.FindAll())
                 .Returns(tag.Yield());
 
-            var editTag = this.viewModel.CreateNewTag();
+            this.viewModel.CreateTagCommand.Execute(null);
 
             var entity = new Entity("e", tag);
             this.entityRepository
                 .Setup(r => r.FindAll())
                 .Returns(entity.Yield());
 
-            var editEntity = this.viewModel.CreateNewEntity();
-
-            this.viewModel.Tags.Add(this.viewModel.CreateNewTag());
+            this.viewModel.CreateTagCommand.Execute(null);
             this.viewModel.DeleteTagCommand.Execute(this.viewModel.Tags.First());
 
-            this.viewModel.Entities.Add(this.viewModel.CreateNewEntity());
+            this.viewModel.CreateEntityCommand.Execute(null);
             this.viewModel.DeleteEntityCommand.Execute(this.viewModel.Entities.First());
 
             // ACT
@@ -210,6 +210,40 @@ namespace Kosmograph.Desktop.Test.ViewModel
             editTag.Commit();
             editEntity.Name = "changed";
             editEntity.Commit();
+        }
+
+        [Fact]
+        public void KosmographViewModel_raise_property_chaned_on_selected_item_change()
+        {
+            // ARRANGE
+
+            var tag = new Tag();
+
+            this.tagRepository
+                .Setup(r => r.FindAll())
+                .Returns(tag.Yield());
+
+            var editTag = this.viewModel.Tags.Single();
+
+            var entity = new Entity();
+
+            this.entityRepository
+                .Setup(r => r.FindAll())
+                .Returns(entity.Yield());
+
+            var editEntity = this.viewModel.Entities.Single();
+
+            var properties = new List<string>();
+            this.viewModel.PropertyChanged += (s, e) => properties.Add(e.PropertyName);
+
+            // ACT
+
+            this.viewModel.SelectedEntity = editEntity;
+            this.viewModel.SelectedTag = editTag;
+
+            // ASSERT
+
+            Assert.Equal(new[] { nameof(KosmographViewModel.SelectedEntity), nameof(KosmographViewModel.SelectedTag) }, properties);
         }
     }
 }

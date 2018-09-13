@@ -36,6 +36,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // ASSERT
 
             Assert.Equal("tag", this.tag.Name);
+            Assert.Equal("changed", editTag.Name);
         }
 
         [Fact]
@@ -52,6 +53,24 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // ASSERT
 
             Assert.Equal("changed", this.tag.Name);
+            Assert.Equal("changed", editTag.Name);
+        }
+
+        [Fact]
+        public void EditTagViewModel_reverts_changes_at_Tag()
+        {
+            // ARRANGE
+
+            editTag.Name = "changed";
+
+            // ACT
+
+            editTag.Rollback();
+
+            // ASSERT
+
+            Assert.Equal("tag", this.tag.Name);
+            Assert.Equal("tag", editTag.Name);
         }
     }
 }

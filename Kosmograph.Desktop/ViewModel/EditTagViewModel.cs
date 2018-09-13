@@ -1,5 +1,4 @@
-﻿using GalaSoft.MvvmLight.Command;
-using Kosmograph.Model;
+﻿using Kosmograph.Model;
 using System;
 
 namespace Kosmograph.Desktop.ViewModel
@@ -22,6 +21,12 @@ namespace Kosmograph.Desktop.ViewModel
             this.Facet.Commit();
             base.Commit();
             this.committed(this.Model);
+        }
+
+        public override void Rollback()
+        {
+            this.Facet.Rollback();
+            base.Rollback();
         }
     }
 }

@@ -12,17 +12,21 @@ namespace Kosmograph.Desktop.ViewModel
         public EditNamedViewModel(T edited)
         {
             this.Model = edited;
-            this.name = this.Model.Name;
         }
 
         public virtual void Commit()
         {
-            this.Model.Name = this.name;
+            this.Model.Name = this.Name;
+        }
+
+        public virtual void Rollback()
+        {
+            this.Name = this.Model.Name; 
         }
 
         public string Name
         {
-            get => this.name;
+            get => this.name ?? this.Model.Name;
             set => this.Set(nameof(Name), ref this.name, value);
         }
 

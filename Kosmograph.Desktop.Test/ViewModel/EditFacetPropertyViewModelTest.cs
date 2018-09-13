@@ -39,6 +39,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // ASSERT
 
             Assert.Equal("p1", this.property.Name);
+            Assert.Equal("p2", this.editTag.Facet.Properties.Single().Name);
         }
 
         [Fact]
@@ -50,11 +51,29 @@ namespace Kosmograph.Desktop.Test.ViewModel
 
             // ACT
 
-            this.editTag.Facet.Properties.Single().Commit();
+            this.editTag.Commit();
 
             // ASSERT
 
             Assert.Equal("p2", this.property.Name);
+            Assert.Equal("p2", this.editTag.Facet.Properties.Single().Name);
+        }
+
+        [Fact]
+        public void EditFacetPropertyViewModel_reverts_changes_to_FacetProperty()
+        {
+            // ARRANGE
+
+            this.editTag.Facet.Properties.Single().Name = "p2";
+
+            // ACT
+
+            this.editTag.Rollback();
+
+            // ASSERT
+
+            Assert.Equal("p1", this.property.Name);
+            Assert.Equal("p1", this.editTag.Facet.Properties.Single().Name);
         }
     }
 }

@@ -52,5 +52,39 @@ namespace Kosmograph.Desktop.ViewModel
             }
             this.changes.Clear();
         }
+
+        public void Rollback()
+        {
+            try
+            {
+                this.isRollingBack = true;
+                foreach (var (action, items) in Enumerable.Reverse(this.changes))
+                {
+                    switch (action)
+                    {
+                        case NotifyCollectionChangedAction.Remove:
+                            foreach (var item in items)
+                                Add(item);
+                            break;
+
+                        case NotifyCollectionChangedAction.Add:
+                            foreach (var item in items)
+                                Remove(item);
+                            break;
+                    }
+                }
+                this.changes.Clear();
+            }
+            finally
+            {
+                this.isRollingBack = false;
+            }
+        }
+
+        public void ForEach(Action<T> action)
+        {
+            foreach (var item in this)
+                action(item);
+        }
     }
 }
