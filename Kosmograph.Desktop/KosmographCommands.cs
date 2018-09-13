@@ -6,6 +6,8 @@ namespace Kosmograph.Desktop
     {
         public static RoutedCommand CreateEntity = new RoutedCommand();
 
+        public static RoutedCommand EditEntity = new RoutedCommand();
+
         public static RoutedCommand CreateTag = new RoutedCommand();
 
         public static RoutedCommand EditTag = new RoutedCommand();

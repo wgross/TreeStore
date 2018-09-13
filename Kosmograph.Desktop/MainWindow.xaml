@@ -23,7 +23,7 @@
         <!--
         Entities in the left column
         -->
-        <DockPanel Grid.Column="0">
+        <DockPanel Grid.Column="0" LastChildFill="True">
             <!-- on top of the entity relationship diagram is header label and an add entity button -->
             <Border Style="{StaticResource labelBorderStyle}" DockPanel.Dock="Top">
                 <DockPanel LastChildFill="False">
@@ -36,8 +36,26 @@
                             VerticalAlignment="Center" />
                 </DockPanel>
             </Border>
-            <Button DockPanel.Dock="Bottom" />
+            <ListBox Name="entityListBox"
+                     Style="{StaticResource entityListBoxStyle}"
+                     ItemsSource="{Binding Entities}"
+                     SelectedItem="{Binding SelectedEntity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     MouseDoubleClick="entityListBox_MouseDoubleClick">
+
+                <ListBox.InputBindings>
+                    <KeyBinding Key="Insert"
+                                Command="{x:Static local:KosmographCommands.CreateEntity}"
+                                CommandParameter="{Binding .}" />
+                    <KeyBinding Key="Return"
+                                Command="{x:Static local:KosmographCommands.EditEntity}"
+                                CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
+                    <KeyBinding Key="Delete"
+                        Command="{Binding DeleteEntityCommand}"
+                        CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
+                </ListBox.InputBindings>
+            </ListBox>
         </DockPanel>
+
         <!--
         Splitter between entities and tags
         -->
@@ -68,7 +86,7 @@
             <ListBox Name="tagListBox"
                      Style="{StaticResource tagListBoxStyle}"
                      ItemsSource="{Binding Tags}"
-                     SelectedItem="{Binding SelectedTag}"
+                     SelectedItem="{Binding SelectedTag, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                      MouseDoubleClick="tagListBox_MouseDoubleClick">
 
                 <ListBox.InputBindings>

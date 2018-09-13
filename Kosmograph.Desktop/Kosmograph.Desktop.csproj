@@ -73,6 +73,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Dialogs\EditDialog.xaml.cs">
+      <DependentUpon>EditDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\EditTagCommands.cs" />
     <Compile Include="Dialogs\DialogCommands.cs" />
     <Compile Include="Dialogs\EditTagDialog.xaml.cs">
@@ -88,6 +91,14 @@
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Page Include="Dialogs\DialogResources.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\EditDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\EditDialogResources.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
