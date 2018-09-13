@@ -39,7 +39,9 @@ namespace Kosmograph.Desktop
         private void CreateNewModel()
         {
             var model = new KosmographModel(new KosmographLiteDbPersistence());
-            model.Tags.Upsert(new Tag("tag1", new Facet("facet", new FacetProperty("p"))));
+            var tag = new Tag("tag1", new Facet("facet", new FacetProperty("p")));
+            model.Tags.Upsert(tag);
+            model.Entities.Upsert(new Entity("entity", tag));
 
             this.ViewModel = new KosmographViewModel(model);
 
@@ -102,6 +104,10 @@ namespace Kosmograph.Desktop
             {
                 viewModel.Commit();
             }
+            else
+            {
+                viewModel.Rollback();
+            }
         }
 
         private void tagListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -159,10 +165,14 @@ namespace Kosmograph.Desktop
         private void EditEntityExecuted(object sender, ExecutedRoutedEventArgs e)
         {
             var viewModel = (EditEntityViewModel)e.Parameter;
-            var dialog = new EditTagDialog { DataContext = viewModel };
+            var dialog = new EditDialog { DataContext = viewModel };
             if (dialog.ShowDialog().GetValueOrDefault())
             {
                 viewModel.Commit();
+            }
+            else
+            {
+                viewModel.Rollback();
             }
         }
 

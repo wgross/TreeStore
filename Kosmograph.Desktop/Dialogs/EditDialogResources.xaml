@@ -30,6 +30,9 @@
         </Setter>
     </Style>
 
+    <!--
+    Editor for Tags
+    -->
     <DataTemplate DataType="{x:Type kvm:EditTagViewModel}">
         <DockPanel LastChildFill="True">
             <DockPanel LastChildFill="True" DockPanel.Dock="Top">
@@ -48,6 +51,33 @@
                             Command="{Binding Facet.CreatePropertyCommand}" />
                     </ListBox.InputBindings>
                 </ListBox>
+            </Expander>
+        </DockPanel>
+    </DataTemplate>
+
+    <!--
+    Editor for Entities.
+    -->
+    <DataTemplate DataType="{x:Type kvm:EditEntityViewModel}">
+        <DockPanel LastChildFill="True">
+            <DockPanel LastChildFill="True" DockPanel.Dock="Top">
+                <Label DockPanel.Dock="Left" Style="{StaticResource nameLabelStyle}" />
+                <TextBox Text="{Binding Name}"></TextBox>
+            </DockPanel>
+            <Expander Style="{StaticResource facetPropertiesExpanderStyle}" Header="{Binding Path=Facet.Name, StringFormat={}Facet:{0}}">
+                <!--
+                <ListBox
+                    Style="{StaticResource facetPropertiesItemControlStyle}"
+                    ItemsSource="{Binding Facet.Properties}">
+                    <ListBox.InputBindings>
+                        <KeyBinding Key="Delete"
+                            Command="{Binding Facet.RemovePropertyCommand}"
+                            CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
+                        <KeyBinding Key="Insert"
+                            Command="{Binding Facet.CreatePropertyCommand}" />
+                    </ListBox.InputBindings>
+                </ListBox>
+                -->
             </Expander>
         </DockPanel>
     </DataTemplate>
