@@ -134,5 +134,31 @@ namespace Kosmograph.LiteDb.Test
             Assert.True(comp.AreEqual);
             Assert.Equal(1, result.TryGetFacetProperty(result.Facets().Single().Properties.Single()).Item2);
         }
+
+        [Fact]
+        public void EntityRepository_reads_all_Entities_with_Tags()
+        {
+            // ARRANGE
+
+            var tag = this.tagRepository.Upsert(new Tag("tag", new Facet("facet", new FacetProperty("prop"))));
+            var entity = new Entity("entity");
+            entity.AddTag(tag);
+
+            // set facet property value
+            entity.SetFacetProperty(entity.Facets().Single().Properties.Single(), 1);
+
+            entityRepository.Upsert(entity);
+
+            // ACT
+
+            var result = this.entityRepository.FindAll().ToArray();
+
+            // ASSERT
+
+            var comp = entity.DeepCompare(result[0]);
+
+            Assert.True(comp.AreEqual);
+            Assert.Equal(1, result[0].TryGetFacetProperty(result[0].Facets().Single().Properties.Single()).Item2);
+        }
     }
 }
