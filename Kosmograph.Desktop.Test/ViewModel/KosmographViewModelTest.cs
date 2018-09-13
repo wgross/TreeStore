@@ -52,6 +52,36 @@ namespace Kosmograph.Desktop.Test.ViewModel
 
             Assert.Single(this.viewModel.Tags);
             Assert.Single(this.viewModel.Entities);
+            Assert.Null(this.viewModel.EditedEntity);
+            Assert.Null(this.viewModel.EditedTag);
+        }
+
+        [Fact]
+        public void KosmographViewModel_publishes_edited_item_in_property()
+        {
+            // ARRANGE
+
+            var tag = new Tag();
+
+            this.tagRepository
+                .Setup(r => r.FindAll())
+                .Returns(tag.Yield());
+
+            var entity = new Entity();
+
+            this.entityRepository
+                .Setup(r => r.FindAll())
+                .Returns(entity.Yield());
+
+            // ACT
+
+            this.viewModel.EditTagCommand.Execute(this.viewModel.Tags.Single());
+            this.viewModel.EditEntityCommand.Execute(this.viewModel.Entities.Single());
+
+            // ASSERT
+
+            Assert.Equal(this.viewModel.Tags.Single(), this.viewModel.EditedTag);
+            Assert.Equal(this.viewModel.Entities.Single(), this.viewModel.EditedEntity);
         }
 
         [Fact]
@@ -80,14 +110,10 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // ASSERT
             // change of collection doesn't trigger DB update
 
-            Assert.NotNull(this.viewModel.SelectedTag);
             Assert.Single(this.viewModel.Tags);
-            Assert.Contains(this.viewModel.SelectedTag, this.viewModel.Tags);
             Assert.Equal("new tag", this.viewModel.Tags.Single().Name);
 
-            Assert.NotNull(this.viewModel.SelectedEntity);
             Assert.Single(this.viewModel.Entities);
-            Assert.Contains(this.viewModel.SelectedEntity, this.viewModel.Entities);
             Assert.Equal("new entity", this.viewModel.Entities.Single().Name);
         }
 

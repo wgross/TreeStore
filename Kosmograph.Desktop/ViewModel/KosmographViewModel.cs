@@ -27,8 +27,11 @@ namespace Kosmograph.Desktop.ViewModel
             this.changesAtEntities = new List<(NotifyCollectionChangedAction, IEnumerable<EditEntityViewModel>)>();
 
             this.CreateTagCommand = new RelayCommand(this.CreateTagExecuted);
+            this.EditTagCommand = new RelayCommand<EditTagViewModel>(this.EditTagExecuted);
             this.DeleteTagCommand = new RelayCommand<EditTagViewModel>(this.DeleteTagExecuted);
+
             this.CreateEntityCommand = new RelayCommand(this.CreateEntityExecuted);
+            this.EditEntityCommand = new RelayCommand<EditEntityViewModel>(this.EditEntityExecuted);
             this.DeleteEntityCommand = new RelayCommand<EditEntityViewModel>(this.DeleteEntityExecuted);
 
             this.Rollback();
@@ -66,7 +69,7 @@ namespace Kosmograph.Desktop.ViewModel
 
         #endregion Remove tag from model
 
-        #region Create new Tag in model
+        #region Create/edit new Tag in model
 
         public ICommand CreateTagCommand { get; }
 
@@ -74,12 +77,27 @@ namespace Kosmograph.Desktop.ViewModel
         {
             var tmp = new EditTagViewModel(new Tag("new tag", new Facet()), this.OnTagCommitted);
             this.Tags.Add(tmp);
-            this.SelectedTag = tmp;
+            this.EditTagCommand.Execute(tmp);
         }
 
-        #endregion Create new Tag in model
+        public ICommand EditTagCommand { get; }
 
-        #region Create new Entity in Model
+        private void EditTagExecuted(EditTagViewModel tag)
+        {
+            this.EditedTag = tag;
+        }
+
+        public EditTagViewModel EditedTag
+        {
+            get => this.editedTag;
+            set => this.Set<EditTagViewModel>(nameof(EditedTag), ref this.editedTag, value);
+        }
+
+        private EditTagViewModel editedTag;
+
+        #endregion Create/edit new Tag in model
+
+        #region Create/edit Entity in Model
 
         public ICommand CreateEntityCommand { get; }
 
@@ -87,10 +105,26 @@ namespace Kosmograph.Desktop.ViewModel
         {
             var tmp = new EditEntityViewModel(new Entity("new entity", new Tag(string.Empty, new Facet())), this.OnEntityCommitted);
             this.Entities.Add(tmp);
+            this.EditEntityCommand.Execute(tmp);
             this.SelectedEntity = tmp;
         }
 
-        #endregion Create new Entity in Model
+        public ICommand EditEntityCommand { get; }
+
+        private void EditEntityExecuted(EditEntityViewModel entity)
+        {
+            this.EditedEntity = entity;
+        }
+
+        public EditEntityViewModel EditedEntity
+        {
+            get => this.editedEntity;
+            set => this.Set<EditEntityViewModel>(nameof(EditedEntity), ref this.editedEntity, value);
+        }
+
+        private EditEntityViewModel editedEntity;
+
+        #endregion Create/edit Entity in Model
 
         #region Delete Entity from Model
 

@@ -18,11 +18,8 @@ namespace Kosmograph.Desktop
             this.InitializeComponent();
             this.Activated += this.MainWindow_Activated;
 
-            this.CommandBindings.Add(new CommandBinding(KosmographCommands.CreateTag, this.CreateTagExecuted, this.CreateTagCanExceute));
-            this.CommandBindings.Add(new CommandBinding(KosmographCommands.CreateEntity, this.CreateEntityExecuted, this.CreateEntityCanExceute));
-
-            this.CommandBindings.Add(new CommandBinding(KosmographCommands.EditTag, this.EditTagExecuted, this.EditTagCanExceute));
-            this.CommandBindings.Add(new CommandBinding(KosmographCommands.EditEntity, this.EditEntityExecuted, this.EditEntityCanExceute));
+            //this.CommandBindings.Add(new CommandBinding(KosmographCommands.CreateTag, this.CreateTagExecuted, this.CreateTagCanExceute));
+            //this.CommandBindings.Add(new CommandBinding(KosmographCommands.CreateEntity, this.CreateEntityExecuted, this.CreateEntityCanExceute));
         }
 
         private void MainWindow_Activated(object sender, EventArgs e)
@@ -56,128 +53,53 @@ namespace Kosmograph.Desktop
             }
             set
             {
+                var oldModel = this.ViewModel;
+                if (oldModel != null)
+                    oldModel.PropertyChanged -= this.KosmographViewModel_PropertyChanged;
+
+                value.PropertyChanged += this.KosmographViewModel_PropertyChanged;
                 this.DataContext = value;
             }
         }
 
-        #region Shared Workflows
-
-        private void KosmographModelCommandCanExecute<T>(CanExecuteRoutedEventArgs e)
+        private void KosmographViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            e.CanExecute = !(e.Parameter is null || e.Parameter.GetType() != typeof(T));
-        }
-
-        #endregion Shared Workflows
-
-        #region CreateNewTagCommand
-
-        private void CreateTagExecuted(object sender, ExecutedRoutedEventArgs e)
-        {
-            var viewModel = (KosmographViewModel)(e.Parameter);
-
-            viewModel.CreateTagCommand.Execute(null);
-
-            var dialog = new EditTagDialog { DataContext = viewModel.SelectedTag };
-            if (dialog.ShowDialog().GetValueOrDefault())
+            switch (e.PropertyName)
             {
-                viewModel.Commit();
-            }
-            else
-            {
-                viewModel.Rollback();
-            }
-        }
+                case nameof(KosmographViewModel.EditedTag):
 
-        private void CreateTagCanExceute(object sender, CanExecuteRoutedEventArgs e) => this.KosmographModelCommandCanExecute<KosmographViewModel>(e);
+                    var editTagDialog = new EditDialog { DataContext = this.ViewModel.EditedTag };
+                    if (editTagDialog.ShowDialog().GetValueOrDefault())
+                    {
+                        this.ViewModel.Commit();
+                    }
+                    else
+                    {
+                        this.ViewModel.Rollback();
+                    }
+                    break;
 
-        #endregion CreateNewTagCommand
+                case nameof(KosmographViewModel.EditedEntity):
 
-        #region Edit Tag
-
-        private void EditTagCanExceute(object sender, CanExecuteRoutedEventArgs e) => this.KosmographModelCommandCanExecute<EditTagViewModel>(e);
-
-        private void EditTagExecuted(object sender, ExecutedRoutedEventArgs e)
-        {
-            var viewModel = (EditTagViewModel)e.Parameter;
-            var dialog = new EditDialog { DataContext = viewModel };
-            if (dialog.ShowDialog().GetValueOrDefault())
-            {
-                viewModel.Commit();
-            }
-            else
-            {
-                viewModel.Rollback();
+                    var editEntityDialog = new EditDialog { DataContext = this.ViewModel.EditedEntity };
+                    if (editEntityDialog.ShowDialog().GetValueOrDefault())
+                    {
+                        this.ViewModel.Commit();
+                    }
+                    else
+                    {
+                        this.ViewModel.Rollback();
+                    }
+                    break;
             }
         }
 
-        private void tagListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            KosmographCommands.EditTag.Execute(this.ViewModel.SelectedTag, null);
-        }
+        #region Event handler
 
-        #endregion Edit Tag
+        private void tagListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e) => this.ViewModel.EditTagCommand.Execute(this.ViewModel.SelectedTag);
 
-        #region Delete Tag
+        private void entityListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e) => this.ViewModel.EditEntityCommand.Execute(this.ViewModel.SelectedEntity);
 
-        private void DeleteTagExecuted(object sender, ExecutedRoutedEventArgs e)
-        {
-            var viewModel = (KosmographViewModel)(e.Parameter);
-            viewModel.Tags.Remove(viewModel.SelectedTag);
-        }
-
-        private void DeleteTagCanExecute(object sender, CanExecuteRoutedEventArgs e)
-        {
-            e.CanExecute = !(e.Parameter is null || e.Parameter.GetType() != typeof(KosmographViewModel));
-        }
-
-        #endregion Delete Tag
-
-        #region Create Entity
-
-        private void CreateEntityCanExceute(object sender, CanExecuteRoutedEventArgs e) => this.KosmographModelCommandCanExecute<EditEntityViewModel>(e);
-
-        private void CreateEntityExecuted(object sender, ExecutedRoutedEventArgs e)
-        {
-            var viewModel = (KosmographViewModel)(e.Parameter);
-
-            viewModel.CreateEntityCommand.Execute(null);
-
-            var dialog = new EditTagDialog { DataContext = viewModel.SelectedEntity };
-            if (dialog.ShowDialog().GetValueOrDefault())
-            {
-                viewModel.Commit();
-            }
-            else
-            {
-                viewModel.Rollback();
-            }
-        }
-
-        #endregion Create Entity
-
-        #region Edit Entity
-
-        private void entityListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            KosmographCommands.EditEntity.Execute(this.ViewModel.SelectedEntity, null);
-        }
-
-        private void EditEntityExecuted(object sender, ExecutedRoutedEventArgs e)
-        {
-            var viewModel = (EditEntityViewModel)e.Parameter;
-            var dialog = new EditDialog { DataContext = viewModel };
-            if (dialog.ShowDialog().GetValueOrDefault())
-            {
-                viewModel.Commit();
-            }
-            else
-            {
-                viewModel.Rollback();
-            }
-        }
-
-        private void EditEntityCanExceute(object sender, CanExecuteRoutedEventArgs e) => this.KosmographModelCommandCanExecute<EditEntityViewModel>(e);
-
-        #endregion Edit Entity
+        #endregion Event handler
     }
 }
