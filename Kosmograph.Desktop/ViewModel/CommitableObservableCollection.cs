@@ -13,7 +13,8 @@ namespace Kosmograph.Desktop.ViewModel
 
         public CommitableObservableCollection(IEnumerable<T> underlying)
             : base(underlying)
-        { }
+        {
+        }
 
         protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
         {

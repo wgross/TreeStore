@@ -7,7 +7,7 @@ using System.Windows.Input;
 
 namespace Kosmograph.Desktop.ViewModel
 {
-    public class EditFacetPropertyViewModel : EditNamedViewModel<FacetProperty>
+    public class EditFacetPropertyViewModel : EditNamedViewModelBase<FacetProperty>
     {
         public EditFacetPropertyViewModel(FacetProperty property)
             : base(property)
@@ -15,7 +15,7 @@ namespace Kosmograph.Desktop.ViewModel
         }
     }
 
-    public class EditFacetViewModel : EditNamedViewModel<Facet>
+    public class EditFacetViewModel : EditNamedViewModelBase<Facet>
     {
         #region Construction and Initialization of this instance
 

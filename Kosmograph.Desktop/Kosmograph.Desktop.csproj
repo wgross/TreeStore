@@ -82,13 +82,16 @@
       <DependentUpon>EditTagDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="KosmographCommands.cs" />
+    <Compile Include="ViewModel\AssignedFacetPropertyValue.cs" />
+    <Compile Include="ViewModel\AssignedTagViewModel.cs" />
     <Compile Include="ViewModel\CommitableObservableCollection.cs" />
     <Compile Include="ViewModel\EditEntityViewModel.cs" />
     <Compile Include="ViewModel\EditFacetViewModel.cs" />
-    <Compile Include="ViewModel\EditNamedViewModel.cs" />
+    <Compile Include="ViewModel\EditNamedViewModelBase.cs" />
     <Compile Include="ViewModel\EditTagViewModel.cs" />
     <Compile Include="ViewModel\KosmographViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
+    <Compile Include="ViewModel\NamedViewModelBase.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Page Include="Dialogs\DialogResources.xaml">
       <SubType>Designer</SubType>

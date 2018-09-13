@@ -3,7 +3,7 @@ using System;
 
 namespace Kosmograph.Desktop.ViewModel
 {
-    public class EditTagViewModel : EditNamedViewModel<Tag>
+    public class EditTagViewModel : EditNamedViewModelBase<Tag>
     {
         private readonly Action<Tag> committed;
 

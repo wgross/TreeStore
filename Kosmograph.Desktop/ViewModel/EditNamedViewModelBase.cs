@@ -4,12 +4,12 @@ using System.ComponentModel;
 
 namespace Kosmograph.Desktop.ViewModel
 {
-    public class EditNamedViewModel<T> : ViewModelBase, INotifyPropertyChanged
+    public class EditNamedViewModelBase<T> : ViewModelBase
         where T : EntityBase
     {
         public T Model { get; private set; }
 
-        public EditNamedViewModel(T edited)
+        public EditNamedViewModelBase(T edited)
         {
             this.Model = edited;
         }
@@ -21,7 +21,7 @@ namespace Kosmograph.Desktop.ViewModel
 
         public virtual void Rollback()
         {
-            this.Name = this.Model.Name; 
+            this.Name = this.Model.Name;
         }
 
         public string Name
