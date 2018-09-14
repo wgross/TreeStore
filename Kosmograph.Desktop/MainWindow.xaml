@@ -44,7 +44,7 @@
                 foreeground.
                 The Edit control is collapsed until ist DataContext as lomg as the data context of the control is null.
                 -->
-                <ListBox Name="entityListBox"
+                <!--<ListBox Name="entityListBox"
                          Panel.ZIndex="0"
                          Style="{StaticResource entityListBoxStyle}"
                          ItemsSource="{Binding Entities}"
@@ -60,7 +60,9 @@
                             Command="{Binding DeleteEntityCommand}"
                             CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
                     </ListBox.InputBindings>
-                </ListBox>
+                </ListBox>-->
+                <kdc:ShowEntitiesControl
+                    Panel.ZIndex="0"/>
                 <kde:EditorControl x:Name="entityEditorControl"
                     Panel.ZIndex="1"
                     DataContext="{Binding EditedEntity}"
