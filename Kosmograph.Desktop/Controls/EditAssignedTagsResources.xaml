@@ -11,11 +11,12 @@
         <StackPanel Orientation="Vertical">
             <!--
             diag:PresentationTraceSources.TraceLevel=High"
-            -->
-            <Label
-                DockPanel.Dock="Top"
-                Content="{Binding Name, Mode=OneWay}" />
-            <ItemsControl Name="assignedTagsItemsControl"
+            -->   
+            <Border BorderThickness="0,0,0,2" BorderBrush="Black" DockPanel.Dock="Top">
+                <TextBlock Text="{Binding Name, StringFormat={}Edit Properties of: {0}}" FontWeight="Bold" />
+            </Border>
+            <ItemsControl 
+                Name="assignedTagsItemsControl"
                 DockPanel.Dock="Top"
                 ItemsSource="{Binding Properties}">
             </ItemsControl>

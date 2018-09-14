@@ -99,6 +99,9 @@
         <DockPanel
             LastChildFill="True"
             Background="White">
+            <Border BorderThickness="0,0,0,2" BorderBrush="Black" DockPanel.Dock="Top">
+                <TextBlock Text="{Binding Name, StringFormat={}Edit Entity: {0}}" FontWeight="Bold"/>
+            </Border>
             <DockPanel LastChildFill="True" DockPanel.Dock="Top">
                 <Label DockPanel.Dock="Left" Style="{StaticResource nameLabelStyle}" />
                 <TextBox
@@ -106,13 +109,6 @@
                     Style="{StaticResource editorTextBox}" />
             </DockPanel>
             <kdc:EditAssignedTagsControl />
-            <!--
-            A collection of all assigned tags fill the reminder of the panel
-
-            <ItemsControl
-                ItemsSource="{Binding Tags}">
-            </ItemsControl>
-            -->
         </DockPanel>
     </DataTemplate>
 
