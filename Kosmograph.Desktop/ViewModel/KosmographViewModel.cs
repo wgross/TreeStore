@@ -77,7 +77,7 @@ namespace Kosmograph.Desktop.ViewModel
 
         private void CreateTagExecuted()
         {
-            this.EditedTag = new EditTagViewModel(new Tag("new tag", new Facet()), this.OnCreatedTagCommitted, this.OnEditedTagRolledback);
+            this.EditedTag = new EditTagViewModel(new Tag("new tag", new Facet()), this.OnCreatedTagCommitted, this.OnTagRollback);
         }
 
         private void OnCreatedTagCommitted(Tag tag)
@@ -85,7 +85,7 @@ namespace Kosmograph.Desktop.ViewModel
             if (this.EditedTag.Model.Equals(tag))
                 this.EditedTag = null;
 
-            var tagViemModel = new EditTagViewModel(tag, this.OnEditedTagCommitted, this.OnEditedTagRolledback);
+            var tagViemModel = new EditTagViewModel(tag, this.OnEditedTagCommitted, this.OnTagRollback);
             this.tags.Value.Add(tagViemModel);
             this.tags.Value.Commit(onAdd: tvm => this.model.Tags.Upsert(tvm.Model));
             this.SelectedTag = tagViemModel;
@@ -110,7 +110,7 @@ namespace Kosmograph.Desktop.ViewModel
             this.model.Tags.Upsert(tag);
         }
 
-        private void OnEditedTagRolledback(Tag tag)
+        private void OnTagRollback(Tag tag)
         {
             if (this.EditedTag.Model.Equals(tag))
                 this.EditedTag = null;
@@ -132,7 +132,7 @@ namespace Kosmograph.Desktop.ViewModel
 
         public void CreateEntityExecuted()
         {
-            this.EditedEntity = new EditEntityViewModel(new Entity("new entity", new Tag(string.Empty, new Facet())), this.OnCreatedEntityCommitted, this.OnEditedEntityRolledback);
+            this.EditedEntity = new EditEntityViewModel(new Entity("new entity", new Tag(string.Empty, new Facet())), this.OnCreatedEntityCommitted, this.OnEntityRollback);
         }
 
         private void OnCreatedEntityCommitted(Entity entity)
@@ -140,7 +140,7 @@ namespace Kosmograph.Desktop.ViewModel
             if (this.EditedEntity.Model.Equals(entity))
                 this.EditedEntity = null;
 
-            var entityViemModel = new EditEntityViewModel(entity, this.OnEditedEntityCommitted);
+            var entityViemModel = new EditEntityViewModel(entity, this.OnEditedEntityCommitted, this.OnEntityRollback);
             this.entities.Value.Add(entityViemModel);
             this.entities.Value.Commit(onAdd: evm => this.model.Entities.Upsert(evm.Model));
             this.SelectedEntity = entityViemModel;
@@ -165,7 +165,7 @@ namespace Kosmograph.Desktop.ViewModel
             this.model.Entities.Upsert(entity);
         }
 
-        private void OnEditedEntityRolledback(Entity entity)
+        private void OnEntityRollback(Entity entity)
         {
             if (this.EditedEntity.Model.Equals(entity))
                 this.EditedEntity = null;
@@ -214,14 +214,14 @@ namespace Kosmograph.Desktop.ViewModel
 
         private void CreateLazyTagsCollection()
         {
-            this.tags = new Lazy<CommitableObservableCollection<EditTagViewModel>>(() => new CommitableObservableCollection<EditTagViewModel>(this.model.Tags.FindAll().Select(t => new EditTagViewModel(t, this.OnEditedTagCommitted, this.OnEditedTagRolledback))));
+            this.tags = new Lazy<CommitableObservableCollection<EditTagViewModel>>(() => new CommitableObservableCollection<EditTagViewModel>(this.model.Tags.FindAll().Select(t => new EditTagViewModel(t, this.OnEditedTagCommitted, this.OnTagRollback))));
             this.RaisePropertyChanged(nameof(Tags));
         }
 
         private void CreateLazyEntitiesCollection()
         {
             this.entities = new Lazy<CommitableObservableCollection<EditEntityViewModel>>(() =>
-                new CommitableObservableCollection<EditEntityViewModel>(this.model.Entities.FindAll().Select(e => new EditEntityViewModel(e, this.OnEditedEntityCommitted, this.OnEditedEntityRolledback))));
+                new CommitableObservableCollection<EditEntityViewModel>(this.model.Entities.FindAll().Select(e => new EditEntityViewModel(e, this.OnEditedEntityCommitted, this.OnEntityRollback))));
             this.RaisePropertyChanged(nameof(Entities));
         }
 

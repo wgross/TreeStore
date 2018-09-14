@@ -1,5 +1,6 @@
 ﻿using Kosmograph.Desktop.ViewModel;
 using Kosmograph.Model;
+using System;
 using System.Linq;
 using Xunit;
 
@@ -13,7 +14,6 @@ namespace Kosmograph.Desktop.Test.ViewModel
         public EditEntityViewModelTest()
         {
             this.tag = new Tag("tag", new Facet("facet", new FacetProperty("p")));
-            this.editTag = new EditTagViewModel(this.tag, delegate { });
         }
 
         [Fact]
@@ -29,7 +29,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
 
             // ACT
 
-            var editEntity = new EditEntityViewModel(entity, delegate { });
+            var editEntity = new EditEntityViewModel(entity, delegate { }, delegate { });
 
             // ASSERT
 
@@ -54,7 +54,13 @@ namespace Kosmograph.Desktop.Test.ViewModel
 
             entity.SetFacetProperty(tag1.Facet.Properties.Single(), 1);
 
-            var editEntity = new EditEntityViewModel(entity, delegate { });
+            bool commitCbCalled = false;
+            Action<Entity> commitCB = e => commitCbCalled = true;
+
+            bool rollbackCbCalled = false;
+            Action<Entity> rollbackCB = e => rollbackCbCalled = true;
+
+            var editEntity = new EditEntityViewModel(entity, commitCB, rollbackCB);
 
             // ACT
 
@@ -65,6 +71,9 @@ namespace Kosmograph.Desktop.Test.ViewModel
             editEntity.RemoveTagCommand.Execute(editEntity.Tags.First());
 
             // ASSERT
+
+            Assert.False(commitCbCalled);
+            Assert.False(rollbackCbCalled);
 
             Assert.Equal("changed", editEntity.Name);
             Assert.Equal("tag2", editEntity.Tags.ElementAt(0).Name);
@@ -94,7 +103,13 @@ namespace Kosmograph.Desktop.Test.ViewModel
 
             entity.SetFacetProperty(tag1.Facet.Properties.Single(), 1);
 
-            var editEntity = new EditEntityViewModel(entity, delegate { });
+            bool commitCbCalled = false;
+            Action<Entity> commitCB = e => commitCbCalled = true;
+
+            bool rollbackCbCalled = false;
+            Action<Entity> rollbackCB = e => rollbackCbCalled = true;
+
+            var editEntity = new EditEntityViewModel(entity, commitCB, rollbackCB);
 
             editEntity.Name = "changed";
             editEntity.Tags.ElementAt(0).Properties.Single().Value = 2;
@@ -107,6 +122,9 @@ namespace Kosmograph.Desktop.Test.ViewModel
             editEntity.Commit();
 
             // ASSERT
+
+            Assert.True(commitCbCalled);
+            Assert.False(rollbackCbCalled);
 
             Assert.Equal("changed", editEntity.Name);
             Assert.Equal("tag2", editEntity.Tags.ElementAt(0).Name);
@@ -136,7 +154,13 @@ namespace Kosmograph.Desktop.Test.ViewModel
 
             entity.SetFacetProperty(tag1.Facet.Properties.Single(), 1);
 
-            var editEntity = new EditEntityViewModel(entity, delegate { });
+            bool commitCbCalled = false;
+            Action<Entity> commitCB = e => commitCbCalled = true;
+
+            bool rollbackCbCalled = false;
+            Action<Entity> rollbackCB = e => rollbackCbCalled = true;
+
+            var editEntity = new EditEntityViewModel(entity, commitCB, rollbackCB);
 
             editEntity.Name = "changed";
             editEntity.Tags.ElementAt(0).Properties.Single().Value = 2;
@@ -149,6 +173,9 @@ namespace Kosmograph.Desktop.Test.ViewModel
             editEntity.Rollback();
 
             // ASSERT
+
+            Assert.False(commitCbCalled);
+            Assert.True(rollbackCbCalled);
 
             Assert.Equal("entity", editEntity.Name);
             Assert.Equal("tag1", editEntity.Tags.ElementAt(1).Name);

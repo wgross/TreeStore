@@ -68,16 +68,12 @@ namespace Kosmograph.Desktop
                 case nameof(KosmographViewModel.EditedTag):
                     this.tagEditorControl.DataContext = this.ViewModel.EditedTag;
                     this.tagEditorControl.Visibility = Visibility.Visible;
-                    //var editTagDialog = new EditDialog { DataContext = this.ViewModel.EditedTag };
-                    //editTagDialog.ShowDialog();
                     break;
 
                 case nameof(KosmographViewModel.EditedEntity):
 
                     this.entityEditorControl.DataContext = this.ViewModel.EditedEntity;
                     this.entityEditorControl.Visibility = Visibility.Visible;
-                    //var editEntityDialog = new EditDialog { DataContext = this.ViewModel.EditedEntity };
-                    //editEntityDialog.ShowDialog();
                     break;
             }
         }

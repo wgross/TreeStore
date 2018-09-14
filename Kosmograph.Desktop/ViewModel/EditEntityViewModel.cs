@@ -11,7 +11,7 @@ namespace Kosmograph.Desktop.ViewModel
         private readonly Action<Entity> committed;
         private readonly Action<Entity> rolledback;
 
-        public EditEntityViewModel(Entity entity, Action<Entity> onEntityCommitted = null, Action<Entity> onEntityRolledback = null)
+        public EditEntityViewModel(Entity entity, Action<Entity> onEntityCommitted, Action<Entity> onEntityRolledback)
             : base(entity)
         {
             this.tags = new Lazy<CommitableObservableCollection<AssignedTagViewModel>>(() => this.CreateAssignedTags());
