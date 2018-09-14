@@ -75,6 +75,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\EditAssignedTagsControl.xaml.cs">
+      <DependentUpon>EditAssignedTagsControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\EditDialog.xaml.cs">
       <DependentUpon>EditDialog.xaml</DependentUpon>
     </Compile>
@@ -100,6 +103,14 @@
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\NamedViewModelBase.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
+    <Page Include="Controls\EditAssignedTagsControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\EditAssignedTagsResources.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Dialogs\DialogResources.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

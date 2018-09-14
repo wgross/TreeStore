@@ -43,7 +43,6 @@
                 foreeground.
                 The Edit control is collapsed until ist DataContext as lomg as the data context of the control is null.
                 -->
-
                 <ListBox Name="entityListBox"
                          Panel.ZIndex="0"
                          Style="{StaticResource entityListBoxStyle}"
@@ -106,7 +105,8 @@
                     Style="{StaticResource tagListBoxStyle}"
                     ItemsSource="{Binding Tags}"
                     SelectedItem="{Binding SelectedTag, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                    MouseDoubleClick="tagListBox_MouseDoubleClick">
+                    MouseDoubleClick="tagListBox_MouseDoubleClick"
+                    MouseMove="tagListBox_MouseMove">
                     <ListBox.InputBindings>
                         <KeyBinding Key="Insert"
                                     Command="{Binding CreateTagCommand}" />

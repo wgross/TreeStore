@@ -2,7 +2,8 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:Kosmograph.Desktop.Editor"
                     xmlns:kvm="clr-namespace:Kosmograph.Desktop.ViewModel"
-                    xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase">
+                    xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
+                    xmlns:kdc="clr-namespace:Kosmograph.Desktop.Controls">
 
     <Style x:Key="editorTextBox" TargetType="{x:Type TextBox}">
         <Style.Triggers>
@@ -104,30 +105,35 @@
                     Text="{Binding Name}"
                     Style="{StaticResource editorTextBox}"/>
             </DockPanel>
+            <kdc:EditAssignedTagsControl/>
             <!--
             A collection of all assigned tags fill the reminder of the panel
-            -->
+            
             <ItemsControl
                 ItemsSource="{Binding Tags}">
             </ItemsControl>
+            -->
         </DockPanel>
     </DataTemplate>
 
+    <!--
     <DataTemplate DataType="{x:Type kvm:AssignedTagViewModel}">
         <StackPanel Orientation="Vertical">
-            <!--
+            --><!--
             The area of the tag has the tag nam as a title
-            -->
+            --><!--
             <Label DockPanel.Dock="Top"  Content="{Binding Name, Mode=OneWay, diag:PresentationTraceSources.TraceLevel=High}" />
 
-            <!--
+            --><!--
             fill the reminder of the space with the properties
-            -->
-            <ItemsControl DockPanel.Dock="Top"
+            --><!--
+            <ItemsControl Name="assignedTagsItemsControl"
+                DockPanel.Dock="Top"
                 ItemsSource="{Binding Properties}">
-            </ItemsControl>
+             </ItemsControl>
         </StackPanel>
     </DataTemplate>
+    -->
 
     <DataTemplate DataType="{x:Type kvm:AssignedFacetPropertyValue}">
         <DockPanel LastChildFill="True" DockPanel.Dock="Top">
