@@ -52,13 +52,16 @@
     - based in the self-focusing control style
     -->
     <Style x:Key="editorGridStyle" TargetType="{x:Type Grid}">
-
         <!--<Setter Property="Background" Value="Black" />
         <Setter Property="Opacity" Value="0.8" />-->
     </Style>
 
-    <Style x:Key="editContentStyle" TargetType="{x:Type ContentControl}">
-        <Setter Property="Padding" Value="50" />
+    <Style x:Key="editorContentControlBorderStyle" TargetType="{x:Type Border}">
+        <Setter Property="Background" Value="Black"/>
+        <Setter Property="Opacity" Value="0.8"/>
+    </Style>
+    <Style x:Key="editContentControlStyle" TargetType="{x:Type ContentControl}">
+        <Setter Property="Margin" Value="20" />
     </Style>
 
     <!--
@@ -96,9 +99,7 @@
     - Tags and their property values below.
     -->
     <DataTemplate DataType="{x:Type kvm:EditEntityViewModel}">
-        <DockPanel
-            LastChildFill="True"
-            Background="White">
+        <StackPanel Orientation="Vertical" Background="White">
             <Border BorderThickness="0,0,0,2" BorderBrush="Black" DockPanel.Dock="Top">
                 <TextBlock Text="{Binding Name, StringFormat={}Edit Entity: {0}}" FontWeight="Bold"/>
             </Border>
@@ -109,7 +110,7 @@
                     Style="{StaticResource editorTextBox}" />
             </DockPanel>
             <kdc:EditAssignedTagsControl />
-        </DockPanel>
+        </StackPanel>
     </DataTemplate>
 
     <DataTemplate DataType="{x:Type kvm:AssignedFacetPropertyValue}">

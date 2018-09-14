@@ -39,12 +39,11 @@
                 </DockPanel>
             </Border>
             <Grid>
+                <kde:EditorControl
+                    Panel.ZIndex="2"
+                    DataContext="{Binding EditedEntity, Mode=OneWay}"/>
                 <kdc:ShowEntitiesControl
-                    Panel.ZIndex="0" />
-                <kde:EditorControl x:Name="entityEditorControl"
-                    Panel.ZIndex="1"
-                    DataContext="{Binding EditedEntity}"
-                    Visibility="{Binding EditedEntity, Converter={StaticResource nullIsCollapsedConverter}, Mode=OneWay}" />
+                    Panel.ZIndex="1" />
             </Grid>
         </DockPanel>
 
@@ -75,13 +74,12 @@
                 </DockPanel>
             </Border>
             <Grid>
-
                 <kdc:ShowTagsControl
-                    Panel.ZIndex="1" />
+                    Panel.ZIndex="0" />
+
                 <kde:EditorControl
                     Panel.ZIndex="1"
-                    DataContext="{Binding EditedTag}"
-                    Visibility="{Binding EditedTag, Converter={StaticResource nullIsCollapsedConverter}, Mode=OneWay}" />
+                    DataContext="{Binding EditedTag, Mode=OneWay}"/>
             </Grid>
         </DockPanel>
     </Grid>
