@@ -82,12 +82,10 @@ namespace Kosmograph.Desktop.ViewModel
 
         private void OnCreatedTagCommitted(Tag tag)
         {
-            if (this.EditedTag.Model.Equals(tag))
-                this.EditedTag = null;
-
             var tagViemModel = new EditTagViewModel(tag, this.OnEditedTagCommitted, this.OnTagRollback);
             this.tags.Value.Add(tagViemModel);
-            this.tags.Value.Commit(onAdd: tvm => this.model.Tags.Upsert(tvm.Model));
+            this.tags.Value.Commit(onAdd: tvm => this.Model.Tags.Upsert(tvm.Model));
+            this.EditedTag = null;
             this.SelectedTag = tagViemModel;
         }
 
@@ -112,8 +110,7 @@ namespace Kosmograph.Desktop.ViewModel
 
         private void OnTagRollback(Tag tag)
         {
-            if (this.EditedTag.Model.Equals(tag))
-                this.EditedTag = null;
+            this.EditedTag = null;
         }
 
         #endregion Edit existing Tag
@@ -137,12 +134,10 @@ namespace Kosmograph.Desktop.ViewModel
 
         private void OnCreatedEntityCommitted(Entity entity)
         {
-            if (this.EditedEntity.Model.Equals(entity))
-                this.EditedEntity = null;
-
             var entityViemModel = new EditEntityViewModel(entity, this.OnEditedEntityCommitted, this.OnEntityRollback);
             this.entities.Value.Add(entityViemModel);
-            this.entities.Value.Commit(onAdd: evm => this.model.Entities.Upsert(evm.Model));
+            this.entities.Value.Commit(onAdd: evm => this.Model.Entities.Upsert(evm.Model));
+            this.EditedEntity = null;
             this.SelectedEntity = entityViemModel;
         }
 
@@ -159,10 +154,8 @@ namespace Kosmograph.Desktop.ViewModel
 
         private void OnEditedEntityCommitted(Entity entity)
         {
-            if (this.EditedEntity.Model.Equals(entity))
-                this.EditedEntity = null;
-
-            this.model.Entities.Upsert(entity);
+            this.Model.Entities.Upsert(entity);
+            this.EditedEntity = null;
         }
 
         private void OnEntityRollback(Entity entity)

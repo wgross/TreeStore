@@ -16,9 +16,6 @@ namespace Kosmograph.Desktop
         {
             this.InitializeComponent();
             this.Activated += this.MainWindow_Activated;
-
-            //this.CommandBindings.Add(new CommandBinding(KosmographCommands.CreateTag, this.CreateTagExecuted, this.CreateTagCanExceute));
-            //this.CommandBindings.Add(new CommandBinding(KosmographCommands.CreateEntity, this.CreateEntityExecuted, this.CreateEntityCanExceute));
         }
 
         private void MainWindow_Activated(object sender, EventArgs e)
@@ -52,29 +49,7 @@ namespace Kosmograph.Desktop
             }
             set
             {
-                var oldModel = this.ViewModel;
-                if (oldModel != null)
-                    oldModel.PropertyChanged -= this.KosmographViewModel_PropertyChanged;
-
-                value.PropertyChanged += this.KosmographViewModel_PropertyChanged;
                 this.DataContext = value;
-            }
-        }
-
-        private void KosmographViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            switch (e.PropertyName)
-            {
-                case nameof(KosmographViewModel.EditedTag):
-                    this.tagEditorControl.DataContext = this.ViewModel.EditedTag;
-                    this.tagEditorControl.Visibility = Visibility.Visible;
-                    break;
-
-                case nameof(KosmographViewModel.EditedEntity):
-
-                    this.entityEditorControl.DataContext = this.ViewModel.EditedEntity;
-                    this.entityEditorControl.Visibility = Visibility.Visible;
-                    break;
             }
         }
 

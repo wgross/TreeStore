@@ -2,6 +2,8 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:Kosmograph.Desktop">
 
+    <local:NullToVisiblityConverter x:Key="nullIsCollapsedConverter"/>
+    
     <Style x:Key="entityRelationshipControlLabelStyle" TargetType="{x:Type Label}" >
         <Setter Property="Content"
                 Value="_Entities and their Relationships"/>

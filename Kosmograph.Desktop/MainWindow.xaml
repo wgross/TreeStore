@@ -38,6 +38,12 @@
                 </DockPanel>
             </Border>
             <Grid>
+                <!--
+                the grid is shared between the list box in the background and the edit control in the
+                foreeground.
+                The Edit control is collapsed until ist DataContext as lomg as the data context of the control is null.
+                -->
+
                 <ListBox Name="entityListBox"
                          Panel.ZIndex="0"
                          Style="{StaticResource entityListBoxStyle}"
@@ -55,10 +61,10 @@
                             CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
                     </ListBox.InputBindings>
                 </ListBox>
-                <kde:EditorControl
-                    x:Name="entityEditorControl"
-                    Visibility="Collapsed"
-                    Panel.ZIndex="1" />
+                <kde:EditorControl x:Name="entityEditorControl"
+                    Panel.ZIndex="1"
+                    DataContext="{Binding EditedEntity}"
+                    Visibility="{Binding EditedEntity, Converter={StaticResource nullIsCollapsedConverter}, Mode=OneWay}" />
             </Grid>
         </DockPanel>
 
@@ -89,6 +95,11 @@
                 </DockPanel>
             </Border>
             <Grid>
+                <!--
+                the grid is shared between the list box in the background and the edit control in the
+                foreeground.
+                The Edit control is collapsed until ist DataContext as lomg as the data context of the control is null.
+                -->
                 <ListBox
                     Name="tagListBox"
                     Panel.ZIndex="0"
@@ -107,10 +118,13 @@
                             CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
                     </ListBox.InputBindings>
                 </ListBox>
-                <kde:EditorControl
-                    x:Name="tagEditorControl"
-                    Visibility="Collapsed"
-                    Panel.ZIndex="1" />
+                <kde:EditorControl x:Name="tagEditorControl"
+                    Panel.ZIndex="1"
+                    DataContext="{Binding EditedTag}"
+                    Visibility="{Binding EditedTag, Converter={StaticResource nullIsCollapsedConverter}, Mode=OneWay}" />
+                <!--
+                Visibility="{Binding EditedTag, Converter={StaticResource nullIsCollapsedConverter}, Mode=OneWay}"
+                -->
             </Grid>
         </DockPanel>
     </Grid>

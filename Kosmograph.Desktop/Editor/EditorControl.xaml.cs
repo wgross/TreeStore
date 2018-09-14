@@ -24,7 +24,6 @@ namespace Kosmograph.Desktop.Editor
         private void CancelExecuted(object sender, ExecutedRoutedEventArgs e)
         {
             this.ViewModel.RollbackCommand.Execute(e.Parameter);
-            this.Visibility = Visibility.Collapsed;
         }
 
         private void OkCanExecute(object sender, CanExecuteRoutedEventArgs e) => e.CanExecute = this.ViewModel.CommitCommand.CanExecute(e.Parameter);
@@ -32,7 +31,6 @@ namespace Kosmograph.Desktop.Editor
         private void OkExecuted(object sender, ExecutedRoutedEventArgs e)
         {
             this.ViewModel.CommitCommand.Execute(e.Parameter);
-            this.Visibility = Visibility.Collapsed;
         }
     }
 }
