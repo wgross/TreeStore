@@ -9,11 +9,12 @@
     <UserControl.Resources>
         <ResourceDictionary Source="./EditorResources.xaml" />
     </UserControl.Resources>
-    <UserControl.InputBindings>
-        <KeyBinding Key="Return" Command="{x:Static local:EditorCommands.Ok}" />
-        <KeyBinding Key="Esc" Command="{x:Static local:EditorCommands.Cancel}" />
-    </UserControl.InputBindings>
+
     <Grid Style="{StaticResource editorGridStyle}">
+        <Grid.InputBindings>
+            <KeyBinding Key="Return" Command="{x:Static local:EditorCommands.Ok}" />
+            <KeyBinding Key="Esc" Command="{x:Static local:EditorCommands.Cancel}" />
+        </Grid.InputBindings>
         <ContentControl Content="{Binding .}" />
     </Grid>
 </UserControl>

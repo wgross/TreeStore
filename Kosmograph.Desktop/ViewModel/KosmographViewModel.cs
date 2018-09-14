@@ -214,14 +214,14 @@ namespace Kosmograph.Desktop.ViewModel
 
         private void CreateLazyTagsCollection()
         {
-            this.tags = new Lazy<CommitableObservableCollection<EditTagViewModel>>(() => new CommitableObservableCollection<EditTagViewModel>(this.model.Tags.FindAll().Select(t => new EditTagViewModel(t, this.OnEditedTagCommitted))));
+            this.tags = new Lazy<CommitableObservableCollection<EditTagViewModel>>(() => new CommitableObservableCollection<EditTagViewModel>(this.model.Tags.FindAll().Select(t => new EditTagViewModel(t, this.OnEditedTagCommitted, this.OnEditedTagRolledback))));
             this.RaisePropertyChanged(nameof(Tags));
         }
 
         private void CreateLazyEntitiesCollection()
         {
             this.entities = new Lazy<CommitableObservableCollection<EditEntityViewModel>>(() =>
-                new CommitableObservableCollection<EditEntityViewModel>(this.model.Entities.FindAll().Select(e => new EditEntityViewModel(e, this.OnEditedEntityCommitted))));
+                new CommitableObservableCollection<EditEntityViewModel>(this.model.Entities.FindAll().Select(e => new EditEntityViewModel(e, this.OnEditedEntityCommitted, this.OnEditedEntityRolledback))));
             this.RaisePropertyChanged(nameof(Entities));
         }
 

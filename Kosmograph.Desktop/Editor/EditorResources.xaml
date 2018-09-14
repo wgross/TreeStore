@@ -4,6 +4,14 @@
                     xmlns:kvm="clr-namespace:Kosmograph.Desktop.ViewModel"
                     xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase">
 
+    <Style x:Key="editorTextBox" TargetType="{x:Type TextBox}">
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="FocusManager.FocusedElement" Value="{Binding RelativeSource={RelativeSource Self}}" />
+            </Trigger>
+        </Style.Triggers> 
+    </Style>
+
     <Style x:Key="editButtonPanelStyle" TargetType="{x:Type DockPanel}">
         <Setter Property="LastChildFill" Value="False" />
     </Style>
@@ -29,20 +37,27 @@
                 </DataTemplate>
             </Setter.Value>
         </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="FocusManager.FocusedElement" Value="{Binding RelativeSource={RelativeSource Self}}" />
+            </Trigger>
+        </Style.Triggers>
     </Style>
 
     <!--
-    Editor grid:
+    Common editor grid:
     - Backgound is gray (transparent)
     - Content is centered
+    - based in the self-focusing control style
     -->
     <Style x:Key="editorGridStyle" TargetType="{x:Type Grid}">
-        <!--<Setter Property="Background" Value="Black"/>
-        <Setter Property="Opacity" Value="0.8"/>-->
+
+        <!--<Setter Property="Background" Value="Black" />
+        <Setter Property="Opacity" Value="0.8" />-->
     </Style>
 
     <Style x:Key="editContentStyle" TargetType="{x:Type ContentControl}">
-        <Setter Property="Padding" Value="50"/>
+        <Setter Property="Padding" Value="50" />
     </Style>
 
     <!--
@@ -51,7 +66,7 @@
     - List of facet properties below in Expander
     -->
     <DataTemplate DataType="{x:Type kvm:EditTagViewModel}">
-        <DockPanel 
+        <DockPanel
             LastChildFill="True"
             Background="White">
             <DockPanel LastChildFill="True" DockPanel.Dock="Top">
@@ -80,12 +95,14 @@
     - Tags and their property values below.
     -->
     <DataTemplate DataType="{x:Type kvm:EditEntityViewModel}">
-        <DockPanel 
+        <DockPanel
             LastChildFill="True"
             Background="White">
             <DockPanel LastChildFill="True" DockPanel.Dock="Top">
                 <Label DockPanel.Dock="Left" Style="{StaticResource nameLabelStyle}" />
-                <TextBox Text="{Binding Name}"></TextBox>
+                <TextBox 
+                    Text="{Binding Name}"
+                    Style="{StaticResource editorTextBox}"/>
             </DockPanel>
             <!--
             A collection of all assigned tags fill the reminder of the panel
@@ -115,8 +132,9 @@
     <DataTemplate DataType="{x:Type kvm:AssignedFacetPropertyValue}">
         <DockPanel LastChildFill="True" DockPanel.Dock="Top">
             <Label DockPanel.Dock="Left" Content="{Binding Name, Mode=OneTime}" />
-            <TextBox Text="{Binding Value}" />
+            <TextBox 
+                Text="{Binding Value}" 
+                Style="{StaticResource editorTextBox}" />
         </DockPanel>
     </DataTemplate>
 </ResourceDictionary>
-    
