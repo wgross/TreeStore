@@ -25,16 +25,6 @@
                 Value="0,0,0,5" />
     </Style>
 
-    <!--<Style x:Key="entityListBoxStyle" TargetType="{x:Type ListBox}">
-        <Setter Property="ItemTemplate">
-            <Setter.Value>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Name}" />
-                </DataTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>-->
-
     <!--
     The right column of the main window shows a list of tags.
     - The list is headed by a label.

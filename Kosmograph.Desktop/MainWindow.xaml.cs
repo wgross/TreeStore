@@ -52,13 +52,5 @@ namespace Kosmograph.Desktop
                 this.DataContext = value;
             }
         }
-
-        #region Event handler
-
-        private void tagListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e) => this.ViewModel.EditTagCommand.Execute(this.ViewModel.SelectedTag);
-
-        private void entityListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e) => this.ViewModel.EditEntityCommand.Execute(this.ViewModel.SelectedEntity);
-
-        #endregion Event handler
     }
 }

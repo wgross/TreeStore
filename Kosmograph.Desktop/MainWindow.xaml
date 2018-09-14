@@ -39,30 +39,8 @@
                 </DockPanel>
             </Border>
             <Grid>
-                <!--
-                the grid is shared between the list box in the background and the edit control in the
-                foreeground.
-                The Edit control is collapsed until ist DataContext as lomg as the data context of the control is null.
-                -->
-                <!--<ListBox Name="entityListBox"
-                         Panel.ZIndex="0"
-                         Style="{StaticResource entityListBoxStyle}"
-                         ItemsSource="{Binding Entities}"
-                         SelectedItem="{Binding SelectedEntity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                         MouseDoubleClick="entityListBox_MouseDoubleClick">
-                    <ListBox.InputBindings>
-                        <KeyBinding Key="Insert"
-                                    Command="{Binding CreateEntityCommand}" />
-                        <KeyBinding Key="Return"
-                                    Command="{Binding EditEntityCommand}"
-                                    CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
-                        <KeyBinding Key="Delete"
-                            Command="{Binding DeleteEntityCommand}"
-                            CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
-                    </ListBox.InputBindings>
-                </ListBox>-->
                 <kdc:ShowEntitiesControl
-                    Panel.ZIndex="0"/>
+                    Panel.ZIndex="0" />
                 <kde:EditorControl x:Name="entityEditorControl"
                     Panel.ZIndex="1"
                     DataContext="{Binding EditedEntity}"
