@@ -10,7 +10,7 @@
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="FocusManager.FocusedElement" Value="{Binding RelativeSource={RelativeSource Self}}" />
             </Trigger>
-        </Style.Triggers> 
+        </Style.Triggers>
     </Style>
 
     <Style x:Key="editButtonPanelStyle" TargetType="{x:Type DockPanel}">
@@ -101,14 +101,14 @@
             Background="White">
             <DockPanel LastChildFill="True" DockPanel.Dock="Top">
                 <Label DockPanel.Dock="Left" Style="{StaticResource nameLabelStyle}" />
-                <TextBox 
+                <TextBox
                     Text="{Binding Name}"
-                    Style="{StaticResource editorTextBox}"/>
+                    Style="{StaticResource editorTextBox}" />
             </DockPanel>
-            <kdc:EditAssignedTagsControl/>
+            <kdc:EditAssignedTagsControl />
             <!--
             A collection of all assigned tags fill the reminder of the panel
-            
+
             <ItemsControl
                 ItemsSource="{Binding Tags}">
             </ItemsControl>
@@ -116,30 +116,11 @@
         </DockPanel>
     </DataTemplate>
 
-    <!--
-    <DataTemplate DataType="{x:Type kvm:AssignedTagViewModel}">
-        <StackPanel Orientation="Vertical">
-            --><!--
-            The area of the tag has the tag nam as a title
-            --><!--
-            <Label DockPanel.Dock="Top"  Content="{Binding Name, Mode=OneWay, diag:PresentationTraceSources.TraceLevel=High}" />
-
-            --><!--
-            fill the reminder of the space with the properties
-            --><!--
-            <ItemsControl Name="assignedTagsItemsControl"
-                DockPanel.Dock="Top"
-                ItemsSource="{Binding Properties}">
-             </ItemsControl>
-        </StackPanel>
-    </DataTemplate>
-    -->
-
     <DataTemplate DataType="{x:Type kvm:AssignedFacetPropertyValue}">
         <DockPanel LastChildFill="True" DockPanel.Dock="Top">
             <Label DockPanel.Dock="Left" Content="{Binding Name, Mode=OneTime}" />
-            <TextBox 
-                Text="{Binding Value}" 
+            <TextBox
+                Text="{Binding Value}"
                 Style="{StaticResource editorTextBox}" />
         </DockPanel>
     </DataTemplate>

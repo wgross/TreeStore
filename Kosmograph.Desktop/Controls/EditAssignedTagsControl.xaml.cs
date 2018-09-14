@@ -2,7 +2,6 @@
 using Kosmograph.Model;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace Kosmograph.Desktop.Controls
 {
@@ -14,7 +13,6 @@ namespace Kosmograph.Desktop.Controls
         }
 
         private EditEntityViewModel ViewModel => this.DataContext as EditEntityViewModel;
-
 
         protected override void OnDrop(DragEventArgs e)
         {

@@ -95,40 +95,13 @@
                 </DockPanel>
             </Border>
             <Grid>
-                <!--
-                the grid is shared between the list box in the background and the edit control in the
-                foreeground.
-                The Edit control is collapsed until ist DataContext as lomg as the data context of the control is null.
 
-                <ListBox
-                    Name="tagListBox"
-                    Panel.ZIndex="0"
-                    Style="{StaticResource tagListBoxStyle}"
-                    ItemsSource="{Binding Tags}"
-                    SelectedItem="{Binding SelectedTag, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                    MouseDoubleClick="tagListBox_MouseDoubleClick"
-                    MouseMove="tagListBox_MouseMove">
-                    <ListBox.InputBindings>
-                        <KeyBinding Key="Insert"
-                                    Command="{Binding CreateTagCommand}" />
-                        <KeyBinding Key="Return"
-                                    Command="{Binding EditTagCommand}"
-                                    CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
-                        <KeyBinding Key="Delete"
-                            Command="{Binding DeleteTagCommand}"
-                            CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
-                    </ListBox.InputBindings>
-                </ListBox>
-                -->
-                <kdc:ShowTagsControl 
-                    Panel.ZIndex="1"/>
+                <kdc:ShowTagsControl
+                    Panel.ZIndex="1" />
                 <kde:EditorControl
                     Panel.ZIndex="1"
                     DataContext="{Binding EditedTag}"
                     Visibility="{Binding EditedTag, Converter={StaticResource nullIsCollapsedConverter}, Mode=OneWay}" />
-                <!--
-                Visibility="{Binding EditedTag, Converter={StaticResource nullIsCollapsedConverter}, Mode=OneWay}"
-                -->
             </Grid>
         </DockPanel>
     </Grid>

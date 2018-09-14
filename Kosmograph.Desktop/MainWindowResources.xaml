@@ -2,34 +2,34 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:Kosmograph.Desktop">
 
-    <local:NullToVisiblityConverter x:Key="nullIsCollapsedConverter"/>
-    
-    <Style x:Key="entityRelationshipControlLabelStyle" TargetType="{x:Type Label}" >
+    <local:NullToVisiblityConverter x:Key="nullIsCollapsedConverter" />
+
+    <Style x:Key="entityRelationshipControlLabelStyle" TargetType="{x:Type Label}">
         <Setter Property="Content"
-                Value="_Entities and their Relationships"/>
+                Value="_Entities and their Relationships" />
     </Style>
-    
+
     <Style x:Key="createEntityButtonStyle" TargetType="{x:Type Button}">
         <Setter Property="Content"
-                Value="Add Entity..."/>
+                Value="Add Entity..." />
         <Setter Property="HorizontalAlignment"
-                Value="Left"/>
+                Value="Left" />
         <Setter Property="VerticalAlignment"
-                Value="Center"/>
+                Value="Center" />
     </Style>
 
     <Style x:Key="labelBorderStyle" TargetType="{x:Type Border}">
         <Setter Property="BorderThickness"
-                Value="0,0,0,0.5"/>
-        <Setter Property="Margin" 
-                Value="0,0,0,5"/>
+                Value="0,0,0,0.5" />
+        <Setter Property="Margin"
+                Value="0,0,0,5" />
     </Style>
 
     <Style x:Key="entityListBoxStyle" TargetType="{x:Type ListBox}">
         <Setter Property="ItemTemplate">
             <Setter.Value>
                 <DataTemplate>
-                    <TextBlock Text="{Binding Name}"/>
+                    <TextBlock Text="{Binding Name}" />
                 </DataTemplate>
             </Setter.Value>
         </Setter>
@@ -40,36 +40,22 @@
     - The list is headed by a label.
     - The list is filling the remaining space
     -->
-    
+
     <Style x:Key="tagListBoxPanelStyle" TargetType="{x:Type DockPanel}">
-        <Setter Property="LastChildFill" Value="True"/>
+        <Setter Property="LastChildFill" Value="True" />
     </Style>
-    
-    <Style x:Key="tagListBoxLabelStyle" TargetType="{x:Type Label}" >
+
+    <Style x:Key="tagListBoxLabelStyle" TargetType="{x:Type Label}">
         <Setter Property="Content"
-            Value="_Tags"/>
+            Value="_Tags" />
     </Style>
 
     <Style x:Key="createTagButtonStyle" TargetType="{x:Type Button}">
         <Setter Property="Content"
-                Value="Add Facet..."/>
+                Value="Add Facet..." />
         <Setter Property="HorizontalAlignment"
-                Value="Left"/>
+                Value="Left" />
         <Setter Property="VerticalAlignment"
-                Value="Center"/>
-
+                Value="Center" />
     </Style>
-    
-    <!--<Style x:Key="tagListBoxStyle" TargetType="{x:Type ListBox}">
-        <Setter Property="ItemTemplate">
-            <Setter.Value>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Name}"/>
-                </DataTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>-->
-
-   
-    
 </ResourceDictionary>
