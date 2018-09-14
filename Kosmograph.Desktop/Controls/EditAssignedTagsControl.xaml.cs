@@ -14,7 +14,7 @@ namespace Kosmograph.Desktop.Controls
 
         private EditEntityViewModel ViewModel => this.DataContext as EditEntityViewModel;
 
-        protected override void OnDrop(DragEventArgs e)
+        private void assignedTagsItemsControl_Drop(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(typeof(Tag)))
             {

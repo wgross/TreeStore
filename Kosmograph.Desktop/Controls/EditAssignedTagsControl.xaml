@@ -11,6 +11,8 @@
         <ResourceDictionary Source="./EditAssignedTagsResources.xaml"/>
     </UserControl.Resources>
     <ItemsControl
-        ItemsSource="{Binding Tags}">
+        Name="assignedTagsItemsControl"
+        ItemsSource="{Binding Tags}" 
+        Drop="assignedTagsItemsControl_Drop">
     </ItemsControl>
 </UserControl>
