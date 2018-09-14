@@ -34,7 +34,7 @@ namespace Kosmograph.Desktop.ViewModel
             }
         }
 
-        public void Commit(Action<T> onAdd, Action<T> onRemove)
+        public void Commit(Action<T> onAdd = null, Action<T> onRemove = null)
         {
             foreach (var (action, items) in this.changes)
             {
@@ -42,12 +42,12 @@ namespace Kosmograph.Desktop.ViewModel
                 {
                     case NotifyCollectionChangedAction.Remove:
                         foreach (var item in items)
-                            onRemove(item);
+                            onRemove?.Invoke(item);
                         break;
 
                     case NotifyCollectionChangedAction.Add:
                         foreach (var item in items)
-                            onAdd(item);
+                            onAdd?.Invoke(item);
                         break;
                 }
             }

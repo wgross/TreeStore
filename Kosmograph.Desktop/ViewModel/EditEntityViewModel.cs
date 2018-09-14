@@ -9,14 +9,16 @@ namespace Kosmograph.Desktop.ViewModel
     public class EditEntityViewModel : EditNamedViewModelBase<Entity>
     {
         private readonly Action<Entity> committed;
+        private readonly Action<Entity> rolledback;
 
-        public EditEntityViewModel(Entity entity, Action<Entity> onEntityCommitted)
+        public EditEntityViewModel(Entity entity, Action<Entity> onEntityCommitted = null, Action<Entity> onEntityRolledback = null)
             : base(entity)
         {
-            this.committed = onEntityCommitted;
             this.tags = new Lazy<CommitableObservableCollection<AssignedTagViewModel>>(() => this.CreateAssignedTags());
             this.AssignTagCommand = new RelayCommand<Tag>(this.AssigneTagExcuted);
             this.RemoveTagCommand = new RelayCommand<AssignedTagViewModel>(this.RemoveTagExecuted);
+            this.committed = onEntityCommitted ?? delegate { };
+            this.rolledback = onEntityRolledback ?? delegate { };
         }
 
         #region Collection of assigned tags
@@ -83,6 +85,7 @@ namespace Kosmograph.Desktop.ViewModel
             this.Tags.Rollback();
             this.Tags.ForEach(t => t.Properties.ForEach(p => p.Rollback()));
             base.Rollback();
+            this.rolledback(this.Model);
         }
 
         #endregion Rollback changes

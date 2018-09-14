@@ -59,26 +59,41 @@ namespace Kosmograph.Desktop.ViewModel
 
         private EditEntityViewModel selectedEntity;
 
-        #region Remove tag from model
+        #region Remove Tag from model
 
         public ICommand DeleteTagCommand { get; }
 
-        private void DeleteTagExecuted(EditTagViewModel tag) => this.Tags.Remove(tag);
+        private void DeleteTagExecuted(EditTagViewModel tag)
+        {
+            this.tags.Value.Remove(tag);
+            this.tags.Value.Commit(onRemove: tvm => this.model.Tags.Delete(tvm.Model.Id));
+        }
 
-        private void RemoveTag(Tag tag) => this.model.Tags.Delete(tag.Id);
+        #endregion Remove Tag from model
 
-        #endregion Remove tag from model
-
-        #region Create/edit new Tag in model
+        #region Create new Tag in model
 
         public ICommand CreateTagCommand { get; }
 
         private void CreateTagExecuted()
         {
-            var tmp = new EditTagViewModel(new Tag("new tag", new Facet()), this.OnTagCommitted);
-            this.Tags.Add(tmp);
-            this.EditTagCommand.Execute(tmp);
+            this.EditedTag = new EditTagViewModel(new Tag("new tag", new Facet()), this.OnCreatedTagCommitted, this.OnEditedTagRolledback);
         }
+
+        private void OnCreatedTagCommitted(Tag tag)
+        {
+            if (this.EditedTag.Model.Equals(tag))
+                this.EditedTag = null;
+
+            var tagViemModel = new EditTagViewModel(tag, this.OnEditedTagCommitted, this.OnEditedTagRolledback);
+            this.tags.Value.Add(tagViemModel);
+            this.tags.Value.Commit(onAdd: tvm => this.model.Tags.Upsert(tvm.Model));
+            this.SelectedTag = tagViemModel;
+        }
+
+        #endregion Create new Tag in model
+
+        #region Edit existing Tag
 
         public ICommand EditTagCommand { get; }
 
@@ -86,6 +101,22 @@ namespace Kosmograph.Desktop.ViewModel
         {
             this.EditedTag = tag;
         }
+
+        private void OnEditedTagCommitted(Tag tag)
+        {
+            if (this.EditedTag.Model.Equals(tag))
+                this.EditedTag = null;
+
+            this.model.Tags.Upsert(tag);
+        }
+
+        private void OnEditedTagRolledback(Tag tag)
+        {
+            if (this.EditedTag.Model.Equals(tag))
+                this.EditedTag = null;
+        }
+
+        #endregion Edit existing Tag
 
         public EditTagViewModel EditedTag
         {
@@ -95,19 +126,29 @@ namespace Kosmograph.Desktop.ViewModel
 
         private EditTagViewModel editedTag;
 
-        #endregion Create/edit new Tag in model
-
-        #region Create/edit Entity in Model
+        #region Create new Entity in Model
 
         public ICommand CreateEntityCommand { get; }
 
         public void CreateEntityExecuted()
         {
-            var tmp = new EditEntityViewModel(new Entity("new entity", new Tag(string.Empty, new Facet())), this.OnEntityCommitted);
-            this.Entities.Add(tmp);
-            this.EditEntityCommand.Execute(tmp);
-            this.SelectedEntity = tmp;
+            this.EditedEntity = new EditEntityViewModel(new Entity("new entity", new Tag(string.Empty, new Facet())), this.OnCreatedEntityCommitted, this.OnEditedEntityRolledback);
         }
+
+        private void OnCreatedEntityCommitted(Entity entity)
+        {
+            if (this.EditedEntity.Model.Equals(entity))
+                this.EditedEntity = null;
+
+            var entityViemModel = new EditEntityViewModel(entity, this.OnEditedEntityCommitted);
+            this.entities.Value.Add(entityViemModel);
+            this.entities.Value.Commit(onAdd: evm => this.model.Entities.Upsert(evm.Model));
+            this.SelectedEntity = entityViemModel;
+        }
+
+        #endregion Create new Entity in Model
+
+        #region Edit existing Entity
 
         public ICommand EditEntityCommand { get; }
 
@@ -116,7 +157,24 @@ namespace Kosmograph.Desktop.ViewModel
             this.EditedEntity = entity;
         }
 
+        private void OnEditedEntityCommitted(Entity entity)
+        {
+            if (this.EditedEntity.Model.Equals(entity))
+                this.EditedEntity = null;
+
+            this.model.Entities.Upsert(entity);
+        }
+
+        private void OnEditedEntityRolledback(Entity entity)
+        {
+            if (this.EditedEntity.Model.Equals(entity))
+                this.EditedEntity = null;
+        }
+
+        #endregion Edit existing Entity
+
         public EditEntityViewModel EditedEntity
+
         {
             get => this.editedEntity;
             set => this.Set<EditEntityViewModel>(nameof(EditedEntity), ref this.editedEntity, value);
@@ -124,48 +182,28 @@ namespace Kosmograph.Desktop.ViewModel
 
         private EditEntityViewModel editedEntity;
 
-        #endregion Create/edit Entity in Model
-
         #region Delete Entity from Model
 
         public ICommand DeleteEntityCommand { get; }
 
-        private void DeleteEntityExecuted(EditEntityViewModel entity) => this.Entities.Remove(entity);
-
-        private void RemoveEntity(Entity entity) => this.model.Entities.Delete(entity.Id);
+        private void DeleteEntityExecuted(EditEntityViewModel entity)
+        {
+            this.entities.Value.Remove(entity);
+            this.entities.Value.Commit(onRemove: evm => this.model.Entities.Delete(evm.Model.Id));
+        }
 
         #endregion Delete Entity from Model
 
         #region Commit changes of Tags to model
 
-        private void OnTagCommitted(EditTagViewModel tag)
-        {
-            if (tag.Equals(this.EditedTag))
-                this.EditedTag = null;
-
-            this.OnTagCommitted(tag.Model);
-        }
-
-        private void OnTagCommitted(Tag tag) => this.model.Tags.Upsert(tag);
-
         private void OnTagRemoved(EditTagViewModel vm) => this.model.Tags.Delete(vm.Model.Id);
-
-        private void OnEntityCommitted(EditEntityViewModel entity)
-        {
-            if (entity.Equals(this.EditedEntity))
-                this.EditedEntity = null;
-
-            this.OnEntityCommitted(entity.Model);
-        }
-
-        private void OnEntityCommitted(Entity entity) => this.model.Entities.Upsert(entity);
 
         private void OnEntityRemoved(EditEntityViewModel vm) => this.model.Entities.Delete(vm.Model.Id);
 
         public void Commit()
         {
-            this.tags.Value.Commit(onAdd: this.OnTagCommitted, onRemove: this.OnTagRemoved);
-            this.entities.Value.Commit(onAdd: this.OnEntityCommitted, onRemove: this.OnEntityRemoved);
+            //is.tags.Value.Commit(onAdd: this.OnTagCommitted, onRemove: this.OnTagRemoved);
+            //this.entities.Value.Commit(onAdd: this.OnEditedEntityCommitted, onRemove: this.OnEntityRemoved);
         }
 
         public void Rollback()
@@ -176,13 +214,14 @@ namespace Kosmograph.Desktop.ViewModel
 
         private void CreateLazyTagsCollection()
         {
-            this.tags = new Lazy<CommitableObservableCollection<EditTagViewModel>>(() => new CommitableObservableCollection<EditTagViewModel>(this.model.Tags.FindAll().Select(t => new EditTagViewModel(t, this.OnTagCommitted))));
+            this.tags = new Lazy<CommitableObservableCollection<EditTagViewModel>>(() => new CommitableObservableCollection<EditTagViewModel>(this.model.Tags.FindAll().Select(t => new EditTagViewModel(t, this.OnEditedTagCommitted))));
             this.RaisePropertyChanged(nameof(Tags));
         }
 
         private void CreateLazyEntitiesCollection()
         {
-            this.entities = new Lazy<CommitableObservableCollection<EditEntityViewModel>>(() => new CommitableObservableCollection<EditEntityViewModel>(this.model.Entities.FindAll().Select(e => new EditEntityViewModel(e, this.OnEntityCommitted))));
+            this.entities = new Lazy<CommitableObservableCollection<EditEntityViewModel>>(() =>
+                new CommitableObservableCollection<EditEntityViewModel>(this.model.Entities.FindAll().Select(e => new EditEntityViewModel(e, this.OnEditedEntityCommitted))));
             this.RaisePropertyChanged(nameof(Entities));
         }
 

@@ -52,6 +52,8 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\MvvmLightLibs.5.4.1.1\lib\net45\System.Windows.Interactivity.dll</HintPath>
     </Reference>
@@ -81,6 +83,10 @@
     <Compile Include="Dialogs\EditTagDialog.xaml.cs">
       <DependentUpon>EditTagDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Editor\EditorCommands.cs" />
+    <Compile Include="Editor\EditorControl.xaml.cs">
+      <DependentUpon>EditorControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="KosmographCommands.cs" />
     <Compile Include="NullToVisiblityConverter.cs" />
     <Compile Include="ViewModel\AssignedFacetPropertyValue.cs" />
@@ -109,6 +115,14 @@
     <Page Include="Dialogs\EditTagDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Editor\EditorControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Editor\EditorResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

@@ -1,5 +1,4 @@
-﻿using Kosmograph.Desktop.Dialogs;
-using Kosmograph.Desktop.ViewModel;
+﻿using Kosmograph.Desktop.ViewModel;
 using Kosmograph.LiteDb;
 using Kosmograph.Model;
 using System;
@@ -67,15 +66,18 @@ namespace Kosmograph.Desktop
             switch (e.PropertyName)
             {
                 case nameof(KosmographViewModel.EditedTag):
-
-                    var editTagDialog = new EditDialog { DataContext = this.ViewModel.EditedTag };
-                    editTagDialog.ShowDialog();
+                    this.tagEditorControl.DataContext = this.ViewModel.EditedTag;
+                    this.tagEditorControl.Visibility = Visibility.Visible;
+                    //var editTagDialog = new EditDialog { DataContext = this.ViewModel.EditedTag };
+                    //editTagDialog.ShowDialog();
                     break;
 
                 case nameof(KosmographViewModel.EditedEntity):
 
-                    var editEntityDialog = new EditDialog { DataContext = this.ViewModel.EditedEntity };
-                    editEntityDialog.ShowDialog();
+                    this.entityEditorControl.DataContext = this.ViewModel.EditedEntity;
+                    this.entityEditorControl.Visibility = Visibility.Visible;
+                    //var editEntityDialog = new EditDialog { DataContext = this.ViewModel.EditedEntity };
+                    //editEntityDialog.ShowDialog();
                     break;
             }
         }

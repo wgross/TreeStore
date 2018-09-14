@@ -5,9 +5,9 @@ using System.Windows.Input;
 
 namespace Kosmograph.Desktop.ViewModel
 {
-    public abstract class EditViewModelBase : ViewModelBase
+    public abstract class EditKosmographItemViewModelBase : ViewModelBase
     {
-        public EditViewModelBase()
+        public EditKosmographItemViewModelBase()
         {
             this.CommitCommand = new RelayCommand(this.Commit);
             this.RollbackCommand = new RelayCommand(this.Rollback);
@@ -22,7 +22,7 @@ namespace Kosmograph.Desktop.ViewModel
         public abstract void Rollback();
     }
 
-    public class EditNamedViewModelBase<T> : EditViewModelBase
+    public class EditNamedViewModelBase<T> : EditKosmographItemViewModelBase
             where T : EntityBase
     {
         public T Model { get; private set; }

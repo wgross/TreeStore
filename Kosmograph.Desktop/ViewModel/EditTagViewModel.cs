@@ -6,12 +6,14 @@ namespace Kosmograph.Desktop.ViewModel
     public class EditTagViewModel : EditNamedViewModelBase<Tag>
     {
         private readonly Action<Tag> committed;
+        private readonly Action<Tag> rolledback;
 
-        public EditTagViewModel(Tag tag, Action<Tag> committed)
+        public EditTagViewModel(Tag tag, Action<Tag> committed = null, Action<Tag> rolledback = null)
             : base(tag)
         {
             this.Facet = new EditFacetViewModel(tag.Facet);
-            this.committed = committed;
+            this.committed = committed ?? delegate { };
+            this.rolledback = rolledback ?? delegate { };
         }
 
         public EditFacetViewModel Facet { get; }
@@ -27,6 +29,7 @@ namespace Kosmograph.Desktop.ViewModel
         {
             this.Facet.Rollback();
             base.Rollback();
+            this.rolledback(this.Model);
         }
     }
 }

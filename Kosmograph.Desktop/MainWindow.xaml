@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Kosmograph.Desktop"
+        xmlns:kde ="clr-namespace:Kosmograph.Desktop.Editor"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
 
@@ -18,7 +19,7 @@
     <Grid Name="rootPanel">
         <Grid.ColumnDefinitions>
             <ColumnDefinition MinWidth="150" />
-            <ColumnDefinition Width="150" MinWidth="150" />
+            <ColumnDefinition Width="200" MinWidth="150" />
         </Grid.ColumnDefinitions>
         <!--
         Entities in the left column
@@ -36,23 +37,29 @@
                             VerticalAlignment="Center" />
                 </DockPanel>
             </Border>
-            <ListBox Name="entityListBox"
-                     Style="{StaticResource entityListBoxStyle}"
-                     ItemsSource="{Binding Entities}"
-                     SelectedItem="{Binding SelectedEntity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                     MouseDoubleClick="entityListBox_MouseDoubleClick">
-
-                <ListBox.InputBindings>
-                    <KeyBinding Key="Insert"
-                                Command="{Binding CreateEntityCommand}" />
-                    <KeyBinding Key="Return"
-                                Command="{Binding EditEntityCommand}"
-                                CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
-                    <KeyBinding Key="Delete"
-                        Command="{Binding DeleteEntityCommand}"
-                        CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
-                </ListBox.InputBindings>
-            </ListBox>
+            <Grid>
+                <ListBox Name="entityListBox"
+                         Panel.ZIndex="0"
+                         Style="{StaticResource entityListBoxStyle}"
+                         ItemsSource="{Binding Entities}"
+                         SelectedItem="{Binding SelectedEntity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         MouseDoubleClick="entityListBox_MouseDoubleClick">
+                    <ListBox.InputBindings>
+                        <KeyBinding Key="Insert"
+                                    Command="{Binding CreateEntityCommand}" />
+                        <KeyBinding Key="Return"
+                                    Command="{Binding EditEntityCommand}"
+                                    CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
+                        <KeyBinding Key="Delete"
+                            Command="{Binding DeleteEntityCommand}"
+                            CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
+                    </ListBox.InputBindings>
+                </ListBox>
+                <kde:EditorControl
+                    x:Name="entityEditorControl"
+                    Visibility="Collapsed"
+                    Panel.ZIndex="1" />
+            </Grid>
         </DockPanel>
 
         <!--
@@ -81,24 +88,30 @@
                             CommandParameter="{Binding .}" />
                 </DockPanel>
             </Border>
-
-            <ListBox Name="tagListBox"
-                     Style="{StaticResource tagListBoxStyle}"
-                     ItemsSource="{Binding Tags}"
-                     SelectedItem="{Binding SelectedTag, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                     MouseDoubleClick="tagListBox_MouseDoubleClick">
-
-                <ListBox.InputBindings>
-                    <KeyBinding Key="Insert"
-                                Command="{Binding CreateTagCommand}" />
-                    <KeyBinding Key="Return"
-                                Command="{Binding EditTagCommand}"
-                                CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
-                    <KeyBinding Key="Delete"
-                        Command="{Binding DeleteTagCommand}"
-                        CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
-                </ListBox.InputBindings>
-            </ListBox>
+            <Grid>
+                <ListBox
+                    Name="tagListBox"
+                    Panel.ZIndex="0"
+                    Style="{StaticResource tagListBoxStyle}"
+                    ItemsSource="{Binding Tags}"
+                    SelectedItem="{Binding SelectedTag, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    MouseDoubleClick="tagListBox_MouseDoubleClick">
+                    <ListBox.InputBindings>
+                        <KeyBinding Key="Insert"
+                                    Command="{Binding CreateTagCommand}" />
+                        <KeyBinding Key="Return"
+                                    Command="{Binding EditTagCommand}"
+                                    CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
+                        <KeyBinding Key="Delete"
+                            Command="{Binding DeleteTagCommand}"
+                            CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
+                    </ListBox.InputBindings>
+                </ListBox>
+                <kde:EditorControl
+                    x:Name="tagEditorControl"
+                    Visibility="Collapsed"
+                    Panel.ZIndex="1" />
+            </Grid>
         </DockPanel>
     </Grid>
 </Window>

@@ -1,0 +1,38 @@
+﻿using Kosmograph.Desktop.ViewModel;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+
+namespace Kosmograph.Desktop.Editor
+{
+    /// <summary>
+    /// Interaction logic for EditorControl.xaml
+    /// </summary>
+    public partial class EditorControl : UserControl
+    {
+        public EditorControl()
+        {
+            this.InitializeComponent();
+            this.CommandBindings.Add(new CommandBinding(EditorCommands.Ok, this.OkExecuted, this.OkCanExecute));
+            this.CommandBindings.Add(new CommandBinding(EditorCommands.Cancel, this.CancelExecuted, this.CancelCanExecute));
+        }
+
+        public EditKosmographItemViewModelBase ViewModel => (EditKosmographItemViewModelBase)this.DataContext;
+
+        private void CancelCanExecute(object sender, CanExecuteRoutedEventArgs e) => e.CanExecute = this.ViewModel.RollbackCommand.CanExecute(e.Parameter);
+
+        private void CancelExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            this.ViewModel.RollbackCommand.Execute(e.Parameter);
+            this.Visibility = Visibility.Collapsed;
+        }
+
+        private void OkCanExecute(object sender, CanExecuteRoutedEventArgs e) => e.CanExecute = this.ViewModel.CommitCommand.CanExecute(e.Parameter);
+
+        private void OkExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            this.ViewModel.CommitCommand.Execute(e.Parameter);
+            this.Visibility = Visibility.Collapsed;
+        }
+    }
+}
