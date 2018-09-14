@@ -69,27 +69,13 @@ namespace Kosmograph.Desktop
                 case nameof(KosmographViewModel.EditedTag):
 
                     var editTagDialog = new EditDialog { DataContext = this.ViewModel.EditedTag };
-                    if (editTagDialog.ShowDialog().GetValueOrDefault())
-                    {
-                        this.ViewModel.Commit();
-                    }
-                    else
-                    {
-                        this.ViewModel.Rollback();
-                    }
+                    editTagDialog.ShowDialog();
                     break;
 
                 case nameof(KosmographViewModel.EditedEntity):
 
                     var editEntityDialog = new EditDialog { DataContext = this.ViewModel.EditedEntity };
-                    if (editEntityDialog.ShowDialog().GetValueOrDefault())
-                    {
-                        this.ViewModel.Commit();
-                    }
-                    else
-                    {
-                        this.ViewModel.Rollback();
-                    }
+                    editEntityDialog.ShowDialog();
                     break;
             }
         }

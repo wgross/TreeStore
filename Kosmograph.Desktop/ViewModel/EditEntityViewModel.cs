@@ -86,6 +86,5 @@ namespace Kosmograph.Desktop.ViewModel
         }
 
         #endregion Rollback changes
-
     }
 }

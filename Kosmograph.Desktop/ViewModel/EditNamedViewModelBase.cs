@@ -1,11 +1,29 @@
 ﻿using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Command;
 using Kosmograph.Model.Base;
-using System.ComponentModel;
+using System.Windows.Input;
 
 namespace Kosmograph.Desktop.ViewModel
 {
-    public class EditNamedViewModelBase<T> : ViewModelBase
-        where T : EntityBase
+    public abstract class EditViewModelBase : ViewModelBase
+    {
+        public EditViewModelBase()
+        {
+            this.CommitCommand = new RelayCommand(this.Commit);
+            this.RollbackCommand = new RelayCommand(this.Rollback);
+        }
+
+        public ICommand CommitCommand { get; }
+
+        public ICommand RollbackCommand { get; }
+
+        public abstract void Commit();
+
+        public abstract void Rollback();
+    }
+
+    public class EditNamedViewModelBase<T> : EditViewModelBase
+            where T : EntityBase
     {
         public T Model { get; private set; }
 
@@ -14,12 +32,12 @@ namespace Kosmograph.Desktop.ViewModel
             this.Model = edited;
         }
 
-        public virtual void Commit()
+        public override void Commit()
         {
             this.Model.Name = this.Name;
         }
 
-        public virtual void Rollback()
+        public override void Rollback()
         {
             this.Name = this.Model.Name;
         }

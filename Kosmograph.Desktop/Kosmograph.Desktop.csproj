@@ -82,6 +82,7 @@
       <DependentUpon>EditTagDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="KosmographCommands.cs" />
+    <Compile Include="NullToVisiblityConverter.cs" />
     <Compile Include="ViewModel\AssignedFacetPropertyValue.cs" />
     <Compile Include="ViewModel\AssignedTagViewModel.cs" />
     <Compile Include="ViewModel\CommitableObservableCollection.cs" />

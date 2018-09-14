@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using Kosmograph.Desktop.ViewModel;
+using System.Windows;
 using System.Windows.Input;
 
 namespace Kosmograph.Desktop.Dialogs
@@ -15,25 +16,21 @@ namespace Kosmograph.Desktop.Dialogs
             this.CommandBindings.Add(new CommandBinding(DialogCommands.Cancel, this.CancelExecuted, this.CancelCanExecute));
         }
 
-        private void CancelCanExecute(object sender, CanExecuteRoutedEventArgs e)
-        {
-            e.CanExecute = true;
-        }
+        public EditViewModelBase ViewModel => (EditViewModelBase)this.DataContext;
+
+        private void CancelCanExecute(object sender, CanExecuteRoutedEventArgs e) => this.ViewModel.RollbackCommand.CanExecute(e.Parameter);
 
         private void CancelExecuted(object sender, ExecutedRoutedEventArgs e)
         {
-            this.DialogResult = false;
+            this.ViewModel.RollbackCommand.Execute(e.Parameter);
             this.Close();
         }
 
-        private void OkCanExecute(object sender, CanExecuteRoutedEventArgs e)
-        {
-            e.CanExecute = true;
-        }
+        private void OkCanExecute(object sender, CanExecuteRoutedEventArgs e) => this.ViewModel.CommitCommand.CanExecute(e.Parameter);
 
         private void OkExecuted(object sender, ExecutedRoutedEventArgs e)
         {
-            this.DialogResult = true;
+            this.ViewModel.CommitCommand.Execute(e.Parameter);
             this.Close();
         }
     }

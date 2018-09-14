@@ -138,13 +138,25 @@ namespace Kosmograph.Desktop.ViewModel
 
         #region Commit changes of Tags to model
 
-        private void OnTagCommitted(EditTagViewModel tag) => this.OnTagCommitted(tag.Model);
+        private void OnTagCommitted(EditTagViewModel tag)
+        {
+            if (tag.Equals(this.EditedTag))
+                this.EditedTag = null;
+
+            this.OnTagCommitted(tag.Model);
+        }
 
         private void OnTagCommitted(Tag tag) => this.model.Tags.Upsert(tag);
 
         private void OnTagRemoved(EditTagViewModel vm) => this.model.Tags.Delete(vm.Model.Id);
 
-        private void OnEntityCommitted(EditEntityViewModel entity) => this.OnEntityCommitted(entity.Model);
+        private void OnEntityCommitted(EditEntityViewModel entity)
+        {
+            if (entity.Equals(this.EditedEntity))
+                this.EditedEntity = null;
+
+            this.OnEntityCommitted(entity.Model);
+        }
 
         private void OnEntityCommitted(Entity entity) => this.model.Entities.Upsert(entity);
 

@@ -162,8 +162,11 @@ namespace Kosmograph.Desktop.Test.ViewModel
 
             Assert.Single(this.viewModel.Tags);
             Assert.Equal("new tag", this.viewModel.Tags.Single().Name);
+            Assert.Null(this.viewModel.EditedTag);
+
             Assert.Single(this.viewModel.Entities);
             Assert.Equal("new entity", this.viewModel.Entities.Single().Name);
+            Assert.Null(this.viewModel.EditedEntity);
         }
 
         [Fact]
@@ -197,8 +200,11 @@ namespace Kosmograph.Desktop.Test.ViewModel
 
             Assert.Single(this.viewModel.Tags);
             Assert.Equal("t", this.viewModel.Tags.Single().Name);
+            Assert.Null(this.viewModel.EditedTag);
+
             Assert.Single(this.viewModel.Entities);
             Assert.Equal("e", this.viewModel.Entities.Single().Name);
+            Assert.Null(this.viewModel.EditedEntity);
         }
 
         [Fact]
@@ -233,9 +239,9 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // ACT
 
             editTag.Name = "changed";
-            editTag.Commit();
+            editTag.CommitCommand.Execute(null);
             editEntity.Name = "changed";
-            editEntity.Commit();
+            editEntity.CommitCommand.Execute(null);
         }
 
         [Fact]
