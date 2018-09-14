@@ -61,19 +61,19 @@ namespace Kosmograph.Desktop
 
         #endregion Event handler
 
-        private void tagListBox_MouseMove(object sender, MouseEventArgs e)
-        {
-            base.OnMouseMove(e);
-            if (e.LeftButton == MouseButtonState.Pressed)
-            {
-                if (this.ViewModel.SelectedTag is null)
-                    return;
+        //private void tagListBox_MouseMove(object sender, MouseEventArgs e)
+        //{
+        //    base.OnMouseMove(e);
+        //    if (e.LeftButton == MouseButtonState.Pressed)
+        //    {
+        //        if (this.ViewModel.SelectedTag is null)
+        //            return;
 
-                DataObject data = new DataObject();
-                data.SetData(typeof(Tag), this.ViewModel.SelectedTag.Model);
+        //        DataObject data = new DataObject();
+        //        data.SetData(typeof(Tag), this.ViewModel.SelectedTag.Model);
 
-                DragDrop.DoDragDrop(this, data, DragDropEffects.Link);
-            }
-        }
+        //        DragDrop.DoDragDrop(this, data, DragDropEffects.Link);
+        //    }
+        //}
     }
 }

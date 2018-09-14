@@ -60,7 +60,7 @@
 
     </Style>
     
-    <Style x:Key="tagListBoxStyle" TargetType="{x:Type ListBox}">
+    <!--<Style x:Key="tagListBoxStyle" TargetType="{x:Type ListBox}">
         <Setter Property="ItemTemplate">
             <Setter.Value>
                 <DataTemplate>
@@ -68,7 +68,7 @@
                 </DataTemplate>
             </Setter.Value>
         </Setter>
-    </Style>
+    </Style>-->
 
    
     

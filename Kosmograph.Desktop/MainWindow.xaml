@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Kosmograph.Desktop"
         xmlns:kde ="clr-namespace:Kosmograph.Desktop.Editor"
+        xmlns:kdc="clr-namespace:Kosmograph.Desktop.Controls"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
 
@@ -98,7 +99,7 @@
                 the grid is shared between the list box in the background and the edit control in the
                 foreeground.
                 The Edit control is collapsed until ist DataContext as lomg as the data context of the control is null.
-                -->
+
                 <ListBox
                     Name="tagListBox"
                     Panel.ZIndex="0"
@@ -118,7 +119,10 @@
                             CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
                     </ListBox.InputBindings>
                 </ListBox>
-                <kde:EditorControl x:Name="tagEditorControl"
+                -->
+                <kdc:ShowTagsControl 
+                    Panel.ZIndex="1"/>
+                <kde:EditorControl
                     Panel.ZIndex="1"
                     DataContext="{Binding EditedTag}"
                     Visibility="{Binding EditedTag, Converter={StaticResource nullIsCollapsedConverter}, Mode=OneWay}" />
