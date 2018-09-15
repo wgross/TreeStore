@@ -11,9 +11,9 @@
             LastChildFill="True">
             <Label
                 DockPanel.Dock="Left"
-                Content="Name:" />
+                Content="Name" />
             <TextBox 
-                Text="{Binding Name}"
+                Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
                 VerticalAlignment="Center" 
                 Margin="0,0,5,0"/>
         </DockPanel>

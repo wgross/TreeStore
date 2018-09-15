@@ -9,22 +9,35 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
 
-        <Style x:Key="nameLabelStyle" TargetType="{x:Type Label}">
-            <Setter Property="Width" Value="50" />
-            <Setter Property="Content" Value="Name" />
-        </Style>
-
-        <Style x:Key="facetPropertiesItemControlStyle" TargetType="{x:Type ListBox}">
+        <Style x:Key="facetPropertiesListBoxStyle" TargetType="{x:Type ListBox}">
             <Setter Property="ItemTemplate">
                 <Setter.Value>
                     <DataTemplate DataType="{x:Type kvm:EditFacetPropertyViewModel}">
-                        <DockPanel LastChildFill="True">
-                            <Label Content="Name" DockPanel.Dock="Left" Style="{StaticResource nameLabelStyle}" />
-                            <TextBox Text="{Binding Name}" HorizontalAlignment="Stretch" />
+                        <DockPanel
+                            LastChildFill="True">
+                            <Label DockPanel.Dock="Left"
+                                   Content="Name" />
+                            <TextBox Text="{Binding Name}" />
                         </DockPanel>
                     </DataTemplate>
                 </Setter.Value>
             </Setter>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="{x:Type ListBoxItem}">
+                        <Setter Property="Padding" Value="1" />
+                    </Style>
+                </Setter.Value>
+            </Setter>
+            <!-- Show the listBox without a border -->
+            <Setter
+                Property="BorderThickness"
+                Value="0" />
+            <!-- Stretch the list box item to the complete width of te ListBox -->
+            <Setter
+               Property="HorizontalContentAlignment"
+               Value="Stretch" />
+            <!-- Move input focus to the ListBox under the mouse cursor -->
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="FocusManager.FocusedElement" Value="{Binding RelativeSource={RelativeSource Self}}" />
@@ -34,14 +47,16 @@
     </UserControl.Resources>
     <Grid>
         <ListBox
-            Style="{StaticResource facetPropertiesItemControlStyle}"
+            Style="{StaticResource facetPropertiesListBoxStyle}"
             ItemsSource="{Binding Facet.Properties}">
             <ListBox.InputBindings>
-                <KeyBinding Key="Delete"
-                        Command="{Binding Facet.RemovePropertyCommand}"
-                        CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
-                <KeyBinding Key="Insert"
-                        Command="{Binding Facet.CreatePropertyCommand}" />
+                <KeyBinding
+                    Key="Delete"
+                    Command="{Binding Facet.RemovePropertyCommand}"
+                    CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
+                <KeyBinding
+                    Key="Insert"
+                    Command="{Binding Facet.CreatePropertyCommand}" />
             </ListBox.InputBindings>
         </ListBox>
     </Grid>
