@@ -45,7 +45,18 @@
             </Style.Triggers>
         </Style>
     </UserControl.Resources>
-    <Grid>
+    <StackPanel>
+        <!--
+        <Button 
+            Content="Create Property"
+            Command="{Binding Facet.CreatePropertyCommand}"
+            HorizontalAlignment="Right"
+            Margin ="0,0,2,5"
+            BorderThickness="0"
+            Background="{x:Null}"
+            FontWeight="Bold"
+            Foreground="Gray"/>
+        -->
         <ListBox
             Style="{StaticResource facetPropertiesListBoxStyle}"
             ItemsSource="{Binding Facet.Properties}">
@@ -59,5 +70,5 @@
                     Command="{Binding Facet.CreatePropertyCommand}" />
             </ListBox.InputBindings>
         </ListBox>
-    </Grid>
+    </StackPanel>
 </UserControl>
