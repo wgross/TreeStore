@@ -12,7 +12,7 @@ namespace Kosmograph.LiteDb.Test
         private readonly LiteDbRepositoryBase<TestEntity> repository;
         private readonly LiteCollection<TestEntity> entities;
 
-        private class TestEntity : EntityBase
+        private class TestEntity : NamedItemBase
         {
             public TestEntity() : base()
             { }

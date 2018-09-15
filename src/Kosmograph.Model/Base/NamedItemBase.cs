@@ -2,16 +2,16 @@
 
 namespace Kosmograph.Model.Base
 {
-    public abstract class EntityBase
+    public abstract class NamedItemBase
     {
         #region Construction and initialization of this instance
 
-        public EntityBase(string name)
+        public NamedItemBase(string name)
         {
             this.Name = name;
         }
 
-        public EntityBase()
+        public NamedItemBase()
             : this(string.Empty)
 
         {
@@ -28,7 +28,7 @@ namespace Kosmograph.Model.Base
             if (object.ReferenceEquals(this, obj))
                 return true;
 
-            var objAsEntityBase = obj as EntityBase;
+            var objAsEntityBase = obj as NamedItemBase;
             if (objAsEntityBase is null)
                 return false;
 

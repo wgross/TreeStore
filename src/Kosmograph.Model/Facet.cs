@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Kosmograph.Model
 {
-    public class Facet : EntityBase
+    public class Facet : NamedItemBase
     {
         #region Construction and initialization of this instance
 

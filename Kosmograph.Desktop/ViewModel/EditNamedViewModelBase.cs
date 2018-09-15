@@ -23,7 +23,7 @@ namespace Kosmograph.Desktop.ViewModel
     }
 
     public class EditNamedViewModelBase<T> : EditKosmographItemViewModelBase
-            where T : EntityBase
+            where T : NamedItemBase
     {
         public T Model { get; private set; }
 

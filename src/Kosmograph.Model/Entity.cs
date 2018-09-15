@@ -1,22 +1,21 @@
 ﻿using Kosmograph.Model.Base;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Kosmograph.Model
 {
-    public class Entity : EntityBase
+    public class Entity : TaggedItemBase
     {
         #region Construction and initialization of this instance
 
         public Entity(string name, params Tag[] tags)
-            : base(name)
+            : base(name, tags)
         {
             this.Tags = tags.ToList();
         }
 
         public Entity()
-            : base(string.Empty)
+            : base(string.Empty, new Tag[0])
         {
         }
 
@@ -39,32 +38,5 @@ namespace Kosmograph.Model
         }
 
         #endregion Entity has Categories
-
-        #region Entity has Tags
-
-        public List<Tag> Tags { get; set; } = new List<Tag>();
-
-        public void AddTag(Tag tag)
-        {
-            this.Tags = this.Tags.Union(tag.Yield()).ToList();
-        }
-
-        #endregion Entity has Tags
-
-        #region Entity has FacetProperty values
-
-        public Dictionary<string, object> Values { get; set; } = new Dictionary<string, object>();
-
-        public void SetFacetProperty<T>(FacetProperty facetProperty, T value)
-        {
-            this.Values[facetProperty.Id.ToString()] = value;
-        }
-
-        public (bool, object) TryGetFacetProperty(FacetProperty facetProperty)
-        {
-            return (this.Values.TryGetValue(facetProperty.Id.ToString(), out var value), value);
-        }
-
-        #endregion Entity has FacetProperty values
     }
 }

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Kosmograph.LiteDb
 {
-    public abstract class LiteDbRepositoryBase<T> where T : EntityBase
+    public abstract class LiteDbRepositoryBase<T> where T : NamedItemBase
     {
         protected readonly LiteRepository repository;
         private readonly string collectionName;
