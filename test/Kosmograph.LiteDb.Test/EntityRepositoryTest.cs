@@ -37,10 +37,10 @@ namespace Kosmograph.LiteDb.Test
 
             // ASSERT
 
-            var readTag = this.entities.FindById(entity.Id);
+            var readEntity = this.entities.FindAll().Single();
 
-            Assert.NotNull(readTag);
-            Assert.Equal(entity.Id, readTag.AsDocument["_id"].AsGuid);
+            Assert.NotNull(readEntity);
+            Assert.Equal(entity.Id, readEntity.AsDocument["_id"].AsGuid);
         }
 
         [Fact]
@@ -49,21 +49,20 @@ namespace Kosmograph.LiteDb.Test
             // ARRANGE
 
             var tag = this.tagRepository.Upsert(new Tag("tag", new Facet("facet", new FacetProperty("prop"))));
-            var entity = new Entity("entity");
+            var entity = new Entity("entity", tag);
 
             // ACT
 
-            entity.AddTag(tag);
             this.entityRepository.Upsert(entity);
 
             // ASSERT
 
-            var readTag = this.entities.FindById(entity.Id);
+            var readEntity = this.entities.FindById(entity.Id);
 
-            Assert.NotNull(readTag);
-            Assert.Equal(entity.Id, readTag.AsDocument["_id"].AsGuid);
-            Assert.Equal(entity.Tags.Single().Id, readTag["Tags"].AsArray[0].AsDocument["$id"].AsGuid);
-            Assert.Equal(TagRepository.CollectionName, readTag["Tags"].AsArray[0].AsDocument["$ref"].AsString);
+            Assert.NotNull(readEntity);
+            Assert.Equal(entity.Id, readEntity.AsDocument["_id"].AsGuid);
+            Assert.Equal(entity.Tags.Single().Id, readEntity["Tags"].AsArray[0].AsDocument["$id"].AsGuid);
+            Assert.Equal(TagRepository.CollectionName, readEntity["Tags"].AsArray[0].AsDocument["$ref"].AsString);
         }
 
         [Fact]
@@ -91,8 +90,7 @@ namespace Kosmograph.LiteDb.Test
             // ARRANGE
 
             var tag = this.tagRepository.Upsert(new Tag("tag", new Facet("facet", new FacetProperty("prop"))));
-            var entity = new Entity("entity");
-            entity.AddTag(tag);
+            var entity = new Entity("entity", tag);
 
             this.entityRepository.Upsert(entity);
 
@@ -115,8 +113,7 @@ namespace Kosmograph.LiteDb.Test
             // ARRANGE
 
             var tag = this.tagRepository.Upsert(new Tag("tag", new Facet("facet", new FacetProperty("prop"))));
-            var entity = new Entity("entity");
-            entity.AddTag(tag);
+            var entity = new Entity("entity", tag);
 
             // set facet property value
             entity.SetFacetProperty(entity.Facets().Single().Properties.Single(), 1);
@@ -141,8 +138,7 @@ namespace Kosmograph.LiteDb.Test
             // ARRANGE
 
             var tag = this.tagRepository.Upsert(new Tag("tag", new Facet("facet", new FacetProperty("prop"))));
-            var entity = new Entity("entity");
-            entity.AddTag(tag);
+            var entity = new Entity("entity", tag);
 
             // set facet property value
             entity.SetFacetProperty(entity.Facets().Single().Properties.Single(), 1);

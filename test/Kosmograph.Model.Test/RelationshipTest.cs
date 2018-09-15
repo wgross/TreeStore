@@ -6,6 +6,24 @@ namespace Kosmograph.Model.Test
     public class RelationshipTest
     {
         [Fact]
+        public void Relationship_references_two_entites()
+        {
+            // ARRANGE
+
+            var entity1 = new Entity();
+            var entity2 = new Entity();
+
+            // ACT
+
+            var relationship = new Relationship(string.Empty, from: entity1, to: entity2);
+
+            // ASSERT
+
+            Assert.Equal(entity1, relationship.From);
+            Assert.Equal(entity2, relationship.To);
+        }
+
+        [Fact]
         public void Relationship_adds_Tag()
         {
             // ARRANGE
@@ -29,9 +47,11 @@ namespace Kosmograph.Model.Test
         {
             // ARRANGE
 
+            var entity1 = new Entity();
+            var entity2 = new Entity();
             var facet = new Facet("facet", new FacetProperty("name"));
             var tag = new Tag("tag", facet);
-            var relationship = new Relationship("r", tag);
+            var relationship = new Relationship("r", entity1, entity2, tag);
 
             // ACT
 
@@ -47,14 +67,15 @@ namespace Kosmograph.Model.Test
         {
             // ARRANGE
 
+            var entity1 = new Entity();
+            var entity2 = new Entity();
             var facet = new Facet("facet", new FacetProperty("prop"));
             var tag = new Tag("tag", facet);
-            var entity = new Entity();
-            entity.AddTag(tag);
+            var relationship = new Relationship(string.Empty, entity1, entity2, tag);
 
             // ACT
 
-            var (result, _) = entity.TryGetFacetProperty(facet.Properties.Single());
+            var (result, _) = relationship.TryGetFacetProperty(facet.Properties.Single());
 
             // ASSERT
 
