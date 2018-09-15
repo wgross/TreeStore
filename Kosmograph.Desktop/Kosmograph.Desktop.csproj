@@ -78,14 +78,20 @@
     <Compile Include="Controls\EditAssignedTagsControl.xaml.cs">
       <DependentUpon>EditAssignedTagsControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\EditorSectionHeader.xaml.cs">
-      <DependentUpon>EditorSectionHeader.xaml</DependentUpon>
+    <Compile Include="Controls\EditorSectionHeaderControl.xaml.cs">
+      <DependentUpon>EditorSectionHeaderControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\EditTagFacetPropertiesControl.xaml.cs">
+      <DependentUpon>EditTagFacetPropertiesControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\ShowEntitiesControl.xaml.cs">
       <DependentUpon>ShowEntitiesControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\ShowTagsControl.xaml.cs">
       <DependentUpon>ShowTagsControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\EditItemNameControl.xaml.cs">
+      <DependentUpon>EditItemNameControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\EditDialog.xaml.cs">
       <DependentUpon>EditDialog.xaml</DependentUpon>
@@ -116,27 +122,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Controls\EditAssignedTagsResources.xaml">
+    <Page Include="Controls\EditorSectionHeaderControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Controls\EditorSectionHeader.xaml">
+    <Page Include="Controls\EditTagFacetPropertiesControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\ShowEntitiesControl.xaml">
-      <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Controls\ShowEntitiesResources.xaml">
       <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\ShowTagsControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Controls\ShowTagsResources.xaml">
+    <Page Include="Controls\EditItemNameControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

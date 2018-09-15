@@ -27,38 +27,16 @@
         <Setter Property="HorizontalAlignment" Value="Stretch" />
     </Style>
 
-    <Style x:Key="facetPropertiesItemControlStyle" TargetType="{x:Type ListBox}">
-        <Setter Property="ItemTemplate">
-            <Setter.Value>
-                <DataTemplate DataType="{x:Type kvm:EditFacetPropertyViewModel}">
-                    <DockPanel LastChildFill="True">
-                        <Label Content="Name" DockPanel.Dock="Left" Style="{StaticResource nameLabelStyle}" />
-                        <TextBox Text="{Binding Name}" HorizontalAlignment="Stretch" />
-                    </DockPanel>
-                </DataTemplate>
-            </Setter.Value>
-        </Setter>
-        <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="FocusManager.FocusedElement" Value="{Binding RelativeSource={RelativeSource Self}}" />
-            </Trigger>
-        </Style.Triggers>
-    </Style>
-
     <!--
     Common editor grid:
     - Backgound is gray (transparent)
     - Content is centered
     - based in the self-focusing control style
     -->
-    <Style x:Key="editorGridStyle" TargetType="{x:Type Grid}">
-        <!--<Setter Property="Background" Value="Black" />
-        <Setter Property="Opacity" Value="0.8" />-->
-    </Style>
-
+    
     <Style x:Key="editorContentControlBorderStyle" TargetType="{x:Type Border}">
-        <Setter Property="Background" Value="Black"/>
-        <Setter Property="Opacity" Value="0.8"/>
+        <Setter Property="Background" Value="White" />
+        <Setter Property="Opacity" Value="0.8" />
     </Style>
     <Style x:Key="editContentControlStyle" TargetType="{x:Type ContentControl}">
         <Setter Property="Margin" Value="20" />
@@ -70,27 +48,12 @@
     - List of facet properties below in Expander
     -->
     <DataTemplate DataType="{x:Type kvm:EditTagViewModel}">
-        <DockPanel
-            LastChildFill="True"
-            Background="White">
-            <DockPanel LastChildFill="True" DockPanel.Dock="Top">
-                <Label DockPanel.Dock="Left" Style="{StaticResource nameLabelStyle}" />
-                <TextBox Text="{Binding Name}" />
-            </DockPanel>
-            <Expander Style="{StaticResource facetPropertiesExpanderStyle}" Header="{Binding Path=Facet.Name, StringFormat={}Facet:{0}}">
-                <ListBox
-                    Style="{StaticResource facetPropertiesItemControlStyle}"
-                    ItemsSource="{Binding Facet.Properties}">
-                    <ListBox.InputBindings>
-                        <KeyBinding Key="Delete"
-                            Command="{Binding Facet.RemovePropertyCommand}"
-                            CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
-                        <KeyBinding Key="Insert"
-                            Command="{Binding Facet.CreatePropertyCommand}" />
-                    </ListBox.InputBindings>
-                </ListBox>
-            </Expander>
-        </DockPanel>
+        <StackPanel Orientation="Vertical" Background="White">
+            <kdc:EditorSectionHeaderControl Text="{Binding Name, StringFormat={}Edit Tag: {0}}" />
+            <kdc:EditItemNameControl />
+            <kdc:EditorSectionHeaderControl Text="{Binding Name, StringFormat={}Edit Properties of: {0}}" />
+            <kdc:EditTagFacetPropertiesControl />
+        </StackPanel>
     </DataTemplate>
 
     <!--
@@ -100,25 +63,10 @@
     -->
     <DataTemplate DataType="{x:Type kvm:EditEntityViewModel}">
         <StackPanel Orientation="Vertical" Background="White">
-            <Border BorderThickness="0,0,0,2" BorderBrush="Black" DockPanel.Dock="Top">
-                <TextBlock Text="{Binding Name, StringFormat={}Edit Entity: {0}}" FontWeight="Bold"/>
-            </Border>
-            <DockPanel LastChildFill="True" DockPanel.Dock="Top">
-                <Label DockPanel.Dock="Left" Style="{StaticResource nameLabelStyle}" />
-                <TextBox
-                    Text="{Binding Name}"
-                    Style="{StaticResource editorTextBox}" />
-            </DockPanel>
+            <kdc:EditorSectionHeaderControl Text="{Binding Name, StringFormat={}Edit Entity: {0}}" />
+            <kdc:EditItemNameControl />
             <kdc:EditAssignedTagsControl />
         </StackPanel>
     </DataTemplate>
 
-    <DataTemplate DataType="{x:Type kvm:AssignedFacetPropertyValue}">
-        <DockPanel LastChildFill="True" DockPanel.Dock="Top">
-            <Label DockPanel.Dock="Left" Content="{Binding Name, Mode=OneTime}" />
-            <TextBox
-                Text="{Binding Value}"
-                Style="{StaticResource editorTextBox}" />
-        </DockPanel>
-    </DataTemplate>
 </ResourceDictionary>

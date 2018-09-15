@@ -7,11 +7,17 @@
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
-        <ResourceDictionary Source="./EditorResources.xaml"/>
+        <ResourceDictionary Source="./EditorResources.xaml" />
     </UserControl.Resources>
     <UserControl.Style>
         <Style TargetType="{x:Type UserControl}">
-            <Setter Property="Visibility" Value="Visible" />
+            <!--
+            The control initialized as 'Visible' but if the
+            DataCOntext is null, it will collapse.
+            -->
+            <Setter
+                Property="Visibility"
+                Value="Visible" />
             <Style.Triggers>
                 <DataTrigger Binding="{Binding .}" Value="{x:Null}">
                     <Setter Property="Visibility" Value="Collapsed" />
@@ -20,14 +26,13 @@
         </Style>
     </UserControl.Style>
 
-    <Grid Style="{StaticResource editorGridStyle}">
+    <Grid>
         <Grid.InputBindings>
             <KeyBinding Key="Return" Command="{x:Static local:EditorCommands.Ok}" />
             <KeyBinding Key="Esc" Command="{x:Static local:EditorCommands.Cancel}" />
         </Grid.InputBindings>
         <Border
-            Style="{StaticResource editorContentControlBorderStyle}"
-            IsHitTestVisible="False"/>
+            Style="{StaticResource editorContentControlBorderStyle}" />
         <ContentControl
             Content="{Binding .}"
             Style="{StaticResource editContentControlStyle}" />

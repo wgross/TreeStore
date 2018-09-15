@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace Kosmograph.Desktop.Controls
 {
     /// <summary>
-    /// Interaction logic for EditorSectionHeader.xaml
+    /// Interaction logic for EditTagFacetPropertiesControl.xaml
     /// </summary>
-    public partial class EditorSectionHeader : UserControl
+    public partial class EditTagFacetPropertiesControl : UserControl
     {
-        public EditorSectionHeader()
+        public EditTagFacetPropertiesControl()
         {
             InitializeComponent();
         }
