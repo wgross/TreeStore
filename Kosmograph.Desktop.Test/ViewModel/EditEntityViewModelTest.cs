@@ -190,5 +190,26 @@ namespace Kosmograph.Desktop.Test.ViewModel
             Assert.Equal(1, editEntity.Model.TryGetFacetProperty(tag1.Facet.Properties.Single()).Item2);
             Assert.Null(editEntity.Model.TryGetFacetProperty(tag2.Facet.Properties.Single()).Item2);
         }
+
+        [Fact]
+        public void EditEntityViewModel_rejects_duplicate_Tags()
+        {
+            // ARRANGE
+
+            var tag1 = new Tag("tag1", new Facet("f", new FacetProperty("p1")));
+            var entity = new Entity("entity", tag1);
+            var editEntity = new EditEntityViewModel(entity, delegate { }, delegate { });
+
+            // ACT
+
+            var result = editEntity.AssignTagCommand.CanExecute(tag1);
+
+            editEntity.AssignTagCommand.Execute(tag1);
+
+            // ASSERT
+
+            Assert.False(result);
+            Assert.Single(editEntity.Tags);
+        }
     }
 }

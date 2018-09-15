@@ -15,7 +15,7 @@ namespace Kosmograph.Desktop.ViewModel
             : base(entity)
         {
             this.tags = new Lazy<CommitableObservableCollection<AssignedTagViewModel>>(() => this.CreateAssignedTags());
-            this.AssignTagCommand = new RelayCommand<Tag>(this.AssigneTagExcuted);
+            this.AssignTagCommand = new RelayCommand<Tag>(this.AssignTagExcuted, this.AssignTagCanExecute);
             this.RemoveTagCommand = new RelayCommand<AssignedTagViewModel>(this.RemoveTagExecuted);
             this.committed = onEntityCommitted ?? delegate { };
             this.rolledback = onEntityRolledback ?? delegate { };
@@ -35,7 +35,9 @@ namespace Kosmograph.Desktop.ViewModel
 
         #region Assign Tag command
 
-        private void AssigneTagExcuted(Tag tag)
+        private bool AssignTagCanExecute(Tag tag) => !this.Tags.Any(tvm => tvm.Model.Equals(tag));
+
+        private void AssignTagExcuted(Tag tag)
         {
             this.Tags.Add(this.CreateAssignedTag(tag));
         }
