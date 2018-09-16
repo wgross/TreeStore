@@ -31,8 +31,8 @@
             <KeyBinding Key="Return" Command="{x:Static local:EditorCommands.Ok}" />
             <KeyBinding Key="Esc" Command="{x:Static local:EditorCommands.Cancel}" />
         </Grid.InputBindings>
-        <Border
-            Style="{StaticResource editorContentControlBorderStyle}" />
+        <!--<Border
+            Style="{StaticResource editorContentControlBorderStyle}" />-->
         <ContentControl
             Content="{Binding .}"
             Style="{StaticResource editContentControlStyle}" />
