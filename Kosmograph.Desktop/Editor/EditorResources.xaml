@@ -48,7 +48,6 @@
     - List of facet properties below in Expander
     -->
     <DataTemplate DataType="{x:Type kvm:EditTagViewModel}">
-        
         <DockPanel 
             LastChildFill="True">
             <kdc:EditorSectionHeaderControl DockPanel.Dock="Top"
@@ -67,11 +66,6 @@
     -->
     <DataTemplate DataType="{x:Type kvm:EditEntityViewModel}">
         <kdc:EditEntityControl/>
-        <!--<StackPanel Orientation="Vertical" Background="White">
-            <kdc:EditorSectionHeaderControl Text="{Binding Name, StringFormat={}Edit Entity: {0}}" />
-            <kdc:EditItemNameControl />
-            <kdc:EditAssignedTagsControl />
-        </StackPanel>-->
     </DataTemplate>
 
 </ResourceDictionary>
