@@ -111,6 +111,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
 
             var editEntity = new EditEntityViewModel(entity, commitCB, rollbackCB);
 
+            // make changes to entity
             editEntity.Name = "changed";
             editEntity.Tags.ElementAt(0).Properties.Single().Value = 2;
             editEntity.Tags.ElementAt(1).Properties.Single().Value = "value";

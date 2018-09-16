@@ -34,7 +34,7 @@
             <DockPanel LastChildFill="True" DockPanel.Dock="Top">
                 <Label DockPanel.Dock="Left" Content="{Binding Name, Mode=OneTime}" />
                 <TextBox
-                Text="{Binding Value}"
+                Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
                 Style="{StaticResource editFacetPropertyValueTexBoxStyle}" />
             </DockPanel>
         </DataTemplate>
