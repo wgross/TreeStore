@@ -112,6 +112,7 @@
     <Compile Include="ViewModel\EditNamedViewModelTest.cs" />
     <Compile Include="ViewModel\EditTagViewModelTest.cs" />
     <Compile Include="ViewModel\KosmographViewModelTest.cs" />
+    <Compile Include="ViewModel\RelationshipViewModelTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Kosmograph.Desktop\Kosmograph.Desktop.csproj">

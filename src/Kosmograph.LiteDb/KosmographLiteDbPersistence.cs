@@ -24,5 +24,7 @@ namespace Kosmograph.LiteDb
         public ICategoryRepository Categories { get; private set; }
 
         public IEntityRepository Entities => new EntityRepository(db);
+
+        public IRelationshipRepository Relationships => new RelationshipRepository(db);
     }
 }

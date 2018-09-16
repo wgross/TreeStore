@@ -14,6 +14,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
         private readonly Mock<IKosmographPersistence> persistence;
         private readonly Mock<ITagRepository> tagRepository;
         private readonly Mock<IEntityRepository> entityRepository;
+        private readonly Mock<IRelationshipRepository> relationshipRepository;
         private readonly KosmographViewModel viewModel;
 
         public KosmographViewModelTest()
@@ -21,10 +22,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
             this.persistence = this.mocks.Create<IKosmographPersistence>(MockBehavior.Loose);
             this.tagRepository = this.mocks.Create<ITagRepository>();
             this.entityRepository = this.mocks.Create<IEntityRepository>();
-
-            //this.persistence
-            //    .Setup(p => p.Entities)
-            //    .Returns(this.entityRepository.Object);
+            this.relationshipRepository = this.mocks.Create<IRelationshipRepository>();
             this.viewModel = new KosmographViewModel(new KosmographModel(this.persistence.Object));
         }
 
@@ -54,12 +52,22 @@ namespace Kosmograph.Desktop.Test.ViewModel
                 .Setup(r => r.FindAll())
                 .Returns(new Entity().Yield());
 
+            this.persistence
+                .Setup(p => p.Relationships)
+                .Returns(this.relationshipRepository.Object);
+
+            this.relationshipRepository
+                .Setup(r => r.FindAll())
+                .Returns(new Relationship().Yield());
+
             // ASSERT
 
             Assert.Single(this.viewModel.Tags);
             Assert.Single(this.viewModel.Entities);
+            Assert.Single(this.viewModel.Relationships);
             Assert.Null(this.viewModel.EditedEntity);
             Assert.Null(this.viewModel.EditedTag);
+            Assert.Null(this.viewModel.EditedRelationship);
         }
 
         [Fact]

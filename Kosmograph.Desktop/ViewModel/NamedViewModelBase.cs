@@ -13,6 +13,16 @@ namespace Kosmograph.Desktop.ViewModel
 
         public T Model { get; }
 
-        public string Name => this.Model.Name;
+        public string Name
+        {
+            get => this.Model.Name;
+            set
+            {
+                if (this.Model.Name.Equals(value))
+                    return;
+                this.Model.Name = value;
+                this.RaisePropertyChanged(nameof(Name));
+            }
+        }
     }
 }

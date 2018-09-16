@@ -113,10 +113,14 @@
     <Compile Include="ViewModel\EditEntityViewModel.cs" />
     <Compile Include="ViewModel\EditFacetViewModel.cs" />
     <Compile Include="ViewModel\EditNamedViewModelBase.cs" />
+    <Compile Include="ViewModel\EditRelationshipViewModel.cs" />
     <Compile Include="ViewModel\EditTagViewModel.cs" />
+    <Compile Include="ViewModel\EntityViewModel.cs" />
     <Compile Include="ViewModel\KosmographViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\NamedViewModelBase.cs" />
+    <Compile Include="ViewModel\RelationshipViewModel.cs" />
+    <Compile Include="ViewModel\TagViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Page Include="Controls\EditAssignedTagsControl.xaml">
       <SubType>Designer</SubType>

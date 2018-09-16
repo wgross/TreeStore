@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Kosmograph.LiteDb
 {
-    public class RelationshipRepository : LiteDbRepositoryBase<Relationship>
+    public class RelationshipRepository : LiteDbRepositoryBase<Relationship>, IRelationshipRepository
     {
         public const string CollectionName = "relationships";
 

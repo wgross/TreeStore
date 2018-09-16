@@ -15,6 +15,7 @@ namespace Kosmograph.Desktop.ViewModel
         private KosmographModel model;
         private Lazy<CommitableObservableCollection<EditTagViewModel>> tags;
         private Lazy<CommitableObservableCollection<EditEntityViewModel>> entities;
+        private Lazy<CommitableObservableCollection<RelationshipViewModel>> relationships;
         private readonly List<(NotifyCollectionChangedAction, IEnumerable<EditTagViewModel>)> changesAtTags;
         private readonly List<(NotifyCollectionChangedAction, IEnumerable<EditEntityViewModel>)> changesAtEntities;
 
@@ -23,8 +24,7 @@ namespace Kosmograph.Desktop.ViewModel
             this.model = kosmographModel;
             this.CreateLazyTagsCollection();
             this.CreateLazyEntitiesCollection();
-            this.changesAtTags = new List<(NotifyCollectionChangedAction, IEnumerable<EditTagViewModel>)>();
-            this.changesAtEntities = new List<(NotifyCollectionChangedAction, IEnumerable<EditEntityViewModel>)>();
+            this.CreateLazyRelationshipsCollection();
 
             this.CreateTagCommand = new RelayCommand(this.CreateTagExecuted);
             this.EditTagCommand = new RelayCommand<EditTagViewModel>(this.EditTagExecuted);
@@ -41,7 +41,29 @@ namespace Kosmograph.Desktop.ViewModel
 
         public ObservableCollection<EditTagViewModel> Tags => this.tags.Value;
 
+        private void CreateLazyTagsCollection()
+        {
+            this.tags = new Lazy<CommitableObservableCollection<EditTagViewModel>>(() => new CommitableObservableCollection<EditTagViewModel>(this.model.Tags.FindAll().Select(t => new EditTagViewModel(t, this.OnEditedTagCommitted, this.OnTagRollback))));
+            this.RaisePropertyChanged(nameof(Tags));
+        }
+
         public ObservableCollection<EditEntityViewModel> Entities => this.entities.Value;
+
+        private void CreateLazyEntitiesCollection()
+        {
+            this.entities = new Lazy<CommitableObservableCollection<EditEntityViewModel>>(() =>
+                new CommitableObservableCollection<EditEntityViewModel>(this.model.Entities.FindAll().Select(e => new EditEntityViewModel(e, this.OnEditedEntityCommitted, this.OnEntityRollback))));
+            this.RaisePropertyChanged(nameof(Entities));
+        }
+
+        public ObservableCollection<RelationshipViewModel> Relationships => this.relationships.Value;
+
+        private void CreateLazyRelationshipsCollection()
+        {
+            this.relationships = new Lazy<CommitableObservableCollection<RelationshipViewModel>>(() =>
+                new CommitableObservableCollection<RelationshipViewModel>(this.model.Relationships.FindAll().Select(r => new RelationshipViewModel(r))));
+            this.RaisePropertyChanged(nameof(Relationships));
+        }
 
         public EditTagViewModel SelectedTag
         {
@@ -187,6 +209,8 @@ namespace Kosmograph.Desktop.ViewModel
 
         #endregion Delete Entity from Model
 
+        public EditRelationshipViewModel EditedRelationship { get; set; }
+
         #region Commit changes of Tags to model
 
         private void OnTagRemoved(EditTagViewModel vm) => this.model.Tags.Delete(vm.Model.Id);
@@ -205,19 +229,7 @@ namespace Kosmograph.Desktop.ViewModel
             this.CreateLazyEntitiesCollection();
         }
 
-        private void CreateLazyTagsCollection()
-        {
-            this.tags = new Lazy<CommitableObservableCollection<EditTagViewModel>>(() => new CommitableObservableCollection<EditTagViewModel>(this.model.Tags.FindAll().Select(t => new EditTagViewModel(t, this.OnEditedTagCommitted, this.OnTagRollback))));
-            this.RaisePropertyChanged(nameof(Tags));
-        }
-
-        private void CreateLazyEntitiesCollection()
-        {
-            this.entities = new Lazy<CommitableObservableCollection<EditEntityViewModel>>(() =>
-                new CommitableObservableCollection<EditEntityViewModel>(this.model.Entities.FindAll().Select(e => new EditEntityViewModel(e, this.OnEditedEntityCommitted, this.OnEntityRollback))));
-            this.RaisePropertyChanged(nameof(Entities));
-        }
-
         #endregion Commit changes of Tags to model
     }
 }
+;
