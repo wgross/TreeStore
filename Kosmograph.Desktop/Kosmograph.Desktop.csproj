@@ -87,6 +87,9 @@
     <Compile Include="Controls\ShowEntitiesControl.xaml.cs">
       <DependentUpon>ShowEntitiesControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\ShowRelationshipsControl.xaml.cs">
+      <DependentUpon>ShowRelationshipsControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\ShowTagsControl.xaml.cs">
       <DependentUpon>ShowTagsControl.xaml</DependentUpon>
     </Compile>
@@ -135,6 +138,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\ShowEntitiesControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\ShowRelationshipsControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

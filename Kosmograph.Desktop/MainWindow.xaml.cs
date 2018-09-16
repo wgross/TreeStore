@@ -32,9 +32,10 @@ namespace Kosmograph.Desktop
         private void CreateNewModel()
         {
             var model = new KosmographModel(new KosmographLiteDbPersistence());
-            var tag = new Tag("tag1", new Facet("facet", new FacetProperty("p")));
-            model.Tags.Upsert(tag);
-            model.Entities.Upsert(new Entity("entity", tag));
+            var tag = model.Tags.Upsert(new Tag("tag1", new Facet("facet", new FacetProperty("p"))));
+            var entity1 = model.Entities.Upsert(new Entity("entity", tag));
+            var entity2 = model.Entities.Upsert(new Entity("entity", tag));
+            var relationship = model.Relationships.Upsert(new Relationship("relationship", entity1, entity2, tag));
 
             this.ViewModel = new KosmographViewModel(model);
 

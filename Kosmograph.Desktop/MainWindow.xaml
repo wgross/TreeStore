@@ -20,45 +20,13 @@
     <Grid Name="rootPanel">
         <Grid.ColumnDefinitions>
             <ColumnDefinition MinWidth="150" />
-            <ColumnDefinition Width="200" MinWidth="150" />
+            <ColumnDefinition MinWidth="150" />
+            <ColumnDefinition MinWidth="150" />
         </Grid.ColumnDefinitions>
         <!--
-        Entities in the left column
+        Tags in the left column
         -->
-        <DockPanel Grid.Column="0" LastChildFill="True">
-            <!-- on top of the entity relationship diagram is header label and an add entity button -->
-            <Border Style="{StaticResource labelBorderStyle}" DockPanel.Dock="Top">
-                <DockPanel LastChildFill="False">
-                    <Label Style="{StaticResource entityRelationshipControlLabelStyle}"
-                           DockPanel.Dock="Left"
-                           HorizontalAlignment="Right" />
-                    <Button Style="{StaticResource createEntityButtonStyle}"
-                            DockPanel.Dock="Right"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Center" />
-                </DockPanel>
-            </Border>
-            <Grid>
-                <kde:EditorControl
-                    Panel.ZIndex="2"
-                    DataContext="{Binding EditedEntity, Mode=OneWay}"/>
-                <kdc:ShowEntitiesControl
-                    Panel.ZIndex="1" />
-            </Grid>
-        </DockPanel>
-
-        <!--
-        Splitter between entities and tags
-        -->
-        <GridSplitter
-                IsTabStop="False"
-                Margin="0,5,0,5"
-                Width="1"
-                Grid.Column="0" />
-        <!--
-        Tags in the right column
-        -->
-        <DockPanel Grid.Column="1" Style="{StaticResource tagListBoxPanelStyle}">
+        <DockPanel Grid.Column="0" Style="{StaticResource tagListBoxPanelStyle}">
             <!--
             Add a label and a create button to the Tags view
             -->
@@ -79,7 +47,70 @@
 
                 <kde:EditorControl
                     Panel.ZIndex="1"
-                    DataContext="{Binding EditedTag, Mode=OneWay}"/>
+                    DataContext="{Binding EditedTag, Mode=OneWay}" />
+            </Grid>
+        </DockPanel>
+
+        <!--
+        Splitter between entities and tags
+        -->
+        <GridSplitter
+                IsTabStop="False"
+                Margin="0,5,0,5"
+                Width="1"
+                Grid.Column="0" />
+
+        <!--
+        Entities in the middle column
+        -->
+        <DockPanel Grid.Column="1" LastChildFill="True">
+            <Border Style="{StaticResource labelBorderStyle}" DockPanel.Dock="Top">
+                <DockPanel LastChildFill="False">
+                    <Label Style="{StaticResource entityRelationshipControlLabelStyle}"
+                           DockPanel.Dock="Left"
+                           HorizontalAlignment="Right" />
+                    <Button Style="{StaticResource createEntityButtonStyle}"
+                            DockPanel.Dock="Right"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center" />
+                </DockPanel>
+            </Border>
+            <Grid>
+                <kdc:ShowEntitiesControl
+                    Panel.ZIndex="0" />
+                <kde:EditorControl
+                    Panel.ZIndex="1"
+                    DataContext="{Binding EditedEntity, Mode=OneWay}" />
+            </Grid>
+        </DockPanel>
+
+        <!--
+        Splitter between entities and tags
+        -->
+        <GridSplitter
+                IsTabStop="False"
+                Margin="0,5,0,5"
+                Width="1"
+                Grid.Column="1" />
+
+        <!--
+        Relationships in the middle column
+        -->
+        <DockPanel Grid.Column="2" LastChildFill="True">
+            <Border Style="{StaticResource labelBorderStyle}" DockPanel.Dock="Top">
+                <DockPanel LastChildFill="False">
+                    <Label Style="{StaticResource entityRelationshipControlLabelStyle}"
+                           DockPanel.Dock="Left"
+                           HorizontalAlignment="Right" />
+                    <Button Style="{StaticResource createEntityButtonStyle}"
+                            DockPanel.Dock="Right"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center" />
+                </DockPanel>
+            </Border>
+            <Grid>
+                <kdc:ShowRelationshipsControl
+                    Panel.ZIndex="0" />
             </Grid>
         </DockPanel>
     </Grid>
