@@ -1,39 +1,47 @@
 ﻿<UserControl x:Class="Kosmograph.Desktop.Controls.ShowTagsControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:Kosmograph.Desktop.Controls"
-             mc:Ignorable="d" 
+             mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <Style x:Key="tagListBoxStyle" TargetType="{x:Type ListBox}">
             <Setter Property="ItemTemplate">
                 <Setter.Value>
                     <DataTemplate>
-                        <TextBlock Text="{Binding Name}"/>
+                        <TextBlock Text="{Binding Name}" />
                     </DataTemplate>
                 </Setter.Value>
             </Setter>
+            <Setter Property="BorderThickness" Value="0" />
         </Style>
     </UserControl.Resources>
-    <ListBox
-        Name="tagListBox"
-        Panel.ZIndex="0"
-        Style="{StaticResource tagListBoxStyle}"
-        ItemsSource="{Binding Tags}"
-        SelectedItem="{Binding SelectedTag, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-        MouseDoubleClick="tagListBox_MouseDoubleClick"
-        MouseMove="tagListBox_MouseMove">
-        <ListBox.InputBindings>
-            <KeyBinding Key="Insert"
-                                    Command="{Binding CreateTagCommand}" />
-            <KeyBinding Key="Return"
-                                    Command="{Binding EditTagCommand}"
-                                    CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
-            <KeyBinding Key="Delete"
-                            Command="{Binding DeleteTagCommand}"
-                            CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
-        </ListBox.InputBindings>
-    </ListBox>
+    <DockPanel 
+        LastChildFill="True"      
+        Margin="2,0,0,0">
+        <TextBlock DockPanel.Dock="Top"
+            Text="Tags"
+            Foreground="Gray"
+            FontFamily="Bold" />
+        <ListBox Panel.ZIndex="0"
+            Name="tagListBox"
+            Style="{StaticResource tagListBoxStyle}"
+            ItemsSource="{Binding Tags}"
+            SelectedItem="{Binding SelectedTag, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            MouseDoubleClick="tagListBox_MouseDoubleClick"
+            MouseMove="tagListBox_MouseMove">
+            <ListBox.InputBindings>
+                <KeyBinding Key="Insert"
+                                Command="{Binding CreateTagCommand}" />
+                <KeyBinding Key="Return"
+                                Command="{Binding EditTagCommand}"
+                                CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
+                <KeyBinding Key="Delete"
+                        Command="{Binding DeleteTagCommand}"
+                        CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
+            </ListBox.InputBindings>
+        </ListBox>
+    </DockPanel>
 </UserControl>

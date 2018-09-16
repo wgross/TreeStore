@@ -15,27 +15,36 @@
                     </DataTemplate>
                 </Setter.Value>
             </Setter>
+            <Setter Property="BorderThickness" Value="0"/>
         </Style>
     </UserControl.Resources>
-    <ListBox
-        Name="entityListBox"
-        Panel.ZIndex="0"
-        Style="{StaticResource entityListBoxStyle}"
-        ItemsSource="{Binding Entities}"
-        SelectedItem="{Binding SelectedEntity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-        MouseDoubleClick="entityListBox_MouseDoubleClick">
-        <ListBox.InputBindings>
-            <KeyBinding
+    <DockPanel 
+        LastChildFill="True"      
+        Margin="0,0,0,0">
+        <TextBlock DockPanel.Dock="Top"
+            Text="Entities"
+            Foreground="DarkGray"
+            FontFamily="Bold" />
+        <ListBox
+            Name="entityListBox"
+            Panel.ZIndex="0"
+            Style="{StaticResource entityListBoxStyle}"
+            ItemsSource="{Binding Entities}"
+            SelectedItem="{Binding SelectedEntity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            MouseDoubleClick="entityListBox_MouseDoubleClick">
+            <ListBox.InputBindings>
+                <KeyBinding
                 Key="Insert"
                 Command="{Binding CreateEntityCommand}" />
-            <KeyBinding
+                <KeyBinding
                 Key="Return"
                 Command="{Binding EditEntityCommand}"
                 CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
-            <KeyBinding
+                <KeyBinding
                 Key="Delete"
                 Command="{Binding DeleteEntityCommand}"
                 CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
-        </ListBox.InputBindings>
-    </ListBox>
+            </ListBox.InputBindings>
+        </ListBox>
+    </DockPanel>
 </UserControl>

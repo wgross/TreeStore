@@ -7,7 +7,7 @@
         xmlns:kde ="clr-namespace:Kosmograph.Desktop.Editor"
         xmlns:kdc="clr-namespace:Kosmograph.Desktop.Controls"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Kosmograph" Height="450" Width="900">
 
     <Window.Resources>
         <ResourceDictionary>
@@ -26,92 +26,45 @@
         <!--
         Tags in the left column
         -->
-        <DockPanel Grid.Column="0" Style="{StaticResource tagListBoxPanelStyle}">
-            <!--
-            Add a label and a create button to the Tags view
-            -->
-            <Border Style="{StaticResource labelBorderStyle}" DockPanel.Dock="Top">
-                <DockPanel LastChildFill="False">
-                    <Label Style="{StaticResource tagListBoxLabelStyle}"
-                           DockPanel.Dock="Left"
-                           HorizontalAlignment="Right" />
-                    <Button Style="{StaticResource createTagButtonStyle}"
-                            DockPanel.Dock="Right"
-                            Command="{x:Static local:KosmographCommands.CreateTag}"
-                            CommandParameter="{Binding .}" />
-                </DockPanel>
-            </Border>
-            <Grid>
-                <kdc:ShowTagsControl
-                    Panel.ZIndex="0" />
-
-                <kde:EditorControl
-                    Panel.ZIndex="1"
-                    DataContext="{Binding EditedTag, Mode=OneWay}" />
-            </Grid>
-        </DockPanel>
+        <Grid Grid.Column="0"
+              Margin="5,0,5,0">
+            <kdc:ShowTagsControl Panel.ZIndex="0" />
+            <kde:EditorControl Panel.ZIndex="1"
+                DataContext="{Binding EditedTag, Mode=OneWay}" />
+        </Grid>
 
         <!--
         Splitter between entities and tags
         -->
-        <GridSplitter
-                IsTabStop="False"
-                Margin="0,5,0,5"
-                Width="1"
-                Grid.Column="0" />
+        <GridSplitter Grid.Column="0"
+            IsTabStop="False"
+            Width="2"
+            Foreground="DarkGray" />
 
         <!--
         Entities in the middle column
         -->
-        <DockPanel Grid.Column="1" LastChildFill="True">
-            <Border Style="{StaticResource labelBorderStyle}" DockPanel.Dock="Top">
-                <DockPanel LastChildFill="False">
-                    <Label Style="{StaticResource entityRelationshipControlLabelStyle}"
-                           DockPanel.Dock="Left"
-                           HorizontalAlignment="Right" />
-                    <Button Style="{StaticResource createEntityButtonStyle}"
-                            DockPanel.Dock="Right"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Center" />
-                </DockPanel>
-            </Border>
-            <Grid>
-                <kdc:ShowEntitiesControl
-                    Panel.ZIndex="0" />
-                <kde:EditorControl
-                    Panel.ZIndex="1"
-                    DataContext="{Binding EditedEntity, Mode=OneWay}" />
-            </Grid>
-        </DockPanel>
+        <Grid Grid.Column="1"
+            Margin="5,0,5,0">
+            <kdc:ShowEntitiesControl Panel.ZIndex="0" />
+            <kde:EditorControl Panel.ZIndex="1"
+                DataContext="{Binding EditedEntity, Mode=OneWay}" />
+        </Grid>
 
         <!--
         Splitter between entities and tags
         -->
-        <GridSplitter
-                IsTabStop="False"
-                Margin="0,5,0,5"
-                Width="1"
-                Grid.Column="1" />
+        <GridSplitter Grid.Column="1"
+            IsTabStop="False"
+            Width="2"
+            Foreground="DarkGray" />
 
         <!--
         Relationships in the middle column
         -->
-        <DockPanel Grid.Column="2" LastChildFill="True">
-            <Border Style="{StaticResource labelBorderStyle}" DockPanel.Dock="Top">
-                <DockPanel LastChildFill="False">
-                    <Label Style="{StaticResource entityRelationshipControlLabelStyle}"
-                           DockPanel.Dock="Left"
-                           HorizontalAlignment="Right" />
-                    <Button Style="{StaticResource createEntityButtonStyle}"
-                            DockPanel.Dock="Right"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Center" />
-                </DockPanel>
-            </Border>
-            <Grid>
-                <kdc:ShowRelationshipsControl
-                    Panel.ZIndex="0" />
-            </Grid>
-        </DockPanel>
+        <Grid Grid.Column="2"
+              Margin="5,0,5,0">
+            <kdc:ShowRelationshipsControl Panel.ZIndex="0" />
+        </Grid>
     </Grid>
 </Window>
