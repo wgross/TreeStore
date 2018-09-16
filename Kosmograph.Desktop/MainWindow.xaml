@@ -28,8 +28,8 @@
         -->
         <Grid Grid.Column="0"
               Margin="5,0,5,0">
-            <kdc:ShowTagsControl Panel.ZIndex="0" />
-            <kde:EditorControl Panel.ZIndex="1"
+            <kdc:ShowTagsControl/>
+            <kde:EditorControl
                 DataContext="{Binding EditedTag, Mode=OneWay}" />
         </Grid>
 
@@ -46,8 +46,8 @@
         -->
         <Grid Grid.Column="1"
             Margin="5,0,5,0">
-            <kdc:ShowEntitiesControl Panel.ZIndex="0" />
-            <kde:EditorControl Panel.ZIndex="1"
+            <kdc:ShowEntitiesControl/>
+            <kde:EditorControl
                 DataContext="{Binding EditedEntity, Mode=OneWay}" />
         </Grid>
 

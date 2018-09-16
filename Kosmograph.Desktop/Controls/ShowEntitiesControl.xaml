@@ -7,6 +7,20 @@
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
+        <Style TargetType="{x:Type UserControl}">
+            <!--
+            The control initialized as 'Visible' but if the
+            DataContext is null, it will collapse.
+            -->
+            <Setter
+                Property="Visibility"
+                Value="Visible" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding EditedEntity}" Value="{x:Null}">
+                    <Setter Property="Visibility" Value="Visible" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
         <Style x:Key="entityListBoxStyle" TargetType="{x:Type ListBox}">
             <Setter Property="ItemTemplate">
                 <Setter.Value>
@@ -23,8 +37,8 @@
         Margin="0,0,0,0">
         <TextBlock DockPanel.Dock="Top"
             Text="Entities"
-            Foreground="DarkGray"
-            FontFamily="Bold" />
+            Foreground="Gray"
+            FontWeight="Bold" />
         <ListBox
             Name="entityListBox"
             Panel.ZIndex="0"
