@@ -11,23 +11,24 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="./CommonResources.xaml" />
             </ResourceDictionary.MergedDictionaries>
-
-            <Style TargetType="{x:Type UserControl}">
-                <!--
-                Control is hidden.
-                If no entity is edited it is shown
-                -->
-                <Setter
-                Property="Visibility"
-                Value="Hidden" />
-                <Style.Triggers>
-                    <DataTrigger Binding="{Binding EditedTag}" Value="{x:Null}">
-                        <Setter Property="Visibility" Value="Visible" />
-                    </DataTrigger>
-                </Style.Triggers>
-            </Style>
         </ResourceDictionary>
     </UserControl.Resources>
+    <UserControl.Style>
+        <Style TargetType="{x:Type UserControl}">
+            <!--
+            Control is hidden.
+            If no entity is edited it is shown
+            -->
+            <Setter
+                    Property="Visibility"
+                    Value="Hidden" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding EditedTag}" Value="{x:Null}">
+                    <Setter Property="Visibility" Value="Visible" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Style>
     <DockPanel
         LastChildFill="True"
         Margin="2,0,0,0">
@@ -35,7 +36,7 @@
             Text="Tags"
             Foreground="Gray"
             FontWeight="Bold" />
-        <ListBox Panel.ZIndex="0"
+        <ListBox
             Name="tagListBox"
             Style="{StaticResource modelItemListBoxStyle}"
             ItemsSource="{Binding Tags}"

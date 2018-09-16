@@ -11,22 +11,24 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="./CommonResources.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-            <Style TargetType="{x:Type UserControl}">
-                <!--
-                Control is hidden.
-                If no entity is edited it is shown
-                -->
-                <Setter
-                    Property="Visibility"
-                    Value="Hidden" />
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding EditedEntity}" Value="{x:Null}">
-                            <Setter Property="Visibility" Value="Visible" />
-                        </DataTrigger>
-                    </Style.Triggers>
-            </Style>
         </ResourceDictionary>
     </UserControl.Resources>
+    <UserControl.Style>
+        <Style TargetType="{x:Type UserControl}">
+            <!--
+            Control is hidden.
+            If no entity is edited it is shown
+            -->
+            <Setter
+                Property="Visibility"
+                Value="Hidden" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding EditedEntity}" Value="{x:Null}">
+                    <Setter Property="Visibility" Value="Visible" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Style>
     <DockPanel 
         LastChildFill="True"      
         Margin="0,0,0,0">
@@ -36,7 +38,6 @@
             FontWeight="Bold" />
         <ListBox
             Name="entityListBox"
-            Panel.ZIndex="0"
             Style="{StaticResource modelItemListBoxStyle}"
             ItemsSource="{Binding Entities}"
             SelectedItem="{Binding SelectedEntity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
