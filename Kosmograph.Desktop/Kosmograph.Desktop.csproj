@@ -78,6 +78,9 @@
     <Compile Include="Controls\EditAssignedTagsControl.xaml.cs">
       <DependentUpon>EditAssignedTagsControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\EditEntityControl.xaml.cs">
+      <DependentUpon>EditEntityControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\EditorSectionHeaderControl.xaml.cs">
       <DependentUpon>EditorSectionHeaderControl.xaml</DependentUpon>
     </Compile>
@@ -130,6 +133,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\EditAssignedTagsControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\EditEntityControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

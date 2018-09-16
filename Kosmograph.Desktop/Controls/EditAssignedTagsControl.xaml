@@ -6,8 +6,7 @@
              xmlns:local="clr-namespace:Kosmograph.Desktop.Controls"
              xmlns:kvm="clr-namespace:Kosmograph.Desktop.ViewModel"
              mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800"
-             AllowDrop="True">
+             d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         
         <DataTemplate DataType="{x:Type kvm:AssignedTagViewModel}">
@@ -17,7 +16,6 @@
                 -->
                 <local:EditorSectionHeaderControl Text="{Binding Name}" />
                 <ItemsControl
-                    Name="assignedTagsItemsControl"
                     DockPanel.Dock="Top"
                     ItemsSource="{Binding Properties}">
                 </ItemsControl>
@@ -43,9 +41,8 @@
         
     </UserControl.Resources>
 
-    <ItemsControl
+    <ItemsControl        
             Name="assignedTagsItemsControl"
-            ItemsSource="{Binding Tags}"
-            Drop="assignedTagsItemsControl_Drop">
+            ItemsSource="{Binding Tags}">
     </ItemsControl>
 </UserControl>
