@@ -51,7 +51,7 @@ namespace Kosmograph.LiteDb.Test
         }
 
         [Fact]
-        public void RelationshipRepository_reads_relationship_with_entities_to_collection()
+        public void RelationshipRepository_reads_relationship_with_entities_from_collection()
         {
             // ARRANGE
 
@@ -101,7 +101,7 @@ namespace Kosmograph.LiteDb.Test
         }
 
         [Fact]
-        public void EntityRepository_reads_relationship_with_tag_to_collection()
+        public void EntityRepository_reads_relationship_with_tag_from_collection()
         {
             // ARRANGE
 
