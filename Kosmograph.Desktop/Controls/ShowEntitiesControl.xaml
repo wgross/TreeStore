@@ -7,30 +7,25 @@
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
-        <Style TargetType="{x:Type UserControl}">
-            <!--
-            The control initialized as 'Visible' but if the
-            DataContext is null, it will collapse.
-            -->
-            <Setter
-                Property="Visibility"
-                Value="Visible" />
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding EditedEntity}" Value="{x:Null}">
-                    <Setter Property="Visibility" Value="Visible" />
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-        <Style x:Key="entityListBoxStyle" TargetType="{x:Type ListBox}">
-            <Setter Property="ItemTemplate">
-                <Setter.Value>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Name}" />
-                    </DataTemplate>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="BorderThickness" Value="0"/>
-        </Style>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="./CommonResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <Style TargetType="{x:Type UserControl}">
+                <!--
+                Control is hidden.
+                If no entity is edited it is shown
+                -->
+                <Setter
+                    Property="Visibility"
+                    Value="Hidden" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding EditedEntity}" Value="{x:Null}">
+                            <Setter Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                    </Style.Triggers>
+            </Style>
+        </ResourceDictionary>
     </UserControl.Resources>
     <DockPanel 
         LastChildFill="True"      
@@ -42,22 +37,22 @@
         <ListBox
             Name="entityListBox"
             Panel.ZIndex="0"
-            Style="{StaticResource entityListBoxStyle}"
+            Style="{StaticResource modelItemListBoxStyle}"
             ItemsSource="{Binding Entities}"
             SelectedItem="{Binding SelectedEntity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
             MouseDoubleClick="entityListBox_MouseDoubleClick">
             <ListBox.InputBindings>
                 <KeyBinding
-                Key="Insert"
-                Command="{Binding CreateEntityCommand}" />
+                    Key="Insert"
+                    Command="{Binding CreateEntityCommand}" />
                 <KeyBinding
-                Key="Return"
-                Command="{Binding EditEntityCommand}"
-                CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
+                    Key="Return"
+                    Command="{Binding EditEntityCommand}"
+                    CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
                 <KeyBinding
-                Key="Delete"
-                Command="{Binding DeleteEntityCommand}"
-                CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
+                    Key="Delete"
+                    Command="{Binding DeleteEntityCommand}"
+                    CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
             </ListBox.InputBindings>
         </ListBox>
     </DockPanel>
