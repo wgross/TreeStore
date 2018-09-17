@@ -8,12 +8,12 @@ namespace Kosmograph.Desktop.Test.ViewModel
     public class EditTagViewModelTest
     {
         private readonly Tag tag;
-        private readonly EditTagViewModel editTag;
+        private readonly TagEditModel editTag;
 
         public EditTagViewModelTest()
         {
             this.tag = new Tag("tag", new Facet("facet", new FacetProperty("p")));
-            this.editTag = new EditTagViewModel(this.tag, delegate { });
+            this.editTag = new TagEditModel(this.tag, delegate { });
         }
 
         [Fact]

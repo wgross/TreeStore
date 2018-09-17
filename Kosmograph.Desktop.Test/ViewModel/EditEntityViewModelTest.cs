@@ -9,7 +9,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
     public class EditEntityViewModelTest
     {
         private readonly Tag tag;
-        private readonly EditTagViewModel editTag;
+        private readonly TagEditModel editTag;
 
         public EditEntityViewModelTest()
         {

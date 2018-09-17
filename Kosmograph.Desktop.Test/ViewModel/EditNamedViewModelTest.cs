@@ -12,7 +12,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
     {
         public static IEnumerable<object[]> GetTestedInstances()
         {
-            var tag = new EditTagViewModel(new Tag("tag", new Facet("facet", new FacetProperty("p"))), delegate { });
+            var tag = new TagEditModel(new Tag("tag", new Facet("facet", new FacetProperty("p"))), delegate { });
 
             yield return new object[] { (Action<string>)(s => tag.Name = s), tag };
             yield return new object[] { (Action<string>)(s => tag.Facet.Name = s), tag.Facet };

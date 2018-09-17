@@ -22,7 +22,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
         {
             // ARRANGE
 
-            var editTag = new EditTagViewModel(this.tag);
+            var editTag = new TagEditModel(this.tag);
 
             // ASSERT
 
@@ -38,7 +38,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
             bool callbackWasUsed = false;
             Action<Tag> callback = t => callbackWasUsed = true;
 
-            var editTag = new EditTagViewModel(this.tag, callback, callback);
+            var editTag = new TagEditModel(this.tag, callback, callback);
 
             // ACT
 
@@ -65,7 +65,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
             bool rollbackCallbackWasUsed = false;
             Action<Tag> rollback = t => commitCallbackWasUsed = true;
 
-            var editTag = new EditTagViewModel(this.tag, commit, rollback);
+            var editTag = new TagEditModel(this.tag, commit, rollback);
 
             editTag.Facet.CreatePropertyCommand.Execute("p2");
             editTag.Facet.RemovePropertyCommand.Execute(editTag.Facet.Properties.First());
@@ -95,7 +95,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
             bool rollbackCallbackWasUsed = false;
             Action<Tag> rollback = t => rollbackCallbackWasUsed = true;
 
-            var editTag = new EditTagViewModel(this.tag, commit, rollback);
+            var editTag = new TagEditModel(this.tag, commit, rollback);
 
             editTag.Facet.CreatePropertyCommand.Execute("p2");
             editTag.Facet.RemovePropertyCommand.Execute(editTag.Facet.Properties.First());

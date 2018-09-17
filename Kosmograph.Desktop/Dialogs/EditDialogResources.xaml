@@ -34,7 +34,7 @@
     <!--
     Editor for Tags
     -->
-    <DataTemplate DataType="{x:Type kvm:EditTagViewModel}">
+    <DataTemplate DataType="{x:Type kvm:TagEditModel}">
         <DockPanel LastChildFill="True">
             <DockPanel LastChildFill="True" DockPanel.Dock="Top">
                 <Label DockPanel.Dock="Left" Style="{StaticResource nameLabelStyle}" />

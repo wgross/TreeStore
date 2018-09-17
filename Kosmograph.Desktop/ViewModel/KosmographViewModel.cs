@@ -11,7 +11,7 @@ namespace Kosmograph.Desktop.ViewModel
     public class KosmographViewModel : ViewModelBase
     {
         private KosmographModel model;
-        private Lazy<CommitableObservableCollection<EditTagViewModel>> tags;
+        private Lazy<CommitableObservableCollection<TagEditModel>> tags;
         private Lazy<CommitableObservableCollection<EditEntityViewModel>> entities;
         private Lazy<CommitableObservableCollection<RelationshipViewModel>> relationships;
 
@@ -23,8 +23,8 @@ namespace Kosmograph.Desktop.ViewModel
             this.CreateLazyRelationshipsCollection();
 
             this.CreateTagCommand = new RelayCommand(this.CreateTagExecuted);
-            this.EditTagCommand = new RelayCommand<EditTagViewModel>(this.EditTagExecuted);
-            this.DeleteTagCommand = new RelayCommand<EditTagViewModel>(this.DeleteTagExecuted);
+            this.EditTagCommand = new RelayCommand<TagEditModel>(this.EditTagExecuted);
+            this.DeleteTagCommand = new RelayCommand<TagEditModel>(this.DeleteTagExecuted);
 
             this.CreateEntityCommand = new RelayCommand(this.CreateEntityExecuted);
             this.EditEntityCommand = new RelayCommand<EditEntityViewModel>(this.EditEntityExecuted);
@@ -38,11 +38,11 @@ namespace Kosmograph.Desktop.ViewModel
 
         public KosmographModel Model => this.model;
 
-        public ObservableCollection<EditTagViewModel> Tags => this.tags.Value;
+        public ObservableCollection<TagEditModel> Tags => this.tags.Value;
 
         private void CreateLazyTagsCollection()
         {
-            this.tags = new Lazy<CommitableObservableCollection<EditTagViewModel>>(() => new CommitableObservableCollection<EditTagViewModel>(this.model.Tags.FindAll().Select(t => new EditTagViewModel(t, this.OnEditedTagCommitted, this.OnTagRollback))));
+            this.tags = new Lazy<CommitableObservableCollection<TagEditModel>>(() => new CommitableObservableCollection<TagEditModel>(this.model.Tags.FindAll().Select(t => new TagEditModel(t, this.OnEditedTagCommitted, this.OnTagRollback))));
             this.RaisePropertyChanged(nameof(Tags));
         }
 
@@ -64,13 +64,13 @@ namespace Kosmograph.Desktop.ViewModel
             this.RaisePropertyChanged(nameof(Relationships));
         }
 
-        public EditTagViewModel SelectedTag
+        public TagEditModel SelectedTag
         {
             get => this.selectedTag;
             set => this.Set(nameof(SelectedTag), ref this.selectedTag, value);
         }
 
-        private EditTagViewModel selectedTag;
+        private TagEditModel selectedTag;
 
         public EditEntityViewModel SelectedEntity
         {
@@ -92,7 +92,7 @@ namespace Kosmograph.Desktop.ViewModel
 
         public ICommand DeleteTagCommand { get; }
 
-        private void DeleteTagExecuted(EditTagViewModel tag)
+        private void DeleteTagExecuted(TagEditModel tag)
         {
             this.tags.Value.Remove(tag);
             this.tags.Value.Commit(onRemove: tvm => this.model.Tags.Delete(tvm.Model.Id));
@@ -106,12 +106,12 @@ namespace Kosmograph.Desktop.ViewModel
 
         private void CreateTagExecuted()
         {
-            this.EditedTag = new EditTagViewModel(new Tag("new tag", new Facet()), this.OnCreatedTagCommitted, this.OnTagRollback);
+            this.EditedTag = new TagEditModel(new Tag("new tag", new Facet()), this.OnCreatedTagCommitted, this.OnTagRollback);
         }
 
         private void OnCreatedTagCommitted(Tag tag)
         {
-            var tagViemModel = new EditTagViewModel(tag, this.OnEditedTagCommitted, this.OnTagRollback);
+            var tagViemModel = new TagEditModel(tag, this.OnEditedTagCommitted, this.OnTagRollback);
             this.tags.Value.Add(tagViemModel);
             this.tags.Value.Commit(onAdd: tvm => this.Model.Tags.Upsert(tvm.Model));
             this.EditedTag = null;
@@ -124,7 +124,7 @@ namespace Kosmograph.Desktop.ViewModel
 
         public ICommand EditTagCommand { get; }
 
-        private void EditTagExecuted(EditTagViewModel tag)
+        private void EditTagExecuted(TagEditModel tag)
         {
             this.EditedTag = tag;
         }
@@ -144,13 +144,13 @@ namespace Kosmograph.Desktop.ViewModel
 
         #endregion Edit existing Tag
 
-        public EditTagViewModel EditedTag
+        public TagEditModel EditedTag
         {
             get => this.editedTag;
-            set => this.Set<EditTagViewModel>(nameof(EditedTag), ref this.editedTag, value);
+            set => this.Set<TagEditModel>(nameof(EditedTag), ref this.editedTag, value);
         }
 
-        private EditTagViewModel editedTag;
+        private TagEditModel editedTag;
 
         #region Create new Entity in Model
 
@@ -278,7 +278,7 @@ namespace Kosmograph.Desktop.ViewModel
 
         #region Commit changes of Tags to model
 
-        private void OnTagRemoved(EditTagViewModel vm) => this.model.Tags.Delete(vm.Model.Id);
+        private void OnTagRemoved(TagEditModel vm) => this.model.Tags.Delete(vm.Model.Id);
 
         private void OnEntityRemoved(EditEntityViewModel vm) => this.model.Entities.Delete(vm.Model.Id);
 

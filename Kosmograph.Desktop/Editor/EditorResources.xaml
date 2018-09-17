@@ -47,7 +47,7 @@
     - Name at the top
     - List of facet properties below in Expander
     -->
-    <DataTemplate DataType="{x:Type kvm:EditTagViewModel}">
+    <DataTemplate DataType="{x:Type kvm:TagEditModel}">
         <DockPanel
             LastChildFill="True">
             <kdc:EditorSectionHeaderControl DockPanel.Dock="Top"

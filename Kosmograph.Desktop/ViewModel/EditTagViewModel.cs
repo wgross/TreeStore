@@ -3,12 +3,12 @@ using System;
 
 namespace Kosmograph.Desktop.ViewModel
 {
-    public class EditTagViewModel : EditNamedViewModelBase<Tag>
+    public class TagEditModel : EditNamedViewModelBase<Tag>
     {
         private readonly Action<Tag> committed;
         private readonly Action<Tag> rolledback;
 
-        public EditTagViewModel(Tag tag, Action<Tag> committed = null, Action<Tag> rolledback = null)
+        public TagEditModel(Tag tag, Action<Tag> committed = null, Action<Tag> rolledback = null)
             : base(tag)
         {
             this.Facet = new EditFacetViewModel(tag.Facet);

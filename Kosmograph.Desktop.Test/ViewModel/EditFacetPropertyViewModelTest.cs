@@ -10,14 +10,14 @@ namespace Kosmograph.Desktop.Test.ViewModel
         private readonly FacetProperty property;
         private readonly Facet facet;
         private readonly Tag tag;
-        private readonly EditTagViewModel editTag;
+        private readonly TagEditModel editTag;
 
         public EditFacetPropertyViewModelTest()
         {
             this.property = new FacetProperty("p1");
             this.facet = new Facet("f", this.property);
             this.tag = new Tag("tag", facet);
-            this.editTag = new EditTagViewModel(tag, delegate { });
+            this.editTag = new TagEditModel(tag, delegate { });
         }
 
         [Fact]
