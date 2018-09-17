@@ -2,9 +2,7 @@
 using GalaSoft.MvvmLight.Command;
 using Kosmograph.Model;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.Linq;
 using System.Windows.Input;
 
@@ -16,8 +14,6 @@ namespace Kosmograph.Desktop.ViewModel
         private Lazy<CommitableObservableCollection<EditTagViewModel>> tags;
         private Lazy<CommitableObservableCollection<EditEntityViewModel>> entities;
         private Lazy<CommitableObservableCollection<RelationshipViewModel>> relationships;
-        private readonly List<(NotifyCollectionChangedAction, IEnumerable<EditTagViewModel>)> changesAtTags;
-        private readonly List<(NotifyCollectionChangedAction, IEnumerable<EditEntityViewModel>)> changesAtEntities;
 
         public KosmographViewModel(KosmographModel kosmographModel)
         {
@@ -34,6 +30,9 @@ namespace Kosmograph.Desktop.ViewModel
             this.EditEntityCommand = new RelayCommand<EditEntityViewModel>(this.EditEntityExecuted);
             this.DeleteEntityCommand = new RelayCommand<EditEntityViewModel>(this.DeleteEntityExecuted);
 
+            this.CreateRelationshipCommand = new RelayCommand(this.CreateRelationshipExecuted);
+            this.EditRelationshipCommand = new RelayCommand<RelationshipViewModel>(this.EditRelationshipExecuted);
+            this.DeleteRelationshipCommand = new RelayCommand<RelationshipViewModel>(this.DeleteRelationshipExecuted);
             this.Rollback();
         }
 
@@ -80,6 +79,14 @@ namespace Kosmograph.Desktop.ViewModel
         }
 
         private EditEntityViewModel selectedEntity;
+
+        public RelationshipViewModel SelectedRelationship
+        {
+            get => this.selectedRelationship;
+            set => this.Set(nameof(SelectedRelationship), ref this.selectedRelationship, value);
+        }
+
+        public RelationshipViewModel selectedRelationship;
 
         #region Remove Tag from model
 
@@ -156,11 +163,11 @@ namespace Kosmograph.Desktop.ViewModel
 
         private void OnCreatedEntityCommitted(Entity entity)
         {
-            var entityViemModel = new EditEntityViewModel(entity, this.OnEditedEntityCommitted, this.OnEntityRollback);
-            this.entities.Value.Add(entityViemModel);
+            var entityViewModel = new EditEntityViewModel(entity, this.OnEditedEntityCommitted, this.OnEntityRollback);
+            this.entities.Value.Add(entityViewModel);
             this.entities.Value.Commit(onAdd: evm => this.Model.Entities.Upsert(evm.Model));
             this.EditedEntity = null;
-            this.SelectedEntity = entityViemModel;
+            this.SelectedEntity = entityViewModel;
         }
 
         #endregion Create new Entity in Model
@@ -209,7 +216,65 @@ namespace Kosmograph.Desktop.ViewModel
 
         #endregion Delete Entity from Model
 
-        public EditRelationshipViewModel EditedRelationship { get; set; }
+        #region Create/Edit Relationship
+
+        public ICommand CreateRelationshipCommand { get; set; }
+
+        private void CreateRelationshipExecuted()
+        {
+            this.EditedRelationship = new RelationshipEditModel(
+                new RelationshipViewModel(new Relationship("new relationship")),
+                this.OnCreatedRelationshipCommitted, this.OnRelationshipRollback);
+        }
+
+        public ICommand EditRelationshipCommand { get; }
+
+        private void EditRelationshipExecuted(RelationshipViewModel viewModel)
+        {
+            this.EditedRelationship = new RelationshipEditModel(viewModel, this.OnEditedRelationshipCommitted, this.OnRelationshipRollback);
+        }
+
+        public RelationshipEditModel EditedRelationship
+        {
+            get => this.editedRelationship;
+            set => this.Set(nameof(EditedRelationship), ref this.editedRelationship, value);
+        }
+
+        private RelationshipEditModel editedRelationship;
+
+        private void OnCreatedRelationshipCommitted(Relationship relationship)
+        {
+            var relationshipViewModel = new RelationshipViewModel(relationship);
+            this.relationships.Value.Add(relationshipViewModel);
+            this.relationships.Value.Commit(onAdd: rvm => this.Model.Relationships.Upsert(rvm.Model));
+            this.EditedRelationship = null;
+            this.SelectedRelationship = relationshipViewModel;
+        }
+
+        private void OnEditedRelationshipCommitted(Relationship entity)
+        {
+            this.Model.Relationships.Upsert(entity);
+            this.EditedRelationship = null;
+        }
+
+        private void OnRelationshipRollback(Relationship obj)
+        {
+            this.EditedRelationship = null;
+        }
+
+        #endregion Create/Edit Relationship
+
+        #region Deleted Relationship from mode
+
+        public ICommand DeleteRelationshipCommand { get; }
+
+        private void DeleteRelationshipExecuted(RelationshipViewModel relationship)
+        {
+            this.relationships.Value.Remove(relationship);
+            this.relationships.Value.Commit(onRemove: rvm => this.model.Relationships.Delete(rvm.Model.Id));
+        }
+
+        #endregion Deleted Relationship from mode
 
         #region Commit changes of Tags to model
 

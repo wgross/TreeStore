@@ -1,6 +1,4 @@
 ﻿using Kosmograph.Desktop.ViewModel;
-using Kosmograph.Model;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
@@ -33,6 +31,6 @@ namespace Kosmograph.Desktop.Controls
             //}
         }
 
-        //private void relationshipsListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e) => //this.ViewModel.EditTagCommand.Execute(this.ViewModel.SelectedTag);
+        private void relationshipsListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e) => this.ViewModel.EditRelationshipCommand.Execute(this.ViewModel.SelectedRelationship);
     }
 }

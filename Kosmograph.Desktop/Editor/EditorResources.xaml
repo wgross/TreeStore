@@ -33,7 +33,7 @@
     - Content is centered
     - based in the self-focusing control style
     -->
-    
+
     <Style x:Key="editorContentControlBorderStyle" TargetType="{x:Type Border}">
         <Setter Property="Background" Value="White" />
         <Setter Property="Opacity" Value="0.8" />
@@ -48,24 +48,22 @@
     - List of facet properties below in Expander
     -->
     <DataTemplate DataType="{x:Type kvm:EditTagViewModel}">
-        <DockPanel 
+        <DockPanel
             LastChildFill="True">
             <kdc:EditorSectionHeaderControl DockPanel.Dock="Top"
                 Text="{Binding Name, StringFormat={}Edit Tag: {0}}" />
-            <kdc:EditItemNameControl DockPanel.Dock="Top"/>
+            <kdc:EditItemNameControl DockPanel.Dock="Top" />
             <kdc:EditorSectionHeaderControl DockPanel.Dock="Top"
                 Text="{Binding Name, StringFormat={}Edit Properties of: {0}}" />
             <kdc:EditTagFacetPropertiesControl />
         </DockPanel>
     </DataTemplate>
 
-    <!--
-    Editor for Entities:
-    - Name on top
-    - Tags and their property values below.
-    -->
     <DataTemplate DataType="{x:Type kvm:EditEntityViewModel}">
-        <kdc:EditEntityControl/>
+        <kdc:EditEntityControl />
     </DataTemplate>
 
+    <DataTemplate DataType="{x:Type kvm:RelationshipEditModel}">
+        <kdc:EditRelationshipControl />
+    </DataTemplate>
 </ResourceDictionary>

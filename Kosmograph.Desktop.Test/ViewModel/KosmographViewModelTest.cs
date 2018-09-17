@@ -188,6 +188,91 @@ namespace Kosmograph.Desktop.Test.ViewModel
         }
 
         [Fact]
+        public void KosmographViewModel_delays_created_Relationship_to_KosmographModel()
+        {
+            // ARRANGE
+
+            this.persistence
+              .Setup(p => p.Relationships)
+              .Returns(this.relationshipRepository.Object);
+
+            var relationship = new Relationship("r");
+            this.relationshipRepository
+                .Setup(r => r.FindAll())
+                .Returns(relationship.Yield());
+
+            // ACT
+
+            this.viewModel.CreateRelationshipCommand.Execute(null);
+
+            // ASSERT
+
+            Assert.Single(this.viewModel.Relationships);
+            Assert.Equal("new relationship", this.viewModel.EditedRelationship.Name);
+        }
+
+        [Fact]
+        public void KosmographViewModel_commits_created_Relationship_to_KosmographModel()
+        {
+            // ARRANGE
+
+            this.persistence
+              .Setup(p => p.Relationships)
+              .Returns(this.relationshipRepository.Object);
+
+            var relationship = new Relationship("r", new Entity(), new Entity());
+            this.relationshipRepository
+                .Setup(r => r.FindAll())
+                .Returns(relationship.Yield());
+
+            this.relationshipRepository
+                .Setup(r => r.Upsert(It.IsAny<Relationship>()))
+                .Returns<Relationship>(r => r);
+
+            this.viewModel.CreateRelationshipCommand.Execute(null);
+
+            // ACT
+
+            this.viewModel.EditedRelationship.CommitCommand.Execute(null);
+
+            // ASSERT
+
+            Assert.Equal(2, this.viewModel.Relationships.Count);
+            Assert.Null(this.viewModel.EditedRelationship);
+            Assert.Equal("new relationship", this.viewModel.Relationships.ElementAt(1).Name);
+            Assert.Equal(this.viewModel.Relationships.ElementAt(1), this.viewModel.SelectedRelationship);
+        }
+
+        [Fact]
+        public void KosmographViewModel_commits_deleted_Relationship_to_KosmographModel()
+        {
+            // ARRANGE
+
+            this.persistence
+               .Setup(p => p.Relationships)
+               .Returns(this.relationshipRepository.Object);
+
+            var relationship = new Relationship("r", new Entity("e1"), new Entity("e2"));
+            this.relationshipRepository
+                .Setup(r => r.FindAll())
+                .Returns(relationship.Yield());
+
+            this.relationshipRepository
+                .Setup(r => r.Delete(relationship.Id))
+                .Returns(true);
+
+            // ACT
+
+            this.viewModel.DeleteRelationshipCommand.Execute(this.viewModel.Relationships.Single());
+
+            // ASSERT
+
+            Assert.Empty(this.viewModel.Relationships);
+            Assert.Null(this.viewModel.SelectedRelationship);
+            Assert.Null(this.viewModel.EditedRelationship);
+        }
+
+        [Fact]
         public void KosmographViewModel_delays_created_Tag_to_KosmographModel()
         {
             // ARRANGE
@@ -364,6 +449,37 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // ASSERT
 
             Assert.Null(this.viewModel.EditedEntity);
+        }
+
+        [Fact]
+        public void KosmographViewModel_writes_Relationship_to_KosmographModel()
+        {
+            // ARRANGE
+
+            this.persistence
+               .Setup(p => p.Relationships)
+               .Returns(this.relationshipRepository.Object);
+
+            var relationship = new Relationship();
+
+            this.relationshipRepository
+                .Setup(r => r.FindAll())
+                .Returns(relationship.Yield());
+
+            this.relationshipRepository
+                .Setup(r => r.Upsert(relationship))
+                .Returns(relationship);
+
+            this.viewModel.EditRelationshipCommand.Execute(this.viewModel.Relationships.Single());
+
+            // ACT
+
+            this.viewModel.EditedRelationship.Name = "changed";
+            this.viewModel.EditedRelationship.CommitCommand.Execute(null);
+
+            // ASSERT
+
+            Assert.Null(this.viewModel.EditedRelationship);
         }
 
         [Fact]

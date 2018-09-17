@@ -23,7 +23,7 @@
                     Property="Visibility"
                     Value="Hidden" />
             <Style.Triggers>
-                <DataTrigger Binding="{Binding EditedRelationhsip}" Value="{x:Null}">
+                <DataTrigger Binding="{Binding EditedRelationship}" Value="{x:Null}">
                     <Setter Property="Visibility" Value="Visible" />
                 </DataTrigger>
             </Style.Triggers>
@@ -40,7 +40,7 @@
                 FontWeight="Bold" />
             <Button DockPanel.Dock="Right" 
                 Style="{StaticResource addButtonInHeaderStyle}"
-                Command="{Binding CreateRelationsipCommand}"/>
+                Command="{Binding CreateRelationshipCommand}"/>
         </DockPanel>
         <ListBox
             Name="tagListBox"
@@ -48,18 +48,16 @@
             Style="{StaticResource modelItemListBoxStyle}"
             ItemsSource="{Binding Relationships}"
             SelectedItem="{Binding SelectedRelationship, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-            MouseMove="relationshipsListBox_MouseMove">
-            <!--<ListBox.InputBindings>
-            MouseDoubleClick="relationshipListBox_MouseDoubleClick"
-                <KeyBinding Key="Insert"
-                                        Command="{Binding CreateTagCommand}" />
+            MouseMove="relationshipsListBox_MouseMove"
+            MouseDoubleClick="relationshipsListBox_MouseDoubleClick">
+            <ListBox.InputBindings>
                 <KeyBinding Key="Return"
-                                        Command="{Binding EditTagCommand}"
+                                        Command="{Binding EditRelationshipCommand}"
                                         CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
                 <KeyBinding Key="Delete"
-                                Command="{Binding DeleteTagCommand}"
+                                Command="{Binding DeleteRelationshipCommand}"
                                 CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
-            </ListBox.InputBindings>-->
+            </ListBox.InputBindings>
         </ListBox>
     </DockPanel>
 </UserControl>

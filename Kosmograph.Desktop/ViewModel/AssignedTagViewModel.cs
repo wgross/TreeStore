@@ -11,9 +11,9 @@ namespace Kosmograph.Desktop.ViewModel
         public AssignedTagViewModel(Tag tag, IDictionary<string, object> propertyValues)
             : base(tag)
         {
-            this.Properties = new CommitableObservableCollection<AssignedFacetPropertyValue>(this.Model.Facet.Properties.Select(p => new AssignedFacetPropertyValue(p, propertyValues)));
+            this.Properties = new CommitableObservableCollection<EditAssignedFacetPropertyValueViewModel>(this.Model.Facet.Properties.Select(p => new EditAssignedFacetPropertyValueViewModel(p, propertyValues)));
         }
 
-        public CommitableObservableCollection<AssignedFacetPropertyValue> Properties { get; }
+        public CommitableObservableCollection<EditAssignedFacetPropertyValueViewModel> Properties { get; }
     }
 }

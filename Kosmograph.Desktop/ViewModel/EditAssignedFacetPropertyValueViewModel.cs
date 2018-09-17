@@ -4,11 +4,11 @@ using System.Collections.Generic;
 
 namespace Kosmograph.Desktop.ViewModel
 {
-    public class AssignedFacetPropertyValue : NamedViewModelBase<FacetProperty>
+    public class EditAssignedFacetPropertyValueViewModel : NamedViewModelBase<FacetProperty>
     {
         private readonly IDictionary<string, object> values;
 
-        public AssignedFacetPropertyValue(FacetProperty property, IDictionary<string, object> propertyValues)
+        public EditAssignedFacetPropertyValueViewModel(FacetProperty property, IDictionary<string, object> propertyValues)
             : base(property)
         {
             this.values = propertyValues;

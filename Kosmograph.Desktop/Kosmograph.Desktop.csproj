@@ -78,6 +78,9 @@
     <Compile Include="Controls\EditAssignedTagsControl.xaml.cs">
       <DependentUpon>EditAssignedTagsControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\EditRelationshipControl.xaml.cs">
+      <DependentUpon>EditRelationshipControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\EditEntityControl.xaml.cs">
       <DependentUpon>EditEntityControl.xaml</DependentUpon>
     </Compile>
@@ -113,18 +116,22 @@
     </Compile>
     <Compile Include="KosmographCommands.cs" />
     <Compile Include="NullToVisiblityConverter.cs" />
-    <Compile Include="ViewModel\AssignedFacetPropertyValue.cs" />
+    <Compile Include="ViewModel\AssigendFacetPropertyViewModel.cs" />
+    <Compile Include="ViewModel\Base\EditModelBase.cs" />
+    <Compile Include="ViewModel\EditAssignedFacetPropertyValueViewModel.cs" />
     <Compile Include="ViewModel\AssignedTagViewModel.cs" />
+    <Compile Include="ViewModel\Base\NamedEditModelBase.cs" />
     <Compile Include="ViewModel\CommitableObservableCollection.cs" />
     <Compile Include="ViewModel\EditEntityViewModel.cs" />
     <Compile Include="ViewModel\EditFacetViewModel.cs" />
-    <Compile Include="ViewModel\EditNamedViewModelBase.cs" />
-    <Compile Include="ViewModel\EditRelationshipViewModel.cs" />
+    <Compile Include="ViewModel\Base\EditNamedViewModelBase.cs" />
+    <Compile Include="ViewModel\FacetPropertyViewModel.cs" />
+    <Compile Include="ViewModel\RelationshipEditModel.cs" />
     <Compile Include="ViewModel\EditTagViewModel.cs" />
     <Compile Include="ViewModel\EntityViewModel.cs" />
     <Compile Include="ViewModel\KosmographViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
-    <Compile Include="ViewModel\NamedViewModelBase.cs" />
+    <Compile Include="ViewModel\Base\NamedViewModelBase.cs" />
     <Compile Include="ViewModel\RelationshipViewModel.cs" />
     <Compile Include="ViewModel\TagViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
@@ -135,6 +142,10 @@
     <Page Include="Controls\EditAssignedTagsControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\EditRelationshipControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\EditEntityControl.xaml">
       <SubType>Designer</SubType>

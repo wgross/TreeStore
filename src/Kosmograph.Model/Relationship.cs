@@ -11,6 +11,11 @@ namespace Kosmograph.Model
             this.To = to;
         }
 
+        public Relationship(string name)
+            : this(name, null, null)
+        {
+        }
+
         public Relationship()
             : base(string.Empty, new Tag[0])
         {

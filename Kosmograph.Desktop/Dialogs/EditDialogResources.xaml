@@ -90,7 +90,7 @@
         </StackPanel>
     </DataTemplate>
 
-    <DataTemplate DataType="{x:Type kvm:AssignedFacetPropertyValue}">
+    <DataTemplate DataType="{x:Type kvm:EditAssignedFacetPropertyValueViewModel}">
         <DockPanel LastChildFill="True" DockPanel.Dock="Top">
             <Label DockPanel.Dock="Left" Content="{Binding Name, Mode=OneTime}" />
             <TextBox Text="{Binding Value}" />
