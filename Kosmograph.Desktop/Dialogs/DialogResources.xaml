@@ -16,7 +16,7 @@
     <Style x:Key="facetPropertiesItemControlStyle" TargetType="{x:Type ListBox}">
         <Setter Property="ItemTemplate">
             <Setter.Value>
-                <DataTemplate DataType="{x:Type kvm:EditFacetPropertyViewModel}">
+                <DataTemplate DataType="{x:Type kvm:FacetPropertyEditModel}">
                     <DockPanel LastChildFill="True">
                         <Label Content="Name" DockPanel.Dock="Left" Style="{StaticResource nameLabelStyle}"/>
                         <TextBox Text="{Binding Name}" HorizontalAlignment="Stretch"/>

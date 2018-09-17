@@ -125,6 +125,7 @@
     <Compile Include="ViewModel\EditEntityViewModel.cs" />
     <Compile Include="ViewModel\EditFacetViewModel.cs" />
     <Compile Include="ViewModel\Base\EditNamedViewModelBase.cs" />
+    <Compile Include="ViewModel\FacetPropertyEditModel.cs" />
     <Compile Include="ViewModel\FacetPropertyViewModel.cs" />
     <Compile Include="ViewModel\RelationshipEditModel.cs" />
     <Compile Include="ViewModel\EditTagViewModel.cs" />

@@ -11,7 +11,7 @@
         <Style x:Key="facetPropertiesListBoxStyle" TargetType="{x:Type ListBox}">
             <Setter Property="ItemTemplate">
                 <Setter.Value>
-                    <DataTemplate DataType="{x:Type kvm:EditFacetPropertyViewModel}">
+                    <DataTemplate DataType="{x:Type kvm:FacetPropertyEditModel}">
                         <DockPanel
                             LastChildFill="True">
                             <Label DockPanel.Dock="Left"
@@ -48,7 +48,7 @@
         <!--
         <Button 
             Content="Create Property"
-            Command="{Binding Facet.CreatePropertyCommand}"
+            Command="{Binding CreatePropertyCommand}"
             HorizontalAlignment="Right"
             Margin ="0,0,2,5"
             BorderThickness="0"
@@ -58,15 +58,15 @@
         -->
         <ListBox
             Style="{StaticResource facetPropertiesListBoxStyle}"
-            ItemsSource="{Binding Facet.Properties}">
+            ItemsSource="{Binding Properties}">
             <ListBox.InputBindings>
                 <KeyBinding
                     Key="Delete"
-                    Command="{Binding Facet.RemovePropertyCommand}"
+                    Command="{Binding RemovePropertyCommand}"
                     CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
                 <KeyBinding
                     Key="Insert"
-                    Command="{Binding Facet.CreatePropertyCommand}" />
+                    Command="{Binding CreatePropertyCommand}" />
             </ListBox.InputBindings>
         </ListBox>
     </StackPanel>

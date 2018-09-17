@@ -16,8 +16,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
                 new TagViewModel(new Tag("tag", new Facet("facet", new FacetProperty("p")))), delegate { });
 
             yield return new object[] { (Action<string>)(s => tag.Name = s), tag };
-            yield return new object[] { (Action<string>)(s => tag.Facet.Name = s), tag.Facet };
-            yield return new object[] { (Action<string>)(s => tag.Facet.Properties.Single().Name = s), tag.Facet.Properties.Single() };
+            yield return new object[] { (Action<string>)(s => tag.Properties.Single().Name = s), tag.Properties.Single() };
         }
 
         [Theory]

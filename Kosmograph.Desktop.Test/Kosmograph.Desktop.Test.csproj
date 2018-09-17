@@ -108,7 +108,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModel\AssignedFacetPropertyViewModelTest.cs" />
     <Compile Include="ViewModel\EditEntityViewModelTest.cs" />
-    <Compile Include="ViewModel\EditFacetPropertyViewModelTest.cs" />
+    <Compile Include="ViewModel\FacetPropertyEditModelTest.cs" />
     <Compile Include="ViewModel\EditFacetViewModelTest.cs" />
     <Compile Include="ViewModel\EditNamedViewModelTest.cs" />
     <Compile Include="ViewModel\TagEditModelTest.cs" />

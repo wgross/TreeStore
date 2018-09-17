@@ -1,118 +1,118 @@
-﻿using Kosmograph.Desktop.ViewModel;
-using Kosmograph.Model;
-using System;
-using System.Linq;
-using Xunit;
+﻿//using Kosmograph.Desktop.ViewModel;
+//using Kosmograph.Model;
+//using System;
+//using System.Linq;
+//using Xunit;
 
-namespace Kosmograph.Desktop.Test.ViewModel
-{
-    public class EditFacetViewModelTest
-    {
-        private readonly Facet facet;
-        private readonly Tag tag;
+//namespace Kosmograph.Desktop.Test.ViewModel
+//{
+//    public class EditFacetViewModelTest
+//    {
+//        private readonly Facet facet;
+//        private readonly Tag tag;
 
-        public EditFacetViewModelTest()
-        {
-            this.facet = new Facet("f", new FacetProperty("p1"));
-            this.tag = new Tag("tag", facet);
-        }
+//        public EditFacetViewModelTest()
+//        {
+//            this.facet = new Facet("f", new FacetProperty("p1"));
+//            this.tag = new Tag("tag", facet);
+//        }
 
-        [Fact]
-        public void EditFacetViewModelTest_mirrors_Facet()
-        {
-            // ARRANGE
+//        [Fact]
+//        public void EditFacetViewModelTest_mirrors_Facet()
+//        {
+//            // ARRANGE
 
-            var editTag = new TagEditModel(new TagViewModel(this.tag));
+//            var editTag = new TagEditModel(new TagViewModel(this.tag));
 
-            // ASSERT
+//            // ASSERT
 
-            Assert.Single(editTag.Facet.Properties);
-            Assert.Equal("f", editTag.Facet.Name);
-        }
+//            Assert.Single(editTag.Facet.Properties);
+//            Assert.Equal("f", editTag.Facet.Name);
+//        }
 
-        [Fact]
-        public void EditFacetViewModelTest_delays_changes_to_Facet()
-        {
-            // ARRANGE
+//        [Fact]
+//        public void EditFacetViewModelTest_delays_changes_to_Facet()
+//        {
+//            // ARRANGE
 
-            bool callbackWasUsed = false;
-            Action<Tag> callback = t => callbackWasUsed = true;
+//            bool callbackWasUsed = false;
+//            Action<Tag> callback = t => callbackWasUsed = true;
 
-            var editTag = new TagEditModel(new TagViewModel(this.tag), callback, callback);
+//            var editTag = new TagEditModel(new TagViewModel(this.tag), callback, callback);
 
-            // ACT
+//            // ACT
 
-            editTag.Facet.CreatePropertyCommand.Execute("p2");
-            editTag.Facet.RemovePropertyCommand.Execute(editTag.Facet.Properties.First());
+//            editTag.Facet.CreatePropertyCommand.Execute("p2");
+//            editTag.Facet.RemovePropertyCommand.Execute(editTag.Facet.Properties.First());
 
-            // ASSERT
+//            // ASSERT
 
-            Assert.False(callbackWasUsed);
-            Assert.Single(this.facet.Properties);
-            Assert.Equal("p1", this.facet.Properties.Single().Name);
-            Assert.Single(editTag.Facet.Properties);
-            Assert.Equal("p2", editTag.Facet.Properties.Single().Name);
-        }
+//            Assert.False(callbackWasUsed);
+//            Assert.Single(this.facet.Properties);
+//            Assert.Equal("p1", this.facet.Properties.Single().Name);
+//            Assert.Single(editTag.Facet.Properties);
+//            Assert.Equal("p2", editTag.Facet.Properties.Single().Name);
+//        }
 
-        [Fact]
-        public void EditFacetViewModel_commits_changes_to_Facet()
-        {
-            // ARRANGE
+//        [Fact]
+//        public void EditFacetViewModel_commits_changes_to_Facet()
+//        {
+//            // ARRANGE
 
-            bool commitCallbackWasUsed = false;
-            Action<Tag> commit = t => commitCallbackWasUsed = true;
+//            bool commitCallbackWasUsed = false;
+//            Action<Tag> commit = t => commitCallbackWasUsed = true;
 
-            bool rollbackCallbackWasUsed = false;
-            Action<Tag> rollback = t => commitCallbackWasUsed = true;
+//            bool rollbackCallbackWasUsed = false;
+//            Action<Tag> rollback = t => commitCallbackWasUsed = true;
 
-            var editTag = new TagEditModel(new TagViewModel(this.tag), commit, rollback);
+//            var editTag = new TagEditModel(new TagViewModel(this.tag), commit, rollback);
 
-            editTag.Facet.CreatePropertyCommand.Execute("p2");
-            editTag.Facet.RemovePropertyCommand.Execute(editTag.Facet.Properties.First());
+//            editTag.Facet.CreatePropertyCommand.Execute("p2");
+//            editTag.Facet.RemovePropertyCommand.Execute(editTag.Facet.Properties.First());
 
-            // ACT
+//            // ACT
 
-            editTag.Commit();
+//            editTag.Commit();
 
-            // ASSERT
+//            // ASSERT
 
-            Assert.True(commitCallbackWasUsed);
-            Assert.False(rollbackCallbackWasUsed);
-            Assert.Single(this.facet.Properties);
-            Assert.Equal("p2", this.facet.Properties.Single().Name);
-            Assert.Single(editTag.Facet.Properties);
-            Assert.Equal("p2", this.facet.Properties.Single().Name);
-        }
+//            Assert.True(commitCallbackWasUsed);
+//            Assert.False(rollbackCallbackWasUsed);
+//            Assert.Single(this.facet.Properties);
+//            Assert.Equal("p2", this.facet.Properties.Single().Name);
+//            Assert.Single(editTag.Facet.Properties);
+//            Assert.Equal("p2", this.facet.Properties.Single().Name);
+//        }
 
-        [Fact]
-        public void EditFacetViewModel_reverts_changes_to_Facet()
-        {
-            // ARRANGE
+//        [Fact]
+//        public void EditFacetViewModel_reverts_changes_to_Facet()
+//        {
+//            // ARRANGE
 
-            bool commitCallbackWasUsed = false;
-            Action<Tag> commit = t => commitCallbackWasUsed = true;
+//            bool commitCallbackWasUsed = false;
+//            Action<Tag> commit = t => commitCallbackWasUsed = true;
 
-            bool rollbackCallbackWasUsed = false;
-            Action<Tag> rollback = t => rollbackCallbackWasUsed = true;
+//            bool rollbackCallbackWasUsed = false;
+//            Action<Tag> rollback = t => rollbackCallbackWasUsed = true;
 
-            var editTag = new TagEditModel(new TagViewModel(this.tag), commit, rollback);
+//            var editTag = new TagEditModel(new TagViewModel(this.tag), commit, rollback);
 
-            editTag.Facet.CreatePropertyCommand.Execute("p2");
-            editTag.Facet.RemovePropertyCommand.Execute(editTag.Facet.Properties.First());
+//            editTag.Facet.CreatePropertyCommand.Execute("p2");
+//            editTag.Facet.RemovePropertyCommand.Execute(editTag.Facet.Properties.First());
 
-            // ACT
+//            // ACT
 
-            editTag.Rollback();
+//            editTag.Rollback();
 
-            // ASSERT
+//            // ASSERT
 
-            Assert.False(commitCallbackWasUsed);
-            Assert.True(rollbackCallbackWasUsed);
-            Assert.Single(this.facet.Properties);
-            Assert.Equal("p1", this.facet.Properties.Single().Name);
-            Assert.Single(editTag.Facet.Properties);
-            Assert.Equal("p1", editTag.Facet.Properties.Single().Name);
-        }
-    }
-}
-;
+//            Assert.False(commitCallbackWasUsed);
+//            Assert.True(rollbackCallbackWasUsed);
+//            Assert.Single(this.facet.Properties);
+//            Assert.Equal("p1", this.facet.Properties.Single().Name);
+//            Assert.Single(editTag.Facet.Properties);
+//            Assert.Equal("p1", editTag.Facet.Properties.Single().Name);
+//        }
+//    }
+//}
+//;
