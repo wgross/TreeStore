@@ -1,0 +1,69 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Kosmograph.Desktop.Editor"
+                    xmlns:kvm="clr-namespace:Kosmograph.Desktop.ViewModel"
+                    xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
+                    xmlns:kdc="clr-namespace:Kosmograph.Desktop.Controls">
+
+    <Style x:Key="editorTextBox" TargetType="{x:Type TextBox}">
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="FocusManager.FocusedElement" Value="{Binding RelativeSource={RelativeSource Self}}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="editButtonPanelStyle" TargetType="{x:Type DockPanel}">
+        <Setter Property="LastChildFill" Value="False" />
+    </Style>
+
+    <Style x:Key="nameLabelStyle" TargetType="{x:Type Label}">
+        <Setter Property="Width" Value="50" />
+        <Setter Property="Content" Value="Name" />
+    </Style>
+
+    <Style x:Key="facetPropertiesExpanderStyle" TargetType="{x:Type Expander}">
+        <Setter Property="IsExpanded" Value="True" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+    </Style>
+
+    <!--
+    Common editor grid:
+    - Backgound is gray (transparent)
+    - Content is centered
+    - based in the self-focusing control style
+    -->
+
+    <Style x:Key="editorContentControlBorderStyle" TargetType="{x:Type Border}">
+        <Setter Property="Background" Value="White" />
+        <Setter Property="Opacity" Value="0.8" />
+    </Style>
+    <Style x:Key="editContentControlStyle" TargetType="{x:Type ContentControl}">
+        <!--<Setter Property="Margin" Value="20" />-->
+    </Style>
+
+    <!--
+    Editor for tags:
+    - Name at the top
+    - List of facet properties below in Expander
+    -->
+    <DataTemplate DataType="{x:Type kvm:EditTagViewModel}">
+        <DockPanel
+            LastChildFill="True">
+            <kdc:EditorSectionHeaderControl DockPanel.Dock="Top"
+                Text="{Binding Name, StringFormat={}Edit Tag: {0}}" />
+            <kdc:EditItemNameControl DockPanel.Dock="Top" />
+            <kdc:EditorSectionHeaderControl DockPanel.Dock="Top"
+                Text="{Binding Name, StringFormat={}Edit Properties of: {0}}" />
+            <kdc:EditTagFacetPropertiesControl />
+        </DockPanel>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type kvm:EditEntityViewModel}">
+        <kdc:EditEntityControl />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type kvm:RelationshipEditModel}">
+        <kdc:EditRelationshipControl />
+    </DataTemplate>
+</ResourceDictionary>

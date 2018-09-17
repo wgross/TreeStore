@@ -1,6 +1,6 @@
 ﻿namespace Kosmograph.Model.Base
 {
-    public class FacetingEntityBase : EntityBase
+    public class FacetingEntityBase : NamedItemBase
     {
         public FacetingEntityBase(string name, Facet facet)
             : base(name)

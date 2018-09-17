@@ -1,0 +1,72 @@
+﻿<Window x:Class="Kosmograph.Desktop.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Kosmograph.Desktop"
+        xmlns:kde ="clr-namespace:Kosmograph.Desktop.Editor"
+        xmlns:kdc="clr-namespace:Kosmograph.Desktop.Controls"
+        mc:Ignorable="d"
+        Title="Kosmograph" Height="450" Width="900">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="./MainWindowResources.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid Name="rootPanel">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition MinWidth="150" />
+            <ColumnDefinition MinWidth="150" />
+            <ColumnDefinition MinWidth="150" />
+        </Grid.ColumnDefinitions>
+        <!--
+        Tags in the left column
+        -->
+        <Grid Grid.Column="0"
+              Margin="5,0,5,0">
+            <kdc:ShowTagsControl/>
+            <kde:EditorControl
+                DataContext="{Binding EditedTag, Mode=OneWay}" />
+        </Grid>
+
+        <!--
+        Splitter between entities and tags
+        -->
+        <GridSplitter Grid.Column="0"
+            IsTabStop="False"
+            Width="2"
+            Foreground="DarkGray" />
+
+        <!--
+        Entities in the middle column
+        -->
+        <Grid Grid.Column="1"
+            Margin="5,0,5,0">
+            <kdc:ShowEntitiesControl/>
+            <kde:EditorControl
+                DataContext="{Binding EditedEntity, Mode=OneWay}" />
+        </Grid>
+
+        <!--
+        Splitter between entities and tags
+        -->
+        <GridSplitter Grid.Column="1"
+            IsTabStop="False"
+            Width="2"
+            Foreground="DarkGray" />
+
+        <!--
+        Relationships in the middle column
+        -->
+        <Grid Grid.Column="2"
+              Margin="5,0,5,0">
+            <kdc:ShowRelationshipsControl Panel.ZIndex="0" />
+            <kde:EditorControl
+                DataContext="{Binding EditedRelationship, Mode=OneWay}" />
+        </Grid>
+    </Grid>
+</Window>

@@ -2,6 +2,7 @@
 using Kosmograph.Model;
 using LiteDB;
 using System.IO;
+using System.Linq;
 using Xunit;
 
 namespace Kosmograph.LiteDb.Test
@@ -20,7 +21,7 @@ namespace Kosmograph.LiteDb.Test
         }
 
         [Fact]
-        public void Tag_is_written_to_repository()
+        public void TagRepository_writes_Tag_to_repository()
         {
             // ARRANGE
 
@@ -39,7 +40,7 @@ namespace Kosmograph.LiteDb.Test
         }
 
         [Fact]
-        public void Tag_with_Facet_is_created_and_read_from_repository()
+        public void TagRepository_writes_and_reads_Tag_with_Facet_from_repository()
         {
             // ARRANGE
 
@@ -59,7 +60,7 @@ namespace Kosmograph.LiteDb.Test
         }
 
         [Fact]
-        public void Tag_with_Facet_is_updated_and_read_from_repository()
+        public void TagRepository_updates_and_reads_Tag_with_Facet_from_repository()
         {
             // ARRANGE
 
@@ -77,6 +78,28 @@ namespace Kosmograph.LiteDb.Test
 
             Assert.True(tag.NoPropertyHasDefaultValue());
             Assert.False(tag.DeepCompare(this.repository.FindById(tag.Id)).Different.Any());
+        }
+
+        [Fact]
+        public void TagRepository_finds_all_tags()
+        {
+            // ARRANGE
+
+            var tag = new Tag("tag", new Facet("facet", new FacetProperty("prop")));
+            this.repository.Upsert(tag);
+
+            // ACT
+
+            var result = this.repository.FindAll();
+
+            // ASSERT
+
+            Assert.Equal(tag, result.Single());
+
+            var comp = tag.DeepCompare(result.Single());
+
+            Assert.True(tag.NoPropertyHasDefaultValue());
+            Assert.False(comp.Different.Any());
         }
     }
 }

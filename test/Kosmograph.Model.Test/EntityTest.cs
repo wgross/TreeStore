@@ -139,14 +139,13 @@ namespace Kosmograph.Model.Test
         }
 
         [Fact]
-        public void Entity_set_value_of_FacetProperty()
+        public void Entity_sets_value_of_FacetProperty()
         {
             // ARRANGE
 
             var facet = new Facet("facet", new FacetProperty("name"));
             var tag = new Tag("tag", facet);
-            var entity = new Entity();
-            entity.AddTag(tag);
+            var entity = new Entity("e", tag);
 
             // ACT
 

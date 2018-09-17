@@ -8,6 +8,7 @@ namespace Kosmograph.Model.Test
         private readonly MockRepository mocks;
         private readonly Mock<IKosmographPersistence> persistence;
         private readonly Mock<ICategoryRepository> categoryRepository;
+        private readonly Mock<ITagRepository> tagRepository;
         private readonly KosmographModel model;
 
         public KosmographModelTest()
@@ -15,11 +16,12 @@ namespace Kosmograph.Model.Test
             this.mocks = new MockRepository(MockBehavior.Strict);
             this.persistence = this.mocks.Create<IKosmographPersistence>();
             this.categoryRepository = this.mocks.Create<ICategoryRepository>();
+            this.tagRepository = this.mocks.Create<ITagRepository>();
             this.model = new KosmographModel(this.persistence.Object);
         }
 
         [Fact]
-        public void Model_provides_root_Category()
+        public void KosmographModel_provides_root_Category()
         {
             // ARRANGE
 
@@ -38,6 +40,24 @@ namespace Kosmograph.Model.Test
             // ASSERT
 
             Assert.NotNull(result);
+        }
+
+        [Fact]
+        public void KosmographModel_provides_tags()
+        {
+            // ARRANGE
+
+            this.persistence
+                .Setup(p => p.Tags)
+                .Returns(this.tagRepository.Object);
+
+            // ACT
+
+            var result = this.model.Tags;
+
+            // ASSERT
+
+            Assert.Same(result, this.tagRepository.Object);
         }
     }
 }

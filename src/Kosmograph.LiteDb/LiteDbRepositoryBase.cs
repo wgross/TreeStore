@@ -1,9 +1,11 @@
 ﻿using Kosmograph.Model.Base;
 using LiteDB;
+using System;
+using System.Collections.Generic;
 
 namespace Kosmograph.LiteDb
 {
-    public abstract class LiteDbRepositoryBase<T> where T : EntityBase
+    public abstract class LiteDbRepositoryBase<T> where T : NamedItemBase
     {
         protected readonly LiteRepository repository;
         private readonly string collectionName;
@@ -26,8 +28,10 @@ namespace Kosmograph.LiteDb
             return entity;
         }
 
-        public virtual T FindById(BsonValue id) => this.repository.SingleById<T>(id, collectionName);
+        public virtual T FindById(Guid id) => this.repository.SingleById<T>(id, collectionName);
 
-        public object Delete(BsonValue id) => this.repository.Delete<T>(id, collectionName);
+        public virtual IEnumerable<T> FindAll() => this.repository.Query<T>(collectionName).ToEnumerable();
+
+        public bool Delete(Guid id) => this.repository.Delete<T>(id, collectionName);
     }
 }
