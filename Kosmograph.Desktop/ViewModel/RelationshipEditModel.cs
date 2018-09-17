@@ -9,6 +9,7 @@ namespace Kosmograph.Desktop.ViewModel
     public class RelationshipEditModel : NamedEditModelBase<RelationshipViewModel, Relationship>
     {
         private readonly Action<Relationship> onRelationshipCommitted;
+        private readonly Action<Relationship> onRelationshipRolledback;
 
         public RelationshipEditModel(RelationshipViewModel viewModel, Action<Relationship> onRelationshipCommitted, Action<Relationship> onRelatioshipRolledback)
             : base(viewModel)
@@ -19,6 +20,7 @@ namespace Kosmograph.Desktop.ViewModel
             this.AssignTagCommand = new RelayCommand<Tag>(this.AssignTagExcuted, this.AssignTagCanExecute);
             this.RemoveTagCommand = new RelayCommand<AssignedTagEditModel>(this.RemoveTagExecuted);
             this.onRelationshipCommitted = onRelationshipCommitted;
+            this.onRelationshipRolledback = onRelatioshipRolledback;
         }
 
         public EntityViewModel From
@@ -94,6 +96,10 @@ namespace Kosmograph.Desktop.ViewModel
             //this.Model.Tags.Add(tag.Model);
         }
 
+        public override void Rollback()
+        {
+            this.onRelationshipCommitted(this.ViewModel.Model);
+        }
         #endregion Implement Commit
     }
 }
