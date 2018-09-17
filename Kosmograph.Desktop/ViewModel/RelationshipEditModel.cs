@@ -1,5 +1,8 @@
-﻿using Kosmograph.Model;
+﻿using GalaSoft.MvvmLight.Command;
+using Kosmograph.Model;
 using System;
+using System.Linq;
+using System.Windows.Input;
 
 namespace Kosmograph.Desktop.ViewModel
 {
@@ -12,7 +15,9 @@ namespace Kosmograph.Desktop.ViewModel
         {
             this.From = viewModel.From;
             this.To = viewModel.To;
-            this.Tags = new CommitableObservableCollection<TagViewModel>(viewModel.Tags);
+            this.tags = new Lazy<CommitableObservableCollection<AssignedTagEditModel>>(() => this.CreateAssignedTags());
+            this.AssignTagCommand = new RelayCommand<Tag>(this.AssignTagExcuted, this.AssignTagCanExecute);
+            this.RemoveTagCommand = new RelayCommand<AssignedTagEditModel>(this.RemoveTagExecuted);
             this.onRelationshipCommitted = onRelationshipCommitted;
         }
 
@@ -32,7 +37,41 @@ namespace Kosmograph.Desktop.ViewModel
 
         private EntityViewModel to;
 
-        public CommitableObservableCollection<TagViewModel> Tags { get; set; }
+        #region Collection of assigned tags
+
+        private Lazy<CommitableObservableCollection<AssignedTagEditModel>> tags;
+
+        public CommitableObservableCollection<AssignedTagEditModel> Tags => this.tags.Value;
+
+        private CommitableObservableCollection<AssignedTagEditModel> CreateAssignedTags() => new CommitableObservableCollection<AssignedTagEditModel>(this.ViewModel.Model.Tags.Select(this.CreateAssignedTag));
+
+        private AssignedTagEditModel CreateAssignedTag(Tag tag) => new AssignedTagEditModel(tag, this.ViewModel.Model.Values);
+
+        #endregion Collection of assigned tags
+
+        #region Assign Tag command
+
+        private bool AssignTagCanExecute(Tag tag) => !this.Tags.Any(tvm => tvm.Model.Equals(tag));
+
+        private void AssignTagExcuted(Tag tag)
+        {
+            this.Tags.Add(this.CreateAssignedTag(tag));
+        }
+
+        public ICommand AssignTagCommand { get; set; }
+
+        #endregion Assign Tag command
+
+        #region Remove Tag command
+
+        public ICommand RemoveTagCommand { get; set; }
+
+        private void RemoveTagExecuted(AssignedTagEditModel assignedTag)
+        {
+            this.Tags.Remove(assignedTag);
+        }
+
+        #endregion Remove Tag command
 
         #region Implement Commit
 
@@ -42,6 +81,17 @@ namespace Kosmograph.Desktop.ViewModel
             this.ViewModel.To = this.To;
             base.Commit();
             this.onRelationshipCommitted(this.ViewModel.Model);
+        }
+
+        private void CommitRemovedTag(AssignedTagEditModel tag)
+        {
+            //tag.Model.Facete.Tags.Remove(tag.Model);
+            //tag.Model.Facet.Properties.ForEach(p => this.Model.Values.Remove(p.Id.ToString()));
+        }
+
+        private void CommitAddedTag(AssignedTagEditModel tag)
+        {
+            //this.Model.Tags.Add(tag.Model);
         }
 
         #endregion Implement Commit

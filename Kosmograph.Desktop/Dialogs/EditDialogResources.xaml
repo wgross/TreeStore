@@ -74,7 +74,7 @@
         </DockPanel>
     </DataTemplate>
 
-    <DataTemplate DataType="{x:Type kvm:AssignedTagViewModel}">
+    <DataTemplate DataType="{x:Type kvm:AssignedTagEditModel}">
         <StackPanel Orientation="Vertical">
             <!--
             The area of the tag has the tag nam as a title

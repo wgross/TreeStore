@@ -4,11 +4,11 @@ using System.Linq;
 
 namespace Kosmograph.Desktop.ViewModel
 {
-    public class AssignedTagViewModel : NamedViewModelBase<Tag>
+    public class AssignedTagEditModel : NamedViewModelBase<Tag>
     {
         private readonly Tag tag;
 
-        public AssignedTagViewModel(Tag tag, IDictionary<string, object> propertyValues)
+        public AssignedTagEditModel(Tag tag, IDictionary<string, object> propertyValues)
             : base(tag)
         {
             this.Properties = new CommitableObservableCollection<EditAssignedFacetPropertyValueViewModel>(this.Model.Facet.Properties.Select(p => new EditAssignedFacetPropertyValueViewModel(p, propertyValues)));

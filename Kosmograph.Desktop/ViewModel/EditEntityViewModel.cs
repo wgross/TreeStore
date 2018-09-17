@@ -14,22 +14,22 @@ namespace Kosmograph.Desktop.ViewModel
         public EditEntityViewModel(Entity entity, Action<Entity> onEntityCommitted, Action<Entity> onEntityRolledback)
             : base(entity)
         {
-            this.tags = new Lazy<CommitableObservableCollection<AssignedTagViewModel>>(() => this.CreateAssignedTags());
+            this.tags = new Lazy<CommitableObservableCollection<AssignedTagEditModel>>(() => this.CreateAssignedTags());
             this.AssignTagCommand = new RelayCommand<Tag>(this.AssignTagExcuted, this.AssignTagCanExecute);
-            this.RemoveTagCommand = new RelayCommand<AssignedTagViewModel>(this.RemoveTagExecuted);
+            this.RemoveTagCommand = new RelayCommand<AssignedTagEditModel>(this.RemoveTagExecuted);
             this.committed = onEntityCommitted ?? delegate { };
             this.rolledback = onEntityRolledback ?? delegate { };
         }
 
         #region Collection of assigned tags
 
-        private Lazy<CommitableObservableCollection<AssignedTagViewModel>> tags;
+        private Lazy<CommitableObservableCollection<AssignedTagEditModel>> tags;
 
-        public CommitableObservableCollection<AssignedTagViewModel> Tags => this.tags.Value;
+        public CommitableObservableCollection<AssignedTagEditModel> Tags => this.tags.Value;
 
-        private CommitableObservableCollection<AssignedTagViewModel> CreateAssignedTags() => new CommitableObservableCollection<AssignedTagViewModel>(this.Model.Tags.Select(this.CreateAssignedTag));
+        private CommitableObservableCollection<AssignedTagEditModel> CreateAssignedTags() => new CommitableObservableCollection<AssignedTagEditModel>(this.Model.Tags.Select(this.CreateAssignedTag));
 
-        private AssignedTagViewModel CreateAssignedTag(Tag tag) => new AssignedTagViewModel(tag, this.Model.Values);
+        private AssignedTagEditModel CreateAssignedTag(Tag tag) => new AssignedTagEditModel(tag, this.Model.Values);
 
         #endregion Collection of assigned tags
 
@@ -50,7 +50,7 @@ namespace Kosmograph.Desktop.ViewModel
 
         public ICommand RemoveTagCommand { get; set; }
 
-        private void RemoveTagExecuted(AssignedTagViewModel assignedTag)
+        private void RemoveTagExecuted(AssignedTagEditModel assignedTag)
         {
             this.Tags.Remove(assignedTag);
         }
@@ -67,13 +67,13 @@ namespace Kosmograph.Desktop.ViewModel
             this.committed(this.Model);
         }
 
-        private void CommitRemovedTag(AssignedTagViewModel tag)
+        private void CommitRemovedTag(AssignedTagEditModel tag)
         {
             this.Model.Tags.Remove(tag.Model);
             tag.Model.Facet.Properties.ForEach(p => this.Model.Values.Remove(p.Id.ToString()));
         }
 
-        private void CommitAddedTag(AssignedTagViewModel tag)
+        private void CommitAddedTag(AssignedTagEditModel tag)
         {
             this.Model.Tags.Add(tag.Model);
         }
