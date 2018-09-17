@@ -31,11 +31,11 @@
         </Style>
         
         <DataTemplate DataType="{x:Type kvm:AssignedFacetPropertyValue}">
-            <DockPanel LastChildFill="True" DockPanel.Dock="Top">
+            <DockPanel LastChildFill="True">
                 <Label DockPanel.Dock="Left" Content="{Binding Name, Mode=OneTime}" />
                 <TextBox
-                Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
-                Style="{StaticResource editFacetPropertyValueTexBoxStyle}" />
+                    Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                    Style="{StaticResource editFacetPropertyValueTexBoxStyle}" />
             </DockPanel>
         </DataTemplate>
         

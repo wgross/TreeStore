@@ -151,7 +151,7 @@ namespace Kosmograph.Desktop.ViewModel
 
         public void CreateEntityExecuted()
         {
-            this.EditedEntity = new EditEntityViewModel(new Entity("new entity", new Tag(string.Empty, new Facet())), this.OnCreatedEntityCommitted, this.OnEntityRollback);
+            this.EditedEntity = new EditEntityViewModel(new Entity("new entity"), this.OnCreatedEntityCommitted, this.OnEntityRollback);
         }
 
         private void OnCreatedEntityCommitted(Entity entity)

@@ -32,10 +32,16 @@
     <DockPanel 
         LastChildFill="True"      
         Margin="0,0,0,0">
-        <TextBlock DockPanel.Dock="Top"
-            Text="Entities"
-            Foreground="Gray"
-            FontWeight="Bold" />
+        <DockPanel DockPanel.Dock="Top"
+            LastChildFill="False">
+            <TextBlock DockPanel.Dock="Left"
+                Text="Entities"
+                Foreground="Gray"
+                FontWeight="Bold" />
+            <Button DockPanel.Dock="Right" 
+                Style="{StaticResource addButtonInHeaderStyle}"
+                Command="{Binding CreateEntityCommand}"/>
+        </DockPanel>
         <ListBox
             Name="entityListBox"
             Style="{StaticResource modelItemListBoxStyle}"
@@ -43,9 +49,6 @@
             SelectedItem="{Binding SelectedEntity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
             MouseDoubleClick="entityListBox_MouseDoubleClick">
             <ListBox.InputBindings>
-                <KeyBinding
-                    Key="Insert"
-                    Command="{Binding CreateEntityCommand}" />
                 <KeyBinding
                     Key="Return"
                     Command="{Binding EditEntityCommand}"

@@ -32,10 +32,17 @@
     <DockPanel
         LastChildFill="True"
         Margin="2,0,0,0">
-        <TextBlock DockPanel.Dock="Top"
-            Text="Tags"
-            Foreground="Gray"
-            FontWeight="Bold" />
+        <DockPanel DockPanel.Dock="Top"
+            LastChildFill="False">
+            <TextBlock DockPanel.Dock="Left"
+                Text="Tags"
+                Foreground="Gray"
+                FontWeight="Bold" />
+            <Button DockPanel.Dock="Right" 
+                    Style="{StaticResource addButtonInHeaderStyle}"
+                    Command="{Binding CreateTagCommand}"/>
+        </DockPanel>
+        
         <ListBox
             Name="tagListBox"
             Style="{StaticResource modelItemListBoxStyle}"
@@ -44,8 +51,6 @@
             MouseDoubleClick="tagListBox_MouseDoubleClick"
             MouseMove="tagListBox_MouseMove">
             <ListBox.InputBindings>
-                <KeyBinding Key="Insert"
-                                Command="{Binding CreateTagCommand}" />
                 <KeyBinding Key="Return"
                                 Command="{Binding EditTagCommand}"
                                 CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />

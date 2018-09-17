@@ -32,10 +32,16 @@
     <DockPanel
         LastChildFill="True"
         Margin="0,0,0,0">
-        <TextBlock DockPanel.Dock="Top"
-            Text="Relationships"
-            Foreground="Gray"
-            FontWeight="Bold" />
+        <DockPanel DockPanel.Dock="Top"
+            LastChildFill="False">
+            <TextBlock DockPanel.Dock="Left"
+                Text="Relationhsips"
+                Foreground="Gray"
+                FontWeight="Bold" />
+            <Button DockPanel.Dock="Right" 
+                Style="{StaticResource addButtonInHeaderStyle}"
+                Command="{Binding CreateRelationsipCommand}"/>
+        </DockPanel>
         <ListBox
             Name="tagListBox"
             Panel.ZIndex="0"
