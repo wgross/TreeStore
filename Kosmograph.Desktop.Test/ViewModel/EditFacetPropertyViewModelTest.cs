@@ -17,7 +17,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
             this.property = new FacetProperty("p1");
             this.facet = new Facet("f", this.property);
             this.tag = new Tag("tag", facet);
-            this.editTag = new TagEditModel(tag, delegate { });
+            this.editTag = new TagEditModel(new TagViewModel(tag), delegate { });
         }
 
         [Fact]

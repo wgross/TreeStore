@@ -5,20 +5,24 @@ using Xunit;
 
 namespace Kosmograph.Desktop.Test.ViewModel
 {
-    public class EditTagViewModelTest
+    public class TagEditModelTest
     {
         private readonly Tag tag;
         private readonly TagEditModel editTag;
 
-        public EditTagViewModelTest()
+        public TagEditModelTest()
         {
-            this.tag = new Tag("tag", new Facet("facet", new FacetProperty("p")));
-            this.editTag = new TagEditModel(this.tag, delegate { });
         }
 
         [Fact]
-        public void EditTagViewModel_mirrors_model_Tag()
+        public void TagEditModel_mirrors_TagViewModel()
         {
+            // ARRANGE
+
+            var tag = new TagViewModel(
+                new Tag("tag", new Facet("facet", new FacetProperty("p"))));
+            var editTag = new TagEditModel(tag, delegate { }, delegate { });
+
             // ASSERT
 
             var comp = this.tag.DeepCompare(this.editTag);
@@ -27,7 +31,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
         }
 
         [Fact]
-        public void EditTagViewModel_delays_changes_at_Tag()
+        public void TagEditModel_delays_changes_at_Tag()
         {
             // ACT
 
@@ -40,7 +44,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
         }
 
         [Fact]
-        public void EditTagViewModel_commits_changes_to_Tag()
+        public void TagEditModel_commits_changes_to_Tag()
         {
             // ARRANGE
 
@@ -57,7 +61,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
         }
 
         [Fact]
-        public void EditTagViewModel_reverts_changes_at_Tag()
+        public void TagEditModel_reverts_changes_at_Tag()
         {
             // ARRANGE
 

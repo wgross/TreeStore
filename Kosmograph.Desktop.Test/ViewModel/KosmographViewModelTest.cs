@@ -293,7 +293,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // ASSERT
 
             Assert.Single(this.viewModel.Tags);
-            Assert.Equal("new tag", this.viewModel.EditedTag.Model.Name);
+            Assert.Equal("new tag", this.viewModel.EditedTag.ViewModel.Model.Name);
         }
 
         [Fact]

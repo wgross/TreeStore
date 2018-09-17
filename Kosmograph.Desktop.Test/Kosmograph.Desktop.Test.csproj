@@ -111,12 +111,13 @@
     <Compile Include="ViewModel\EditFacetPropertyViewModelTest.cs" />
     <Compile Include="ViewModel\EditFacetViewModelTest.cs" />
     <Compile Include="ViewModel\EditNamedViewModelTest.cs" />
-    <Compile Include="ViewModel\EditTagViewModelTest.cs" />
+    <Compile Include="ViewModel\TagEditModelTest.cs" />
     <Compile Include="ViewModel\EntityViewModelTest.cs" />
     <Compile Include="ViewModel\FacetPropertyViewModelTest.cs" />
     <Compile Include="ViewModel\KosmographViewModelTest.cs" />
     <Compile Include="ViewModel\RelationshipEditModelTest.cs" />
     <Compile Include="ViewModel\RelationshipViewModelTest.cs" />
+    <Compile Include="ViewModel\TagViewModelTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Kosmograph.Desktop\Kosmograph.Desktop.csproj">

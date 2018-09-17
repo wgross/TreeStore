@@ -22,5 +22,22 @@ namespace Kosmograph.Desktop.Test.ViewModel
             Assert.Equal("f", result.Name);
             Assert.Equal(property, result.Model);
         }
+
+        [Fact]
+        public void FacetPropertyViewModel_changes_FacetProperty()
+        {
+            // ARRANGE
+
+            var property = new FacetProperty("p1");
+            var viewProperty = new FacetPropertyViewModel(property);
+
+            // ACT
+
+            viewProperty.Name = "changed";
+
+            // ASSERT
+
+            Assert.Equal("changed", property.Name);
+        }
     }
 }
