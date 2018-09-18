@@ -1,4 +1,5 @@
-﻿using Kosmograph.Model;
+﻿using Kosmograph.Desktop.ViewModel.Base;
+using Kosmograph.Model;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;

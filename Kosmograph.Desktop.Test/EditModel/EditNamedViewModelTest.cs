@@ -1,4 +1,5 @@
-﻿using Kosmograph.Desktop.ViewModel;
+﻿using Kosmograph.Desktop.EditModel;
+using Kosmograph.Desktop.ViewModel;
 using Kosmograph.Model;
 using System;
 using System.Collections.Generic;
@@ -6,7 +7,7 @@ using System.ComponentModel;
 using System.Linq;
 using Xunit;
 
-namespace Kosmograph.Desktop.Test.ViewModel
+namespace Kosmograph.Desktop.Test.EditModel
 {
     public class EditNamedViewModelTest
     {

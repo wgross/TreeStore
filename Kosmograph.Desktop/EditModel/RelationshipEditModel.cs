@@ -1,10 +1,12 @@
 ﻿using GalaSoft.MvvmLight.Command;
+using Kosmograph.Desktop.EditModel.Base;
+using Kosmograph.Desktop.ViewModel;
 using Kosmograph.Model;
 using System;
 using System.Linq;
 using System.Windows.Input;
 
-namespace Kosmograph.Desktop.ViewModel
+namespace Kosmograph.Desktop.EditModel
 {
     public class RelationshipEditModel : NamedEditModelBase<RelationshipViewModel, Relationship>
     {

@@ -1,11 +1,13 @@
 ﻿using GalaSoft.MvvmLight.Command;
+using Kosmograph.Desktop.EditModel.Base;
+using Kosmograph.Desktop.ViewModel;
 using Kosmograph.Model;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Windows.Input;
 
-namespace Kosmograph.Desktop.ViewModel
+namespace Kosmograph.Desktop.EditModel
 {
     public class EditFacetViewModel : EditNamedViewModelBase<Facet>
     {

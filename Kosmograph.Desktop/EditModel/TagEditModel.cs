@@ -1,10 +1,12 @@
 ﻿using GalaSoft.MvvmLight.Command;
+using Kosmograph.Desktop.EditModel.Base;
+using Kosmograph.Desktop.ViewModel;
 using Kosmograph.Model;
 using System;
 using System.Linq;
 using System.Windows.Input;
 
-namespace Kosmograph.Desktop.ViewModel
+namespace Kosmograph.Desktop.EditModel
 {
     public class TagEditModel : NamedEditModelBase<TagViewModel, Tag>
     {
@@ -61,7 +63,7 @@ namespace Kosmograph.Desktop.ViewModel
         public override void Rollback()
         {
             this.Properties =
-                new CommitableObservableCollection<FacetPropertyEditModel>(this.ViewModel.Properties.Select(p => new FacetPropertyEditModel(p)));            
+                new CommitableObservableCollection<FacetPropertyEditModel>(this.ViewModel.Properties.Select(p => new FacetPropertyEditModel(p)));
             base.Rollback();
             this.rolledback(this.ViewModel.Model);
         }

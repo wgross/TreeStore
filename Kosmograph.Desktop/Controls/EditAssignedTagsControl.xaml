@@ -4,12 +4,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:Kosmograph.Desktop.Controls"
-             xmlns:kvm="clr-namespace:Kosmograph.Desktop.ViewModel"
+             xmlns:kem="clr-namespace:Kosmograph.Desktop.EditModel"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         
-        <DataTemplate DataType="{x:Type kvm:AssignedTagEditModel}">
+        <DataTemplate DataType="{x:Type kem:AssignedTagEditModel}">
             <StackPanel Orientation="Vertical">
                 <!--
                 diag:PresentationTraceSources.TraceLevel=High"
@@ -30,7 +30,7 @@
             </Style.Triggers>
         </Style>
         
-        <DataTemplate DataType="{x:Type kvm:AssignedFacetPropertyEditModel}">
+        <DataTemplate DataType="{x:Type kem:AssignedFacetPropertyEditModel}">
             <DockPanel LastChildFill="True">
                 <Label DockPanel.Dock="Left" Content="{Binding Name, Mode=OneTime}" />
                 <TextBox

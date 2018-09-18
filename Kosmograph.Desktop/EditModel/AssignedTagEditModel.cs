@@ -1,7 +1,9 @@
-﻿using Kosmograph.Model;
+﻿using Kosmograph.Desktop.EditModel.Base;
+using Kosmograph.Desktop.ViewModel;
+using Kosmograph.Model;
 using System.Linq;
 
-namespace Kosmograph.Desktop.ViewModel
+namespace Kosmograph.Desktop.EditModel
 {
     public class AssignedTagEditModel : NamedEditModelBase<AssignedTagViewModel, Tag>
     {

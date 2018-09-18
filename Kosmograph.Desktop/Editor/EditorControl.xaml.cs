@@ -1,14 +1,9 @@
-﻿using Kosmograph.Desktop.ViewModel;
-using Kosmograph.Desktop.ViewModel.Base;
-using System.Windows;
+﻿using Kosmograph.Desktop.EditModel.Base;
 using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace Kosmograph.Desktop.Editor
 {
-    /// <summary>
-    /// Interaction logic for EditorControl.xaml
-    /// </summary>
     public partial class EditorControl : UserControl
     {
         public EditorControl()

@@ -1,6 +1,8 @@
-﻿using Kosmograph.Model;
+﻿using Kosmograph.Desktop.EditModel.Base;
+using Kosmograph.Desktop.ViewModel;
+using Kosmograph.Model;
 
-namespace Kosmograph.Desktop.ViewModel
+namespace Kosmograph.Desktop.EditModel
 {
     public class AssignedFacetPropertyEditModel : NamedEditModelBase<AssignedFacetPropertyViewModel, FacetProperty>
     {

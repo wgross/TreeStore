@@ -1,4 +1,5 @@
-﻿using Kosmograph.Desktop.ViewModel;
+﻿using Kosmograph.Desktop.EditModel;
+using Kosmograph.Desktop.ViewModel;
 using Kosmograph.Model;
 using System.Windows;
 using System.Windows.Controls;

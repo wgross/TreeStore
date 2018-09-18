@@ -4,14 +4,14 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:Kosmograph.Desktop.Controls"
-             xmlns:kvm="clr-namespace:Kosmograph.Desktop.ViewModel"
+             xmlns:kem="clr-namespace:Kosmograph.Desktop.EditModel"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <Style x:Key="facetPropertiesListBoxStyle" TargetType="{x:Type ListBox}">
             <Setter Property="ItemTemplate">
                 <Setter.Value>
-                    <DataTemplate DataType="{x:Type kvm:FacetPropertyEditModel}">
+                    <DataTemplate DataType="{x:Type kem:FacetPropertyEditModel}">
                         <DockPanel
                             LastChildFill="True">
                             <Label DockPanel.Dock="Left"

@@ -1,13 +1,9 @@
-﻿using Kosmograph.Desktop.ViewModel;
-using Kosmograph.Desktop.ViewModel.Base;
+﻿using Kosmograph.Desktop.EditModel.Base;
 using System.Windows;
 using System.Windows.Input;
 
 namespace Kosmograph.Desktop.Dialogs
 {
-    /// <summary>
-    /// Interaction logic for EditDialog.xaml
-    /// </summary>
     public partial class EditDialog : Window
     {
         public EditDialog()

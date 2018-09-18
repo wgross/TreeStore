@@ -1,5 +1,6 @@
 ﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
+using Kosmograph.Desktop.EditModel;
 using Kosmograph.Model;
 using System;
 using System.Collections.ObjectModel;
