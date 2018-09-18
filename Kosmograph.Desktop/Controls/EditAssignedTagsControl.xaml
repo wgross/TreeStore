@@ -30,7 +30,7 @@
             </Style.Triggers>
         </Style>
         
-        <DataTemplate DataType="{x:Type kvm:EditAssignedFacetPropertyValueViewModel}">
+        <DataTemplate DataType="{x:Type kvm:AssignedFacetPropertyEditModel}">
             <DockPanel LastChildFill="True">
                 <Label DockPanel.Dock="Left" Content="{Binding Name, Mode=OneTime}" />
                 <TextBox

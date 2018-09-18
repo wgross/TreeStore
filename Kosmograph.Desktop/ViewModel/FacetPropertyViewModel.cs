@@ -1,4 +1,5 @@
-﻿using Kosmograph.Model;
+﻿using System.Collections.Generic;
+using Kosmograph.Model;
 
 namespace Kosmograph.Desktop.ViewModel
 {
@@ -8,5 +9,7 @@ namespace Kosmograph.Desktop.ViewModel
             : base(model)
         {
         }
+
+        public IEnumerable<object> Value { get; set; }
     }
 }

@@ -12,7 +12,7 @@ namespace Kosmograph.Desktop.Controls
             this.InitializeComponent();
         }
 
-        private EditEntityViewModel ViewModel => this.DataContext as EditEntityViewModel;
+        private EntityEditModel ViewModel => this.DataContext as EntityEditModel;
 
         private void editEntityControl_Drop(object sender, DragEventArgs e)
         {

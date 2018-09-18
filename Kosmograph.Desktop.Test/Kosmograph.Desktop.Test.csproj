@@ -104,18 +104,21 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EditModel\AssignedTagEditModelTest.cs" />
+    <Compile Include="EditModel\AssignedFacetPropertyEditModelTest.cs" />
     <Compile Include="NullToVisiblityConverterTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModel\AssignedFacetPropertyViewModelTest.cs" />
-    <Compile Include="ViewModel\EditEntityViewModelTest.cs" />
-    <Compile Include="ViewModel\FacetPropertyEditModelTest.cs" />
-    <Compile Include="ViewModel\EditFacetViewModelTest.cs" />
-    <Compile Include="ViewModel\EditNamedViewModelTest.cs" />
-    <Compile Include="ViewModel\TagEditModelTest.cs" />
+    <Compile Include="EditModel\EntityEditModelTest.cs" />
+    <Compile Include="EditModel\FacetPropertyEditModelTest.cs" />
+    <Compile Include="EditModel\EditFacetViewModelTest.cs" />
+    <Compile Include="EditModel\EditNamedViewModelTest.cs" />
+    <Compile Include="EditModel\TagEditModelTest.cs" />
+    <Compile Include="ViewModel\AssignedTagViewModelTest.cs" />
     <Compile Include="ViewModel\EntityViewModelTest.cs" />
     <Compile Include="ViewModel\FacetPropertyViewModelTest.cs" />
     <Compile Include="ViewModel\KosmographViewModelTest.cs" />
-    <Compile Include="ViewModel\RelationshipEditModelTest.cs" />
+    <Compile Include="EditModel\RelationshipEditModelTest.cs" />
     <Compile Include="ViewModel\RelationshipViewModelTest.cs" />
     <Compile Include="ViewModel\TagViewModelTest.cs" />
   </ItemGroup>

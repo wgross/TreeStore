@@ -19,7 +19,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
 
             // ASSERT
 
-            Assert.Equal("f", result.Name);
+            Assert.Equal("p1", result.Name);
             Assert.Equal(property, result.Model);
         }
 

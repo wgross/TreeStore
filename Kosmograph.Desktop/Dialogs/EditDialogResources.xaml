@@ -59,7 +59,7 @@
     <!--
     Editor for Entities.
     -->
-    <DataTemplate DataType="{x:Type kvm:EditEntityViewModel}">
+    <DataTemplate DataType="{x:Type kvm:EntityEditModel}">
         <DockPanel LastChildFill="True">
             <DockPanel LastChildFill="True" DockPanel.Dock="Top">
                 <Label DockPanel.Dock="Left" Style="{StaticResource nameLabelStyle}" />
@@ -90,7 +90,7 @@
         </StackPanel>
     </DataTemplate>
 
-    <DataTemplate DataType="{x:Type kvm:EditAssignedFacetPropertyValueViewModel}">
+    <DataTemplate DataType="{x:Type kvm:AssignedFacetPropertyEditModel}">
         <DockPanel LastChildFill="True" DockPanel.Dock="Top">
             <Label DockPanel.Dock="Left" Content="{Binding Name, Mode=OneTime}" />
             <TextBox Text="{Binding Value}" />

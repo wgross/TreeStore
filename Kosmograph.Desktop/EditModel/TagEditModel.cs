@@ -26,7 +26,7 @@ namespace Kosmograph.Desktop.ViewModel
 
         #region Facet has observable collection of facet properties
 
-        public CommitableObservableCollection<FacetPropertyEditModel> Properties { get; }
+        public CommitableObservableCollection<FacetPropertyEditModel> Properties { get; private set; }
 
         #endregion Facet has observable collection of facet properties
 
@@ -60,6 +60,8 @@ namespace Kosmograph.Desktop.ViewModel
 
         public override void Rollback()
         {
+            this.Properties =
+                new CommitableObservableCollection<FacetPropertyEditModel>(this.ViewModel.Properties.Select(p => new FacetPropertyEditModel(p)));            
             base.Rollback();
             this.rolledback(this.ViewModel.Model);
         }

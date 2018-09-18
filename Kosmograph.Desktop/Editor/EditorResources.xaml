@@ -59,7 +59,7 @@
         </DockPanel>
     </DataTemplate>
 
-    <DataTemplate DataType="{x:Type kvm:EditEntityViewModel}">
+    <DataTemplate DataType="{x:Type kvm:EntityEditModel}">
         <kdc:EditEntityControl />
     </DataTemplate>
 
