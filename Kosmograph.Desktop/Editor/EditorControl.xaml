@@ -4,10 +4,22 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:Kosmograph.Desktop.Editor"
+             xmlns:kdc="clr-namespace:Kosmograph.Desktop.Controls"
+             xmlns:kem="clr-namespace:Kosmograph.Desktop.EditModel"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
-        <ResourceDictionary Source="./EditorResources.xaml" />
+        <ResourceDictionary>
+            <DataTemplate DataType="{x:Type kem:TagEditModel}">
+                <kdc:EditTagControl />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type kem:EntityEditModel}">
+                <kdc:EditEntityControl />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type kem:RelationshipEditModel}">
+                <kdc:EditRelationshipControl />
+            </DataTemplate>
+        </ResourceDictionary>
     </UserControl.Resources>
     <UserControl.Style>
         <Style TargetType="{x:Type UserControl}">
@@ -32,7 +44,6 @@
             <KeyBinding Key="Esc" Command="{x:Static local:EditorCommands.Cancel}" />
         </Grid.InputBindings>
         <ContentControl
-            Content="{Binding .}"
-            Style="{StaticResource editContentControlStyle}" />
+            Content="{Binding .}" />
     </Grid>
 </UserControl>
