@@ -6,25 +6,44 @@
              xmlns:local="clr-namespace:Kosmograph.Desktop.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <Style x:Key="entityDropAreaLabel" TargetType="Label">
+                <Setter Property="MinWidth" Value="50"/>
+            </Style>
+            <Style x:Key="entityDropAreaTextBlockStyle" TargetType="{x:Type TextBlock}">
+                <Setter Property="Background" Value="LightGray"/>
+                <Setter Property="Margin" Value="0,0,5,0"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="Padding" Value="2,0,0,0"/>
+                <Setter Property="AllowDrop" Value="True"/>
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
     <DockPanel
         LastChildFill="False">
         <DockPanel DockPanel.Dock="Top"
             LastChildFill="True">
             <Label DockPanel.Dock="Left"
-                Width="50"
+                Style="{StaticResource entityDropAreaLabel}"
                 Content="From" />
-            <TextBlock Text="{Binding From.Name}"
-                Margin="0,0,5,0"
-                VerticalAlignment="Center"/>
+            <TextBlock 
+                Name="fromDropArea"
+                Text="{Binding From.Name}"
+                Style="{StaticResource entityDropAreaTextBlockStyle}"
+                Drop="fromDropArea_Drop"/>
         </DockPanel>
         <DockPanel DockPanel.Dock="Top"
             LastChildFill="True">
             <Label DockPanel.Dock="Left"
-                Content="To" 
-                Width="50"/>
-            <TextBlock Text="{Binding To.Name}"
-                Margin="0,0,5,0"
-                VerticalAlignment="Center"/>
+                Style="{StaticResource entityDropAreaLabel}"
+                Content="To" />
+            <TextBlock 
+                Name="toDropArea"
+                Text="{Binding To.Name}"
+                Style="{StaticResource entityDropAreaTextBlockStyle}"
+                Drop="toDropArea_Drop"/>
+            
         </DockPanel>
     </DockPanel>
 </UserControl>

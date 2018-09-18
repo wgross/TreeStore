@@ -21,5 +21,15 @@ namespace Kosmograph.Desktop.Controls
         {
             this.InitializeComponent();
         }
+
+        private void fromDropArea_Drop(object sender, DragEventArgs e)
+        {
+
+        }
+
+        private void toDropArea_Drop(object sender, DragEventArgs e)
+        {
+
+        }
     }
 }

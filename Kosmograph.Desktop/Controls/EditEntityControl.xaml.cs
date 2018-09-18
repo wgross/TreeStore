@@ -17,9 +17,9 @@ namespace Kosmograph.Desktop.Controls
 
         private void editEntityControl_Drop(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(typeof(Tag)))
+            if (e.Data.GetDataPresent(typeof(TagViewModel)))
             {
-                this.ViewModel.AssignTagCommand.Execute(e.Data.GetData(typeof(Tag)));
+                this.ViewModel.AssignTagCommand.Execute(e.Data.GetData(typeof(TagViewModel)));
             }
             e.Handled = true;
         }

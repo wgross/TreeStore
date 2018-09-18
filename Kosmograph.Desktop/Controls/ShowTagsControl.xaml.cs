@@ -27,7 +27,7 @@ namespace Kosmograph.Desktop.Controls
                     return;
 
                 DataObject data = new DataObject();
-                data.SetData(typeof(Tag), this.ViewModel.SelectedTag.Model);
+                data.SetData(typeof(TagViewModel), this.ViewModel.SelectedTag);
 
                 DragDrop.DoDragDrop(this, data, DragDropEffects.Link);
             }
