@@ -47,7 +47,8 @@
             Style="{StaticResource modelItemListBoxStyle}"
             ItemsSource="{Binding Entities}"
             SelectedItem="{Binding SelectedEntity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-            MouseDoubleClick="entityListBox_MouseDoubleClick">
+            MouseDoubleClick="entityListBox_MouseDoubleClick"
+            MouseMove="entityListBox_MouseMove">
             <ListBox.InputBindings>
                 <KeyBinding
                     Key="Return"

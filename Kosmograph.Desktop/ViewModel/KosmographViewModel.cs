@@ -13,7 +13,7 @@ namespace Kosmograph.Desktop.ViewModel
     {
         private KosmographModel model;
         private Lazy<CommitableObservableCollection<TagViewModel>> tags;
-        private Lazy<CommitableObservableCollection<EntityEditModel>> entities;
+        private Lazy<CommitableObservableCollection<EntityViewModel>> entities;
         private Lazy<CommitableObservableCollection<RelationshipViewModel>> relationships;
 
         public KosmographViewModel(KosmographModel kosmographModel)
@@ -29,7 +29,7 @@ namespace Kosmograph.Desktop.ViewModel
 
             this.CreateEntityCommand = new RelayCommand(this.CreateEntityExecuted);
             this.EditEntityCommand = new RelayCommand<EntityEditModel>(this.EditEntityExecuted);
-            this.DeleteEntityCommand = new RelayCommand<EntityEditModel>(this.DeleteEntityExecuted);
+            this.DeleteEntityCommand = new RelayCommand<EntityViewModel>(this.DeleteEntityExecuted);
 
             this.CreateRelationshipCommand = new RelayCommand(this.CreateRelationshipExecuted);
             this.EditRelationshipCommand = new RelayCommand<RelationshipViewModel>(this.EditRelationshipExecuted);
@@ -52,12 +52,12 @@ namespace Kosmograph.Desktop.ViewModel
 
         #endregion Collection of Tags
 
-        public ObservableCollection<EntityEditModel> Entities => this.entities.Value;
+        public ObservableCollection<EntityViewModel> Entities => this.entities.Value;
 
         private void CreateLazyEntitiesCollection()
         {
-            this.entities = new Lazy<CommitableObservableCollection<EntityEditModel>>(() =>
-                new CommitableObservableCollection<EntityEditModel>(this.model.Entities.FindAll().Select(e => new EntityEditModel(new EntityViewModel(e), this.OnEditedEntityCommitted, this.OnEntityRollback))));
+            this.entities = new Lazy<CommitableObservableCollection<EntityViewModel>>(() =>
+                new CommitableObservableCollection<EntityViewModel>(this.model.Entities.FindAll().Select(e => new EntityViewModel(e))));
             this.RaisePropertyChanged(nameof(Entities));
         }
 
@@ -78,13 +78,13 @@ namespace Kosmograph.Desktop.ViewModel
 
         private TagViewModel selectedTag;
 
-        public EntityEditModel SelectedEntity
+        public EntityViewModel SelectedEntity
         {
             get => this.selectedEntity;
             set => this.Set(nameof(SelectedEntity), ref this.selectedEntity, value);
         }
 
-        private EntityEditModel selectedEntity;
+        private EntityViewModel selectedEntity;
 
         public RelationshipViewModel SelectedRelationship
         {
@@ -170,10 +170,10 @@ namespace Kosmograph.Desktop.ViewModel
         private void OnCreatedEntityCommitted(Entity entity)
         {
             var entityViewModel = new EntityEditModel(new EntityViewModel(entity), this.OnEditedEntityCommitted, this.OnEntityRollback);
-            this.entities.Value.Add(entityViewModel);
-            this.entities.Value.Commit(onAdd: evm => this.Model.Entities.Upsert(evm.ViewModel.Model));
+            this.entities.Value.Add(entityViewModel.ViewModel);
+            this.entities.Value.Commit(onAdd: evm => this.Model.Entities.Upsert(evm.Model));
             this.EditedEntity = null;
-            this.SelectedEntity = entityViewModel;
+            this.SelectedEntity = entityViewModel.ViewModel;
         }
 
         #endregion Create new Entity in Model
@@ -213,10 +213,10 @@ namespace Kosmograph.Desktop.ViewModel
 
         public ICommand DeleteEntityCommand { get; }
 
-        private void DeleteEntityExecuted(EntityEditModel entity)
+        private void DeleteEntityExecuted(EntityViewModel entity)
         {
             this.entities.Value.Remove(entity);
-            this.entities.Value.Commit(onRemove: evm => this.model.Entities.Delete(evm.ViewModel.Model.Id));
+            this.entities.Value.Commit(onRemove: evm => this.model.Entities.Delete(evm.Model.Id));
         }
 
         #endregion Delete Entity from Model
