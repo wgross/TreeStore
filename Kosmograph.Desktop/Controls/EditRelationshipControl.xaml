@@ -13,6 +13,7 @@
         <local:EditorSectionHeaderControl 
             Text="{Binding Name, StringFormat={}Edit {0}}" />
         <local:EditItemNameControl/>
+        <local:EditRelatedEntitiesControl/>
         <local:EditAssignedTagsControl/>
     </StackPanel>
 </UserControl>

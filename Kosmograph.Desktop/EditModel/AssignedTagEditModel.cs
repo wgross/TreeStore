@@ -15,5 +15,17 @@ namespace Kosmograph.Desktop.EditModel
         }
 
         public CommitableObservableCollection<AssignedFacetPropertyEditModel> Properties { get; }
+
+        public override void Commit()
+        {
+            this.Properties.ForEach(p => p.Commit());
+            base.Commit();
+        }
+
+        public override void Rollback()
+        {
+            this.Properties.ForEach(p => p.Rollback());
+            base.Rollback();
+        }
     }
 }
