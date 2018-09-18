@@ -10,6 +10,7 @@ namespace Kosmograph.Desktop.Controls
         public ShowEntitiesControl()
         {
             this.InitializeComponent();
+
         }
 
         private KosmographViewModel ViewModel => this.DataContext as KosmographViewModel;

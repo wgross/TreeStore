@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
              xmlns:local="clr-namespace:Kosmograph.Desktop.Controls"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
@@ -11,6 +12,13 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="./CommonResources.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            <CollectionViewSource
+                x:Key="relationshipsCollectionViewSource" 
+                Source="{Binding Relationships}" >
+                <CollectionViewSource.SortDescriptions>
+                    <scm:SortDescription PropertyName="Name" />
+                </CollectionViewSource.SortDescriptions>
+            </CollectionViewSource>
         </ResourceDictionary>
     </UserControl.Resources>
     <UserControl.Style>
@@ -46,7 +54,7 @@
             Name="tagListBox"
             Panel.ZIndex="0"
             Style="{StaticResource modelItemListBoxStyle}"
-            ItemsSource="{Binding Relationships}"
+            ItemsSource="{Binding Source={StaticResource relationshipsCollectionViewSource}}"
             SelectedItem="{Binding SelectedRelationship, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
             MouseMove="relationshipsListBox_MouseMove"
             MouseDoubleClick="relationshipsListBox_MouseDoubleClick">
