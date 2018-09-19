@@ -62,7 +62,8 @@
         </DockPanel>
         <ListBox
             Style="{StaticResource facetPropertiesListBoxStyle}"
-            ItemsSource="{Binding Properties}">
+            ItemsSource="{Binding Properties}"
+            ScrollViewer.VerticalScrollBarVisibility="Visible">
             <ListBox.InputBindings>
                 <KeyBinding
                     Key="Delete"

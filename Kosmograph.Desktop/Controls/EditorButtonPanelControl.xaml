@@ -1,0 +1,40 @@
+﻿<UserControl x:Class="Kosmograph.Desktop.Controls.EditorButtonPanelControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Kosmograph.Desktop.Controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="./CommonResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        
+        <Style x:Key="editorCommitButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource editButtonStyle}">
+            <Setter Property="MinWidth" Value="50"/>
+            <Setter Property="Margin" Value="5,0,0,0"/>
+            <Setter Property="Content" Value="apply"/>
+            <Setter Property="IsDefault" Value="True"/>
+        </Style>
+
+        <Style x:Key="editorRollbackButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource editButtonStyle}">
+            <Setter Property="MinWidth" Value="50"/>
+            <Setter Property="Margin" Value="5,0,0,0"/>
+            <Setter Property="Content" Value="cancel"/>
+            <Setter Property="IsCancel" Value="True"/>
+        </Style>
+            
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <DockPanel
+        LastChildFill="False">
+        <Button DockPanel.Dock="Right"
+                    Style="{StaticResource editorCommitButtonStyle}"
+                    Command="{Binding CommitCommand}"/>
+        <Button DockPanel.Dock="Right"
+                    Style="{StaticResource editorRollbackButtonStyle}"
+                    Command="{Binding CommitCommand}"/>
+    </DockPanel>
+</UserControl>

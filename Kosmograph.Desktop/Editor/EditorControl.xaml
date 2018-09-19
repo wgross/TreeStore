@@ -19,17 +19,16 @@
             <DataTemplate DataType="{x:Type kem:RelationshipEditModel}">
                 <kdc:EditRelationshipControl />
             </DataTemplate>
+            
         </ResourceDictionary>
     </UserControl.Resources>
     <UserControl.Style>
         <Style TargetType="{x:Type UserControl}">
             <!--
-            The control initialized as 'Visible' but if the
-            DataCOntext is null, it will collapse.
+            The Control is visible if ther is an editd item bound to the data context
             -->
             <Setter
-                Property="Visibility"
-                Value="Visible" />
+                Property="Visibility" Value="Visible" />
             <Style.Triggers>
                 <DataTrigger Binding="{Binding .}" Value="{x:Null}">
                     <Setter Property="Visibility" Value="Collapsed" />
@@ -37,13 +36,14 @@
             </Style.Triggers>
         </Style>
     </UserControl.Style>
-
-    <Grid>
-        <Grid.InputBindings>
-            <KeyBinding Key="Return" Command="{x:Static local:EditorCommands.Ok}" />
-            <KeyBinding Key="Esc" Command="{x:Static local:EditorCommands.Cancel}" />
-        </Grid.InputBindings>
-        <ContentControl
-            Content="{Binding .}" />
-    </Grid>
+    <StackPanel>
+        <!--
+        <StackPanel.InputBindings>
+            <KeyBinding Key="Return" Command="{Binding CommitCommand}" />
+            <KeyBinding Key="Esc" Command="{Binding RollbackCommand}" />
+        </StackPanel.InputBindings>
+        -->
+        <ContentControl Content="{Binding .}" />
+        <kdc:EditorButtonPanelControl/>
+    </StackPanel>
 </UserControl>
