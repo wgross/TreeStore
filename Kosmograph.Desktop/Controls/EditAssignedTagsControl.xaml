@@ -15,7 +15,7 @@
                 <!--
                 diag:PresentationTraceSources.TraceLevel=High"
                 -->
-                <local:EditorSectionHeaderControl Text="{Binding Name}" />
+                <local:EditorSectionHeaderControl Text="{Binding Name, StringFormat={}Properties of {0}}"/>
                 <ItemsControl
                     DockPanel.Dock="Top"
                     ItemsSource="{Binding Properties}">

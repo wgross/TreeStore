@@ -29,7 +29,8 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <DockPanel
-        LastChildFill="False">
+        LastChildFill="False"
+        Margin="0,0,0,5">
         <Button DockPanel.Dock="Right"
                     Style="{StaticResource editorCommitButtonStyle}"
                     Command="{Binding CommitCommand}"/>

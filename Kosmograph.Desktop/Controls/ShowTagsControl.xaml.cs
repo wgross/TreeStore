@@ -1,5 +1,4 @@
 ﻿using Kosmograph.Desktop.ViewModel;
-using Kosmograph.Model;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -18,21 +17,22 @@ namespace Kosmograph.Desktop.Controls
 
         KosmographViewModel ViewModel => this.DataContext as KosmographViewModel;
 
-        private void tagListBox_MouseMove(object sender, MouseEventArgs e)
+        private void tagListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e) => this.ViewModel.EditTagCommand.Execute(this.ViewModel.SelectedTag);
+
+        private void tagListBoxItem_MouseMove(object sender, MouseEventArgs e)
         {
             base.OnMouseMove(e);
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                if (this.ViewModel.SelectedTag is null)
+                var tagViewModel = ((FrameworkElement)sender).DataContext as TagViewModel;
+                if (tagViewModel is null)
                     return;
 
                 DataObject data = new DataObject();
-                data.SetData(typeof(TagViewModel), this.ViewModel.SelectedTag);
+                data.SetData(typeof(TagViewModel), tagViewModel);
 
-                DragDrop.DoDragDrop(this, data, DragDropEffects.Link);
+                DragDrop.DoDragDrop((DependencyObject)sender, data, DragDropEffects.Link);
             }
         }
-
-        private void tagListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e) => this.ViewModel.EditTagCommand.Execute(this.ViewModel.SelectedTag);
     }
 }

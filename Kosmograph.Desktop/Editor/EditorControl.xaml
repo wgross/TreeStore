@@ -19,7 +19,6 @@
             <DataTemplate DataType="{x:Type kem:RelationshipEditModel}">
                 <kdc:EditRelationshipControl />
             </DataTemplate>
-            
         </ResourceDictionary>
     </UserControl.Resources>
     <UserControl.Style>
@@ -36,14 +35,13 @@
             </Style.Triggers>
         </Style>
     </UserControl.Style>
-    <StackPanel>
-        <!--
-        <StackPanel.InputBindings>
-            <KeyBinding Key="Return" Command="{Binding CommitCommand}" />
-            <KeyBinding Key="Esc" Command="{Binding RollbackCommand}" />
-        </StackPanel.InputBindings>
-        -->
-        <ContentControl Content="{Binding .}" />
-        <kdc:EditorButtonPanelControl/>
-    </StackPanel>
+    <DockPanel
+        LastChildFill="True">
+        <kdc:EditorButtonPanelControl DockPanel.Dock="Bottom" />
+        <ScrollViewer
+            ScrollViewer.HorizontalScrollBarVisibility="Auto"
+            ScrollViewer.VerticalScrollBarVisibility="Auto">
+            <ContentControl Content="{Binding .}" />
+        </ScrollViewer>
+    </DockPanel>
 </UserControl>

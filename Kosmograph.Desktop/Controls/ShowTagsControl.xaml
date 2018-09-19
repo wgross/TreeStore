@@ -56,8 +56,14 @@
             Style="{StaticResource modelItemListBoxStyle}"
             ItemsSource="{Binding Source={StaticResource tagsCollectionViewSource}}"
             SelectedItem="{Binding SelectedTag, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-            MouseDoubleClick="tagListBox_MouseDoubleClick"
-            MouseMove="tagListBox_MouseMove">
+            MouseDoubleClick="tagListBox_MouseDoubleClick">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid MouseMove="tagListBoxItem_MouseMove">
+                        <TextBlock Text="{Binding Name}" />
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
             <ListBox.InputBindings>
                 <KeyBinding Key="Return"
                                 Command="{Binding EditTagCommand}"
