@@ -24,6 +24,7 @@
             <Setter Property="Margin" Value="5,0,0,0"/>
             <Setter Property="Content" Value="cancel"/>
             <Setter Property="IsCancel" Value="True" />
+            <Setter Property="Background" Value="#FFFBB0B0"/>
         </Style>
             
         </ResourceDictionary>
@@ -36,6 +37,6 @@
                     Command="{Binding CommitCommand}"/>
         <Button DockPanel.Dock="Right"
                     Style="{StaticResource editorRollbackButtonStyle}"
-                    Command="{Binding CommitCommand}"/>
+                    Command="{Binding CommitCommand}" />
     </DockPanel>
 </UserControl>
