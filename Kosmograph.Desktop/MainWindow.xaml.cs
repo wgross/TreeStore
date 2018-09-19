@@ -37,9 +37,10 @@ namespace Kosmograph.Desktop
             var entity1 = model.Entities.Upsert(new Entity("entity1", tag1));
             var entity2 = model.Entities.Upsert(new Entity("entity2", tag2));
             var relationship = model.Relationships.Upsert(new Relationship("relationship1", entity1, entity2, tag1));
-
-            this.ViewModel = new KosmographViewModel(model);
-
+            var viewModel = new KosmographViewModel(model);
+            viewModel.FillAll();
+            this.ViewModel = viewModel;
+            
             CommandManager.InvalidateRequerySuggested();
         }
 

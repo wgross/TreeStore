@@ -3,8 +3,6 @@ using GalaSoft.MvvmLight.Command;
 using Kosmograph.Desktop.EditModel;
 using Kosmograph.Model;
 using System;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Windows.Input;
 
 namespace Kosmograph.Desktop.ViewModel
@@ -12,63 +10,42 @@ namespace Kosmograph.Desktop.ViewModel
     public class KosmographViewModel : ViewModelBase
     {
         private KosmographModel model;
-        private Lazy<CommitableObservableCollection<TagViewModel>> tags;
+
         private Lazy<CommitableObservableCollection<EntityViewModel>> entities;
         private Lazy<CommitableObservableCollection<RelationshipViewModel>> relationships;
 
         public KosmographViewModel(KosmographModel kosmographModel)
         {
             this.model = kosmographModel;
-            this.CreateLazyTagsCollection();
-            this.CreateLazyEntitiesCollection();
-            this.CreateLazyRelationshipsCollection();
+            this.Tags = new TagRepositoryViewModel(this.model.Tags);
+            this.Entities = new EntityRepositoryViewModel(this.model.Entities);
+            this.Relationships = new RelationshipRepositoryViewModel(this.model.Relationships);
 
             this.CreateTagCommand = new RelayCommand(this.CreateTagExecuted);
             this.EditTagCommand = new RelayCommand<TagViewModel>(this.EditTagExecuted);
-            this.DeleteTagCommand = new RelayCommand<TagViewModel>(this.DeleteTagExecuted);
 
             this.CreateEntityCommand = new RelayCommand(this.CreateEntityExecuted);
             this.EditEntityCommand = new RelayCommand<EntityViewModel>(this.EditEntityExecuted);
-            this.DeleteEntityCommand = new RelayCommand<EntityViewModel>(this.DeleteEntityExecuted);
 
             this.CreateRelationshipCommand = new RelayCommand(this.CreateRelationshipExecuted);
             this.EditRelationshipCommand = new RelayCommand<RelationshipViewModel>(this.EditRelationshipExecuted);
-            this.DeleteRelationshipCommand = new RelayCommand<RelationshipViewModel>(this.DeleteRelationshipExecuted);
             this.Rollback();
+        }
+
+        public void FillAll()
+        {
+            this.Tags.FillAll();
+            this.Entities.FillAll();
+            this.Relationships.FillAll();
         }
 
         public KosmographModel Model => this.model;
 
-        #region Collection of Tags
+        public TagRepositoryViewModel Tags { get; }
 
-        public ObservableCollection<TagViewModel> Tags => this.tags.Value;
+        public EntityRepositoryViewModel Entities { get; }
 
-        private void CreateLazyTagsCollection()
-        {
-            this.tags = new Lazy<CommitableObservableCollection<TagViewModel>>(
-                () => new CommitableObservableCollection<TagViewModel>(this.model.Tags.FindAll().Select(t => new TagViewModel(t))));
-            this.RaisePropertyChanged(nameof(Tags));
-        }
-
-        #endregion Collection of Tags
-
-        public ObservableCollection<EntityViewModel> Entities => this.entities.Value;
-
-        private void CreateLazyEntitiesCollection()
-        {
-            this.entities = new Lazy<CommitableObservableCollection<EntityViewModel>>(() =>
-                new CommitableObservableCollection<EntityViewModel>(this.model.Entities.FindAll().Select(e => new EntityViewModel(e))));
-            this.RaisePropertyChanged(nameof(Entities));
-        }
-
-        public ObservableCollection<RelationshipViewModel> Relationships => this.relationships.Value;
-
-        private void CreateLazyRelationshipsCollection()
-        {
-            this.relationships = new Lazy<CommitableObservableCollection<RelationshipViewModel>>(() =>
-                new CommitableObservableCollection<RelationshipViewModel>(this.model.Relationships.FindAll().Select(r => new RelationshipViewModel(r))));
-            this.RaisePropertyChanged(nameof(Relationships));
-        }
+        public RelationshipRepositoryViewModel Relationships { get; }
 
         public TagViewModel SelectedTag
         {
@@ -94,18 +71,6 @@ namespace Kosmograph.Desktop.ViewModel
 
         public RelationshipViewModel selectedRelationship;
 
-        #region Remove Tag from model
-
-        public ICommand DeleteTagCommand { get; }
-
-        private void DeleteTagExecuted(TagViewModel tag)
-        {
-            this.tags.Value.Remove(tag);
-            this.tags.Value.Commit(onRemove: tvm => this.model.Tags.Delete(tvm.Model.Id));
-        }
-
-        #endregion Remove Tag from model
-
         #region Create new Tag in model
 
         public ICommand CreateTagCommand { get; }
@@ -120,8 +85,8 @@ namespace Kosmograph.Desktop.ViewModel
         private void OnCreatedTagCommitted(Tag tag)
         {
             var tagViemModel = new TagViewModel(tag);
-            this.tags.Value.Add(tagViemModel);
-            this.tags.Value.Commit(onAdd: tvm => this.Model.Tags.Upsert(tvm.Model));
+            this.Tags.Add(tagViemModel);
+            //this.tags.Commit(onAdd: tvm => this.Model.Tags.Upsert(tvm.Model));
             this.EditedTag = null;
             this.SelectedTag = tagViemModel;
         }
@@ -209,18 +174,6 @@ namespace Kosmograph.Desktop.ViewModel
 
         private EntityEditModel editedEntity;
 
-        #region Delete Entity from Model
-
-        public ICommand DeleteEntityCommand { get; }
-
-        private void DeleteEntityExecuted(EntityViewModel entity)
-        {
-            this.entities.Value.Remove(entity);
-            this.entities.Value.Commit(onRemove: evm => this.model.Entities.Delete(evm.Model.Id));
-        }
-
-        #endregion Delete Entity from Model
-
         #region Create/Edit Relationship
 
         public ICommand CreateRelationshipCommand { get; set; }
@@ -269,18 +222,6 @@ namespace Kosmograph.Desktop.ViewModel
 
         #endregion Create/Edit Relationship
 
-        #region Deleted Relationship from mode
-
-        public ICommand DeleteRelationshipCommand { get; }
-
-        private void DeleteRelationshipExecuted(RelationshipViewModel relationship)
-        {
-            this.relationships.Value.Remove(relationship);
-            this.relationships.Value.Commit(onRemove: rvm => this.model.Relationships.Delete(rvm.Model.Id));
-        }
-
-        #endregion Deleted Relationship from mode
-
         #region Commit changes of Tags to model
 
         private void OnTagRemoved(TagEditModel vm) => this.model.Tags.Delete(vm.ViewModel.Model.Id);
@@ -295,8 +236,6 @@ namespace Kosmograph.Desktop.ViewModel
 
         public void Rollback()
         {
-            this.CreateLazyTagsCollection();
-            this.CreateLazyEntitiesCollection();
         }
 
         #endregion Commit changes of Tags to model

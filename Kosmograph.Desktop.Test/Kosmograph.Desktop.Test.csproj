@@ -115,12 +115,15 @@
     <Compile Include="EditModel\EditNamedViewModelTest.cs" />
     <Compile Include="EditModel\TagEditModelTest.cs" />
     <Compile Include="ViewModel\AssignedTagViewModelTest.cs" />
+    <Compile Include="ViewModel\EntityRepositoryViewModel.cs" />
     <Compile Include="ViewModel\EntityViewModelTest.cs" />
     <Compile Include="ViewModel\FacetPropertyViewModelTest.cs" />
     <Compile Include="ViewModel\KosmographViewModelTest.cs" />
     <Compile Include="EditModel\RelationshipEditModelTest.cs" />
     <Compile Include="ViewModel\ObservableRepositoryTest.cs" />
+    <Compile Include="ViewModel\RelationshipRepositoryViewModel.cs" />
     <Compile Include="ViewModel\RelationshipViewModelTest.cs" />
+    <Compile Include="ViewModel\TagRepositoryViewModelTest.cs" />
     <Compile Include="ViewModel\TagViewModelTest.cs" />
   </ItemGroup>
   <ItemGroup>

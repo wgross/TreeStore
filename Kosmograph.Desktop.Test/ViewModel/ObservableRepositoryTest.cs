@@ -32,7 +32,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
                 .Setup(r => r.Upsert(model))
                 .Returns(model);
 
-            var observableRepository = new ObservableRepository<TagViewModel, Tag>(repository.Object);
+            var observableRepository = new RepositoryViewModel<TagViewModel, Tag>(repository.Object, m => new TagViewModel(m));
 
             // ACT
 
@@ -57,7 +57,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
                 .Setup(r => r.Delete(model.Id))
                 .Returns(true);
 
-            var observableRepository = new ObservableRepository<TagViewModel, Tag>(repository.Object);
+            var observableRepository = new RepositoryViewModel<TagViewModel, Tag>(repository.Object, m => new TagViewModel(m));
             var viewModel = new TagViewModel(model);
 
             observableRepository.Add(viewModel);
@@ -82,15 +82,57 @@ namespace Kosmograph.Desktop.Test.ViewModel
               .Setup(r => r.FindAll())
               .Returns(model.Yield());
 
-            var observableRepository = new ObservableRepository<TagViewModel, Tag>(repository.Object);
+            var observableRepository = new RepositoryViewModel<TagViewModel, Tag>(repository.Object, m => new TagViewModel(m));
 
             // ACT
 
-            observableRepository.FillAll(m => new TagViewModel(m));
+            observableRepository.FillAll();
 
             // ASSERT
 
             Assert.Single(observableRepository);
+        }
+
+        [Fact]
+        public void ObservableRepository_gets_ViewModel_of_Model()
+        {
+            // ARRANGE
+
+            var model = new Tag();
+            var repository = this.mocks.Create<ITagRepository>();
+            repository
+              .Setup(r => r.FindAll())
+              .Returns(model.Yield());
+
+            var observableRepository = new RepositoryViewModel<TagViewModel, Tag>(repository.Object, m => new TagViewModel(m));
+            observableRepository.FillAll();
+
+            // ACT
+
+            var result = observableRepository.GetViewModel(new Tag { Id = model.Id });
+
+            // ASSERT
+
+            Assert.Same(observableRepository.Single(), result);
+        }
+
+        [Fact]
+        public void ObservableRepository_getting_unknown_ViewModel_throws()
+        {
+            // ARRANGE
+
+            var model = new Tag();
+            var repository = this.mocks.Create<ITagRepository>();
+            repository
+              .Setup(r => r.FindAll())
+              .Returns(model.Yield());
+
+            var observableRepository = new RepositoryViewModel<TagViewModel, Tag>(repository.Object, m => new TagViewModel(m));
+            observableRepository.FillAll();
+
+            // ACT
+
+            Assert.Throws<InvalidOperationException>(() => observableRepository.GetViewModel(new Tag { Id = Guid.NewGuid() }));
         }
     }
 }
