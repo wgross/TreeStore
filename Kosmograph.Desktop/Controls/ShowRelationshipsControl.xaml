@@ -42,7 +42,7 @@
         <DockPanel DockPanel.Dock="Top"
             LastChildFill="False">
             <TextBlock DockPanel.Dock="Left"
-                Text="Relationhsips"
+                Text="Relationships"
                 Foreground="Gray"
                 FontWeight="Bold" />
             <Button DockPanel.Dock="Right" 
@@ -57,6 +57,13 @@
             SelectedItem="{Binding SelectedRelationship, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
             MouseMove="relationshipsListBox_MouseMove"
             MouseDoubleClick="relationshipsListBox_MouseDoubleClick">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <TextBlock Text="{Binding Name}" />
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
             <ListBox.InputBindings>
                 <KeyBinding Key="Return"
                                         Command="{Binding EditRelationshipCommand}"

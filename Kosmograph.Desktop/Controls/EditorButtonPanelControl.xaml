@@ -23,7 +23,7 @@
             <Setter Property="MinWidth" Value="50"/>
             <Setter Property="Margin" Value="5,0,0,0"/>
             <Setter Property="Content" Value="cancel"/>
-            <Setter Property="IsCancel" Value="True"/>
+            <Setter Property="IsCancel" Value="True" />
         </Style>
             
         </ResourceDictionary>

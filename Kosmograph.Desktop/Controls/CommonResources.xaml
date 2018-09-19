@@ -38,14 +38,6 @@
 
     <Style x:Key="modelItemListBoxStyle" TargetType="{x:Type ListBox}">
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-        <Setter Property="ItemTemplate">
-            <Setter.Value>
-                <DataTemplate>
-                    <TextBlock DockPanel.Dock="Left"
-                        Text="{Binding Name}" />
-                </DataTemplate>
-            </Setter.Value>
-        </Setter>
         <Setter Property="BorderThickness" Value="0" />
     </Style>
 </ResourceDictionary>
