@@ -10,8 +10,6 @@
         <local:EditorHeaderControl 
             Text="{Binding Name, StringFormat={}Edit {0}}" />
         <local:EditItemNameControl/>
-        <local:EditorSectionHeaderControl DockPanel.Dock="Top"
-                Text="Edit Properties" />
         <local:EditTagFacetPropertiesControl />
     </StackPanel>
 </UserControl>

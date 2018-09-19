@@ -24,8 +24,7 @@
     <UserControl.Style>
         <Style TargetType="{x:Type UserControl}">
             <!--
-            Control is hidden.
-            If no entity is edited it is shown
+            Control is hidden while an Entitiy is edited.
             -->
             <Setter
                     Property="Visibility"
@@ -37,7 +36,7 @@
             </Style.Triggers>
         </Style>
     </UserControl.Style>
-    <DockPanel
+    <DockPanel 
         LastChildFill="True"
         Margin="0,0,0,0">
         <DockPanel DockPanel.Dock="Top"

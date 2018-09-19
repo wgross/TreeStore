@@ -8,54 +8,58 @@
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
-        <Style x:Key="facetPropertiesListBoxStyle" TargetType="{x:Type ListBox}">
-            <Setter Property="ItemTemplate">
-                <Setter.Value>
-                    <DataTemplate DataType="{x:Type kem:FacetPropertyEditModel}">
-                        <DockPanel
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="./CommonResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="facetPropertiesListBoxStyle" TargetType="{x:Type ListBox}">
+                <Setter Property="ItemTemplate">
+                    <Setter.Value>
+                        <DataTemplate DataType="{x:Type kem:FacetPropertyEditModel}">
+                            <DockPanel
                             LastChildFill="True">
-                            <Label DockPanel.Dock="Left"
+                                <Label DockPanel.Dock="Left"
                                    Content="Name" />
-                            <TextBox Text="{Binding Name}" />
-                        </DockPanel>
-                    </DataTemplate>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="ItemContainerStyle">
-                <Setter.Value>
-                    <Style TargetType="{x:Type ListBoxItem}">
-                        <Setter Property="Padding" Value="1" />
-                    </Style>
-                </Setter.Value>
-            </Setter>
-            <!-- Show the listBox without a border -->
-            <Setter
+                                <TextBox Text="{Binding Name}" />
+                            </DockPanel>
+                        </DataTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="ItemContainerStyle">
+                    <Setter.Value>
+                        <Style TargetType="{x:Type ListBoxItem}">
+                            <Setter Property="Padding" Value="1" />
+                        </Style>
+                    </Setter.Value>
+                </Setter>
+                <!-- Show the listBox without a border -->
+                <Setter
                 Property="BorderThickness"
                 Value="0" />
-            <!-- Stretch the list box item to the complete width of te ListBox -->
-            <Setter
+                <!-- Stretch the list box item to the complete width of te ListBox -->
+                <Setter
                Property="HorizontalContentAlignment"
                Value="Stretch" />
-            <!-- Move input focus to the ListBox under the mouse cursor -->
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="FocusManager.FocusedElement" Value="{Binding RelativeSource={RelativeSource Self}}" />
-                </Trigger>
-            </Style.Triggers>
-        </Style>
+                <!-- Move input focus to the ListBox under the mouse cursor -->
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="FocusManager.FocusedElement" Value="{Binding RelativeSource={RelativeSource Self}}" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+        </ResourceDictionary>
     </UserControl.Resources>
     <StackPanel>
-        <!--
-        <Button 
-            Content="Create Property"
-            Command="{Binding CreatePropertyCommand}"
-            HorizontalAlignment="Right"
-            Margin ="0,0,2,5"
-            BorderThickness="0"
-            Background="{x:Null}"
-            FontWeight="Bold"
-            Foreground="Gray"/>
-        -->
+        <DockPanel
+            LastChildFill="False">
+            <TextBlock DockPanel.Dock="Left"
+                Text="Properties"
+                Foreground="Gray"
+                FontWeight="Bold" />
+            <Button DockPanel.Dock="Right" 
+                    Style="{StaticResource addButtonInHeaderStyle}"
+                    Command="{Binding CreatePropertyCommand}"/>
+        </DockPanel>
         <ListBox
             Style="{StaticResource facetPropertiesListBoxStyle}"
             ItemsSource="{Binding Properties}">

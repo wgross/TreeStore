@@ -28,7 +28,7 @@ namespace Kosmograph.Desktop.ViewModel
             this.DeleteTagCommand = new RelayCommand<TagViewModel>(this.DeleteTagExecuted);
 
             this.CreateEntityCommand = new RelayCommand(this.CreateEntityExecuted);
-            this.EditEntityCommand = new RelayCommand<EntityEditModel>(this.EditEntityExecuted);
+            this.EditEntityCommand = new RelayCommand<EntityViewModel>(this.EditEntityExecuted);
             this.DeleteEntityCommand = new RelayCommand<EntityViewModel>(this.DeleteEntityExecuted);
 
             this.CreateRelationshipCommand = new RelayCommand(this.CreateRelationshipExecuted);
@@ -182,9 +182,9 @@ namespace Kosmograph.Desktop.ViewModel
 
         public ICommand EditEntityCommand { get; }
 
-        private void EditEntityExecuted(EntityEditModel entity)
+        private void EditEntityExecuted(EntityViewModel entity)
         {
-            this.EditedEntity = entity;
+            this.EditedEntity = new EntityEditModel(entity, this.OnEditedEntityCommitted, this.OnEntityRollback);
         }
 
         private void OnEditedEntityCommitted(Entity entity)
