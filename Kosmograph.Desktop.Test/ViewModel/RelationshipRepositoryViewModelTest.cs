@@ -16,7 +16,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
         public RelationshipRepositoryViewModelTest()
         {
             this.model = this.mocks.Create<IRelationshipRepository>();
-            this.viewModel = new RelationshipRepositoryViewModel(this.model.Object);
+            this.viewModel = new RelationshipRepositoryViewModel(this.model.Object, e => new EntityViewModel(e));
         }
 
         public void Dispose()
@@ -42,6 +42,25 @@ namespace Kosmograph.Desktop.Test.ViewModel
 
             Assert.Single(this.viewModel);
             Assert.Equal(relationship, this.viewModel.Single().Model);
+        }
+
+        [Fact]
+        public void RelationshipRepositoryViewModel_creates_new_RelationshipViewModel()
+        {
+            // ARRANGE
+
+            var relationship = new Relationship("r", new Entity(), new Entity());
+
+            // ACT
+
+            var result = this.viewModel.CreateViewModel(relationship);
+
+            // ASSERT
+
+            Assert.Empty(this.viewModel);
+            Assert.Equal(relationship, result.Model);
+            Assert.Equal(relationship.From, result.From.Model);
+            Assert.Equal(relationship.To, result.To.Model);
         }
 
         //[Fact]

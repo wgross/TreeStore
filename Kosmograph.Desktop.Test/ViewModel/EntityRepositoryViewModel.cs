@@ -34,10 +34,6 @@ namespace Kosmograph.Desktop.Test.ViewModel
                 .Setup(r => r.FindAll())
                 .Returns(entity.Yield());
 
-            this.model
-                .Setup(r => r.Delete(entity.Id))
-                .Returns(true);
-
             // ACT
 
             this.viewModel.FillAll();

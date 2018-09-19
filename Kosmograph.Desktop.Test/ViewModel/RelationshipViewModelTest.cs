@@ -16,7 +16,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
 
             // ACT
 
-            var result = new RelationshipViewModel(model);
+            var result = new RelationshipViewModel(model, new EntityViewModel(model.From), new EntityViewModel(model.To));
 
             // ASSERT
 
@@ -35,7 +35,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
             var entity1 = new EntityViewModel(new Entity());
             var entity2 = new EntityViewModel(new Entity());
             var model = new Relationship("r", new Entity(), new Entity(), new Tag());
-            var viewModel = new RelationshipViewModel(model);
+            var viewModel = new RelationshipViewModel(model, new EntityViewModel(model.From), new EntityViewModel(model.To));
 
             // ACT
 

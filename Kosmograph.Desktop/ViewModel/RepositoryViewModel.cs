@@ -26,6 +26,7 @@ namespace Kosmograph.Desktop.ViewModel
         }
 
         private readonly IRepository<M> repository;
+
         private readonly Func<M, VM> newViewModel;
 
         private readonly IDictionary<Guid, VM> locals = new Dictionary<Guid, VM>();
@@ -96,7 +97,9 @@ namespace Kosmograph.Desktop.ViewModel
             }
         }
 
-        public VM GetViewModel(M tag) => this.locals.TryGetValue(tag.Id, out var viewModel) ? viewModel : throw new InvalidOperationException("model unknown");
+        public VM GetViewModel(M model) => this.locals.TryGetValue(model.Id, out var viewModel) ? viewModel : throw new InvalidOperationException("model unknown");
+
+        public VM CreateViewModel(M model) => this.newViewModel(model);
     }
 
     public class TagRepositoryViewModel : RepositoryViewModel<TagViewModel, Tag>
@@ -117,22 +120,16 @@ namespace Kosmograph.Desktop.ViewModel
 
     public class RelationshipRepositoryViewModel : RepositoryViewModel<RelationshipViewModel, Relationship>
     {
-        public RelationshipRepositoryViewModel(IRelationshipRepository model)
-            : base(model, m => new RelationshipViewModel(m))
+        public RelationshipRepositoryViewModel(IRelationshipRepository model, Func<Entity, EntityViewModel> newEntityViewModel)
+            : base(model, m => NewViewModel(m, newEntityViewModel))
         {
-            //Messenger.Default.Register<GenericMessage<Deleted<Entity>>>(this, this.OnEntityDeleted);
-            Messenger.Default.Register<GenericMessage<string>>(this, this.OnEntityDeleted);
         }
 
-        private void OnEntityDeleted(GenericMessage<string> msg)
+        private static RelationshipViewModel NewViewModel(Relationship model, Func<Entity, EntityViewModel> newEntityViewModel)
         {
-            return;
-        }
-
-        private void OnEntityDeleted(GenericMessage<Deleted<Entity>> obj)
-        {
-            foreach (var relationship in this.Where(r => obj.Content.Items.Contains(r.From.Model) || obj.Content.Items.Contains(r.To.Model)))
-                this.Remove(relationship);
+            return new RelationshipViewModel(model,
+                model.To is null ? null : newEntityViewModel(model.To),
+                model.From is null ? null : newEntityViewModel(model.From));
         }
     }
 }

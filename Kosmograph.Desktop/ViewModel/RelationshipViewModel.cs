@@ -8,14 +8,12 @@ namespace Kosmograph.Desktop.ViewModel
 {
     public class RelationshipViewModel : NamedViewModelBase<Relationship>
     {
-        public RelationshipViewModel(Relationship r)
-            : base(r)
+        public RelationshipViewModel(Relationship model, EntityViewModel from, EntityViewModel to)
+            : base(model)
         {
-            if (r.From != null)
-                this.From = new EntityViewModel(r.From);
-            if (r.To != null)
-                this.To = new EntityViewModel(r.To);
-            this.Tags = new ObservableCollection<AssignedTagViewModel>(r.Tags.Select(t => new AssignedTagViewModel(t, r.Values)));
+            this.From = from;
+            this.To = to;
+            this.Tags = new ObservableCollection<AssignedTagViewModel>(model.Tags.Select(t => new AssignedTagViewModel(t, model.Values)));
             this.Tags.CollectionChanged += this.Tags_CollectionChanged;
         }
 

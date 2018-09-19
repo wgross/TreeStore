@@ -2,7 +2,6 @@
 using GalaSoft.MvvmLight.Command;
 using Kosmograph.Desktop.EditModel;
 using Kosmograph.Model;
-using System;
 using System.Windows.Input;
 
 namespace Kosmograph.Desktop.ViewModel
@@ -11,15 +10,12 @@ namespace Kosmograph.Desktop.ViewModel
     {
         private KosmographModel model;
 
-        private Lazy<CommitableObservableCollection<EntityViewModel>> entities;
-        private Lazy<CommitableObservableCollection<RelationshipViewModel>> relationships;
-
         public KosmographViewModel(KosmographModel kosmographModel)
         {
             this.model = kosmographModel;
             this.Tags = new TagRepositoryViewModel(this.model.Tags);
             this.Entities = new EntityRepositoryViewModel(this.model.Entities);
-            this.Relationships = new RelationshipRepositoryViewModel(this.model.Relationships);
+            this.Relationships = new RelationshipRepositoryViewModel(this.model.Relationships, this.Entities.GetViewModel);
 
             this.CreateTagCommand = new RelayCommand(this.CreateTagExecuted);
             this.EditTagCommand = new RelayCommand<TagViewModel>(this.EditTagExecuted);
@@ -135,8 +131,7 @@ namespace Kosmograph.Desktop.ViewModel
         private void OnCreatedEntityCommitted(Entity entity)
         {
             var entityViewModel = new EntityEditModel(new EntityViewModel(entity), this.OnEditedEntityCommitted, this.OnEntityRollback);
-            this.entities.Value.Add(entityViewModel.ViewModel);
-            this.entities.Value.Commit(onAdd: evm => this.Model.Entities.Upsert(evm.Model));
+            this.Entities.Add(entityViewModel.ViewModel);
             this.EditedEntity = null;
             this.SelectedEntity = entityViewModel.ViewModel;
         }
@@ -180,9 +175,9 @@ namespace Kosmograph.Desktop.ViewModel
 
         private void CreateRelationshipExecuted()
         {
-            this.EditedRelationship = new RelationshipEditModel(
-                new RelationshipViewModel(new Relationship("new relationship")),
-                this.OnCreatedRelationshipCommitted, this.OnRelationshipRollback);
+            //this.EditedRelationship = new RelationshipEditModel(
+            //    new RelationshipViewModel(new Relationship("new relationship")),
+            //    this.OnCreatedRelationshipCommitted, this.OnRelationshipRollback);
         }
 
         public ICommand EditRelationshipCommand { get; }
@@ -202,11 +197,10 @@ namespace Kosmograph.Desktop.ViewModel
 
         private void OnCreatedRelationshipCommitted(Relationship relationship)
         {
-            var relationshipViewModel = new RelationshipViewModel(relationship);
-            this.relationships.Value.Add(relationshipViewModel);
-            this.relationships.Value.Commit(onAdd: rvm => this.Model.Relationships.Upsert(rvm.Model));
-            this.EditedRelationship = null;
-            this.SelectedRelationship = relationshipViewModel;
+            //var relationshipViewModel = new RelationshipViewModel(relationship);
+            //this.Relationships.Add(relationshipViewModel);
+            //this.EditedRelationship = null;
+            //this.SelectedRelationship = relationshipViewModel;
         }
 
         private void OnEditedRelationshipCommitted(Relationship entity)

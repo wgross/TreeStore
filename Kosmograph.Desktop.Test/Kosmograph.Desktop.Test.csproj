@@ -121,7 +121,7 @@
     <Compile Include="ViewModel\KosmographViewModelTest.cs" />
     <Compile Include="EditModel\RelationshipEditModelTest.cs" />
     <Compile Include="ViewModel\ObservableRepositoryTest.cs" />
-    <Compile Include="ViewModel\RelationshipRepositoryViewModel.cs" />
+    <Compile Include="ViewModel\RelationshipRepositoryViewModelTest.cs" />
     <Compile Include="ViewModel\RelationshipViewModelTest.cs" />
     <Compile Include="ViewModel\TagRepositoryViewModelTest.cs" />
     <Compile Include="ViewModel\TagViewModelTest.cs" />
