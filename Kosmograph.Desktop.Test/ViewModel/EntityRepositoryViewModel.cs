@@ -41,92 +41,62 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // ASSERT
 
             Assert.Equal(entity, this.viewModel.Single().Model);
-
-            //Assert.Null(this.viewModel.SelectedEntity);
-            //Assert.Null(this.viewModel.EditedEntity);
+            Assert.Null(this.viewModel.Edited);
         }
 
-        //[Fact]
-        //public void EntityRepositoryViewModel_delays_created_Entity_to_KosmographModel()
-        //{
-        //    // ARRANGE
+        [Fact]
+        public void EntityRepositoryViewModel_delays_created_Entity_to_KosmographModel()
+        {
+            // ACT
 
-        //    var entity = new Entity("e");
-        //    this.model
-        //        .Setup(r => r.FindAll())
-        //        .Returns(entity.Yield());
+            this.viewModel.CreateCommand.Execute(null);
 
-        //    // ACT
+            // ASSERT
 
-        //    this.viewModel.CreateEntityCommand.Execute(null);
+            Assert.Empty(this.viewModel);
+            Assert.Equal("new entity", this.viewModel.Edited.Name);
+        }
 
-        //    // ASSERT
+        [Fact]
+        public void EntityRepositoryViewModel_commits_created_Entity_to_KosmographModel()
+        {
+            // ARRANGE
 
-        //    Assert.Single(this.viewModel.Entities);
-        //    Assert.Equal("new entity", this.viewModel.EditedEntity.Name);
-        //}
+            this.model
+                .Setup(r => r.Upsert(It.IsAny<Entity>()))
+                .Returns<Entity>(e => e);
 
-        //[Fact]
-        //public void EntityRepositoryViewModel_commits_created_Entity_to_KosmographModel()
-        //{
-        //    // ARRANGE
+            // create new entity
+            this.viewModel.CreateCommand.Execute(null);
 
-        //    this.persistence
-        //       .Setup(p => p.Entities)
-        //       .Returns(this.model.Object);
+            // ACT
 
-        //    var entity = new Entity("e");
-        //    this.model
-        //        .Setup(r => r.FindAll())
-        //        .Returns(entity.Yield());
+            this.viewModel.Edited.CommitCommand.Execute(null);
 
-        //    this.model
-        //        .Setup(r => r.Upsert(It.IsAny<Entity>()))
-        //        .Returns<Entity>(e => e);
+            // ASSERT
 
-        //    // create new entity
-        //    this.viewModel.CreateEntityCommand.Execute(null);
+            Assert.Single(this.viewModel);
+            Assert.Equal("new entity", this.viewModel.Single().Name);
+            Assert.Null(this.viewModel.Edited);
+        }
 
-        //    // ACT
+        [Fact]
+        public void EntityRepositoryViewModel_reverts_created_Entity_at_KosmographViewModel()
+        {
+            // ARRANGE
 
-        //    this.viewModel.EditedEntity.CommitCommand.Execute(null);
+            this.viewModel.CreateCommand.Execute(null);
 
-        //    // ASSERT
-        //    // tag is inserted in the list after commit
+            // ACT
 
-        //    Assert.Equal(2, this.viewModel.Entities.Count);
-        //    Assert.Equal("new entity", this.viewModel.Entities.ElementAt(1).Name);
-        //    Assert.Null(this.viewModel.EditedEntity);
-        //    Assert.Equal(this.viewModel.Entities.ElementAt(1), this.viewModel.SelectedEntity);
-        //}
+            this.viewModel.Edited.RollbackCommand.Execute(null);
 
-        //[Fact]
-        //public void EntityRepositoryViewModel_reverts_created_Entity_at_KosmographViewModel()
-        //{
-        //    // ARRANGE
+            // ASSERT
+            // entiy is forgotton
 
-        //    this.persistence
-        //       .Setup(p => p.Entities)
-        //       .Returns(this.model.Object);
-
-        //    var entity = new Entity("e");
-        //    this.model
-        //        .Setup(r => r.FindAll())
-        //        .Returns(entity.Yield());
-
-        //    // create new entity
-        //    this.viewModel.CreateEntityCommand.Execute(null);
-
-        //    // ACT
-
-        //    this.viewModel.EditedEntity.RollbackCommand.Execute(null);
-
-        //    // ASSERT
-        //    // entiy is forgotton
-
-        //    Assert.Single(this.viewModel.Entities);
-        //    Assert.Null(this.viewModel.EditedEntity);
-        //}
+            Assert.Empty(this.viewModel);
+            Assert.Null(this.viewModel.Edited);
+        }
 
         [Fact]
         public void EntityRepositoryViewModel_commits_deleted_Entity_to_Model()

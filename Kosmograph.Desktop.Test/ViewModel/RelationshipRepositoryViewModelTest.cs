@@ -87,13 +87,14 @@ namespace Kosmograph.Desktop.Test.ViewModel
                 .Setup(r => r.Upsert(It.IsAny<Relationship>()))
                 .Returns<Relationship>(r => r);
 
-            //this.viewModel.FillAll()
             this.viewModel.CreateCommand.Execute(null);
 
             // ACT
 
+            this.viewModel.Edited.From = new Entity().ToViewModel();
+            this.viewModel.Edited.To = new Entity().ToViewModel();
             this.viewModel.Edited.CommitCommand.Execute(null);
-
+            
             // ASSERT
 
             Assert.Single(this.viewModel);
