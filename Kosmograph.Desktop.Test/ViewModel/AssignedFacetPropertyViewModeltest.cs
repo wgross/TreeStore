@@ -16,11 +16,11 @@ namespace Kosmograph.Desktop.Test.ViewModel
 
             // ACT
 
-            var result = new AssignedFacetPropertyViewModel(model, new Dictionary<string, object> { { model.Id.ToString(), 1 } });
+            var result = new AssignedFacetPropertyViewModel(model.ToViewModel(), new Dictionary<string, object> { { model.Id.ToString(), 1 } });
 
             // ASSERT
 
-            Assert.Equal("p", result.Name);
+            Assert.Equal("p", result.Property.Name);
             Assert.Equal(1, result.Value);
         }
 
@@ -29,7 +29,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
         {
             var model = new FacetProperty("p");
             var values = new Dictionary<string, object> { { model.Id.ToString(), 1 } };
-            var viewModel = new AssignedFacetPropertyViewModel(model, values);
+            var viewModel = new AssignedFacetPropertyViewModel(model.ToViewModel(), values);
 
             // ACT
             // changing of name is not used.

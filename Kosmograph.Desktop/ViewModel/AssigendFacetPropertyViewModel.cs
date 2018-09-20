@@ -1,25 +1,26 @@
-﻿using Kosmograph.Desktop.ViewModel.Base;
-using Kosmograph.Model;
+﻿using GalaSoft.MvvmLight;
 using System.Collections.Generic;
 
 namespace Kosmograph.Desktop.ViewModel
 {
-    public class AssignedFacetPropertyViewModel : NamedViewModelBase<FacetProperty>
+    public class AssignedFacetPropertyViewModel : ViewModelBase
     {
         private readonly IDictionary<string, object> values;
 
-        public AssignedFacetPropertyViewModel(FacetProperty model, IDictionary<string, object> values)
-            : base(model)
+        public AssignedFacetPropertyViewModel(FacetPropertyViewModel viewModel, IDictionary<string, object> values)
         {
+            this.Property = viewModel;
             this.values = values;
         }
 
+        public FacetPropertyViewModel Property { get; }
+
         public object Value
         {
-            get => this.values.TryGetValue(this.Model.Id.ToString(), out var value) ? value : null;
+            get => this.values.TryGetValue(this.Property.Model.Id.ToString(), out var value) ? value : null;
             set
             {
-                this.values[this.Model.Id.ToString()] = value;
+                this.values[this.Property.Model.Id.ToString()] = value;
                 this.RaisePropertyChanged(nameof(Value));
             }
         }

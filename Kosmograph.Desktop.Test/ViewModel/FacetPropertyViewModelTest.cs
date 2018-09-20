@@ -7,37 +7,37 @@ namespace Kosmograph.Desktop.Test.ViewModel
     public class FacetPropertyViewModelTest
     {
         [Fact]
-        public void FacetPropertyViewModel_mirrors_FacetProperty()
+        public void FacetPropertyViewModel_mirrors_Model()
         {
             // ARRANGE
 
-            var property = new FacetProperty("p1");
+            var model = new FacetProperty("p1");
 
             // ACT
 
-            var result = new FacetPropertyViewModel(property);
+            var result = new FacetPropertyViewModel(model);
 
             // ASSERT
 
             Assert.Equal("p1", result.Name);
-            Assert.Equal(property, result.Model);
+            Assert.Equal(model, result.Model);
         }
 
         [Fact]
-        public void FacetPropertyViewModel_changes_FacetProperty()
+        public void FacetPropertyViewModel_changes_Model()
         {
             // ARRANGE
 
-            var property = new FacetProperty("p1");
-            var viewProperty = new FacetPropertyViewModel(property);
+            var model = new FacetProperty("p1");
+            var viewModel = new FacetPropertyViewModel(model);
 
             // ACT
 
-            viewProperty.Name = "changed";
+            viewModel.Name = "changed";
 
             // ASSERT
 
-            Assert.Equal("changed", property.Name);
+            Assert.Equal("changed", model.Name);
         }
     }
 }

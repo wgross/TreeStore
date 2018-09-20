@@ -33,7 +33,5 @@ namespace Kosmograph.Desktop.ViewModel
                     break;
             }
         }
-
-        public Facet Facet { get; internal set; }
     }
 }

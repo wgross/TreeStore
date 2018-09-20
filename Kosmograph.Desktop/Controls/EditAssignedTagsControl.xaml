@@ -15,7 +15,7 @@
                 <!--
                 diag:PresentationTraceSources.TraceLevel=High"
                 -->
-                <local:EditorSectionHeaderControl Text="{Binding Name, StringFormat={}Properties of {0}}"/>
+                <local:EditorSectionHeaderControl Text="{Binding ViewModel.Tag.Name, StringFormat={}Properties of {0}}"/>
                 <ItemsControl
                     DockPanel.Dock="Top"
                     ItemsSource="{Binding Properties}">
@@ -33,7 +33,7 @@
         
         <DataTemplate DataType="{x:Type kem:AssignedFacetPropertyEditModel}">
             <DockPanel LastChildFill="True">
-                <Label DockPanel.Dock="Left" Content="{Binding Name, Mode=OneTime}" />
+                <Label DockPanel.Dock="Left" Content="{Binding ViewModel.Property.Name}" />
                 <TextBox
                     Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
                     Style="{StaticResource editFacetPropertyValueTexBoxStyle}" />
@@ -44,7 +44,7 @@
                 x:Key="tagsCollectionViewSource" 
                 Source="{Binding Tags}" >
             <CollectionViewSource.SortDescriptions>
-                <scm:SortDescription PropertyName="Name" />
+                <scm:SortDescription PropertyName="Tag.Name" />
             </CollectionViewSource.SortDescriptions>
         </CollectionViewSource>
     </UserControl.Resources>

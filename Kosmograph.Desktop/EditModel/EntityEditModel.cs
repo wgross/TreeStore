@@ -31,7 +31,7 @@ namespace Kosmograph.Desktop.EditModel
 
         private CommitableObservableCollection<AssignedTagEditModel> CreateAssignedTags() => new CommitableObservableCollection<AssignedTagEditModel>(this.ViewModel.Tags.Select(this.CreateAssignedTag));
 
-        private AssignedTagEditModel CreateAssignedTag(TagViewModel tag) => new AssignedTagEditModel(new AssignedTagViewModel(tag.Model, this.ViewModel.Model.Values));
+        private AssignedTagEditModel CreateAssignedTag(TagViewModel tag) => new AssignedTagEditModel(new AssignedTagViewModel(tag, this.ViewModel.Model.Values));
 
         private AssignedTagEditModel CreateAssignedTag(AssignedTagViewModel tag) => new AssignedTagEditModel(tag);
 
@@ -39,7 +39,7 @@ namespace Kosmograph.Desktop.EditModel
 
         #region Assign Tag command
 
-        private bool AssignTagCanExecute(TagViewModel tag) => !this.Tags.Any(tvm => tvm.ViewModel.Model.Equals(tag.Model));
+        private bool AssignTagCanExecute(TagViewModel tag) => !this.Tags.Any(tvm => tvm.ViewModel.Tag.Model.Equals(tag.Model));
 
         private void AssignTagExcuted(TagViewModel tag)
         {

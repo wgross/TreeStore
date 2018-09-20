@@ -1,4 +1,4 @@
-﻿using Kosmograph.Desktop.ViewModel.Base;
+﻿using GalaSoft.MvvmLight;
 using Kosmograph.Model;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -6,16 +6,15 @@ using System.Linq;
 
 namespace Kosmograph.Desktop.ViewModel
 {
-    public class AssignedTagViewModel : NamedViewModelBase<Tag>
+    public class AssignedTagViewModel : ViewModelBase
     {
-        private Tag t;
-
-        public AssignedTagViewModel(Tag model, IDictionary<string, object> values)
-            : base(model)
+        public AssignedTagViewModel(TagViewModel tagViewModel, IDictionary<string, object> values)
         {
-            this.t = model;
-            this.Properties = new ObservableCollection<AssignedFacetPropertyViewModel>(model.Facet.Properties.Select(p => new AssignedFacetPropertyViewModel(p, values)));
+            this.Tag = tagViewModel;
+            this.Properties = new ObservableCollection<AssignedFacetPropertyViewModel>(tagViewModel.Properties.Select(p => new AssignedFacetPropertyViewModel(p, values)));
         }
+
+        public TagViewModel Tag { get; }
 
         public ObservableCollection<AssignedFacetPropertyViewModel> Properties { get; }
     }

@@ -1,4 +1,5 @@
 ﻿using Kosmograph.Desktop.EditModel;
+using Kosmograph.Desktop.Test.ViewModel;
 using Kosmograph.Desktop.ViewModel;
 using Kosmograph.Model;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             var model = new FacetProperty("p");
             var values = new Dictionary<string, object> { { model.Id.ToString(), 1 } };
-            var viewModel = new AssignedFacetPropertyViewModel(model, values);
+            var viewModel = new AssignedFacetPropertyViewModel(model.ToViewModel(), values);
 
             // ACT
 
@@ -23,7 +24,7 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             // ASSERT
 
-            Assert.Equal("p", result.Name);
+            Assert.Equal("p", result.ViewModel.Property.Name);
             Assert.Equal(1, result.Value);
         }
 
@@ -34,7 +35,7 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             var model = new FacetProperty("p");
             var values = new Dictionary<string, object> { { model.Id.ToString(), 1 } };
-            var viewModel = new AssignedFacetPropertyViewModel(model, values);
+            var viewModel = new AssignedFacetPropertyViewModel(model.ToViewModel(), values);
             var editModel = new AssignedFacetPropertyEditModel(viewModel);
 
             // ACT
@@ -54,7 +55,7 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             var model = new FacetProperty("p");
             var values = new Dictionary<string, object> { { model.Id.ToString(), 1 } };
-            var viewModel = new AssignedFacetPropertyViewModel(model, values);
+            var viewModel = new AssignedFacetPropertyViewModel(model.ToViewModel(), values);
             var editModel = new AssignedFacetPropertyEditModel(viewModel);
             editModel.Value = "value";
 
@@ -75,7 +76,7 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             var model = new FacetProperty("p");
             var values = new Dictionary<string, object> { { model.Id.ToString(), 1 } };
-            var viewModel = new AssignedFacetPropertyViewModel(model, values);
+            var viewModel = new AssignedFacetPropertyViewModel(model.ToViewModel(), values);
             var editModel = new AssignedFacetPropertyEditModel(viewModel);
             editModel.Value = "value";
 

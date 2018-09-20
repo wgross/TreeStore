@@ -14,6 +14,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // ARRANGE
 
             var model = new Tag("t", new Facet("f", new FacetProperty("p")));
+            var tagViewModel = new TagViewModel(model);
             var values = new Dictionary<string, object>
             {
                 { model.Facet.Properties.Single().Id.ToString(), 1 }
@@ -21,12 +22,35 @@ namespace Kosmograph.Desktop.Test.ViewModel
 
             // ACT
 
-            var viewModel = new AssignedTagViewModel(model, values);
+            var result = new AssignedTagViewModel(tagViewModel, values);
 
             // ASSERT
 
-            Assert.Equal("t", viewModel.Name);
-            Assert.Equal(1, viewModel.Properties.Single().Value);
+            Assert.Equal(model, result.Tag.Model);
+            Assert.Equal(1, result.Properties.Single().Value);
+        }
+
+        [Fact]
+        public void AssignedTagViewModel_changes_Model()
+        {
+            // ARRANGE
+
+            var model = new Tag("t", new Facet("f", new FacetProperty("p")));
+            var tagViewModel = new TagViewModel(model);
+            var values = new Dictionary<string, object>
+            {
+                { model.Facet.Properties.Single().Id.ToString(), 1 }
+            };
+            var viewModel = new AssignedTagViewModel(tagViewModel, values);
+
+            // ACT
+
+            viewModel.Properties.Single().Value = "changed";
+
+            // ASSERT
+
+            Assert.Equal(model, viewModel.Tag.Model);
+            Assert.Equal("changed", values[model.Facet.Properties.Single().Id.ToString()]);
         }
     }
 }

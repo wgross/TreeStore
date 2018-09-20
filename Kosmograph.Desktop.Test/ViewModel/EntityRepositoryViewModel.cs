@@ -16,7 +16,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
         public EntityRepositoryViewModelTest()
         {
             this.model = this.mocks.Create<IEntityRepository>();
-            this.viewModel = new EntityRepositoryViewModel(this.model.Object);
+            this.viewModel = new EntityRepositoryViewModel(this.model.Object, t => new TagViewModel(t));
         }
 
         public void Dispose()

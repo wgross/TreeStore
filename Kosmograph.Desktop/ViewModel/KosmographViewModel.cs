@@ -14,8 +14,8 @@ namespace Kosmograph.Desktop.ViewModel
         {
             this.model = kosmographModel;
             this.Tags = new TagRepositoryViewModel(this.model.Tags);
-            this.Entities = new EntityRepositoryViewModel(this.model.Entities);
-            this.Relationships = new RelationshipRepositoryViewModel(this.model.Relationships, this.Entities.GetViewModel);
+            this.Entities = new EntityRepositoryViewModel(this.model.Entities, this.Tags.GetViewModel);
+            this.Relationships = new RelationshipRepositoryViewModel(this.model.Relationships, this.Entities.GetViewModel, this.Tags.GetViewModel);
 
             this.CreateTagCommand = new RelayCommand(this.CreateTagExecuted);
             this.EditTagCommand = new RelayCommand<TagViewModel>(this.EditTagExecuted);

@@ -112,24 +112,30 @@ namespace Kosmograph.Desktop.ViewModel
 
     public class EntityRepositoryViewModel : RepositoryViewModel<EntityViewModel, Entity>
     {
-        public EntityRepositoryViewModel(IEntityRepository model)
-            : base(model, m => new EntityViewModel(m))
+        public EntityRepositoryViewModel(IEntityRepository model, Func<Tag, TagViewModel> newTagViewModel)
+            : base(model, m => NewViewModel(m, newTagViewModel))
         {
+        }
+
+        private static EntityViewModel NewViewModel(Entity model, Func<Tag, TagViewModel> newTagViewModel)
+        {
+            return new EntityViewModel(model, model.Tags.Select(newTagViewModel).ToArray());
         }
     }
 
     public class RelationshipRepositoryViewModel : RepositoryViewModel<RelationshipViewModel, Relationship>
     {
-        public RelationshipRepositoryViewModel(IRelationshipRepository model, Func<Entity, EntityViewModel> newEntityViewModel)
-            : base(model, m => NewViewModel(m, newEntityViewModel))
+        public RelationshipRepositoryViewModel(IRelationshipRepository model, Func<Entity, EntityViewModel> newEntityViewModel, Func<Tag, TagViewModel> newTagViewModel)
+            : base(model, m => NewViewModel(m, newEntityViewModel, newTagViewModel))
         {
         }
 
-        private static RelationshipViewModel NewViewModel(Relationship model, Func<Entity, EntityViewModel> newEntityViewModel)
+        private static RelationshipViewModel NewViewModel(Relationship model, Func<Entity, EntityViewModel> newEntityViewModel, Func<Tag, TagViewModel> newTagViewModel)
         {
             return new RelationshipViewModel(model,
                 model.To is null ? null : newEntityViewModel(model.To),
-                model.From is null ? null : newEntityViewModel(model.From));
+                model.From is null ? null : newEntityViewModel(model.From),
+                model.Tags.Select(newTagViewModel).ToArray());
         }
     }
 }

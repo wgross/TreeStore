@@ -1,4 +1,5 @@
 ﻿using Kosmograph.Desktop.EditModel;
+using Kosmograph.Desktop.Test.ViewModel;
 using Kosmograph.Desktop.ViewModel;
 using Kosmograph.Model;
 using System;
@@ -24,7 +25,7 @@ namespace Kosmograph.Desktop.Test.EditModel
             var model = new Entity("entity", new Tag("tag1", new Facet("f", new FacetProperty("p1"))));
             model.SetFacetProperty(model.Tags.Single().Facet.Properties.Single(), 1);
 
-            var viewModel = new EntityViewModel(model);
+            var viewModel = new EntityViewModel(model, model.Tags.Single().ToViewModel());
 
             // ACT
 
@@ -33,8 +34,8 @@ namespace Kosmograph.Desktop.Test.EditModel
             // ASSERT
 
             Assert.Equal("entity", editModel.Name);
-            Assert.Equal("tag1", editModel.Tags.ElementAt(0).Name);
-            Assert.Equal("p1", editModel.Tags.ElementAt(0).Properties.Single().Name);
+            Assert.Equal("tag1", editModel.Tags.ElementAt(0).ViewModel.Tag.Name);
+            Assert.Equal("p1", editModel.Tags.ElementAt(0).Properties.Single().ViewModel.Property.Name);
             Assert.Equal(1, editModel.Tags.ElementAt(0).Properties.Single().Value);
         }
 
@@ -46,18 +47,23 @@ namespace Kosmograph.Desktop.Test.EditModel
             var model = new Entity("entity", new Tag("tag1", new Facet("f", new FacetProperty("p1"))));
             model.SetFacetProperty(model.Tags.Single().Facet.Properties.Single(), 1);
 
-            var viewModel = new EntityViewModel(model);
+            var viewModel = new EntityViewModel(model, model.Tags.Single().ToViewModel());
             var editModel = new EntityEditModel(viewModel, delegate { }, delegate { });
 
             // ACT
 
             editModel.Name = "changed";
+            editModel.Tags.Single().Properties.Single().Value = "changed";
 
             // ASSERT
 
             Assert.Equal("changed", editModel.Name);
             Assert.Equal("entity", viewModel.Name);
             Assert.Equal("entity", model.Name);
+
+            Assert.Equal("changed", editModel.Tags.Single().Properties.Single().Value);
+            Assert.Equal(1, viewModel.Tags.Single().Properties.Single().Value);
+            Assert.Equal(1, model.Values[model.Tags.Single().Facet.Properties.Single().Id.ToString()]);
         }
 
         [Fact]
@@ -68,7 +74,7 @@ namespace Kosmograph.Desktop.Test.EditModel
             var model = new Entity("entity", new Tag("tag1", new Facet("f", new FacetProperty("p1"))));
             model.SetFacetProperty(model.Tags.Single().Facet.Properties.Single(), 1);
 
-            var viewModel = new EntityViewModel(model);
+            var viewModel = new EntityViewModel(model, model.Tags.Single().ToViewModel());
 
             Entity committed = null;
             var commitCB = new Action<Entity>(e => committed = e);
@@ -79,6 +85,7 @@ namespace Kosmograph.Desktop.Test.EditModel
             var editModel = new EntityEditModel(viewModel, commitCB, revertCB);
 
             editModel.Name = "changed";
+            editModel.Tags.Single().Properties.Single().Value = "changed";
 
             // ACT
 
@@ -92,6 +99,10 @@ namespace Kosmograph.Desktop.Test.EditModel
             Assert.Equal("changed", editModel.Name);
             Assert.Equal("changed", viewModel.Name);
             Assert.Equal("changed", model.Name);
+
+            Assert.Equal("changed", editModel.Tags.Single().Properties.Single().Value);
+            Assert.Equal("changed", viewModel.Tags.Single().Properties.Single().Value);
+            Assert.Equal("changed", model.Values[model.Tags.Single().Facet.Properties.Single().Id.ToString()]);
         }
 
         [Fact]
@@ -102,7 +113,7 @@ namespace Kosmograph.Desktop.Test.EditModel
             var model = new Entity("entity", new Tag("tag1", new Facet("f", new FacetProperty("p1"))));
             model.SetFacetProperty(model.Tags.Single().Facet.Properties.Single(), 1);
 
-            var viewModel = new EntityViewModel(model);
+            var viewModel = new EntityViewModel(model, model.Tags.Single().ToViewModel());
 
             Entity reverted = null;
             var revertCB = new Action<Entity>(e => reverted = e);
@@ -110,6 +121,7 @@ namespace Kosmograph.Desktop.Test.EditModel
             var editModel = new EntityEditModel(viewModel, delegate { }, revertCB);
 
             editModel.Name = "changed";
+            editModel.Tags.Single().Properties.Single().Value = "changed";
 
             // ACT
 
@@ -123,6 +135,10 @@ namespace Kosmograph.Desktop.Test.EditModel
             Assert.Equal("entity", editModel.Name);
             Assert.Equal("entity", viewModel.Name);
             Assert.Equal("entity", model.Name);
+
+            Assert.Equal(1, editModel.Tags.Single().Properties.Single().Value);
+            Assert.Equal(1, viewModel.Tags.Single().Properties.Single().Value);
+            Assert.Equal(1, model.Values[model.Tags.Single().Facet.Properties.Single().Id.ToString()]);
         }
 
         [Fact]
@@ -132,9 +148,7 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             var tagViewModel = new TagViewModel(new Tag("t2", Facet.Empty));
 
-            var model = new Entity("entity", new Tag("tag1", new Facet("f", new FacetProperty("p1"))));
-            model.SetFacetProperty(model.Tags.Single().Facet.Properties.Single(), 1);
-
+            var model = new Entity("entity");
             var viewModel = new EntityViewModel(model);
             var editModel = new EntityEditModel(viewModel, delegate { }, delegate { });
 
@@ -144,9 +158,9 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             // ASSERT
 
-            Assert.Equal(2, editModel.Tags.Count());
-            Assert.Single(viewModel.Tags);
-            Assert.Single(model.Tags);
+            Assert.Single(editModel.Tags);
+            Assert.Empty(viewModel.Tags);
+            Assert.Empty(model.Tags);
         }
 
         [Fact]
@@ -156,9 +170,7 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             var tagViewModel = new TagViewModel(new Tag("t2", Facet.Empty));
 
-            var model = new Entity("entity", new Tag("tag1", new Facet("f", new FacetProperty("p1"))));
-            model.SetFacetProperty(model.Tags.Single().Facet.Properties.Single(), 1);
-
+            var model = new Entity("entity");
             var viewModel = new EntityViewModel(model);
 
             Entity committed = null;
@@ -180,9 +192,9 @@ namespace Kosmograph.Desktop.Test.EditModel
             Assert.Equal(model, committed);
             Assert.Null(reverted);
 
-            Assert.Equal(2, editModel.Tags.Count());
-            Assert.Equal(2, viewModel.Tags.Count());
-            Assert.Equal(2, model.Tags.Count());
+            Assert.Single(editModel.Tags);
+            Assert.Single(viewModel.Tags);
+            Assert.Single(model.Tags);
         }
 
         [Fact]
@@ -192,9 +204,7 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             var tagViewModel = new TagViewModel(new Tag("t2", Facet.Empty));
 
-            var model = new Entity("entity", new Tag("tag1", new Facet("f", new FacetProperty("p1"))));
-            model.SetFacetProperty(model.Tags.Single().Facet.Properties.Single(), 1);
-
+            var model = new Entity("entity");
             var viewModel = new EntityViewModel(model);
 
             Entity reverted = null;
@@ -213,9 +223,9 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             Assert.Equal(model, reverted);
 
-            Assert.Single(editModel.Tags);
-            Assert.Single(viewModel.Tags);
-            Assert.Single(model.Tags);
+            Assert.Empty(editModel.Tags);
+            Assert.Empty(viewModel.Tags);
+            Assert.Empty(model.Tags);
         }
 
         [Fact]
@@ -224,10 +234,7 @@ namespace Kosmograph.Desktop.Test.EditModel
             // ARRANGE
 
             var model = new Entity("entity", new Tag("tag1", new Facet("f", new FacetProperty("p1"))));
-            model.SetFacetProperty(model.Tags.Single().Facet.Properties.Single(), 1);
-
-            var viewModel = new EntityViewModel(model);
-
+            var viewModel = new EntityViewModel(model, model.Tags.Single().ToViewModel());
             var editModel = new EntityEditModel(viewModel, delegate { }, delegate { });
 
             // ACT
@@ -247,9 +254,7 @@ namespace Kosmograph.Desktop.Test.EditModel
             // ARRANGE
 
             var model = new Entity("entity", new Tag("tag1", new Facet("f", new FacetProperty("p1"))));
-            model.SetFacetProperty(model.Tags.Single().Facet.Properties.Single(), 1);
-
-            var viewModel = new EntityViewModel(model);
+            var viewModel = new EntityViewModel(model, model.Tags.Single().ToViewModel());
 
             Entity committed = null;
             var commitCB = new Action<Entity>(e => committed = e);
@@ -283,7 +288,7 @@ namespace Kosmograph.Desktop.Test.EditModel
             var model = new Entity("entity", new Tag("tag1", new Facet("f", new FacetProperty("p1"))));
             model.SetFacetProperty(model.Tags.Single().Facet.Properties.Single(), 1);
 
-            var viewModel = new EntityViewModel(model);
+            var viewModel = new EntityViewModel(model, model.Tags.Single().ToViewModel());
 
             Entity reverted = null;
             var revertCB = new Action<Entity>(e => reverted = e);
@@ -313,7 +318,7 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             var tag1 = new Tag("tag1", new Facet("f", new FacetProperty("p1")));
             var model = new Entity("entity", tag1);
-            var viewModel = new EntityViewModel(model);
+            var viewModel = new EntityViewModel(model, model.Tags.Single().ToViewModel());
             var editModel = new EntityEditModel(viewModel, delegate { }, delegate { });
 
             // ACT
@@ -324,6 +329,7 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             Assert.False(result);
             Assert.Single(editModel.Tags);
+            Assert.Single(model.Tags);
         }
     }
 }
