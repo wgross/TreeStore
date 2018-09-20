@@ -28,7 +28,11 @@ namespace Kosmograph.Desktop.EditModel
         public EntityViewModel From
         {
             get => this.from;
-            set => this.Set(nameof(From), ref this.from, value);
+            set
+            {
+                if (this.Set(nameof(From), ref this.from, value))
+                    this.CommitCommand.RaiseCanExecuteChanged();
+            }
         }
 
         private EntityViewModel from;
@@ -36,7 +40,11 @@ namespace Kosmograph.Desktop.EditModel
         public EntityViewModel To
         {
             get => this.to;
-            set => this.Set(nameof(To), ref this.to, value);
+            set
+            {
+                if (this.Set(nameof(To), ref this.to, value))
+                    this.CommitCommand.RaiseCanExecuteChanged();
+            }
         }
 
         private EntityViewModel to;
@@ -90,6 +98,8 @@ namespace Kosmograph.Desktop.EditModel
             base.Commit();
             this.onRelationshipCommitted(this.ViewModel.Model);
         }
+
+        protected override bool CanCommit() => !(this.From is null || this.To is null);
 
         private void CommitRemovedTag(AssignedTagEditModel tag)
         {

@@ -31,6 +31,6 @@ namespace Kosmograph.Desktop.Controls
             //}
         }
 
-        private void relationshipsListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e) => this.ViewModel.EditRelationshipCommand.Execute(this.ViewModel.SelectedRelationship);
+        private void relationshipsListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e) => this.ViewModel.Relationships.EditCommand.Execute(this.relationshipsListBox.SelectedItem);
     }
 }

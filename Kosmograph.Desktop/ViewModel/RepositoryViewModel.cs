@@ -1,5 +1,6 @@
 ﻿using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
+using Kosmograph.Desktop.EditModel;
 using Kosmograph.Desktop.ViewModel.Base;
 using Kosmograph.Model;
 using Kosmograph.Model.Base;
@@ -7,7 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
+using System.Windows.Input;
 
 namespace Kosmograph.Desktop.ViewModel
 {
@@ -128,9 +131,63 @@ namespace Kosmograph.Desktop.ViewModel
         public RelationshipRepositoryViewModel(IRelationshipRepository model, Func<Entity, EntityViewModel> newEntityViewModel, Func<Tag, TagViewModel> newTagViewModel)
             : base(model, m => NewViewModel(m, newEntityViewModel, newTagViewModel))
         {
+            this.CreateCommand = new RelayCommand(this.CreateExecuted);
+            this.EditCommand = new RelayCommand<RelationshipViewModel>(this.EditExecuted);
         }
 
+        public ICommand CreateCommand { get; set; }
+
+        public ICommand EditCommand { get; set; }
+
+        #region Create relationship
+
+        private void CreateExecuted()
+        {
+            this.Edited = new RelationshipEditModel(this.CreateViewModel(new Relationship("new relationship", from: null, to: null)),
+                this.OnCreateCommitted, this.OnRollBack);
+        }
+
+        private void OnRollBack(Relationship obj)
+        {
+            this.Edited = null;
+        }
+
+        private void OnCreateCommitted(Relationship relationship)
+        {
+            this.Add(CreateViewModel(relationship));
+            this.Edited = null;
+        }
+
+        public RelationshipEditModel Edited
+        {
+            get => this.edited;
+            private set
+            {
+                this.edited = value;
+                this.OnPropertyChanged(new PropertyChangedEventArgs(nameof(Edited)));
+            }
+        }
+
+        private RelationshipEditModel edited;
+
+        #endregion Create relationship
+
+        #region Edit Relationship
+
+        private void EditExecuted(RelationshipViewModel viewModel)
+        {
+            this.Edited = new RelationshipEditModel(viewModel, this.OnEditCommitted, this.OnRollBack);
+        }
+
+        private void OnEditCommitted(Relationship relationship)
+        {
+            this.Edited = null;
+        }
+
+        #endregion Edit Relationship
+
         private static RelationshipViewModel NewViewModel(Relationship model, Func<Entity, EntityViewModel> newEntityViewModel, Func<Tag, TagViewModel> newTagViewModel)
+
         {
             return new RelationshipViewModel(model,
                 model.To is null ? null : newEntityViewModel(model.To),

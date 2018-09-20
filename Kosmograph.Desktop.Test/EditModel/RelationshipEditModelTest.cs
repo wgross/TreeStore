@@ -137,6 +137,32 @@ namespace Kosmograph.Desktop.Test.EditModel
         }
 
         [Fact]
+        public void RelationshipEditModel_cant_commit_with_a_null_entity()
+        {
+            // ARRANGE
+
+            var entity1 = new EntityViewModel(new Entity());
+            var entity2 = new EntityViewModel(new Entity());
+            var model = new Relationship("r", new Entity(), new Entity(), new Tag());
+            var viewModel = new RelationshipViewModel(model, new EntityViewModel(model.From), new EntityViewModel(model.To));
+
+            Relationship reverted = null;
+            var revertCB = new Action<Relationship>(r => reverted = r);
+
+            var editModel = new RelationshipEditModel(viewModel, delegate { }, revertCB);
+
+            editModel.To = null;
+
+            // ACT
+
+            var result = editModel.CommitCommand.CanExecute(null);
+
+            // ASSERT
+
+            Assert.False(result);
+        }
+
+        [Fact]
         public void RelationshipEditModel_delays_adding_Tag_at_ViewModel()
         {
             // ARRANGE

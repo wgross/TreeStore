@@ -30,7 +30,7 @@
                     Property="Visibility"
                     Value="Hidden" />
             <Style.Triggers>
-                <DataTrigger Binding="{Binding EditedRelationship}" Value="{x:Null}">
+                <DataTrigger Binding="{Binding Relationships.Edited}" Value="{x:Null}">
                     <Setter Property="Visibility" Value="Visible" />
                 </DataTrigger>
             </Style.Triggers>
@@ -47,10 +47,10 @@
                 FontWeight="Bold" />
             <Button DockPanel.Dock="Right" 
                 Style="{StaticResource addButtonInHeaderStyle}"
-                Command="{Binding CreateRelationshipCommand}"/>
+                Command="{Binding Relationships.CreateCommand}"/>
         </DockPanel>
         <ListBox
-            Name="tagListBox"
+            Name="relationshipsListBox"
             Panel.ZIndex="0"
             Style="{StaticResource modelItemListBoxStyle}"
             ItemsSource="{Binding Source={StaticResource relationshipsCollectionViewSource}}"
@@ -66,7 +66,7 @@
             </ListBox.ItemTemplate>
             <ListBox.InputBindings>
                 <KeyBinding Key="Return"
-                                        Command="{Binding EditRelationshipCommand}"
+                                        Command="{Binding Relationships.EditCommand}"
                                         CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
                 <KeyBinding Key="Delete"
                                 Command="{Binding Relationships.DeleteCommand}"

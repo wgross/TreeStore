@@ -65,64 +65,60 @@ namespace Kosmograph.Desktop.Test.ViewModel
             Assert.Equal(relationship.To, result.To.Model);
         }
 
-        //[Fact]
-        //public void KosmographViewModel_delays_created_Relationship_to_KosmographModel()
-        //{
-        //    // ARRANGE
+        [Fact]
+        public void RelationshipRepositoryViewModel_delays_created_Relationship_to_KosmographModel()
+        {
+            // ACT
 
-        //    this.persistence
-        //      .Setup(p => p.Relationships)
-        //      .Returns(this.relationshipRepository.Object);
+            this.viewModel.CreateCommand.Execute(null);
 
-        //    var relationship = new Relationship("r");
-        //    this.relationshipRepository
-        //        .Setup(r => r.FindAll())
-        //        .Returns(relationship.Yield());
+            // ASSERT
 
-        //    // ACT
-
-        //    this.viewModel.CreateRelationshipCommand.Execute(null);
-
-        //    // ASSERT
-
-        //    Assert.Single(this.viewModel.Relationships);
-        //    Assert.Equal("new relationship", this.viewModel.EditedRelationship.Name);
-        //}
-
-        //[Fact]
-        //public void KosmographViewModel_commits_created_Relationship_to_KosmographModel()
-        //{
-        //    // ARRANGE
-
-        //    this.persistence
-        //      .Setup(p => p.Relationships)
-        //      .Returns(this.relationshipRepository.Object);
-
-        //    var relationship = new Relationship("r", new Entity(), new Entity());
-        //    this.relationshipRepository
-        //        .Setup(r => r.FindAll())
-        //        .Returns(relationship.Yield());
-
-        //    this.relationshipRepository
-        //        .Setup(r => r.Upsert(It.IsAny<Relationship>()))
-        //        .Returns<Relationship>(r => r);
-
-        //    this.viewModel.CreateRelationshipCommand.Execute(null);
-
-        //    // ACT
-
-        //    this.viewModel.EditedRelationship.CommitCommand.Execute(null);
-
-        //    // ASSERT
-
-        //    Assert.Equal(2, this.viewModel.Relationships.Count);
-        //    Assert.Null(this.viewModel.EditedRelationship);
-        //    Assert.Equal("new relationship", this.viewModel.Relationships.ElementAt(1).Name);
-        //    Assert.Equal(this.viewModel.Relationships.ElementAt(1), this.viewModel.SelectedRelationship);
-        //}
+            Assert.Empty(this.viewModel);
+            Assert.Equal("new relationship", this.viewModel.Edited.Name);
+        }
 
         [Fact]
-        public void RelationshipRepositoryViewModel_deleted_Relationship_at_Model()
+        public void RelationshipRepositoryViewModel_commits_created_Relationship_to_KosmographModel()
+        {
+            // ARRANGE
+
+            this.model
+                .Setup(r => r.Upsert(It.IsAny<Relationship>()))
+                .Returns<Relationship>(r => r);
+
+            //this.viewModel.FillAll()
+            this.viewModel.CreateCommand.Execute(null);
+
+            // ACT
+
+            this.viewModel.Edited.CommitCommand.Execute(null);
+
+            // ASSERT
+
+            Assert.Single(this.viewModel);
+            Assert.Null(this.viewModel.Edited);
+        }
+
+        [Fact]
+        public void RelationshipRepositoryViewModel_reverts_created_Relationship_to_KosmographModel()
+        {
+            // ARRANGE
+
+            this.viewModel.CreateCommand.Execute(null);
+
+            // ACT
+
+            this.viewModel.Edited.RollbackCommand.Execute(null);
+
+            // ASSERT
+
+            Assert.Empty(this.viewModel);
+            Assert.Null(this.viewModel.Edited);
+        }
+
+        [Fact]
+        public void RelationshipRepositoryViewModel_deletes_Relationship_from_Model()
         {
             // ARRANGE
 
@@ -144,8 +140,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // ASSERT
 
             Assert.Empty(this.viewModel);
-            //Assert.Null(this.viewModel.SelectedRelationship);
-            //Assert.Null(this.viewModel.EditedRelationship);
+            Assert.Null(this.viewModel.Edited);
         }
     }
 }
