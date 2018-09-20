@@ -10,6 +10,12 @@
         <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
 
+    <Style x:Key="negativeEditButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource editButtonStyle}">
+        <Setter Property="MinWidth" Value="50"/>
+        <Setter Property="Background" Value="#FFFBB0B0"/>
+    </Style>
+
+    
     <Path x:Key="plusPath"
         Width="10"
         Height="10"

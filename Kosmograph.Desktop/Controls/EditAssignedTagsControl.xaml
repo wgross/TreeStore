@@ -9,47 +9,66 @@
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="./CommonResources.xaml" />
+            </ResourceDictionary.MergedDictionaries>
 
-        <DataTemplate DataType="{x:Type kem:AssignedTagEditModel}">
-            <StackPanel Orientation="Vertical">
-                <!--
-                diag:PresentationTraceSources.TraceLevel=High"
-                -->
-                <local:EditorSectionHeaderControl Text="{Binding ViewModel.Tag.Name, StringFormat={}Properties of {0}}"/>
-                <ItemsControl
-                    DockPanel.Dock="Top"
-                    ItemsSource="{Binding Properties}">
-                </ItemsControl>
-            </StackPanel>
-        </DataTemplate>
+            <DataTemplate DataType="{x:Type kem:AssignedTagEditModel}">
+                <StackPanel Orientation="Vertical">
+                    <!--
+                    diag:PresentationTraceSources.TraceLevel=High"
+                    -->
+                    <DockPanel LastChildFill="false"
+                        Margin="0,5,0,5">
+                        <local:EditorSectionHeaderControl DockPanel.Dock="Left"
+                            Text="{Binding ViewModel.Tag.Name, StringFormat={}Properties of {0}}" />
 
-        <Style x:Key="editFacetPropertyValueTexBoxStyle" TargetType="{x:Type TextBox}">
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="FocusManager.FocusedElement" Value="{Binding RelativeSource={RelativeSource Self}}" />
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-        
-        <DataTemplate DataType="{x:Type kem:AssignedFacetPropertyEditModel}">
-            <DockPanel LastChildFill="True">
-                <Label DockPanel.Dock="Left" Content="{Binding ViewModel.Property.Name}" />
-                <TextBox
-                    Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
-                    Style="{StaticResource editFacetPropertyValueTexBoxStyle}" />
-            </DockPanel>
-        </DataTemplate>
+                        <Button
+                            DockPanel.Dock="Right"
+                            Style="{StaticResource negativeEditButtonStyle}"
+                            Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ItemsControl}}, Path=DataContext.RemoveTagCommand}"
+                            CommandParameter="{Binding}">
+                            <TextBlock
+                                Text="{Binding ViewModel.Tag.Name, StringFormat={}remove {0}}" />
+                        </Button>
+                    </DockPanel>
 
-        <CollectionViewSource
-                x:Key="tagsCollectionViewSource" 
-                Source="{Binding Tags}" >
-            <CollectionViewSource.SortDescriptions>
-                <scm:SortDescription PropertyName="Tag.Name" />
-            </CollectionViewSource.SortDescriptions>
-        </CollectionViewSource>
+                    <ItemsControl
+                        DockPanel.Dock="Top"
+                        ItemsSource="{Binding Properties}">
+                    </ItemsControl>
+                </StackPanel>
+            </DataTemplate>
+
+            <Style x:Key="editFacetPropertyValueTexBoxStyle" TargetType="{x:Type TextBox}">
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="FocusManager.FocusedElement" Value="{Binding RelativeSource={RelativeSource Self}}" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
+            <DataTemplate DataType="{x:Type kem:AssignedFacetPropertyEditModel}">
+                <DockPanel LastChildFill="True">
+                    <Label DockPanel.Dock="Left" Content="{Binding ViewModel.Property.Name}" />
+                    <TextBox
+                        Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                        Style="{StaticResource editFacetPropertyValueTexBoxStyle}" />
+                </DockPanel>
+            </DataTemplate>
+
+            <CollectionViewSource
+                    x:Key="tagsCollectionViewSource"
+                    Source="{Binding Tags}">
+                <CollectionViewSource.SortDescriptions>
+                    <scm:SortDescription PropertyName="ViewModel.Tag.Name" />
+                </CollectionViewSource.SortDescriptions>
+            </CollectionViewSource>
+        </ResourceDictionary>
     </UserControl.Resources>
 
-    <ItemsControl        
+    <ItemsControl
             Name="assignedTagsItemsControl"
             ItemsSource="{Binding Source={StaticResource tagsCollectionViewSource}}">
     </ItemsControl>
