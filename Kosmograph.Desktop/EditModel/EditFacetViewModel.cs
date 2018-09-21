@@ -1,20 +1,14 @@
 ﻿using GalaSoft.MvvmLight.Command;
+using Kosmograph.Desktop.EditModel.Base;
+using Kosmograph.Desktop.ViewModel;
 using Kosmograph.Model;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Windows.Input;
 
-namespace Kosmograph.Desktop.ViewModel
+namespace Kosmograph.Desktop.EditModel
 {
-    public class EditFacetPropertyViewModel : EditNamedViewModelBase<FacetProperty>
-    {
-        public EditFacetPropertyViewModel(FacetProperty property)
-            : base(property)
-        {
-        }
-    }
-
     public class EditFacetViewModel : EditNamedViewModelBase<Facet>
     {
         #region Construction and Initialization of this instance
@@ -24,11 +18,12 @@ namespace Kosmograph.Desktop.ViewModel
         public EditFacetViewModel(Facet facet)
             : base(facet)
         {
-            this.Properties = new CommitableObservableCollection<EditFacetPropertyViewModel>(this.Model.Properties.Select(p => new EditFacetPropertyViewModel(p)));
+            this.Properties = new CommitableObservableCollection<FacetPropertyEditModel>(
+                this.Model.Properties.Select(p => new FacetPropertyEditModel(new FacetPropertyViewModel(p))));
             this.Properties.CollectionChanged += this.Properties_CollectionChanged;
             this.propertiesChanges = new List<(NotifyCollectionChangedAction, FacetProperty)>();
             this.CreatePropertyCommand = new RelayCommand<string>(this.CreatePropertyExecuted);
-            this.RemovePropertyCommand = new RelayCommand<EditFacetPropertyViewModel>(this.RemovePropertyExecuted);
+            this.RemovePropertyCommand = new RelayCommand<FacetPropertyEditModel>(this.RemovePropertyExecuted);
         }
 
         #endregion Construction and Initialization of this instance
@@ -40,16 +35,16 @@ namespace Kosmograph.Desktop.ViewModel
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
-                    this.propertiesChanges.AddRange(e.NewItems.OfType<EditFacetPropertyViewModel>().Select(fp => (NotifyCollectionChangedAction.Add, fp.Model)));
+                    this.propertiesChanges.AddRange(e.NewItems.OfType<FacetPropertyEditModel>().Select(fp => (NotifyCollectionChangedAction.Add, fp.ViewModel.Model)));
                     break;
 
                 case NotifyCollectionChangedAction.Remove:
-                    this.propertiesChanges.AddRange(e.OldItems.OfType<EditFacetPropertyViewModel>().Select(fp => (NotifyCollectionChangedAction.Remove, fp.Model)));
+                    this.propertiesChanges.AddRange(e.OldItems.OfType<FacetPropertyEditModel>().Select(fp => (NotifyCollectionChangedAction.Remove, fp.ViewModel.Model)));
                     break;
             }
         }
 
-        public CommitableObservableCollection<EditFacetPropertyViewModel> Properties { get; }
+        public CommitableObservableCollection<FacetPropertyEditModel> Properties { get; }
 
         #endregion Facet has observable collection of facet properties
 
@@ -64,9 +59,9 @@ namespace Kosmograph.Desktop.ViewModel
             base.Commit();
         }
 
-        private void OnAddProperty(EditFacetPropertyViewModel property) => this.Model.Properties.Add(property.Model);
+        private void OnAddProperty(FacetPropertyEditModel property) => this.Model.Properties.Add(property.ViewModel.Model);
 
-        private void OnRemoveProperty(EditFacetPropertyViewModel property) => this.Model.Properties.Remove(property.Model);
+        private void OnRemoveProperty(FacetPropertyEditModel property) => this.Model.Properties.Remove(property.ViewModel.Model);
 
         #endregion Commit changes to underlying Facet
 
@@ -87,12 +82,12 @@ namespace Kosmograph.Desktop.ViewModel
 
         private void CreatePropertyExecuted(string name)
         {
-            this.Properties.Add(new EditFacetPropertyViewModel(new FacetProperty(name ?? string.Empty)));
+            this.Properties.Add(new FacetPropertyEditModel(new FacetPropertyViewModel(new FacetProperty(name ?? string.Empty))));
         }
 
         public ICommand CreatePropertyCommand { get; }
 
-        private void RemovePropertyExecuted(EditFacetPropertyViewModel property)
+        private void RemovePropertyExecuted(FacetPropertyEditModel property)
         {
             this.Properties.Remove(property);
         }

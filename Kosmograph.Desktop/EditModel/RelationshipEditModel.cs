@@ -1,32 +1,38 @@
 ﻿using GalaSoft.MvvmLight.Command;
+using Kosmograph.Desktop.EditModel.Base;
+using Kosmograph.Desktop.ViewModel;
 using Kosmograph.Model;
 using System;
 using System.Linq;
 using System.Windows.Input;
 
-namespace Kosmograph.Desktop.ViewModel
+namespace Kosmograph.Desktop.EditModel
 {
     public class RelationshipEditModel : NamedEditModelBase<RelationshipViewModel, Relationship>
     {
         private readonly Action<Relationship> onRelationshipCommitted;
-        private readonly Action<Relationship> onRelationshipRolledback;
+        private readonly Action<Relationship> onRelationshipRollback;
 
-        public RelationshipEditModel(RelationshipViewModel viewModel, Action<Relationship> onRelationshipCommitted, Action<Relationship> onRelatioshipRolledback)
+        public RelationshipEditModel(RelationshipViewModel viewModel, Action<Relationship> onRelationshipCommitted, Action<Relationship> onRelationshipRollback)
             : base(viewModel)
         {
             this.From = viewModel.From;
             this.To = viewModel.To;
             this.tags = new Lazy<CommitableObservableCollection<AssignedTagEditModel>>(() => this.CreateAssignedTags());
-            this.AssignTagCommand = new RelayCommand<Tag>(this.AssignTagExcuted, this.AssignTagCanExecute);
+            this.AssignTagCommand = new RelayCommand<TagViewModel>(this.AssignTagExcuted, this.AssignTagCanExecute);
             this.RemoveTagCommand = new RelayCommand<AssignedTagEditModel>(this.RemoveTagExecuted);
             this.onRelationshipCommitted = onRelationshipCommitted;
-            this.onRelationshipRolledback = onRelatioshipRolledback;
+            this.onRelationshipRollback = onRelationshipRollback;
         }
 
         public EntityViewModel From
         {
             get => this.from;
-            set => this.Set(nameof(From), ref this.from, value);
+            set
+            {
+                if (this.Set(nameof(From), ref this.from, value))
+                    this.CommitCommand.RaiseCanExecuteChanged();
+            }
         }
 
         private EntityViewModel from;
@@ -34,7 +40,11 @@ namespace Kosmograph.Desktop.ViewModel
         public EntityViewModel To
         {
             get => this.to;
-            set => this.Set(nameof(To), ref this.to, value);
+            set
+            {
+                if (this.Set(nameof(To), ref this.to, value))
+                    this.CommitCommand.RaiseCanExecuteChanged();
+            }
         }
 
         private EntityViewModel to;
@@ -45,17 +55,19 @@ namespace Kosmograph.Desktop.ViewModel
 
         public CommitableObservableCollection<AssignedTagEditModel> Tags => this.tags.Value;
 
-        private CommitableObservableCollection<AssignedTagEditModel> CreateAssignedTags() => new CommitableObservableCollection<AssignedTagEditModel>(this.ViewModel.Model.Tags.Select(this.CreateAssignedTag));
+        private CommitableObservableCollection<AssignedTagEditModel> CreateAssignedTags() => new CommitableObservableCollection<AssignedTagEditModel>(this.ViewModel.Tags.Select(this.CreateAssignedTag));
 
-        private AssignedTagEditModel CreateAssignedTag(Tag tag) => new AssignedTagEditModel(tag, this.ViewModel.Model.Values);
+        private AssignedTagEditModel CreateAssignedTag(TagViewModel tag) => new AssignedTagEditModel(new AssignedTagViewModel(tag, this.ViewModel.Model.Values));
+
+        private AssignedTagEditModel CreateAssignedTag(AssignedTagViewModel tag) => new AssignedTagEditModel(tag);
 
         #endregion Collection of assigned tags
 
         #region Assign Tag command
 
-        private bool AssignTagCanExecute(Tag tag) => !this.Tags.Any(tvm => tvm.Model.Equals(tag));
+        private bool AssignTagCanExecute(TagViewModel tag) => !this.Tags.Any(tvm => tvm.ViewModel.Tag.Model.Equals(tag.Model));
 
-        private void AssignTagExcuted(Tag tag)
+        private void AssignTagExcuted(TagViewModel tag)
         {
             this.Tags.Add(this.CreateAssignedTag(tag));
         }
@@ -81,25 +93,34 @@ namespace Kosmograph.Desktop.ViewModel
         {
             this.ViewModel.From = this.From;
             this.ViewModel.To = this.To;
+            this.Tags.Commit(onAdd: this.CommitAddedTag, onRemove: this.CommitRemovedTag);
+            this.Tags.ForEach(t => t.Commit());
             base.Commit();
             this.onRelationshipCommitted(this.ViewModel.Model);
         }
 
+        protected override bool CanCommit() => !(this.From is null || this.To is null);
+
         private void CommitRemovedTag(AssignedTagEditModel tag)
         {
-            //tag.Model.Facete.Tags.Remove(tag.Model);
-            //tag.Model.Facet.Properties.ForEach(p => this.Model.Values.Remove(p.Id.ToString()));
+            this.ViewModel.Tags.Remove(tag.ViewModel);
         }
 
         private void CommitAddedTag(AssignedTagEditModel tag)
         {
-            //this.Model.Tags.Add(tag.Model);
+            this.ViewModel.Tags.Add(tag.ViewModel);
         }
 
         public override void Rollback()
         {
-            this.onRelationshipCommitted(this.ViewModel.Model);
+            this.From = this.ViewModel.From;
+            this.To = this.ViewModel.To;
+            this.Tags.Rollback();
+            this.Tags.ForEach(t => t.Properties.ForEach(p => p.Rollback()));
+            base.Rollback();
+            this.onRelationshipRollback(this.ViewModel.Model);
         }
+
         #endregion Implement Commit
     }
 }

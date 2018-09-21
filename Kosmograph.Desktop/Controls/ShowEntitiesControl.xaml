@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
              xmlns:local="clr-namespace:Kosmograph.Desktop.Controls"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
@@ -11,6 +12,13 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="./CommonResources.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            <CollectionViewSource 
+                x:Key="entiesCollectionViewSource" 
+                Source="{Binding Entities}" >
+                <CollectionViewSource.SortDescriptions>
+                    <scm:SortDescription PropertyName="Name" />
+                </CollectionViewSource.SortDescriptions>
+            </CollectionViewSource>
         </ResourceDictionary>
     </UserControl.Resources>
     <UserControl.Style>
@@ -45,9 +53,16 @@
         <ListBox
             Name="entityListBox"
             Style="{StaticResource modelItemListBoxStyle}"
-            ItemsSource="{Binding Entities}"
+            ItemsSource="{Binding Source={StaticResource entiesCollectionViewSource}}"
             SelectedItem="{Binding SelectedEntity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
             MouseDoubleClick="entityListBox_MouseDoubleClick">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid MouseMove="entityListBoxItem_MouseMove">
+                        <TextBlock Text="{Binding Name}" />
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
             <ListBox.InputBindings>
                 <KeyBinding
                     Key="Return"

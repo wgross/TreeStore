@@ -9,8 +9,6 @@ namespace Kosmograph.Model
     {
         #region Construction and initialization of this instance
 
-        public static readonly Facet Empty = new Facet { Id = Guid.Empty };
-
         public Facet(string name, params FacetProperty[] properties)
             : base(name)
         {

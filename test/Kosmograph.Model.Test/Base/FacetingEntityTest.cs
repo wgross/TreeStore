@@ -23,7 +23,7 @@ namespace Kosmograph.Model.Test.Base
 
             // ASSERT
 
-            Assert.Equal(Facet.Empty, result);
+            Assert.Empty(result.Properties);
         }
 
         [Theory]

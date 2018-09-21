@@ -1,16 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Kosmograph.Model
+﻿namespace Kosmograph.Model
 {
-    public interface ITagRepository
+    public interface ITagRepository : IRepository<Tag>
     {
-        Tag FindById(Guid id);
-
-        IEnumerable<Tag> FindAll();
-
-        Tag Upsert(Tag tag);
-
-        bool Delete(Guid id);
     }
 }

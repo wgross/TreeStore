@@ -1,19 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
+# Blend for Visual Studio 15
 VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{F09D49BE-8382-477A-AE4A-F89346B56471}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kosmograph.LiteDb", "src\Kosmograph.LiteDb\Kosmograph.LiteDb.csproj", "{28A8B0B7-A988-4F74-9091-5DAD0CB14D59}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kosmograph.Model", "src\Kosmograph.Model\Kosmograph.Model.csproj", "{89824D16-940A-4B72-9F23-A4F5AB487E8C}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{33D0FC38-3145-4846-B6F5-258E835BA95D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kosmograph.LiteDb.Test", "test\Kosmograph.LiteDb.Test\Kosmograph.LiteDb.Test.csproj", "{D3A434D5-6C2A-4550-BE92-EDB2252D2108}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kosmograph.LiteDb", "src\Kosmograph.LiteDb\Kosmograph.LiteDb.csproj", "{28A8B0B7-A988-4F74-9091-5DAD0CB14D59}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kosmograph.Model.Test", "test\Kosmograph.Model.Test\Kosmograph.Model.Test.csproj", "{8274C5D4-97CA-44C4-952F-9AA964CE8E52}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kosmograph.Model", "src\Kosmograph.Model\Kosmograph.Model.csproj", "{89824D16-940A-4B72-9F23-A4F5AB487E8C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kosmograph.LiteDb.Test", "test\Kosmograph.LiteDb.Test\Kosmograph.LiteDb.Test.csproj", "{D3A434D5-6C2A-4550-BE92-EDB2252D2108}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kosmograph.Model.Test", "test\Kosmograph.Model.Test\Kosmograph.Model.Test.csproj", "{8274C5D4-97CA-44C4-952F-9AA964CE8E52}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kosmograph.Desktop", "Kosmograph.Desktop\Kosmograph.Desktop.csproj", "{B1A2E7EF-0432-4C54-A54E-9923AE3AC4AB}"
 EndProject

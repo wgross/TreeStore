@@ -1,4 +1,5 @@
-﻿using Kosmograph.Desktop.ViewModel;
+﻿using Kosmograph.Desktop.EditModel;
+using Kosmograph.Desktop.ViewModel;
 using Kosmograph.Model;
 using System;
 using System.Collections.Generic;
@@ -6,17 +7,17 @@ using System.ComponentModel;
 using System.Linq;
 using Xunit;
 
-namespace Kosmograph.Desktop.Test.ViewModel
+namespace Kosmograph.Desktop.Test.EditModel
 {
     public class EditNamedViewModelTest
     {
         public static IEnumerable<object[]> GetTestedInstances()
         {
-            var tag = new EditTagViewModel(new Tag("tag", new Facet("facet", new FacetProperty("p"))), delegate { });
+            var tag = new TagEditModel(
+                new TagViewModel(new Tag("tag", new Facet("facet", new FacetProperty("p")))), delegate { });
 
             yield return new object[] { (Action<string>)(s => tag.Name = s), tag };
-            yield return new object[] { (Action<string>)(s => tag.Facet.Name = s), tag.Facet };
-            yield return new object[] { (Action<string>)(s => tag.Facet.Properties.Single().Name = s), tag.Facet.Properties.Single() };
+            yield return new object[] { (Action<string>)(s => tag.Properties.Single().Name = s), tag.Properties.Single() };
         }
 
         [Theory]

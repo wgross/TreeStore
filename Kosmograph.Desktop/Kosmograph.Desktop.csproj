@@ -78,6 +78,15 @@
     <Compile Include="Controls\EditAssignedTagsControl.xaml.cs">
       <DependentUpon>EditAssignedTagsControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\EditorButtonPanelControl.xaml.cs">
+      <DependentUpon>EditorButtonPanelControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\EditorHeaderControl.xaml.cs">
+      <DependentUpon>EditorHeaderControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\EditRelatedEntitiesControl.xaml.cs">
+      <DependentUpon>EditRelatedEntitiesControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\EditRelationshipControl.xaml.cs">
       <DependentUpon>EditRelationshipControl.xaml</DependentUpon>
     </Compile>
@@ -86,6 +95,9 @@
     </Compile>
     <Compile Include="Controls\EditorSectionHeaderControl.xaml.cs">
       <DependentUpon>EditorSectionHeaderControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\EditTagControl.xaml.cs">
+      <DependentUpon>EditTagControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\EditTagFacetPropertiesControl.xaml.cs">
       <DependentUpon>EditTagFacetPropertiesControl.xaml</DependentUpon>
@@ -102,14 +114,10 @@
     <Compile Include="Controls\EditItemNameControl.xaml.cs">
       <DependentUpon>EditItemNameControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\EditDialog.xaml.cs">
-      <DependentUpon>EditDialog.xaml</DependentUpon>
+    <Compile Include="Dialogs\DeleteEntityWithRelationshipsDialog.xaml.cs">
+      <DependentUpon>DeleteEntityWithRelationshipsDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\EditTagCommands.cs" />
-    <Compile Include="Dialogs\DialogCommands.cs" />
-    <Compile Include="Dialogs\EditTagDialog.xaml.cs">
-      <DependentUpon>EditTagDialog.xaml</DependentUpon>
-    </Compile>
+    <Compile Include="EditModel\DeleteEntityWithRelationshipsEditModel.cs" />
     <Compile Include="Editor\EditorCommands.cs" />
     <Compile Include="Editor\EditorControl.xaml.cs">
       <DependentUpon>EditorControl.xaml</DependentUpon>
@@ -117,21 +125,24 @@
     <Compile Include="KosmographCommands.cs" />
     <Compile Include="NullToVisiblityConverter.cs" />
     <Compile Include="ViewModel\AssigendFacetPropertyViewModel.cs" />
-    <Compile Include="ViewModel\Base\EditModelBase.cs" />
-    <Compile Include="ViewModel\EditAssignedFacetPropertyValueViewModel.cs" />
+    <Compile Include="EditModel\AssignedTagEditModel.cs" />
+    <Compile Include="EditModel\Base\EditModelBase.cs" />
+    <Compile Include="EditModel\AssignedFacetPropertyEditModel.cs" />
     <Compile Include="ViewModel\AssignedTagViewModel.cs" />
-    <Compile Include="ViewModel\Base\NamedEditModelBase.cs" />
+    <Compile Include="EditModel\Base\NamedEditModelBase.cs" />
     <Compile Include="ViewModel\CommitableObservableCollection.cs" />
-    <Compile Include="ViewModel\EditEntityViewModel.cs" />
-    <Compile Include="ViewModel\EditFacetViewModel.cs" />
-    <Compile Include="ViewModel\Base\EditNamedViewModelBase.cs" />
+    <Compile Include="EditModel\EntityEditModel.cs" />
+    <Compile Include="EditModel\EditFacetViewModel.cs" />
+    <Compile Include="EditModel\Base\EditNamedViewModelBase.cs" />
+    <Compile Include="EditModel\FacetPropertyEditModel.cs" />
     <Compile Include="ViewModel\FacetPropertyViewModel.cs" />
-    <Compile Include="ViewModel\RelationshipEditModel.cs" />
-    <Compile Include="ViewModel\EditTagViewModel.cs" />
+    <Compile Include="EditModel\RelationshipEditModel.cs" />
+    <Compile Include="EditModel\TagEditModel.cs" />
     <Compile Include="ViewModel\EntityViewModel.cs" />
     <Compile Include="ViewModel\KosmographViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\Base\NamedViewModelBase.cs" />
+    <Compile Include="ViewModel\RepositoryViewModel.cs" />
     <Compile Include="ViewModel\RelationshipViewModel.cs" />
     <Compile Include="ViewModel\TagViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
@@ -140,6 +151,18 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\EditAssignedTagsControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\EditorButtonPanelControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\EditorHeaderControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\EditRelatedEntitiesControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -152,6 +175,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\EditorSectionHeaderControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\EditTagControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -175,29 +202,13 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Dialogs\DialogResources.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Dialogs\EditDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Dialogs\EditDialogResources.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Dialogs\EditTagDialog.xaml">
+    <Page Include="Dialogs\DeleteEntityWithRelationshipsDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Editor\EditorControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Editor\EditorResources.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

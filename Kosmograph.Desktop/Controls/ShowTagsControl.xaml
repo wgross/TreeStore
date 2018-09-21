@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
              xmlns:local="clr-namespace:Kosmograph.Desktop.Controls"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
@@ -11,6 +12,13 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="./CommonResources.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <CollectionViewSource
+                x:Key="tagsCollectionViewSource" 
+                Source="{Binding Tags}" >
+                <CollectionViewSource.SortDescriptions>
+                    <scm:SortDescription PropertyName="Name" />
+                </CollectionViewSource.SortDescriptions>
+            </CollectionViewSource>
         </ResourceDictionary>
     </UserControl.Resources>
     <UserControl.Style>
@@ -23,7 +31,7 @@
                     Property="Visibility"
                     Value="Hidden" />
             <Style.Triggers>
-                <DataTrigger Binding="{Binding EditedTag}" Value="{x:Null}">
+                <DataTrigger Binding="{Binding Tags.Edited}" Value="{x:Null}">
                     <Setter Property="Visibility" Value="Visible" />
                 </DataTrigger>
             </Style.Triggers>
@@ -40,22 +48,27 @@
                 FontWeight="Bold" />
             <Button DockPanel.Dock="Right" 
                     Style="{StaticResource addButtonInHeaderStyle}"
-                    Command="{Binding CreateTagCommand}"/>
+                    Command="{Binding Tags.CreateCommand}"/>
         </DockPanel>
         
         <ListBox
             Name="tagListBox"
             Style="{StaticResource modelItemListBoxStyle}"
-            ItemsSource="{Binding Tags}"
-            SelectedItem="{Binding SelectedTag, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-            MouseDoubleClick="tagListBox_MouseDoubleClick"
-            MouseMove="tagListBox_MouseMove">
+            ItemsSource="{Binding Source={StaticResource tagsCollectionViewSource}}"
+            MouseDoubleClick="tagListBox_MouseDoubleClick">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid MouseMove="tagListBoxItem_MouseMove">
+                        <TextBlock Text="{Binding Name}" />
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
             <ListBox.InputBindings>
                 <KeyBinding Key="Return"
-                                Command="{Binding EditTagCommand}"
+                                Command="{Binding Tags.EditCommand}"
                                 CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
                 <KeyBinding Key="Delete"
-                        Command="{Binding DeleteTagCommand}"
+                        Command="{Binding Tags.DeleteCommand}"
                         CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
             </ListBox.InputBindings>
         </ListBox>

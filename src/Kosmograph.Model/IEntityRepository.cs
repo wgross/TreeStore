@@ -4,14 +4,7 @@ using System.Text;
 
 namespace Kosmograph.Model
 {
-    public interface IEntityRepository
+    public interface IEntityRepository : IRepository<Entity>
     {
-        Entity FindById(Guid id);
-
-        IEnumerable<Entity> FindAll();
-
-        Entity Upsert(Entity tag);
-
-        bool Delete(Guid id);
     }
 }

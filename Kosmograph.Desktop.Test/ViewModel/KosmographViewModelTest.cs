@@ -19,10 +19,20 @@ namespace Kosmograph.Desktop.Test.ViewModel
 
         public KosmographViewModelTest()
         {
-            this.persistence = this.mocks.Create<IKosmographPersistence>(MockBehavior.Loose);
             this.tagRepository = this.mocks.Create<ITagRepository>();
             this.entityRepository = this.mocks.Create<IEntityRepository>();
             this.relationshipRepository = this.mocks.Create<IRelationshipRepository>();
+            this.persistence = this.mocks.Create<IKosmographPersistence>(MockBehavior.Loose);
+            this.persistence
+              .Setup(p => p.Tags)
+              .Returns(this.tagRepository.Object);
+            this.persistence
+                .Setup(p => p.Entities)
+                .Returns(this.entityRepository.Object);
+            this.persistence
+                .Setup(p => p.Relationships)
+                .Returns(this.relationshipRepository.Object);
+
             this.viewModel = new KosmographViewModel(new KosmographModel(this.persistence.Object));
         }
 
@@ -32,70 +42,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
         }
 
         [Fact]
-        public void KosmographViewModel_mirrors_KosmographModel()
-        {
-            // ARRANGE
-
-            this.persistence
-               .Setup(p => p.Tags)
-               .Returns(this.tagRepository.Object);
-
-            this.tagRepository
-                .Setup(r => r.FindAll())
-                .Returns(new Tag().Yield());
-
-            this.persistence
-               .Setup(p => p.Entities)
-               .Returns(this.entityRepository.Object);
-
-            this.entityRepository
-                .Setup(r => r.FindAll())
-                .Returns(new Entity().Yield());
-
-            this.persistence
-                .Setup(p => p.Relationships)
-                .Returns(this.relationshipRepository.Object);
-
-            this.relationshipRepository
-                .Setup(r => r.FindAll())
-                .Returns(new Relationship().Yield());
-
-            // ASSERT
-
-            Assert.Single(this.viewModel.Tags);
-            Assert.Single(this.viewModel.Entities);
-            Assert.Single(this.viewModel.Relationships);
-            Assert.Null(this.viewModel.EditedEntity);
-            Assert.Null(this.viewModel.EditedTag);
-            Assert.Null(this.viewModel.EditedRelationship);
-        }
-
-        [Fact]
-        public void KosmographViewModel_delays_created_Entity_to_KosmographModel()
-        {
-            // ARRANGE
-
-            this.persistence
-              .Setup(p => p.Entities)
-              .Returns(this.entityRepository.Object);
-
-            var entity = new Entity("e");
-            this.entityRepository
-                .Setup(r => r.FindAll())
-                .Returns(entity.Yield());
-
-            // ACT
-
-            this.viewModel.CreateEntityCommand.Execute(null);
-
-            // ASSERT
-
-            Assert.Single(this.viewModel.Entities);
-            Assert.Equal("new entity", this.viewModel.EditedEntity.Name);
-        }
-
-        [Fact]
-        public void KosmographViewModel_commits_created_Entity_to_KosmographModel()
+        public void KosmographViewModel_notifies_Relationships_of_deleted_Entity()
         {
             // ARRANGE
 
@@ -103,156 +50,20 @@ namespace Kosmograph.Desktop.Test.ViewModel
                .Setup(p => p.Entities)
                .Returns(this.entityRepository.Object);
 
-            var entity = new Entity("e");
+            var entity1 = new Entity("e");
             this.entityRepository
                 .Setup(r => r.FindAll())
-                .Returns(entity.Yield());
+                .Returns(entity1.Yield());
 
             this.entityRepository
-                .Setup(r => r.Upsert(It.IsAny<Entity>()))
-                .Returns<Entity>(e => e);
-
-            // create new entity
-            this.viewModel.CreateEntityCommand.Execute(null);
-
-            // ACT
-
-            this.viewModel.EditedEntity.CommitCommand.Execute(null);
-
-            // ASSERT
-            // tag is inserted in the list after commit
-
-            Assert.Equal(2, this.viewModel.Entities.Count);
-            Assert.Equal("new entity", this.viewModel.Entities.ElementAt(1).Name);
-            Assert.Null(this.viewModel.EditedEntity);
-            Assert.Equal(this.viewModel.Entities.ElementAt(1), this.viewModel.SelectedEntity);
-        }
-
-        [Fact]
-        public void KosmographViewModel_reverts_created_Entity_at_KosmographViewModel()
-        {
-            // ARRANGE
-
-            this.persistence
-               .Setup(p => p.Entities)
-               .Returns(this.entityRepository.Object);
-
-            var entity = new Entity("e");
-            this.entityRepository
-                .Setup(r => r.FindAll())
-                .Returns(entity.Yield());
-
-            // create new entity
-            this.viewModel.CreateEntityCommand.Execute(null);
-
-            // ACT
-
-            this.viewModel.EditedEntity.RollbackCommand.Execute(null);
-
-            // ASSERT
-            // entiy is forgotton
-
-            Assert.Single(this.viewModel.Entities);
-            Assert.Null(this.viewModel.EditedEntity);
-        }
-
-        [Fact]
-        public void KosmographViewModel_commits_deleted_Entity_to_KosmographModel()
-        {
-            // ARRANGE
-
-            this.persistence
-               .Setup(p => p.Entities)
-               .Returns(this.entityRepository.Object);
-
-            var entity = new Entity("e");
-            this.entityRepository
-                .Setup(r => r.FindAll())
-                .Returns(entity.Yield());
-
-            this.entityRepository
-                .Setup(r => r.Delete(entity.Id))
-                .Returns(true);
-
-            // ACT
-
-            // remove tag
-            this.viewModel.DeleteEntityCommand.Execute(this.viewModel.Entities.Single());
-
-            // ASSERT
-            // tag is inserted in the list after commit
-
-            Assert.Empty(this.viewModel.Entities);
-            Assert.Null(this.viewModel.SelectedEntity);
-            Assert.Null(this.viewModel.EditedEntity);
-        }
-
-        [Fact]
-        public void KosmographViewModel_delays_created_Relationship_to_KosmographModel()
-        {
-            // ARRANGE
+               .Setup(r => r.Delete(entity1.Id))
+               .Returns(true);
 
             this.persistence
               .Setup(p => p.Relationships)
               .Returns(this.relationshipRepository.Object);
 
-            var relationship = new Relationship("r");
-            this.relationshipRepository
-                .Setup(r => r.FindAll())
-                .Returns(relationship.Yield());
-
-            // ACT
-
-            this.viewModel.CreateRelationshipCommand.Execute(null);
-
-            // ASSERT
-
-            Assert.Single(this.viewModel.Relationships);
-            Assert.Equal("new relationship", this.viewModel.EditedRelationship.Name);
-        }
-
-        [Fact]
-        public void KosmographViewModel_commits_created_Relationship_to_KosmographModel()
-        {
-            // ARRANGE
-
-            this.persistence
-              .Setup(p => p.Relationships)
-              .Returns(this.relationshipRepository.Object);
-
-            var relationship = new Relationship("r", new Entity(), new Entity());
-            this.relationshipRepository
-                .Setup(r => r.FindAll())
-                .Returns(relationship.Yield());
-
-            this.relationshipRepository
-                .Setup(r => r.Upsert(It.IsAny<Relationship>()))
-                .Returns<Relationship>(r => r);
-
-            this.viewModel.CreateRelationshipCommand.Execute(null);
-
-            // ACT
-
-            this.viewModel.EditedRelationship.CommitCommand.Execute(null);
-
-            // ASSERT
-
-            Assert.Equal(2, this.viewModel.Relationships.Count);
-            Assert.Null(this.viewModel.EditedRelationship);
-            Assert.Equal("new relationship", this.viewModel.Relationships.ElementAt(1).Name);
-            Assert.Equal(this.viewModel.Relationships.ElementAt(1), this.viewModel.SelectedRelationship);
-        }
-
-        [Fact]
-        public void KosmographViewModel_commits_deleted_Relationship_to_KosmographModel()
-        {
-            // ARRANGE
-
-            this.persistence
-               .Setup(p => p.Relationships)
-               .Returns(this.relationshipRepository.Object);
-
-            var relationship = new Relationship("r", new Entity("e1"), new Entity("e2"));
+            var relationship = new Relationship("r", entity1, entity1);
             this.relationshipRepository
                 .Setup(r => r.FindAll())
                 .Returns(relationship.Yield());
@@ -261,226 +72,252 @@ namespace Kosmograph.Desktop.Test.ViewModel
                 .Setup(r => r.Delete(relationship.Id))
                 .Returns(true);
 
+            var viewModel = new KosmographViewModel(new KosmographModel(this.persistence.Object));
+            viewModel.Entities.FillAll();
+            viewModel.Relationships.FillAll();
+
             // ACT
 
-            this.viewModel.DeleteRelationshipCommand.Execute(this.viewModel.Relationships.Single());
+            viewModel.Entities.DeleteCommand.Execute(viewModel.Entities.Single());
 
             // ASSERT
 
             Assert.Empty(this.viewModel.Relationships);
-            Assert.Null(this.viewModel.SelectedRelationship);
-            Assert.Null(this.viewModel.EditedRelationship);
         }
 
-        [Fact]
-        public void KosmographViewModel_delays_created_Tag_to_KosmographModel()
-        {
-            // ARRANGE
+        //[Fact]
+        //public void KosmographViewModel_delays_created_Tag_to_KosmographModel()
+        //{
+        //    // ARRANGE
 
-            this.persistence
-              .Setup(p => p.Tags)
-              .Returns(this.tagRepository.Object);
+        //    this.persistence
+        //      .Setup(p => p.Tags)
+        //      .Returns(this.tagRepository.Object);
 
-            var tag = new Tag("t", Facet.Empty);
-            this.tagRepository
-                .Setup(r => r.FindAll())
-                .Returns(tag.Yield());
+        //    var tag = new Tag("t", Facet.Empty);
+        //    this.tagRepository
+        //        .Setup(r => r.FindAll())
+        //        .Returns(tag.Yield());
 
-            // ACT
+        //    // ACT
 
-            this.viewModel.CreateTagCommand.Execute(null);
+        //    this.viewModel.CreateTagCommand.Execute(null);
 
-            // ASSERT
+        //    // ASSERT
 
-            Assert.Single(this.viewModel.Tags);
-            Assert.Equal("new tag", this.viewModel.EditedTag.Model.Name);
-        }
+        //    Assert.Single(this.viewModel.Tags);
+        //    Assert.Equal("new tag", this.viewModel.EditedTag.ViewModel.Model.Name);
+        //}
 
-        [Fact]
-        public void KosmographViewModel_commits_created_Tag_to_KosmographModel()
-        {
-            // ARRANGE
+        //[Fact]
+        //public void KosmographViewModel_commits_created_Tag_to_KosmographModel()
+        //{
+        //    // ARRANGE
 
-            this.persistence
-              .Setup(p => p.Tags)
-              .Returns(this.tagRepository.Object);
+        //    this.persistence
+        //      .Setup(p => p.Tags)
+        //      .Returns(this.tagRepository.Object);
 
-            var tag = new Tag("t", Facet.Empty);
-            this.tagRepository
-                .Setup(r => r.FindAll())
-                .Returns(tag.Yield());
+        //    var tag = new Tag("t", Facet.Empty);
+        //    this.tagRepository
+        //        .Setup(r => r.FindAll())
+        //        .Returns(tag.Yield());
 
-            this.tagRepository
-                .Setup(r => r.Upsert(It.IsAny<Tag>()))
-                .Returns<Tag>(t => t);
+        //    this.tagRepository
+        //        .Setup(r => r.Upsert(It.IsAny<Tag>()))
+        //        .Returns<Tag>(t => t);
 
-            // create new tag
-            this.viewModel.CreateTagCommand.Execute(null);
+        //    // create new tag
+        //    this.viewModel.CreateTagCommand.Execute(null);
 
-            // ACT
+        //    // ACT
 
-            this.viewModel.EditedTag.CommitCommand.Execute(null);
+        //    this.viewModel.EditedTag.CommitCommand.Execute(null);
 
-            // ASSERT
-            // tag is inserted in the list after commit
+        //    // ASSERT
+        //    // tag is inserted in the list after commit
 
-            Assert.Equal(2, this.viewModel.Tags.Count);
-            Assert.Equal("new tag", this.viewModel.Tags.ElementAt(1).Name);
-            Assert.Null(this.viewModel.EditedTag);
-            Assert.Equal(this.viewModel.Tags.ElementAt(1), this.viewModel.SelectedTag);
-        }
+        //    Assert.Equal(2, this.viewModel.Tags.Count);
+        //    Assert.Equal("new tag", this.viewModel.Tags.ElementAt(1).Name);
+        //    Assert.Null(this.viewModel.EditedTag);
+        //    Assert.Equal(this.viewModel.Tags.ElementAt(1), this.viewModel.SelectedTag);
+        //}
 
-        [Fact]
-        public void KosmographViewModel_reverts_created_Tag_at_KosmographViewModel()
-        {
-            // ARRANGE
+        //[Fact]
+        //public void KosmographViewModel_reverts_created_Tag_at_KosmographViewModel()
+        //{
+        //    // ARRANGE
 
-            this.persistence
-              .Setup(p => p.Tags)
-              .Returns(this.tagRepository.Object);
+        //    this.persistence
+        //      .Setup(p => p.Tags)
+        //      .Returns(this.tagRepository.Object);
 
-            var tag = new Tag("t", Facet.Empty);
-            this.tagRepository
-                .Setup(r => r.FindAll())
-                .Returns(tag.Yield());
+        //    var tag = new Tag("t", Facet.Empty);
+        //    this.tagRepository
+        //        .Setup(r => r.FindAll())
+        //        .Returns(tag.Yield());
 
-            // create new tag
-            this.viewModel.CreateTagCommand.Execute(null);
+        //    // create new tag
+        //    this.viewModel.CreateTagCommand.Execute(null);
 
-            // ACT
+        //    // ACT
 
-            this.viewModel.EditedTag.RollbackCommand.Execute(null);
+        //    this.viewModel.EditedTag.RollbackCommand.Execute(null);
 
-            // ASSERT
-            // tag is forgotton
+        //    // ASSERT
+        //    // tag is forgotton
 
-            Assert.Single(this.viewModel.Tags);
-            Assert.Null(this.viewModel.EditedTag);
-        }
+        //    Assert.Single(this.viewModel.Tags);
+        //    Assert.Null(this.viewModel.EditedTag);
+        //}
 
-        [Fact]
-        public void KosmographViewModel_commits_deleted_Tag_to_KosmographModel()
-        {
-            // ARRANGE
+        //[Fact]
+        //public void KosmographViewModel_commits_deleted_Tag_to_KosmographModel()
+        //{
+        //    // ARRANGE
 
-            this.persistence
-              .Setup(p => p.Tags)
-              .Returns(this.tagRepository.Object);
+        //    this.persistence
+        //      .Setup(p => p.Tags)
+        //      .Returns(this.tagRepository.Object);
 
-            var tag = new Tag("t", Facet.Empty);
-            this.tagRepository
-                .Setup(r => r.FindAll())
-                .Returns(tag.Yield());
+        //    var tag = new Tag("t", Facet.Empty);
+        //    this.tagRepository
+        //        .Setup(r => r.FindAll())
+        //        .Returns(tag.Yield());
 
-            this.tagRepository
-                .Setup(r => r.Delete(tag.Id))
-                .Returns(true);
+        //    this.tagRepository
+        //        .Setup(r => r.Delete(tag.Id))
+        //        .Returns(true);
 
-            // ACT
+        //    // ACT
 
-            // remove tag
-            this.viewModel.DeleteTagCommand.Execute(this.viewModel.Tags.Single());
+        //    // remove tag
+        //    this.viewModel.Tags.DeleteCommand.Execute(this.viewModel.Tags.Single());
 
-            // ASSERT
-            // tag is inserted in the list after commit
+        //    // ASSERT
+        //    // tag is inserted in the list after commit
 
-            Assert.Empty(this.viewModel.Tags);
-            Assert.Null(this.viewModel.SelectedTag);
-            Assert.Null(this.viewModel.EditedTag);
-        }
+        //    Assert.Empty(this.viewModel.Tags);
+        //    Assert.Null(this.viewModel.SelectedTag);
+        //    Assert.Null(this.viewModel.EditedTag);
+        //}
 
-        [Fact]
-        public void KosmographViewModel_writes_modified_Tag_to_KosmographModel()
-        {
-            // ARRANGE
+        //[Fact]
+        //public void KosmographViewModel_delays_created_Entity_to_KosmographModel()
+        //{
+        //    // ARRANGE
 
-            this.persistence
-               .Setup(p => p.Tags)
-               .Returns(this.tagRepository.Object);
+        //    this.persistence
+        //      .Setup(p => p.Entities)
+        //      .Returns(this.entityRepository.Object);
 
-            var tag = new Tag();
+        //    var entity = new Entity("e");
+        //    this.entityRepository
+        //        .Setup(r => r.FindAll())
+        //        .Returns(entity.Yield());
 
-            this.tagRepository
-                .Setup(r => r.FindAll())
-                .Returns(tag.Yield());
+        //    // ACT
 
-            this.tagRepository
-                .Setup(r => r.Upsert(tag))
-                .Returns(tag);
+        //    this.viewModel.CreateEntityCommand.Execute(null);
 
-            this.viewModel.EditTagCommand.Execute(this.viewModel.Tags.Single());
+        //    // ASSERT
 
-            // ACT
+        //    Assert.Single(this.viewModel.Entities);
+        //    Assert.Equal("new entity", this.viewModel.EditedEntity.Name);
+        //}
 
-            this.viewModel.EditedTag.Name = "changed";
-            this.viewModel.EditedTag.CommitCommand.Execute(null);
+        //[Fact]
+        //public void KosmographViewModel_commits_created_Entity_to_KosmographModel()
+        //{
+        //    // ARRANGE
 
-            // ASSERT
+        //    this.persistence
+        //       .Setup(p => p.Entities)
+        //       .Returns(this.entityRepository.Object);
 
-            Assert.Null(this.viewModel.EditedTag);
-        }
+        //    var entity = new Entity("e");
+        //    this.entityRepository
+        //        .Setup(r => r.FindAll())
+        //        .Returns(entity.Yield());
 
-        [Fact]
-        public void KosmographViewModel_writes_modified_Entity_to_KosmographModel()
-        {
-            // ARRANGE
+        //    this.entityRepository
+        //        .Setup(r => r.Upsert(It.IsAny<Entity>()))
+        //        .Returns<Entity>(e => e);
 
-            this.persistence
-               .Setup(p => p.Entities)
-               .Returns(this.entityRepository.Object);
+        //    // create new entity
+        //    this.viewModel.CreateEntityCommand.Execute(null);
 
-            var entity = new Entity();
+        //    // ACT
 
-            this.entityRepository
-                .Setup(r => r.FindAll())
-                .Returns(entity.Yield());
+        //    this.viewModel.EditedEntity.CommitCommand.Execute(null);
 
-            this.entityRepository
-                .Setup(r => r.Upsert(entity))
-                .Returns(entity);
+        //    // ASSERT
+        //    // tag is inserted in the list after commit
 
-            this.viewModel.EditEntityCommand.Execute(this.viewModel.Entities.Single());
+        //    Assert.Equal(2, this.viewModel.Entities.Count);
+        //    Assert.Equal("new entity", this.viewModel.Entities.ElementAt(1).Name);
+        //    Assert.Null(this.viewModel.EditedEntity);
+        //    Assert.Equal(this.viewModel.Entities.ElementAt(1), this.viewModel.SelectedEntity);
+        //}
 
-            // ACT
+        //[Fact]
+        //public void KosmographViewModel_reverts_created_Entity_at_KosmographViewModel()
+        //{
+        //    // ARRANGE
 
-            this.viewModel.EditedEntity.Name = "changed";
-            this.viewModel.EditedEntity.CommitCommand.Execute(null);
+        //    this.persistence
+        //       .Setup(p => p.Entities)
+        //       .Returns(this.entityRepository.Object);
 
-            // ASSERT
+        //    var entity = new Entity("e");
+        //    this.entityRepository
+        //        .Setup(r => r.FindAll())
+        //        .Returns(entity.Yield());
 
-            Assert.Null(this.viewModel.EditedEntity);
-        }
+        //    // create new entity
+        //    this.viewModel.CreateEntityCommand.Execute(null);
 
-        [Fact]
-        public void KosmographViewModel_writes_Relationship_to_KosmographModel()
-        {
-            // ARRANGE
+        //    // ACT
 
-            this.persistence
-               .Setup(p => p.Relationships)
-               .Returns(this.relationshipRepository.Object);
+        //    this.viewModel.EditedEntity.RollbackCommand.Execute(null);
 
-            var relationship = new Relationship();
+        //    // ASSERT
+        //    // entiy is forgotton
 
-            this.relationshipRepository
-                .Setup(r => r.FindAll())
-                .Returns(relationship.Yield());
+        //    Assert.Single(this.viewModel.Entities);
+        //    Assert.Null(this.viewModel.EditedEntity);
+        //}
 
-            this.relationshipRepository
-                .Setup(r => r.Upsert(relationship))
-                .Returns(relationship);
+        //[Fact]
+        //public void KosmographViewModel_commits_deleted_Entity_to_KosmographModel()
+        //{
+        //    // ARRANGE
 
-            this.viewModel.EditRelationshipCommand.Execute(this.viewModel.Relationships.Single());
+        //    this.persistence
+        //       .Setup(p => p.Entities)
+        //       .Returns(this.entityRepository.Object);
 
-            // ACT
+        //    var entity = new Entity("e");
+        //    this.entityRepository
+        //        .Setup(r => r.FindAll())
+        //        .Returns(entity.Yield());
 
-            this.viewModel.EditedRelationship.Name = "changed";
-            this.viewModel.EditedRelationship.CommitCommand.Execute(null);
+        //    this.entityRepository
+        //        .Setup(r => r.Delete(entity.Id))
+        //        .Returns(true);
 
-            // ASSERT
+        //    // ACT
 
-            Assert.Null(this.viewModel.EditedRelationship);
-        }
+        //    // remove tag
+        //    this.viewModel.Entities.DeleteCommand.Execute(this.viewModel.Entities.Single());
+
+        //    // ASSERT
+        //    // tag is inserted in the list after commit
+
+        //    Assert.Empty(this.viewModel.Entities);
+        //    Assert.Null(this.viewModel.SelectedEntity);
+        //    Assert.Null(this.viewModel.EditedEntity);
+        //}
 
         [Fact]
         public void KosmographViewModel_raise_property_changed_on_selected_item_change()
@@ -522,6 +359,104 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // ASSERT
 
             Assert.Equal(new[] { nameof(KosmographViewModel.SelectedEntity), nameof(KosmographViewModel.SelectedTag) }, properties);
+        }
+
+        [Fact]
+        public void KosmographViewModel_starts_delete_entity_with_relationships()
+        {
+            // ARRANGE
+
+            var entity1 = new Entity();
+            var entity2 = new Entity();
+            this.entityRepository
+                .Setup(r => r.FindAll())
+                .Returns(new[] { entity1, entity2 });
+
+            var relationship = new Relationship("r", entity1, entity2);
+            this.relationshipRepository
+                .Setup(r => r.FindAll())
+                .Returns(relationship.Yield());
+
+            this.viewModel.Entities.FillAll();
+            this.viewModel.Relationships.FillAll();
+
+            // ACT
+
+            this.viewModel.DeleteEntityCommand.Execute(this.viewModel.Entities.First());
+
+            // ASSERT
+
+            Assert.NotNull(this.viewModel.DeletingEntity);
+            Assert.Equal(entity1, this.viewModel.DeletingEntity.Entity.Model);
+            Assert.Equal(relationship.Yield(), this.viewModel.DeletingEntity.Relationships.Select(r => r.Model));
+        }
+
+        [Fact]
+        public void KosmographViewModel_commits_delete_entity_with_relationships()
+        {
+            // ARRANGE
+
+            var entity1 = new Entity();
+            var entity2 = new Entity();
+            this.entityRepository
+                .Setup(r => r.FindAll())
+                .Returns(new[] { entity1, entity2 });
+
+            var relationship = new Relationship("r", entity1, entity2);
+            this.relationshipRepository
+                .Setup(r => r.FindAll())
+                .Returns(relationship.Yield());
+
+            this.relationshipRepository
+                .Setup(r => r.Delete(relationship.Id))
+                .Returns(true);
+
+            this.entityRepository
+                .Setup(r => r.Delete(entity1.Id))
+                .Returns(true);
+
+            this.viewModel.Entities.FillAll();
+            this.viewModel.Relationships.FillAll();
+
+            this.viewModel.DeleteEntityCommand.Execute(this.viewModel.Entities.First());
+
+            // ACT
+
+            this.viewModel.DeletingEntity.CommitCommand.Execute(null);
+
+            // ASSERT
+
+            Assert.Null(this.viewModel.DeletingEntity);
+        }
+
+        [Fact]
+        public void KosmographViewModel_reverts_delete_entity_with_relationships()
+        {
+            // ARRANGE
+
+            var entity1 = new Entity();
+            var entity2 = new Entity();
+            this.entityRepository
+                .Setup(r => r.FindAll())
+                .Returns(new[] { entity1, entity2 });
+
+            var relationship = new Relationship("r", entity1, entity2);
+            this.relationshipRepository
+                .Setup(r => r.FindAll())
+                .Returns(relationship.Yield());
+
+            this.viewModel.Entities.FillAll();
+            this.viewModel.Relationships.FillAll();
+
+            this.viewModel.DeleteEntityCommand.Execute(this.viewModel.Entities.First());
+
+            // ACT
+
+            this.viewModel.DeletingEntity.RollbackCommand.Execute(null);
+
+            // ASSERT
+
+            Assert.Null(this.viewModel.DeletingEntity);
         }
     }
 }

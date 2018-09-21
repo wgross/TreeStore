@@ -59,7 +59,7 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var category = new Category("category", Facet.Empty);
+            var category = new Category("category");
 
             // just to add a parent
             this.repository.Root().AddSubCategory(category);
@@ -82,7 +82,7 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var category = new Category("category", Facet.Empty);
+            var category = new Category("category");
 
             // just to add a parent
             this.repository.Root().AddSubCategory(category);
@@ -108,7 +108,7 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var category = new Category("category", Facet.Empty);
+            var category = new Category("category");
 
             // just to add a parent
             this.repository.Root().AddSubCategory(category);
@@ -128,7 +128,7 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var category = new Category("category", Facet.Empty);
+            var category = new Category("category");
 
             // ACT
 
@@ -146,7 +146,7 @@ namespace Kosmograph.LiteDb.Test
             // ARRANGE
 
             var category = this.repository.Root();
-            category.AddSubCategory(new Category("cat1", Facet.Empty));
+            category.AddSubCategory(new Category("cat1"));
 
             // ACT
 
@@ -188,7 +188,7 @@ namespace Kosmograph.LiteDb.Test
             // ARRANGE
 
             var category = this.repository.Root();
-            category.AddSubCategory(new Category("cat1", Facet.Empty));
+            category.AddSubCategory(new Category("cat1"));
 
             // ACT
 

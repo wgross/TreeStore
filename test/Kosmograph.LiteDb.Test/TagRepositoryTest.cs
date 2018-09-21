@@ -25,7 +25,7 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var tag = new Tag("tag", Facet.Empty);
+            var tag = new Tag("tag");
 
             // ACT
 

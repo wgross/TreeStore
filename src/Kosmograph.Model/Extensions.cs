@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Kosmograph.Model
 {
@@ -7,8 +7,10 @@ namespace Kosmograph.Model
     {
         public static IEnumerable<T> Yield<T>(this T instance) where T : class
         {
-            if(instance is null) yield break;
+            if (instance is null) yield break;
             yield return instance;
         }
+
+        public static Func<T> AsFunc<T>(this T instance) => () => instance;
     }
 }

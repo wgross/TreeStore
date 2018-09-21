@@ -10,9 +10,10 @@
              Drop="editEntityControl_Drop"
              Background="White">
     <StackPanel>
-        <local:EditorSectionHeaderControl 
+        <local:EditorHeaderControl 
             Text="{Binding Name, StringFormat={}Edit {0}}" />
         <local:EditItemNameControl/>
+        <local:EditRelatedEntitiesControl/>
         <local:EditAssignedTagsControl/>
     </StackPanel>
 </UserControl>

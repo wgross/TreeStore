@@ -1,16 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Kosmograph.Model
+﻿namespace Kosmograph.Model
 {
-    public interface IRelationshipRepository
+    public interface IRelationshipRepository : IRepository<Relationship>
     {
-        Relationship FindById(Guid id);
-
-        IEnumerable<Relationship> FindAll();
-
-        Relationship Upsert(Relationship tag);
-
-        bool Delete(Guid id);
     }
 }

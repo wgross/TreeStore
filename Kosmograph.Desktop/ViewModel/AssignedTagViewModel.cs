@@ -1,19 +1,21 @@
-﻿using Kosmograph.Model;
+﻿using GalaSoft.MvvmLight;
+using Kosmograph.Model;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace Kosmograph.Desktop.ViewModel
 {
-    public class AssignedTagEditModel : NamedViewModelBase<Tag>
+    public class AssignedTagViewModel : ViewModelBase
     {
-        private readonly Tag tag;
-
-        public AssignedTagEditModel(Tag tag, IDictionary<string, object> propertyValues)
-            : base(tag)
+        public AssignedTagViewModel(TagViewModel tagViewModel, IDictionary<string, object> values)
         {
-            this.Properties = new CommitableObservableCollection<EditAssignedFacetPropertyValueViewModel>(this.Model.Facet.Properties.Select(p => new EditAssignedFacetPropertyValueViewModel(p, propertyValues)));
+            this.Tag = tagViewModel;
+            this.Properties = new ObservableCollection<AssignedFacetPropertyViewModel>(tagViewModel.Properties.Select(p => new AssignedFacetPropertyViewModel(p, values)));
         }
 
-        public CommitableObservableCollection<EditAssignedFacetPropertyValueViewModel> Properties { get; }
+        public TagViewModel Tag { get; }
+
+        public ObservableCollection<AssignedFacetPropertyViewModel> Properties { get; }
     }
 }

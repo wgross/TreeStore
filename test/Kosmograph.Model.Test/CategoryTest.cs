@@ -25,7 +25,7 @@ namespace Kosmograph.Model.Test
         {
             // ACT
 
-            var result = new Category("cat", Facet.Empty, new Category());
+            var result = new Category("cat", new Facet(), new Category());
 
             // ASSERT
 
@@ -56,7 +56,7 @@ namespace Kosmograph.Model.Test
             // ARRANGE
 
             var searchCat = new Category();
-            var cat = new Category("cat", Facet.Empty, new Category("cat2", Facet.Empty, searchCat));
+            var cat = new Category("cat", new Facet(), new Category("cat2", new Facet(), searchCat));
 
             // ACT
 
@@ -73,7 +73,7 @@ namespace Kosmograph.Model.Test
             // ARRANGE
 
             var searchCat = new Category();
-            var cat = new Category("cat", Facet.Empty, new Category("cat2", Facet.Empty, searchCat));
+            var cat = new Category("cat", new Facet(), new Category("cat2", new Facet(), searchCat));
 
             // ACT
 

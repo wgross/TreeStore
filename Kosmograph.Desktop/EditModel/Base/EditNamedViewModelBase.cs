@@ -1,7 +1,6 @@
-﻿using Kosmograph.Desktop.ViewModel.Base;
-using Kosmograph.Model.Base;
+﻿using Kosmograph.Model.Base;
 
-namespace Kosmograph.Desktop.ViewModel
+namespace Kosmograph.Desktop.EditModel.Base
 {
     public class EditNamedViewModelBase<T> : EditModelBase
             where T : NamedItemBase
