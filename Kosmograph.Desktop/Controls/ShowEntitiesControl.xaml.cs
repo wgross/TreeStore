@@ -14,7 +14,8 @@ namespace Kosmograph.Desktop.Controls
 
         private KosmographViewModel ViewModel => this.DataContext as KosmographViewModel;
 
-        private void entityListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e) => this.ViewModel.EditEntityCommand.Execute(this.ViewModel.SelectedEntity);
+        private void entityListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e) 
+            => this.ViewModel.Entities.EditCommand.Execute(entityListBox.SelectedItem);
 
         private void entityListBoxItem_MouseMove(object sender, MouseEventArgs e)
         {

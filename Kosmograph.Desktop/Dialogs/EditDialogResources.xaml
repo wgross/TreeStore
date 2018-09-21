@@ -63,7 +63,7 @@
         <DockPanel LastChildFill="True">
             <DockPanel LastChildFill="True" DockPanel.Dock="Top">
                 <Label DockPanel.Dock="Left" Style="{StaticResource nameLabelStyle}" />
-                <TextBox Text="{Binding Name}"></TextBox>
+                <TextBox Text="{Binding Name}"/>
             </DockPanel>
             <!--
             A collection of all assigned tags fill the reminder of the panel

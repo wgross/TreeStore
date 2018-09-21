@@ -17,7 +17,8 @@ namespace Kosmograph.Desktop.Controls
 
         KosmographViewModel ViewModel => this.DataContext as KosmographViewModel;
 
-        private void tagListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e) => this.ViewModel.EditTagCommand.Execute(this.ViewModel.SelectedTag);
+        private void tagListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e) =>
+            this.ViewModel.Tags.EditCommand.Execute(this.tagListBox.SelectedItem);
 
         private void tagListBoxItem_MouseMove(object sender, MouseEventArgs e)
         {

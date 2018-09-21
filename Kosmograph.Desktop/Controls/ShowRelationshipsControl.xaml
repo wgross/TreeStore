@@ -54,7 +54,6 @@
             Panel.ZIndex="0"
             Style="{StaticResource modelItemListBoxStyle}"
             ItemsSource="{Binding Source={StaticResource relationshipsCollectionViewSource}}"
-            SelectedItem="{Binding SelectedRelationship, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
             MouseMove="relationshipsListBox_MouseMove"
             MouseDoubleClick="relationshipsListBox_MouseDoubleClick">
             <ListBox.ItemTemplate>

@@ -24,7 +24,7 @@
     <UserControl.Style>
         <Style TargetType="{x:Type UserControl}">
             <!--
-            The Control is visible if ther is an editd item bound to the data context
+            The Control is visible if there is an editd item bound to the data context
             -->
             <Setter
                 Property="Visibility" Value="Visible" />
