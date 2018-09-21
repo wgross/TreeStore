@@ -146,7 +146,7 @@ namespace Kosmograph.Desktop.Test.EditModel
         {
             // ARRANGE
 
-            var tagViewModel = new TagViewModel(new Tag("t2", Facet.Empty));
+            var tagViewModel = new TagViewModel(new Tag("t2"));
 
             var model = new Entity("entity");
             var viewModel = new EntityViewModel(model);
@@ -168,7 +168,7 @@ namespace Kosmograph.Desktop.Test.EditModel
         {
             // ARRANGE
 
-            var tagViewModel = new TagViewModel(new Tag("t2", Facet.Empty));
+            var tagViewModel = new TagViewModel(new Tag("t2"));
 
             var model = new Entity("entity");
             var viewModel = new EntityViewModel(model);
@@ -202,7 +202,7 @@ namespace Kosmograph.Desktop.Test.EditModel
         {
             // ARRANGE
 
-            var tagViewModel = new TagViewModel(new Tag("t2", Facet.Empty));
+            var tagViewModel = new TagViewModel(new Tag("t2"));
 
             var model = new Entity("entity");
             var viewModel = new EntityViewModel(model);

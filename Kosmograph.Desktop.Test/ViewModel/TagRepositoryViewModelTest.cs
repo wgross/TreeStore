@@ -29,7 +29,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
         {
             // ARRANGE
 
-            var tag = new Tag("t", Facet.Empty);
+            var tag = new Tag("t");
             this.model
                 .Setup(r => r.FindAll())
                 .Returns(tag.Yield());
@@ -44,94 +44,68 @@ namespace Kosmograph.Desktop.Test.ViewModel
             Assert.Equal(tag, this.viewModel.Single().Model);
         }
 
-        //[Fact]
-        //public void TagRepositoryViewModel_delays_created_Tag_from_Model()
-        //{
-        //    // ARRANGE
+        [Fact]
+        public void TagRepositoryViewModel_delays_created_Tag_from_Model()
+        {
+            // ACT
 
-        //    var tag = new Tag("t", Facet.Empty);
-        //    this.tagRepository
-        //        .Setup(r => r.FindAll())
-        //        .Returns(tag.Yield());
+            this.viewModel.CreateCommand.Execute(null);
 
-        //    // ACT
+            // ASSERT
 
-        //    this.viewModel.CreateTagCommand.Execute(null);
-
-        //    // ASSERT
-
-        //    Assert.Single(this.viewModel.Tags);
-        //    Assert.Equal("new tag", this.viewModel.EditedTag.ViewModel.Model.Name);
-        //}
-
-        //[Fact]
-        //public void KosmographViewModel_commits_created_Tag_to_KosmographModel()
-        //{
-        //    // ARRANGE
-
-        //    this.persistence
-        //      .Setup(p => p.Tags)
-        //      .Returns(this.tagRepository.Object);
-
-        //    var tag = new Tag("t", Facet.Empty);
-        //    this.tagRepository
-        //        .Setup(r => r.FindAll())
-        //        .Returns(tag.Yield());
-
-        //    this.tagRepository
-        //        .Setup(r => r.Upsert(It.IsAny<Tag>()))
-        //        .Returns<Tag>(t => t);
-
-        //    // create new tag
-        //    this.viewModel.CreateTagCommand.Execute(null);
-
-        //    // ACT
-
-        //    this.viewModel.EditedTag.CommitCommand.Execute(null);
-
-        //    // ASSERT
-        //    // tag is inserted in the list after commit
-
-        //    Assert.Equal(2, this.viewModel.Tags.Count);
-        //    Assert.Equal("new tag", this.viewModel.Tags.ElementAt(1).Name);
-        //    Assert.Null(this.viewModel.EditedTag);
-        //    Assert.Equal(this.viewModel.Tags.ElementAt(1), this.viewModel.SelectedTag);
-        //}
-
-        //[Fact]
-        //public void KosmographViewModel_reverts_created_Tag_at_KosmographViewModel()
-        //{
-        //    // ARRANGE
-
-        //    this.persistence
-        //      .Setup(p => p.Tags)
-        //      .Returns(this.tagRepository.Object);
-
-        //    var tag = new Tag("t", Facet.Empty);
-        //    this.tagRepository
-        //        .Setup(r => r.FindAll())
-        //        .Returns(tag.Yield());
-
-        //    // create new tag
-        //    this.viewModel.CreateTagCommand.Execute(null);
-
-        //    // ACT
-
-        //    this.viewModel.EditedTag.RollbackCommand.Execute(null);
-
-        //    // ASSERT
-        //    // tag is forgotton
-
-        //    Assert.Single(this.viewModel.Tags);
-        //    Assert.Null(this.viewModel.EditedTag);
-        //}
+            Assert.Empty(this.viewModel);
+            Assert.Equal("new tag", this.viewModel.Edited.Name);
+        }
 
         [Fact]
-        public void KosmographViewModel_deletes_Tag_from_Model()
+        public void TagRepositoryViewModel_commits_created_Tag_to_Model()
         {
             // ARRANGE
 
-            var tag = new Tag("t", Facet.Empty);
+            var tag = new Tag("t");
+
+            this.model
+                .Setup(r => r.Upsert(It.IsAny<Tag>()))
+                .Returns<Tag>(t => t);
+
+            // create new tag
+            this.viewModel.CreateCommand.Execute(null);
+
+            // ACT
+
+            this.viewModel.Edited.CommitCommand.Execute(null);
+
+            // ASSERT
+            // tag is inserted in the list after commit
+
+            Assert.Equal("new tag", this.viewModel.Single().Name);
+            Assert.Null(this.viewModel.Edited);
+        }
+
+        [Fact]
+        public void TagRepositoryViewModel_reverts_created_Tag_at_Model()
+        {
+            // ARRANGE
+
+            this.viewModel.CreateCommand.Execute(null);
+
+            // ACT
+
+            this.viewModel.Edited.RollbackCommand.Execute(null);
+
+            // ASSERT
+            // tag is forgotton
+
+            Assert.Empty(this.viewModel);
+            Assert.Null(this.viewModel.Edited);
+        }
+
+        [Fact]
+        public void TagRepositoryViewModel_deletes_Tag_from_Model()
+        {
+            // ARRANGE
+
+            var tag = new Tag("t");
             this.model
                 .Setup(r => r.FindAll())
                 .Returns(tag.Yield());

@@ -167,7 +167,7 @@ namespace Kosmograph.Desktop.Test.EditModel
         {
             // ARRANGE
 
-            var tagViewModel = new TagViewModel(new Tag("t2", Facet.Empty));
+            var tagViewModel = new TagViewModel(new Tag("t2"));
             var model = new Relationship("r", new Entity(), new Entity(), new Tag());
             var viewModel = new RelationshipViewModel(model, new EntityViewModel(model.From), new EntityViewModel(model.To), model.Tags.Single().ToViewModel());
             var editModel = new RelationshipEditModel(viewModel, delegate { }, delegate { });
@@ -188,7 +188,7 @@ namespace Kosmograph.Desktop.Test.EditModel
         {
             // ARRANGE
 
-            var tagViewModel = new TagViewModel(new Tag("t2", Facet.Empty));
+            var tagViewModel = new TagViewModel(new Tag("t2"));
             var model = new Relationship("r", new Entity(), new Entity(), new Tag());
             var viewModel = new RelationshipViewModel(model, new EntityViewModel(model.From), new EntityViewModel(model.To), model.Tags.Single().ToViewModel());
             var editModel = new RelationshipEditModel(viewModel, delegate { }, delegate { });
@@ -211,7 +211,7 @@ namespace Kosmograph.Desktop.Test.EditModel
         {
             // ARRANGE
 
-            var tagViewModel = new TagViewModel(new Tag("t2", Facet.Empty));
+            var tagViewModel = new TagViewModel(new Tag("t2"));
             var model = new Relationship("r", new Entity(), new Entity(), new Tag());
             var viewModel = new RelationshipViewModel(model, new EntityViewModel(model.From), new EntityViewModel(model.To), model.Tags.Single().ToViewModel());
             var editModel = new RelationshipEditModel(viewModel, delegate { }, delegate { });
@@ -235,7 +235,7 @@ namespace Kosmograph.Desktop.Test.EditModel
         {
             // ARRANGE
 
-            var tagViewModel = new TagViewModel(new Tag("t2", Facet.Empty));
+            var tagViewModel = new TagViewModel(new Tag("t2"));
             var model = new Relationship("r", new Entity(), new Entity(), new Tag());
             var viewModel = new RelationshipViewModel(model, new EntityViewModel(model.From), new EntityViewModel(model.To), model.Tags.Single().ToViewModel());
             var editModel = new RelationshipEditModel(viewModel, delegate { }, delegate { });
@@ -256,7 +256,7 @@ namespace Kosmograph.Desktop.Test.EditModel
         {
             // ARRANGE
 
-            var tagViewModel = new TagViewModel(new Tag("t2", Facet.Empty));
+            var tagViewModel = new TagViewModel(new Tag("t2"));
             var model = new Relationship("r", new Entity(), new Entity(), new Tag());
             var viewModel = new RelationshipViewModel(model, new EntityViewModel(model.From), new EntityViewModel(model.To), model.Tags.Single().ToViewModel());
             var editModel = new RelationshipEditModel(viewModel, delegate { }, delegate { });

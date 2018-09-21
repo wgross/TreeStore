@@ -13,7 +13,7 @@
         {
         }
 
-        public Facet Facet { get; set; } = Facet.Empty;
+        public Facet Facet { get; set; }
 
         public void AssignFacet(Facet facet) => this.Facet = facet;
     }

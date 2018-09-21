@@ -32,7 +32,7 @@ namespace Kosmograph.LiteDb
 
         private Category FindRootCategory() => this.liteDb.Database.GetCollection<Category>(CollectionName).IncludeAll(maxDepth: 10).FindById(CategoryRootId);
 
-        private Category CreateRootCategory() => this.Upsert(new Category(string.Empty, Facet.Empty) { Id = CategoryRootId });
+        private Category CreateRootCategory() => this.Upsert(new Category(string.Empty) { Id = CategoryRootId });
 
         #endregion There must be a persistent root
 

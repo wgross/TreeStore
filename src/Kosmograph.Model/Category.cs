@@ -9,7 +9,11 @@ namespace Kosmograph.Model
     public class Category : FacetingEntityBase
     {
         public Category()
-            : this(string.Empty, Facet.Empty)
+            : this(string.Empty, new Facet())
+        { }
+
+        public Category(string name)
+            : this(string.Empty, new Facet())
         { }
 
         public Category(string name, Facet ownFacet, params Category[] subcategories)

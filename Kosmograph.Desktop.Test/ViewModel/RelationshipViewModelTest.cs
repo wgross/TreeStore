@@ -60,7 +60,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
         {
             // ARRANGE
 
-            var tag2 = new TagViewModel(new Tag("t2", Facet.Empty));
+            var tag2 = new TagViewModel(new Tag("t2"));
             var entity1 = new EntityViewModel(new Entity());
             var entity2 = new EntityViewModel(new Entity());
             var model = new Relationship("r", new Entity(), new Entity(), new Tag());
