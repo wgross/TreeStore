@@ -70,7 +70,7 @@
                     CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
                 <KeyBinding
                     Key="Delete"
-                    Command="{Binding Entities.DeleteCommand}"
+                    Command="{Binding DeleteEntityCommand}"
                     CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
             </ListBox.InputBindings>
         </ListBox>

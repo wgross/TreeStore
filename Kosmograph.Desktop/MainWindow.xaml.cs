@@ -1,4 +1,5 @@
-﻿using Kosmograph.Desktop.ViewModel;
+﻿using Kosmograph.Desktop.Dialogs;
+using Kosmograph.Desktop.ViewModel;
 using Kosmograph.LiteDb;
 using Kosmograph.Model;
 using System;
@@ -40,7 +41,7 @@ namespace Kosmograph.Desktop
             var viewModel = new KosmographViewModel(model);
             viewModel.FillAll();
             this.ViewModel = viewModel;
-            
+
             CommandManager.InvalidateRequerySuggested();
         }
 
@@ -52,7 +53,31 @@ namespace Kosmograph.Desktop
             }
             set
             {
+                value.PropertyChanged += this.Value_PropertyChanged;
                 this.DataContext = value;
+            }
+        }
+
+        public DeleteEntityWithRelationshipsDialog DeleteEntityWithRelationshipsDialog { get; private set; }
+
+        private void Value_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName.Equals(nameof(KosmographViewModel.DeletingEntity)))
+            {
+                if (this.ViewModel.DeletingEntity is null)
+                {
+                    this.DeleteEntityWithRelationshipsDialog?.Close();
+                    this.DeleteEntityWithRelationshipsDialog = null;
+                }
+                else
+                {
+                    this.DeleteEntityWithRelationshipsDialog = new DeleteEntityWithRelationshipsDialog
+                    {
+                        DataContext = this.ViewModel.DeletingEntity,
+                        Owner = this
+                    };
+                    this.DeleteEntityWithRelationshipsDialog.ShowDialog();
+                }
             }
         }
     }

@@ -114,13 +114,8 @@
     <Compile Include="Controls\EditItemNameControl.xaml.cs">
       <DependentUpon>EditItemNameControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\EditDialog.xaml.cs">
-      <DependentUpon>EditDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Dialogs\EditTagCommands.cs" />
-    <Compile Include="Dialogs\DialogCommands.cs" />
-    <Compile Include="Dialogs\EditTagDialog.xaml.cs">
-      <DependentUpon>EditTagDialog.xaml</DependentUpon>
+    <Compile Include="Dialogs\DeleteEntityWithRelationshipsDialog.xaml.cs">
+      <DependentUpon>DeleteEntityWithRelationshipsDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="EditModel\DeleteEntityWithRelationshipsEditModel.cs" />
     <Compile Include="Editor\EditorCommands.cs" />
@@ -207,19 +202,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Dialogs\DialogResources.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Dialogs\EditDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Dialogs\EditDialogResources.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Dialogs\EditTagDialog.xaml">
+    <Page Include="Dialogs\DeleteEntityWithRelationshipsDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
