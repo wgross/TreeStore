@@ -1,5 +1,4 @@
 ﻿using GalaSoft.MvvmLight.Command;
-using GalaSoft.MvvmLight.Messaging;
 using Kosmograph.Desktop.EditModel;
 using Kosmograph.Desktop.ViewModel.Base;
 using Kosmograph.Model;
@@ -68,19 +67,16 @@ namespace Kosmograph.Desktop.ViewModel
                     break;
 
                 case NotifyCollectionChangedAction.Remove:
-                    var deleted = new List<M>();
                     foreach (var viewModel in e.OldItems.OfType<VM>())
                     {
                         if (!this.filling)
                         {
                             if (this.repository.Delete(viewModel.Model.Id))
                             {
-                                deleted.Add(viewModel.Model);
                                 this.locals.Remove(viewModel.Model.Id);
                             }
                         }
                     }
-                    Messenger.Default.Send(new GenericMessage<string>("hallo"));
                     break;
             }
             base.OnCollectionChanged(e);
@@ -295,6 +291,11 @@ namespace Kosmograph.Desktop.ViewModel
         private void OnEditCommitted(Relationship relationship)
         {
             this.Edited = null;
+        }
+
+        public IEnumerable<RelationshipViewModel> FindRelationshipByEntity(EntityViewModel entityViewModel)
+        {
+            return this.Where(rvm => rvm.From.Model.Equals(entityViewModel.Model) || rvm.To.Model.Equals(entityViewModel.Model));
         }
 
         #endregion Edit Relationship

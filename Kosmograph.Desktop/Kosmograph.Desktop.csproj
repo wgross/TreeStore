@@ -122,6 +122,7 @@
     <Compile Include="Dialogs\EditTagDialog.xaml.cs">
       <DependentUpon>EditTagDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="EditModel\DeleteEntityWithRelationshipsEditModel.cs" />
     <Compile Include="Editor\EditorCommands.cs" />
     <Compile Include="Editor\EditorControl.xaml.cs">
       <DependentUpon>EditorControl.xaml</DependentUpon>

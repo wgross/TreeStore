@@ -94,7 +94,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
             this.viewModel.Edited.From = new Entity().ToViewModel();
             this.viewModel.Edited.To = new Entity().ToViewModel();
             this.viewModel.Edited.CommitCommand.Execute(null);
-            
+
             // ASSERT
 
             Assert.Single(this.viewModel);
@@ -142,6 +142,32 @@ namespace Kosmograph.Desktop.Test.ViewModel
 
             Assert.Empty(this.viewModel);
             Assert.Null(this.viewModel.Edited);
+        }
+
+        [Fact]
+        public void RelationshipRepositoryViewModel_finds_Relationship_by_Entity()
+        {
+            // ACT
+
+            var relationship1 = new Relationship("r", new Entity("e1"), new Entity("e2"));
+            var relationship2 = new Relationship("r", new Entity("e3"), relationship1.To);
+            var relationship3 = new Relationship("r", new Entity("e4"), new Entity("e5"));
+
+            this.model
+                .Setup(r => r.FindAll())
+                .Returns(new[] { relationship1, relationship2, relationship3 });
+
+            this.viewModel.FillAll();
+
+            // ACT
+
+            var result = this.viewModel.FindRelationshipByEntity(relationship1.From.ToViewModel());
+
+            // ASSERT
+
+            Assert.Equal(
+                new[] { relationship1, relationship2 },
+                result.Select(r => r.Model));
         }
     }
 }
