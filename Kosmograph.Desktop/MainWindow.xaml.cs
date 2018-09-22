@@ -1,4 +1,5 @@
 ﻿using Kosmograph.Desktop.Dialogs;
+using Kosmograph.Desktop.Graph;
 using Kosmograph.Desktop.ViewModel;
 using Kosmograph.LiteDb;
 using Kosmograph.Model;
@@ -16,10 +17,10 @@ namespace Kosmograph.Desktop
         public MainWindow()
         {
             this.InitializeComponent();
-            this.Activated += this.MainWindow_Activated;
+            this.Loaded += this.MainWindow_Loaded;
         }
 
-        private void MainWindow_Activated(object sender, EventArgs e)
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             if (this.ViewModel == null)
             {
@@ -28,6 +29,11 @@ namespace Kosmograph.Desktop
                     if (Application.Current != null)
                         Application.Current.Shutdown();
             }
+            var wnd = new GraphWindow
+            {
+                DataContext = this.DataContext
+            };
+            wnd.Show();
         }
 
         private void CreateNewModel()
