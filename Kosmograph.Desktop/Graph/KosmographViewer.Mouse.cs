@@ -9,7 +9,7 @@ namespace Kosmograph.Desktop.Graph
 {
     public partial class KosmographViewer
     {
-        #region Mouse wheel zoms in or out of the Graph
+        #region Handle of mouse wheel on Canvas
 
         //private void GraphCanvasMouseWheel(object sender, MouseWheelEventArgs e)
         //{
@@ -27,10 +27,41 @@ namespace Kosmograph.Desktop.Graph
             e.Handled = this.Zoom(e.Delta, e.GetPosition(GraphCanvas));
         }
 
-        #endregion Mouse wheel zoms in or out of the Graph
+        #endregion Handle of mouse wheel on Canvas
+
+        #region Moving the mouse on the Canvas
+
+        private void GraphCanvasMouseMove(object sender, MouseEventArgs e)
+        {
+            this.MouseMove?.Invoke(this, CreateMouseEventArgs(e));
+
+            if (e.Handled) return;
+
+            if (Mouse.LeftButton == MouseButtonState.Pressed && (!LayoutEditingEnabled || objectUnderMouseCursor == null))
+            {
+                if (!this.mouseDownPositionInGraph_initialized)
+                {
+                    this.mouseDownPositionInGraph = e.GetPosition(GraphCanvas).ToMsagl();
+                    this.mouseDownPositionInGraph_initialized = true;
+                }
+
+                this.PanGraph(e);
+            }
+            else
+            {
+                // Retrieve the coordinate of the mouse position.
+                var mouseLocation = e.GetPosition(this.GraphCanvas);
+                // Clear the contents of the list used for hit test results.
+                this.ObjectUnderMouseCursor = null;
+                this.UpdateWithWpfHitObjectUnderMouseOnLocation(mouseLocation, this.MyHitTestResultCallback);
+            }
+        }
+
+        #endregion Moving the mouse on the Canvas
+
+        #region Pressing/Relaesing the lefft mouse button
 
         private void GraphCanvasMouseLeftButtonDown(object sender, MouseEventArgs e)
-
         {
             this.clickCounter.AddMouseDown(objectUnderMouseCursor);
             this.MouseDown?.Invoke(this, this.CreateMouseEventArgs(e));
@@ -51,6 +82,10 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
+        #endregion Pressing/Relaesing the lefft mouse button
+
+        #region Pressing/Releasing the right mouse button
+
         private void GraphCanvasRightMouseDown(object sender, MouseButtonEventArgs e)
         {
             this.MouseDown?.Invoke(this, this.CreateMouseEventArgs(e));
@@ -61,14 +96,9 @@ namespace Kosmograph.Desktop.Graph
             this.OnMouseUp(e);
         }
 
-        #region Moving the mouse on the Canvas triggers the hit test and sets the 'object under cursor'
+        #endregion Pressing/Releasing the right mouse button
 
-        public void OnMouseMoved(MouseEventArgs e)
-        {
-            // Clear the contents of the list used for hit test results.
-            this.ObjectUnderMouseCursor = null;
-            this.UpdateWithWpfHitObjectUnderMouseOnLocation(e.GetPosition(this.GraphCanvas), MyHitTestResultCallback);
-        }
+        #region Moving the mouse on the Canvas/Hit test
 
         private double MouseHitTolerance => (0.05) * DpiX / CurrentScale;
 
@@ -84,7 +114,7 @@ namespace Kosmograph.Desktop.Graph
 
         private void UpdateWithWpfHitObjectUnderMouseOnLocation(Point mousePosition, HitTestResultCallback hitTestResultCallback)
         {
-            _objectUnderMouseDetectionLocation = mousePosition;
+            this._objectUnderMouseDetectionLocation = mousePosition;
 
             // Expand the hit test area by creating a geometry centered on the hit test point.
             var expandedHitTestArea = new RectangleGeometry(this.MouseHitToleranceRectangle(mousePosition, this.MouseHitTolerance));
@@ -146,37 +176,6 @@ namespace Kosmograph.Desktop.Graph
 
         public event EventHandler<ObjectUnderMouseCursorChangedEventArgs> ObjectUnderMouseCursorChanged;
 
-        #endregion Moving the mouse on the Canvas triggers the hit test and sets the 'object under cursor'
-
-        #region Dragging the mouse on the Canvas starts the Panning
-
-        internal void OnMouseDragged(MouseEventArgs e)
-        {
-            if (!LayoutEditingEnabled || this.objectUnderMouseCursor is null)
-            {
-                if (!this.mouseDownPositionInGraph_initialized)
-                {
-                    this.mouseDownPositionInGraph = e.GetPosition(GraphCanvas).ToMsagl();
-                    this.mouseDownPositionInGraph_initialized = true;
-                }
-
-                this.Pan(e);
-            }
-        }
-
-        private void Pan(MouseEventArgs e)
-        {
-            if (this.UnderLayout)
-                return;
-
-            if (!this.GraphCanvas.IsMouseCaptured)
-                this.GraphCanvas.CaptureMouse();
-
-            SetTransformFromTwoPoints(e.GetPosition((FrameworkElement)this.GraphCanvas.Parent), this.mouseDownPositionInGraph);
-
-            this.ViewChangeEvent?.Invoke(null, null);
-        }
-
-        #endregion Dragging the mouse on the Canvas starts the Panning
+        #endregion Moving the mouse on the Canvas/Hit test
     }
 }

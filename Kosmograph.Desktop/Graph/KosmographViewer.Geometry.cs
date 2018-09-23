@@ -1,10 +1,11 @@
 ﻿using System.Windows;
+using System.Windows.Input;
 
 namespace Kosmograph.Desktop.Graph
 {
     public partial class KosmographViewer
     {
-        #region Zoom the Graph
+        #region Zoom the Graph around a Center point
 
         public double ZoomFactor => this.CurrentScale / this.FitFactor;
 
@@ -32,6 +33,23 @@ namespace Kosmograph.Desktop.Graph
             this.SetTransform(scale, centerOfZoomOnScreen.X - centerOfZoom.X * scale, centerOfZoomOnScreen.Y + centerOfZoom.Y * scale);
         }
 
-        #endregion Zoom the Graph
+        #endregion Zoom the Graph around a Center point
+
+        #region Dragging the mouse around on the Canvas
+
+        private void PanGraph(MouseEventArgs e)
+        {
+            if (this.UnderLayout)
+                return;
+
+            if (!this.GraphCanvas.IsMouseCaptured)
+                this.GraphCanvas.CaptureMouse();
+
+            this.SetTransformFromTwoPoints(e.GetPosition((FrameworkElement)this.GraphCanvas.Parent), this.mouseDownPositionInGraph);
+
+            this.ViewChangeEvent?.Invoke(null, null);
+        }
+
+        #endregion Dragging the mouse around on the Canvas
     }
 }

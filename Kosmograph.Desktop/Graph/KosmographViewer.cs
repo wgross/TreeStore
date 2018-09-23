@@ -156,32 +156,6 @@ namespace Kosmograph.Desktop.Graph
             this.MouseUp?.Invoke(this, this.CreateMouseEventArgs(e));
         }
 
-        private void GraphCanvasMouseMove(object sender, MouseEventArgs e)
-        {
-            this.MouseMove?.Invoke(this, CreateMouseEventArgs(e));
-
-            if (e.Handled) return;
-
-            if (Mouse.LeftButton == MouseButtonState.Pressed && (!LayoutEditingEnabled || objectUnderMouseCursor == null))
-            {
-                if (!mouseDownPositionInGraph_initialized)
-                {
-                    this.mouseDownPositionInGraph = e.GetPosition(GraphCanvas).ToMsagl();
-                    this.mouseDownPositionInGraph_initialized = true;
-                }
-
-                Pan(e);
-            }
-            else
-            {
-                // Retrieve the coordinate of the mouse position.
-                WpfPoint mouseLocation = e.GetPosition(GraphCanvas);
-                // Clear the contents of the list used for hit test results.
-                ObjectUnderMouseCursor = null;
-                UpdateWithWpfHitObjectUnderMouseOnLocation(mouseLocation, MyHitTestResultCallback);
-            }
-        }
-
         private void GraphCanvasSizeChanged(object sender, SizeChangedEventArgs e)
         {
             if (drawingGraph == null) return;
@@ -376,8 +350,6 @@ namespace Kosmograph.Desktop.Graph
         {
             get { return ((MatrixTransform)GraphCanvas.RenderTransform).Matrix.OffsetY; }
         }
-
-        
 
         #endregion WPF stuff
 
