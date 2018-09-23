@@ -1,6 +1,5 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 
 namespace Kosmograph.Desktop.Graph
 {
@@ -35,7 +34,6 @@ namespace Kosmograph.Desktop.Graph
     /// </summary>
     public partial class KosmographControl : Canvas
     {
-        private readonly ClickCounter clickCounter;
         private readonly KosmographViewer msaglGraphViewer;
 
         static KosmographControl()
@@ -45,24 +43,8 @@ namespace Kosmograph.Desktop.Graph
 
         public KosmographControl()
         {
-            this.clickCounter = new ClickCounter(GetMousePosition);
-            this.msaglGraphViewer = new KosmographViewer(this, this.clickCounter);
+            this.msaglGraphViewer = new KosmographViewer(this);
             this.Loaded += this.KosmographControl_Loaded;
         }
-
-        private Point GetMousePosition() => Mouse.GetPosition((IInputElement)this.Parent);
-
-        //protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
-        //{
-        //    this.clickCounter.AddMouseDown(_objectUnderMouseCursor);
-        //    this.MouseDown?.Invoke(this, this.CreateMouseEventArgs(e));
-
-        //    if (e.Handled)
-        //        return;
-
-        //    this.msaglGraphViewr.SetMousePosition(e.GetPosition(this));
-
-        //    base.OnMouseLeftButtonDown(e);
-        //}
     }
 }

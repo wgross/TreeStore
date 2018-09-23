@@ -122,25 +122,24 @@ namespace Kosmograph.Desktop.Graph
         /// </summary>
         public Canvas GraphCanvas { get; } = new Canvas();
 
-        public KosmographViewer(Canvas graphCanvas, ClickCounter clickCounter)
+        public KosmographViewer(Canvas graphCanvas)
         {
+            this.layoutEditor = new LayoutEditor(this);
+            this.ViewChangeEvent += AdjustBtrectRenderTransform;
+
             this.GraphCanvas = graphCanvas;
-            this.clickCounter = clickCounter;
-
-            //LargeGraphNodeCountThreshold = 0;
-            layoutEditor = new LayoutEditor(this);
-
             this.GraphCanvas.SizeChanged += GraphCanvasSizeChanged;
             this.GraphCanvas.MouseLeftButtonDown += GraphCanvasMouseLeftButtonDown;
             this.GraphCanvas.MouseRightButtonDown += GraphCanvasRightMouseDown;
             this.GraphCanvas.MouseMove += GraphCanvasMouseMove;
-
             this.GraphCanvas.MouseLeftButtonUp += GraphCanvasMouseLeftButtonUp;
             this.GraphCanvas.MouseWheel += GraphCanvasMouseWheel;
             this.GraphCanvas.MouseRightButtonUp += GraphCanvasRightMouseUp;
-            this.ViewChangeEvent += AdjustBtrectRenderTransform;
 
+            //LargeGraphNodeCountThreshold = 0;
             this.LayoutEditingEnabled = true;
+
+            this.clickCounter = new ClickCounter(() => Mouse.GetPosition((IInputElement)this.GraphCanvas.Parent));
             this.clickCounter.Elapsed += ClickCounterElapsed;
         }
 
