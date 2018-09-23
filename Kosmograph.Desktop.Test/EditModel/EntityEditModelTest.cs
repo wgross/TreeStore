@@ -1,4 +1,5 @@
-﻿using Kosmograph.Desktop.EditModel;
+﻿using GalaSoft.MvvmLight.Messaging;
+using Kosmograph.Desktop.EditModel;
 using Kosmograph.Desktop.Test.ViewModel;
 using Kosmograph.Desktop.ViewModel;
 using Kosmograph.Model;
@@ -103,6 +104,34 @@ namespace Kosmograph.Desktop.Test.EditModel
             Assert.Equal("changed", editModel.Tags.Single().Properties.Single().Value);
             Assert.Equal("changed", viewModel.Tags.Single().Properties.Single().Value);
             Assert.Equal("changed", model.Values[model.Tags.Single().Facet.Properties.Single().Id.ToString()]);
+        }
+
+        [Fact]
+        public void EntityEditModel_commit_notifies()
+        {
+            // ARRANGE
+
+            var model = new Entity("entity", new Tag("tag1", new Facet("f", new FacetProperty("p1"))));
+            model.SetFacetProperty(model.Tags.Single().Facet.Properties.Single(), 1);
+
+            var viewModel = new EntityViewModel(model, model.Tags.Single().ToViewModel());
+
+            var editModel = new EntityEditModel(viewModel, delegate { }, delegate { });
+
+            // ACT
+
+            EditModelCommitted result = null;
+            var committedNotification = new Action<EditModelCommitted>(n => result = n);
+
+            Messenger.Default.Register<EditModelCommitted>(this, committedNotification);
+
+            editModel.CommitCommand.Execute(null);
+
+            // ASSERT
+
+            Assert.NotNull(result);
+            Assert.Equal(typeof(EntityViewModel), result.ViewModel.GetType());
+            Assert.Equal(viewModel, result.TryGetViewModel<EntityViewModel>().Item2);
         }
 
         [Fact]

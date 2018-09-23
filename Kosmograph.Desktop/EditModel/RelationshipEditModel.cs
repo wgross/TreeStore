@@ -97,6 +97,7 @@ namespace Kosmograph.Desktop.EditModel
             this.Tags.ForEach(t => t.Commit());
             base.Commit();
             this.onRelationshipCommitted(this.ViewModel.Model);
+            this.MessengerInstance.Send(new EditModelCommitted(viewModel: this.ViewModel));
         }
 
         protected override bool CanCommit() => !(this.From is null || this.To is null);

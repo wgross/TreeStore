@@ -127,6 +127,7 @@
       <DependentUpon>DeleteEntityWithRelationshipsDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="EditModel\DeleteEntityWithRelationshipsEditModel.cs" />
+    <Compile Include="EditModel\EditModelCommitted.cs" />
     <Compile Include="Editor\EditorCommands.cs" />
     <Compile Include="Editor\EditorControl.xaml.cs">
       <DependentUpon>EditorControl.xaml</DependentUpon>

@@ -1,4 +1,5 @@
-﻿using Kosmograph.Desktop.EditModel;
+﻿using GalaSoft.MvvmLight.Messaging;
+using Kosmograph.Desktop.EditModel;
 using Kosmograph.Desktop.Test.ViewModel;
 using Kosmograph.Desktop.ViewModel;
 using Kosmograph.Model;
@@ -96,6 +97,34 @@ namespace Kosmograph.Desktop.Test.EditModel
             Assert.Equal(entity1.Model, model.From);
             Assert.Equal(entity2.Model, viewModel.To.Model);
             Assert.Equal(entity2.Model, model.To);
+        }
+
+        [Fact]
+        public void RelationshipEditModel_commit_notifies()
+        {
+            // ARRANGE
+
+            var entity1 = new EntityViewModel(new Entity());
+            var entity2 = new EntityViewModel(new Entity());
+            var model = new Relationship("r", new Entity(), new Entity(), new Tag());
+            var viewModel = new RelationshipViewModel(model, new EntityViewModel(model.From), new EntityViewModel(model.To));
+
+            var editModel = new RelationshipEditModel(viewModel, delegate { }, delegate { });
+
+            // ACT
+
+            EditModelCommitted result = null;
+            var committedNotification = new Action<EditModelCommitted>(n => result = n);
+
+            Messenger.Default.Register<EditModelCommitted>(this, committedNotification);
+
+            editModel.CommitCommand.Execute(null);
+
+            // ASSERT
+
+            Assert.NotNull(result);
+            Assert.Equal(typeof(RelationshipViewModel), result.ViewModel.GetType());
+            Assert.Equal(viewModel, result.TryGetViewModel<RelationshipViewModel>().Item2);
         }
 
         [Fact]

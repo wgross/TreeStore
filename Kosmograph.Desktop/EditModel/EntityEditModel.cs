@@ -69,6 +69,7 @@ namespace Kosmograph.Desktop.EditModel
             this.Tags.ForEach(t => t.Properties.ForEach(p => p.Commit()));
             base.Commit();
             this.committed(this.ViewModel.Model);
+            this.MessengerInstance.Send(new EditModelCommitted(viewModel: this.ViewModel));
         }
 
         private void CommitRemovedTag(AssignedTagEditModel tag)
