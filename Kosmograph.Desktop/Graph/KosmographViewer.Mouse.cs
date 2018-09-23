@@ -59,7 +59,7 @@ namespace Kosmograph.Desktop.Graph
 
         #endregion Moving the mouse on the Canvas
 
-        #region Pressing/Relaesing the lefft mouse button
+        #region Pressing/Releasing the left mouse button
 
         private void GraphCanvasMouseLeftButtonDown(object sender, MouseEventArgs e)
         {
@@ -82,7 +82,17 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        #endregion Pressing/Relaesing the lefft mouse button
+        internal MsaglMouseEventArgs CreateMouseEventArgs(MouseEventArgs e)
+        {
+            return new GvMouseEventArgs(e, this);
+        }
+
+        private void OnMouseUp(MouseEventArgs e)
+        {
+            this.MouseUp?.Invoke(this, this.CreateMouseEventArgs(e));
+        }
+
+        #endregion Pressing/Releasing the left mouse button
 
         #region Pressing/Releasing the right mouse button
 
