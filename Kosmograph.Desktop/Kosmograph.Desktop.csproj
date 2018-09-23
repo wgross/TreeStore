@@ -140,6 +140,7 @@
       <DependentUpon>GraphWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Graph\KosmographControl.cs" />
+    <Compile Include="Graph\KosmographViewer.Geometry.cs" />
     <Compile Include="Graph\KosmographViewer.Mouse.cs" />
     <Compile Include="Graph\Wpf2MsaglConverters.cs" />
     <Compile Include="KosmographCommands.cs" />

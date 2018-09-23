@@ -9,6 +9,58 @@ namespace Kosmograph.Desktop.Graph
 {
     public partial class KosmographViewer
     {
+        #region Mouse wheel zoms in or out of the Graph
+
+        //private void GraphCanvasMouseWheel(object sender, MouseWheelEventArgs e)
+        //{
+        //    if (e.Delta != 0)
+        //    {
+        //        const double zoomFractionLocal = 0.9;
+        //        var zoomInc = e.Delta < 0 ? zoomFractionLocal : 1.0 / zoomFractionLocal;
+        //        this.ZoomAbout(this.ZoomFactor * zoomInc, e.GetPosition(GraphCanvas));
+        //        e.Handled = true;
+        //    }
+        //}
+
+        private void GraphCanvasMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            e.Handled = this.Zoom(e.Delta, e.GetPosition(GraphCanvas));
+        }
+
+        #endregion Mouse wheel zoms in or out of the Graph
+
+        private void GraphCanvasMouseLeftButtonDown(object sender, MouseEventArgs e)
+
+        {
+            this.clickCounter.AddMouseDown(objectUnderMouseCursor);
+            this.MouseDown?.Invoke(this, this.CreateMouseEventArgs(e));
+
+            if (e.Handled) return;
+            mouseDownPositionInGraph = e.GetPosition(GraphCanvas).ToMsagl();
+            mouseDownPositionInGraph_initialized = true;
+        }
+
+        private void GraphCanvasMouseLeftButtonUp(object sender, MouseEventArgs e)
+        {
+            this.OnMouseUp(e);
+            this.clickCounter.AddMouseUp();
+            if (this.GraphCanvas.IsMouseCaptured)
+            {
+                e.Handled = true;
+                this.GraphCanvas.ReleaseMouseCapture();
+            }
+        }
+
+        private void GraphCanvasRightMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            this.MouseDown?.Invoke(this, this.CreateMouseEventArgs(e));
+        }
+
+        private void GraphCanvasRightMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            this.OnMouseUp(e);
+        }
+
         #region Moving the mouse on the Canvas triggers the hit test and sets the 'object under cursor'
 
         public void OnMouseMoved(MouseEventArgs e)

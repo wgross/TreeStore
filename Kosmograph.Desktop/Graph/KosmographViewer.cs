@@ -103,8 +103,6 @@ namespace Kosmograph.Desktop.Graph
         */
         private bool needToCalculateLayout = true;
 
-        
-
         private static double _dpiX;
         private static int _dpiY;
 
@@ -153,48 +151,6 @@ namespace Kosmograph.Desktop.Graph
             return new GvMouseEventArgs(e, this);
         }
 
-        private void GraphCanvasMouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            if (e.Delta != 0)
-            {
-                const double zoomFractionLocal = 0.9;
-                var zoomInc = e.Delta < 0 ? zoomFractionLocal : 1.0 / zoomFractionLocal;
-                this.ZoomAbout(this.ZoomFactor * zoomInc, e.GetPosition(GraphCanvas));
-                e.Handled = true;
-            }
-        }
-
-        private void GraphCanvasMouseLeftButtonDown(object sender, MouseEventArgs e)
-        {
-            this.clickCounter.AddMouseDown(objectUnderMouseCursor);
-            this.MouseDown?.Invoke(this, this.CreateMouseEventArgs(e));
-
-            if (e.Handled) return;
-            mouseDownPositionInGraph = e.GetPosition(GraphCanvas).ToMsagl();
-            mouseDownPositionInGraph_initialized = true;
-        }
-
-        private void GraphCanvasMouseLeftButtonUp(object sender, MouseEventArgs e)
-        {
-            this.OnMouseUp(e);
-            this.clickCounter.AddMouseUp();
-            if (this.GraphCanvas.IsMouseCaptured)
-            {
-                e.Handled = true;
-                this.GraphCanvas.ReleaseMouseCapture();
-            }
-        }
-
-        private void GraphCanvasRightMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            this.MouseDown?.Invoke(this, this.CreateMouseEventArgs(e));
-        }
-
-        private void GraphCanvasRightMouseUp(object sender, MouseButtonEventArgs e)
-        {
-            this.OnMouseUp(e);
-        }
-
         private void OnMouseUp(MouseEventArgs e)
         {
             this.MouseUp?.Invoke(this, this.CreateMouseEventArgs(e));
@@ -235,21 +191,6 @@ namespace Kosmograph.Desktop.Graph
             double scaleFraction = fitNow / oldfit;
 
             this.SetTransform(this.CurrentScale * scaleFraction, this.CurrentXOffset * scaleFraction, this.CurrentYOffset * scaleFraction);
-        }
-
-        /// <summary>
-        /// keeps centerOfZoom pinned to the screen and changes the scale by zoomFactor
-        /// </summary>
-        /// <param name="zoomFactor"></param>
-        /// <param name="centerOfZoom"></param>
-        public void ZoomAbout(double zoomFactor, WpfPoint centerOfZoom)
-        {
-            var scale = zoomFactor * FitFactor;
-            var centerOfZoomOnScreen = GraphCanvas
-                .TransformToAncestor((FrameworkElement)GraphCanvas.Parent)
-                .Transform(centerOfZoom);
-
-            this.SetTransform(scale, centerOfZoomOnScreen.X - centerOfZoom.X * scale, centerOfZoomOnScreen.Y + centerOfZoom.Y * scale);
         }
 
         #endregion Graph Canvas Event Handlers
@@ -305,10 +246,7 @@ namespace Kosmograph.Desktop.Graph
             get { return layoutEditor; }
         }
 
-        
-
         // Return the result of the hit test to the callback.
-        
 
         private FrameworkElement GetFrameworkElementFromIViewerObject(IViewerObject viewerObject)
         {
@@ -376,8 +314,6 @@ namespace Kosmograph.Desktop.Graph
             return HitTestResultBehavior.Continue;
         }
 
-        
-
         /// <summary>
         /// this function pins the sourcePoint to screenPoint
         /// </summary>
@@ -413,8 +349,6 @@ namespace Kosmograph.Desktop.Graph
             PointToCenter(node.GeometryNode.Center);
         }
 
-        
-
         //        [System.Runtime.InteropServices.DllImportAttribute("user32.dll", EntryPoint = "SetCursorPos")]
         //        [return: System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.Bool)]
         //        public static extern bool SetCursorPos(int X, int Y);
@@ -443,13 +377,7 @@ namespace Kosmograph.Desktop.Graph
             get { return ((MatrixTransform)GraphCanvas.RenderTransform).Matrix.OffsetY; }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        public double ZoomFactor
-        {
-            get { return CurrentScale / FitFactor; }
-        }
+        
 
         #endregion WPF stuff
 
@@ -462,10 +390,6 @@ namespace Kosmograph.Desktop.Graph
         public event EventHandler<MsaglMouseEventArgs> MouseMove;
 
         public event EventHandler<MsaglMouseEventArgs> MouseUp;
-
-        
-
-      
 
         private IViewerObject GetIViewerObjectFromObjectUnderCursor(object obj)
         {
