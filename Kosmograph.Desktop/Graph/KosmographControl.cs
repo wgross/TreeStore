@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using Kosmograph.Desktop.ViewModel;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace Kosmograph.Desktop.Graph
@@ -45,6 +46,11 @@ namespace Kosmograph.Desktop.Graph
         {
             this.msaglGraphViewer = new KosmographViewer(this);
             this.Loaded += this.KosmographControl_Loaded;
+        }
+
+        private void KosmographControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            this.AddKosmographNodesAndEdges((KosmographViewModel)this.DataContext);
         }
     }
 }

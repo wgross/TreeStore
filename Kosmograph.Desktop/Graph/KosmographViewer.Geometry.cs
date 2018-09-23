@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace Kosmograph.Desktop.Graph
 {
@@ -54,7 +55,7 @@ namespace Kosmograph.Desktop.Graph
 
         #endregion Zoom the Graph around a Center point
 
-        #region Dragging the mouse around on the Canvas
+        #region Pan the Graph
 
         private void PanGraph(MouseEventArgs e)
         {
@@ -69,9 +70,11 @@ namespace Kosmograph.Desktop.Graph
             this.ViewChangeEvent?.Invoke(null, null);
         }
 
-        #endregion Dragging the mouse around on the Canvas
+        #endregion Pan the Graph
 
-        #region Graph size follows Canvas size
+        #region Scale the Graph
+
+        public double CurrentScale => ((MatrixTransform)this.GraphCanvas.RenderTransform).Matrix.M11;
 
         private void GraphCanvasSizeChanged(object sender, SizeChangedEventArgs e)
         {
@@ -85,6 +88,6 @@ namespace Kosmograph.Desktop.Graph
             this.SetTransform(this.CurrentScale * scaleFraction, this.CurrentXOffset * scaleFraction, this.CurrentYOffset * scaleFraction);
         }
 
-        #endregion Graph size follows Canvas size
+        #endregion Scale the Graph
     }
 }

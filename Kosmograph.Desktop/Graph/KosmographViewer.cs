@@ -149,11 +149,11 @@ namespace Kosmograph.Desktop.Graph
         /// adds the main panel of the viewer to the children of the parent
         /// </summary>
         /// <param name="panel"></param>
-        public void BindToPanel(Panel panel)
-        {
-            panel.Children.Add(GraphCanvas);
-            GraphCanvas.UpdateLayout();
-        }
+        //public void BindToPanel(Panel panel)
+        //{
+        //    panel.Children.Add(GraphCanvas);
+        //    GraphCanvas.UpdateLayout();
+        //}
 
         private void ClickCounterElapsed(object sender, EventArgs e)
         {
@@ -300,11 +300,6 @@ namespace Kosmograph.Desktop.Graph
         //        [System.Runtime.InteropServices.DllImportAttribute("user32.dll", EntryPoint = "SetCursorPos")]
         //        [return: System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.Bool)]
         //        public static extern bool SetCursorPos(int X, int Y);
-
-        public double CurrentScale
-        {
-            get { return ((MatrixTransform)GraphCanvas.RenderTransform).Matrix.M11; }
-        }
 
         /*
                 void Pan(Point vector) {
