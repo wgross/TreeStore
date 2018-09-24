@@ -61,20 +61,22 @@ namespace Kosmograph.Desktop.Graph
         private void FillFrameworkElementsFromDrawingObjectLabels()
         {
             foreach (var drawingEdge in this.Graph.Edges)
-                this.FillFrameworkElementsFromEdgeLabel(drawingEdge);
+                this.FillFrameworkElementsFromEdgeLabel(drawingEdge, out var _);
 
             foreach (var drawingNode in this.Graph.Nodes)
-                this.FillFrameworkElementFromNodeLabel(drawingNode);
+                this.FillFrameworkElementFromNodeLabel(drawingNode, out var _);
 
             if (drawingGraph.RootSubgraph != null)
                 foreach (var subgraph in this.Graph.RootSubgraph.AllSubgraphsWidthFirstExcludingSelf())
-                    this.FillFrameworkElementFromNodeLabel(subgraph);
+                    this.FillFrameworkElementFromNodeLabel(subgraph, out var _);
         }
 
-        private void FillFrameworkElementsFromEdgeLabel(Edge drawingEdge)
+        private void FillFrameworkElementsFromEdgeLabel(Edge drawingEdge, out FrameworkElement fe)
         {
+            fe = null;
+
             var textBlock = this.GraphCanvas
-                .InvokeInUiThread(() => CreateTextBlockForMsaglDrawingObjectLabel(drawingEdge.Label));
+                .InvokeInUiThread(() => CreateTextBlockFromDrawingObjectLabel(drawingEdge.Label));
 
             if (textBlock is null)
                 return;
@@ -83,20 +85,25 @@ namespace Kosmograph.Desktop.Graph
 
             var localEdge = drawingEdge;
             this.GraphCanvas.InvokeInUiThread(() => textBlock.Tag = new VLabel(localEdge, textBlock));
+
+            fe = textBlock;
         }
 
-        private void FillFrameworkElementFromNodeLabel(Node drawingNode)
+        private void FillFrameworkElementFromNodeLabel(Node drawingNode, out FrameworkElement fe)
         {
+            fe = null;
+
             var textBlock = this.GraphCanvas
-                .InvokeInUiThread(() => CreateTextBlockForMsaglDrawingObjectLabel(drawingNode.Label));
+                .InvokeInUiThread(() => CreateTextBlockFromDrawingObjectLabel(drawingNode.Label));
 
             if (textBlock is null)
                 return;
 
             this.drawingObjectsToFrameworkElements[drawingNode] = textBlock;
+            fe = textBlock;
         }
 
-        public TextBlock CreateTextBlockForMsaglDrawingObjectLabel(Microsoft.Msagl.Drawing.Label drawingLabel)
+        public TextBlock CreateTextBlockFromDrawingObjectLabel(Microsoft.Msagl.Drawing.Label drawingLabel)
         {
             var textBlock = new System.Windows.Controls.TextBlock
             {

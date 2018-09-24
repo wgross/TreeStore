@@ -32,7 +32,7 @@ namespace Kosmograph.Desktop.Graph
         /// <returns></returns>
         public IViewerNode CreateIViewerNode(Microsoft.Msagl.Drawing.Node drawingNode)
         {
-            var frameworkElement = CreateTextBlockForDrawingObject(drawingNode);
+            var frameworkElement = CreateTextBlockFromDrawingObjectLabel(drawingNode.Label);
             var width = frameworkElement.Width + 2 * drawingNode.Attr.LabelMargin;
             var height = frameworkElement.Height + 2 * drawingNode.Attr.LabelMargin;
             var bc = NodeBoundaryCurves.GetNodeBoundaryCurve(drawingNode, width, height);
@@ -47,7 +47,7 @@ namespace Kosmograph.Desktop.Graph
             if (this.drawingGraph == null)
                 return null;
 
-            var frameworkElement = visualElement as FrameworkElement ?? this.CreateTextBlockForDrawingObject(drawingNode);
+            var frameworkElement = visualElement as FrameworkElement ?? this.CreateTextBlockFromDrawingObjectLabel(drawingNode.Label);
 
             var width = frameworkElement.Width + 2 * drawingNode.Attr.LabelMargin;
             var height = frameworkElement.Height + 2 * drawingNode.Attr.LabelMargin;

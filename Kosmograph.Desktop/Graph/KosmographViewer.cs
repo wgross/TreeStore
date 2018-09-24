@@ -864,8 +864,7 @@ namespace Kosmograph.Desktop.Graph
             FrameworkElement frameworkElementForEdgeLabel;
             if (!drawingObjectsToFrameworkElements.TryGetValue(edge, out frameworkElementForEdgeLabel))
             {
-                drawingObjectsToFrameworkElements[edge] =
-                    frameworkElementForEdgeLabel = CreateTextBlockForDrawingObject(edge);
+                this.FillFrameworkElementsFromEdgeLabel(edge, out frameworkElementForEdgeLabel);
                 frameworkElementForEdgeLabel.Tag = new VLabel(edge, frameworkElementForEdgeLabel);
             }
 
@@ -944,7 +943,7 @@ namespace Kosmograph.Desktop.Graph
         public FrameworkElement CreateAndRegisterFrameworkElementOfDrawingNode(Microsoft.Msagl.Drawing.Node node)
         {
             lock (this.syncRoot)
-                return drawingObjectsToFrameworkElements[node] = CreateTextBlockForDrawingObject(node);
+                return drawingObjectsToFrameworkElements[node] = CreateTextBlockFromDrawingObjectLabel(node.Label);
         }
 
         private void CreateAndPositionGraphBackgroundRectangle()
