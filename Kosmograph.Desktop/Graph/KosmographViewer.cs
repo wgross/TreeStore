@@ -97,9 +97,6 @@ namespace Kosmograph.Desktop.Graph
         private readonly Dictionary<DrawingObject, IViewerObject> drawingObjectsToIViewerObjects =
             new Dictionary<DrawingObject, IViewerObject>();
 
-        private FrameworkElement _rectToFillGraphBackground;
-        private System.Windows.Shapes.Rectangle _rectToFillCanvas;
-
         public KosmographViewer(Canvas graphCanvas)
         {
             this.layoutEditor = new LayoutEditor(this);
@@ -148,12 +145,12 @@ namespace Kosmograph.Desktop.Graph
 
         private void AdjustBtrectRenderTransform(object sender, EventArgs e)
         {
-            if (_rectToFillCanvas == null)
+            if (rectToFillCanvas == null)
                 return;
-            _rectToFillCanvas.RenderTransform = (Transform)GraphCanvas.RenderTransform.Inverse;
+            rectToFillCanvas.RenderTransform = (Transform)GraphCanvas.RenderTransform.Inverse;
             var parent = (Panel)GraphCanvas.Parent;
-            _rectToFillCanvas.Width = parent.ActualWidth;
-            _rectToFillCanvas.Height = parent.ActualHeight;
+            rectToFillCanvas.Width = parent.ActualWidth;
+            rectToFillCanvas.Height = parent.ActualHeight;
         }
 
         private void HandleClickForEdge(VEdge vEdge)
@@ -748,28 +745,6 @@ namespace Kosmograph.Desktop.Graph
             return scale < 0.000001 || scale > 100000.0; //todo: remove hardcoded values
         }
 
-        private void PushDataFromLayoutGraphToFrameworkElements()
-        {
-            CreateRectToFillCanvas();
-            CreateAndPositionGraphBackgroundRectangle();
-            CreateVNodes();
-            CreateEdges();
-        }
-
-        private void CreateRectToFillCanvas()
-        {
-            var parent = (Panel)GraphCanvas.Parent;
-            _rectToFillCanvas = new System.Windows.Shapes.Rectangle();
-            Canvas.SetLeft(_rectToFillCanvas, 0);
-            Canvas.SetTop(_rectToFillCanvas, 0);
-            _rectToFillCanvas.Width = parent.ActualWidth;
-            _rectToFillCanvas.Height = parent.ActualHeight;
-
-            _rectToFillCanvas.Fill = Brushes.Transparent;
-            Panel.SetZIndex(_rectToFillCanvas, -2);
-            GraphCanvas.Children.Add(_rectToFillCanvas);
-        }
-
         private void CreateEdges()
         {
             foreach (var edge in drawingGraph.Edges)
@@ -905,42 +880,6 @@ namespace Kosmograph.Desktop.Graph
         {
             lock (this.syncRoot)
                 return drawingObjectsToFrameworkElements[node] = CreateTextBlockFromDrawingObjectLabel(node.Label);
-        }
-
-        private void CreateAndPositionGraphBackgroundRectangle()
-        {
-            CreateGraphBackgroundRect();
-            SetBackgroundRectanglePositionAndSize();
-
-            var rect = _rectToFillGraphBackground as System.Windows.Shapes.Rectangle;
-            if (rect != null)
-            {
-                rect.Fill = this.drawingGraph.Attr.BackgroundColor.ToWpf();
-                //rect.Fill = Brushes.Green;
-            }
-            Panel.SetZIndex(_rectToFillGraphBackground, -1);
-            GraphCanvas.Children.Add(_rectToFillGraphBackground);
-        }
-
-        private void CreateGraphBackgroundRect()
-        {
-            var lgGraphBrowsingSettings = drawingGraph.LayoutAlgorithmSettings as LgLayoutSettings;
-            if (lgGraphBrowsingSettings == null)
-            {
-                _rectToFillGraphBackground = new System.Windows.Shapes.Rectangle();
-            }
-        }
-
-        private void SetBackgroundRectanglePositionAndSize()
-        {
-            if (GeometryGraph == null) return;
-            //            Canvas.SetLeft(_rectToFillGraphBackground, geomGraph.Left);
-            //            Canvas.SetTop(_rectToFillGraphBackground, geomGraph.Bottom);
-            _rectToFillGraphBackground.Width = GeometryGraph.Width;
-            _rectToFillGraphBackground.Height = GeometryGraph.Height;
-
-            var center = GeometryGraph.BoundingBox.Center;
-            Wpf2MsaglConverters.PositionFrameworkElement(_rectToFillGraphBackground, center, 1);
         }
 
         private void PopulateGeometryOfGeometryGraph()
@@ -1343,7 +1282,6 @@ namespace Kosmograph.Desktop.Graph
         /// <summary>
         /// the cancel token used to cancel a long running layout
         /// </summary>
-        
 
         /// no layout is done, but the overlap is removed for graphs with geometry
         /// </summary>
