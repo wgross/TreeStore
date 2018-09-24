@@ -35,11 +35,11 @@ namespace Kosmograph.Desktop.Graph
 
                 this.GraphCanvasHide();
                 this.ClearKosmographViewerImpl();
-                this.CreateFrameworkElementsForLabelsOnly();
+                this.FillFrameworkElementsFromDrawingObjectLabels();
 
                 if (this.NeedToCalculateLayout)
                 {
-                    this.Graph.CreateGeometryGraph(); //forcing the layout recalculation
+                    this.Graph.CreateGeometryGraph(); // forcing the layout recalculation
                     this.GraphCanvas.InvokeInUiThread(PopulateGeometryOfGeometryGraph);
                 }
 
@@ -55,52 +55,45 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        private void CreateFrameworkElementsForLabelsOnly()
+        // The graph items are inspected and for all graph objects a mapping of
+        // DrawingObject -> FrameworkElements is created.
+
+        private void FillFrameworkElementsFromDrawingObjectLabels()
         {
             foreach (var drawingEdge in this.Graph.Edges)
-                this.CreateFrameworkElementForDrawingEdge(drawingEdge);
+                this.FillFrameworkElementsFromEdgeLabel(drawingEdge);
 
             foreach (var drawingNode in this.Graph.Nodes)
-                this.CreateFrameworkElementForDrawingNode(drawingNode);
+                this.FillFrameworkElementFromNodeLabel(drawingNode);
 
             if (drawingGraph.RootSubgraph != null)
                 foreach (var subgraph in this.Graph.RootSubgraph.AllSubgraphsWidthFirstExcludingSelf())
-                    this.CreateFrameworkElementForDrawingNode(subgraph);
+                    this.FillFrameworkElementFromNodeLabel(subgraph);
         }
 
-        private void CreateFrameworkElementForDrawingEdge(Edge drawingEdge)
+        private void FillFrameworkElementsFromEdgeLabel(Edge drawingEdge)
         {
-            var textBlock = this.CreateTextBlockForDrawingObject(drawingEdge);
-            if (textBlock != null)
-            {
-                this.drawingObjectsToFrameworkElements[drawingEdge] = textBlock;
+            var textBlock = this.GraphCanvas
+                .InvokeInUiThread(() => CreateTextBlockForMsaglDrawingObjectLabel(drawingEdge.Label));
 
-                var localEdge = drawingEdge;
-                this.GraphCanvas.InvokeInUiThread(() => textBlock.Tag = new VLabel(localEdge, textBlock));
-            }
+            if (textBlock is null)
+                return;
+
+            this.drawingObjectsToFrameworkElements[drawingEdge] = textBlock;
+
+            var localEdge = drawingEdge;
+            this.GraphCanvas.InvokeInUiThread(() => textBlock.Tag = new VLabel(localEdge, textBlock));
         }
 
-        private void CreateFrameworkElementForDrawingNode(Node drawingObject)
+        private void FillFrameworkElementFromNodeLabel(Node drawingNode)
         {
-            var textBlock = this.CreateTextBlockForDrawingObject(drawingObject);
-            if (textBlock != null)
-                this.drawingObjectsToFrameworkElements[drawingObject] = textBlock;
-        }
+            var textBlock = this.GraphCanvas
+                .InvokeInUiThread(() => CreateTextBlockForMsaglDrawingObjectLabel(drawingNode.Label));
 
-        private TextBlock CreateTextBlockForDrawingObject(DrawingObject drawingObj)
-        {
-            if (drawingObj is Subgraph)
-                return null; //todo: add Label support later
+            if (textBlock is null)
+                return;
 
-            var labeledObj = drawingObj as ILabeledObject;
-            if (labeledObj == null)
-                return null;
-
-            var drawingLabel = labeledObj.Label;
-            if (drawingLabel == null)
-                return null;
-
-            return this.GraphCanvas.InvokeInUiThread(() => CreateTextBlockForMsaglDrawingObjectLabel(drawingLabel));
+            this.drawingObjectsToFrameworkElements[drawingNode] = textBlock;
         }
 
         public TextBlock CreateTextBlockForMsaglDrawingObjectLabel(Microsoft.Msagl.Drawing.Label drawingLabel)

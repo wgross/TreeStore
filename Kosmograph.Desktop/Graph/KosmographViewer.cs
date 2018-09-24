@@ -985,24 +985,21 @@ namespace Kosmograph.Desktop.Graph
 
         private void PopulateGeometryOfGeometryGraph()
         {
-            geometryGraphUnderLayout = drawingGraph.GeometryGraph;
-            foreach (
-                Node msaglNode in
-                    geometryGraphUnderLayout.Nodes)
+            this.geometryGraphUnderLayout = this.GeometryGraph;
+            foreach (Node layoutNode in this.geometryGraphUnderLayout.Nodes)
             {
-                var node = (Microsoft.Msagl.Drawing.Node)msaglNode.UserData;
+                var drawingNode = (Microsoft.Msagl.Drawing.Node)layoutNode.UserData;
                 if (GraphCanvas.Dispatcher.CheckAccess())
-                    msaglNode.BoundaryCurve = GetNodeBoundaryCurve(node);
+                    layoutNode.BoundaryCurve = GetNodeBoundaryCurve(drawingNode);
                 else
                 {
-                    var msagNodeInThread = msaglNode;
-                    GraphCanvas.Dispatcher.Invoke(() => msagNodeInThread.BoundaryCurve = GetNodeBoundaryCurve(node));
+                    var msagNodeInThread = layoutNode;
+                    GraphCanvas.Dispatcher.Invoke(() => msagNodeInThread.BoundaryCurve = GetNodeBoundaryCurve(drawingNode));
                 }
                 //AssignLabelWidthHeight(msaglNode, msaglNode.UserData as DrawingObject);
             }
 
-            foreach (
-                Cluster cluster in geometryGraphUnderLayout.RootCluster.AllClustersWideFirstExcludingSelf())
+            foreach (Cluster cluster in this.geometryGraphUnderLayout.RootCluster.AllClustersWideFirstExcludingSelf())
             {
                 var subgraph = (Subgraph)cluster.UserData;
                 if (GraphCanvas.Dispatcher.CheckAccess())
@@ -1020,10 +1017,10 @@ namespace Kosmograph.Desktop.Graph
                 //AssignLabelWidthHeight(msaglNode, msaglNode.UserData as DrawingObject);
             }
 
-            foreach (var msaglEdge in geometryGraphUnderLayout.Edges)
+            foreach (var layoutEdge in this.geometryGraphUnderLayout.Edges)
             {
-                var drawingEdge = (DrawingEdge)msaglEdge.UserData;
-                AssignLabelWidthHeight(msaglEdge, drawingEdge);
+                var drawingEdge = (DrawingEdge)layoutEdge.UserData;
+                AssignLabelWidthHeight(layoutEdge, drawingEdge);
             }
         }
 
