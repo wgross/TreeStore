@@ -70,9 +70,8 @@ namespace Kosmograph.Desktop.Graph
         private Point _sourcePortLocationForEdgeRouting;
 
         //WpfPoint _objectUnderMouseDetectionLocation;
-        private CancelToken _cancelToken = new CancelToken();
 
-        private BackgroundWorker _backgroundWorker;
+        private BackgroundWorker backgroundWorker;
         private Point mouseDownPositionInGraph;
         private bool mouseDownPositionInGraph_initialized;
 
@@ -81,18 +80,12 @@ namespace Kosmograph.Desktop.Graph
 
         private WpfPoint _objectUnderMouseDetectionLocation;
 
-        public event EventHandler LayoutStarted;
-
-        public event EventHandler LayoutComplete;
-
         /// <summary>
         /// if set to true will layout in a task
         /// </summary>
-        public bool RunLayoutAsync;
 
         private readonly LayoutEditor layoutEditor;
 
-        private GeometryGraph geometryGraphUnderLayout;
         /*
                 Thread layoutThread;
         */
@@ -499,9 +492,9 @@ namespace Kosmograph.Desktop.Graph
 
         private void SetUpBackgrounWorkerAndRunAsync()
         {
-            _backgroundWorker = new BackgroundWorker();
-            _backgroundWorker.DoWork += (a, b) => LayoutGraph();
-            _backgroundWorker.RunWorkerCompleted += (sender, args) =>
+            backgroundWorker = new BackgroundWorker();
+            backgroundWorker.DoWork += (a, b) => LayoutGraph();
+            backgroundWorker.RunWorkerCompleted += (sender, args) =>
             {
                 if (args.Error != null)
                 {
@@ -516,44 +509,11 @@ namespace Kosmograph.Desktop.Graph
                 {
                     this.GraphCanvas.InvokeInUiThread(this.PostLayoutStep);
                 }
-                _backgroundWorker = null; //this will signal that we are not under layout anymore
+                backgroundWorker = null; //this will signal that we are not under layout anymore
 
                 this.LayoutComplete?.Invoke(null, null);
             };
-            _backgroundWorker.RunWorkerAsync();
-        }
-
-        private void LayoutGraph()
-        {
-            if (NeedToCalculateLayout)
-            {
-                try
-                {
-                    LayoutHelpers.CalculateLayout(geometryGraphUnderLayout, drawingGraph.LayoutAlgorithmSettings,
-                                                  CancelToken);
-                    if (MsaglFileToSave != null)
-                    {
-                        drawingGraph.Write(MsaglFileToSave);
-                        Console.WriteLine("saved into {0}", MsaglFileToSave);
-                        Environment.Exit(0);
-                    }
-                }
-                catch (OperationCanceledException)
-                {
-                    //swallow this exception
-                }
-            }
-        }
-
-        private void PostLayoutStep()
-        {
-            GraphCanvas.Visibility = Visibility.Visible;
-            PushDataFromLayoutGraphToFrameworkElements();
-            _backgroundWorker = null; //this will signal that we are not under layout anymore
-            if (GraphChanged != null)
-                GraphChanged(this, null);
-
-            SetInitialTransform();
+            backgroundWorker.RunWorkerAsync();
         }
 
         /*
@@ -1343,7 +1303,7 @@ namespace Kosmograph.Desktop.Graph
 
         private bool UnderLayout
         {
-            get { return _backgroundWorker != null; }
+            get { return backgroundWorker != null; }
         }
 
         public void StopDrawingRubberEdge()
@@ -1380,20 +1340,10 @@ namespace Kosmograph.Desktop.Graph
                                                               value[1, 2]);
         }
 
-        public bool NeedToCalculateLayout
-        {
-            get { return needToCalculateLayout; }
-            set { needToCalculateLayout = value; }
-        }
-
         /// <summary>
         /// the cancel token used to cancel a long running layout
         /// </summary>
-        public CancelToken CancelToken
-        {
-            get { return _cancelToken; }
-            set { _cancelToken = value; }
-        }
+        
 
         /// no layout is done, but the overlap is removed for graphs with geometry
         /// </summary>

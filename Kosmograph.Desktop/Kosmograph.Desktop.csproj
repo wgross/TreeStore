@@ -147,6 +147,7 @@
     <Compile Include="Graph\KosmographViewer.GraphCanvas.cs" />
     <Compile Include="Graph\KosmographViewer.Mouse.cs" />
     <Compile Include="Graph\KosmographViewer.IViewer.cs" />
+    <Compile Include="Graph\KosmographViewer.Layout.cs" />
     <Compile Include="Graph\Wpf2MsaglConverters.cs" />
     <Compile Include="KosmographCommands.cs" />
     <Compile Include="NullToVisiblityConverter.cs" />
