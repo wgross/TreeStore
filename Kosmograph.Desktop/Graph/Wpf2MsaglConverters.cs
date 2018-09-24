@@ -30,5 +30,22 @@
                 new System.Windows.Media.MatrixTransform(new System.Windows.Media.Matrix(scale, 0, 0, -scale, x - scale * frameworkElement.Width / 2,
                     y + scale * frameworkElement.Height / 2));
         }
+
+        public static System.Windows.Controls.TextBlock ToWpf(this Microsoft.Msagl.Drawing.Label drawingLabel)
+        {
+            var textBlock = new System.Windows.Controls.TextBlock
+            {
+                Tag = drawingLabel,
+                Text = drawingLabel.Text,
+                FontFamily = new System.Windows.Media.FontFamily(drawingLabel.FontName),
+                FontSize = drawingLabel.FontSize,
+                Foreground = drawingLabel.FontColor.ToWpf()
+            };
+
+            textBlock.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
+            textBlock.Width = textBlock.DesiredSize.Width;
+            textBlock.Height = textBlock.DesiredSize.Height;
+            return textBlock;
+        }
     }
 }

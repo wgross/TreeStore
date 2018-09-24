@@ -133,6 +133,7 @@
       <DependentUpon>EditorControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Graph\ClickCounter.cs" />
+    <Compile Include="Graph\DispatcherObjectExtensions.cs" />
     <Compile Include="Graph\GvMouseEventArgs.cs" />
     <Compile Include="Graph\KosmographControl.DataContect.cs" />
     <Compile Include="Graph\KosmographControl.Mouse.cs" />
@@ -142,7 +143,9 @@
     </Compile>
     <Compile Include="Graph\KosmographControl.cs" />
     <Compile Include="Graph\KosmographViewer.Geometry.cs" />
+    <Compile Include="Graph\KosmographViewer.Graph.cs" />
     <Compile Include="Graph\KosmographViewer.Mouse.cs" />
+    <Compile Include="Graph\KosmographViewer.IViewer.cs" />
     <Compile Include="Graph\Wpf2MsaglConverters.cs" />
     <Compile Include="KosmographCommands.cs" />
     <Compile Include="NullToVisiblityConverter.cs" />

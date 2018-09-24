@@ -1,4 +1,5 @@
-﻿using Kosmograph.Desktop.ViewModel;
+﻿using Kosmograph.Desktop.EditModel;
+using Kosmograph.Desktop.ViewModel;
 using System.Windows;
 
 namespace Kosmograph.Desktop.Graph
@@ -32,6 +33,13 @@ namespace Kosmograph.Desktop.Graph
         {
         }
 
+        private void EditModelCommitted(EditModelCommitted notification)
+        {
+            var (isEntity, entity) = notification.TryGetViewModel<EntityViewModel>();
+            if (isEntity)
+                this.MsaglGraphViewer.Graph.FindNode(entity.Model.Id.ToString()).LabelText = entity.Name;
+        }
+
         private void AddKosmographNodesAndEdges(KosmographViewModel viewModel)
         {
             var graph = new Microsoft.Msagl.Drawing.Graph();
@@ -51,7 +59,7 @@ namespace Kosmograph.Desktop.Graph
                 edge.LabelText = relationship.Name;
             }
             graph.Attr.LayerDirection = Microsoft.Msagl.Drawing.LayerDirection.LR;
-            this.msaglGraphViewer.Graph = graph;
+            this.MsaglGraphViewer.Graph = graph;
         }
     }
 }
