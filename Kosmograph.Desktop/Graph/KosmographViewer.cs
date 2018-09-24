@@ -145,12 +145,12 @@ namespace Kosmograph.Desktop.Graph
 
         private void AdjustBtrectRenderTransform(object sender, EventArgs e)
         {
-            if (rectToFillCanvas == null)
+            if (canvasBackgroundRect == null)
                 return;
-            rectToFillCanvas.RenderTransform = (Transform)GraphCanvas.RenderTransform.Inverse;
+            canvasBackgroundRect.RenderTransform = (Transform)GraphCanvas.RenderTransform.Inverse;
             var parent = (Panel)GraphCanvas.Parent;
-            rectToFillCanvas.Width = parent.ActualWidth;
-            rectToFillCanvas.Height = parent.ActualHeight;
+            canvasBackgroundRect.Width = parent.ActualWidth;
+            canvasBackgroundRect.Height = parent.ActualHeight;
         }
 
         private void HandleClickForEdge(VEdge vEdge)

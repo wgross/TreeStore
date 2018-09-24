@@ -3,7 +3,6 @@ using Microsoft.Msagl.Core.Layout;
 using Microsoft.Msagl.Layout.LargeGraphLayout;
 using Microsoft.Msagl.Miscellaneous;
 using System;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Shapes;
 
@@ -11,8 +10,12 @@ namespace Kosmograph.Desktop.Graph
 {
     public partial class KosmographViewer
     {
-        private System.Windows.Shapes.Rectangle rectToFillCanvas;
-        private FrameworkElement _rectToFillGraphBackground;
+        /// <summary>
+        /// The background of the canvas is kept because it is transformed during changes of the canvas size
+        /// </summary>
+        private System.Windows.Shapes.Rectangle canvasBackgroundRect;
+
+        //private FrameworkElement _rectToFillGraphBackground;
 
         public event EventHandler LayoutStarted;
 
@@ -74,13 +77,17 @@ namespace Kosmograph.Desktop.Graph
         public void DrawGraphBackgound()
         {
             // at the very back (Z order -2) is a transparent background.
-            this.rectToFillCanvas = this.CreateRectToFillCanvas();
-            this.GraphCanvas.Children.Add(this.rectToFillCanvas);
+            this.canvasBackgroundRect = this.CreateCanvasBackgroundRect();
+            this.GraphCanvas.Children.Add(this.canvasBackgroundRect);
 
-            this.CreateAndPositionGraphBackgroundRectangle();
+            // behind the graph itself is a rect which has the graphs
+            // background color (Z order -1)
+            var graphBackground = this.CreateAndPositionGraphBackgroundRectangle();
+            if (graphBackground != null)
+                this.GraphCanvas.Children.Add(graphBackground);
         }
 
-        private Rectangle CreateRectToFillCanvas()
+        private Rectangle CreateCanvasBackgroundRect()
         {
             var parent = (Panel)this.GraphCanvas.Parent;
 
@@ -98,42 +105,41 @@ namespace Kosmograph.Desktop.Graph
             return rectangle;
         }
 
-        private void CreateAndPositionGraphBackgroundRectangle()
+        private Rectangle CreateAndPositionGraphBackgroundRectangle()
         {
-            this.CreateGraphBackgroundRect();
-            this.SetBackgroundRectanglePositionAndSize();
+            var rect = this.SetGraphBackgroundSize(this.CreateGraphBackgroundRect());
+            if (rect is null)
+                return null;
 
-            var rect = this._rectToFillGraphBackground as System.Windows.Shapes.Rectangle;
-            if (rect != null)
-            {
-                rect.Fill = this.drawingGraph.Attr.BackgroundColor.ToWpf();
-                //rect.Fill = Brushes.Green;
-            }
-            Panel.SetZIndex(_rectToFillGraphBackground, -1);
-            this.GraphCanvas.Children.Add(this._rectToFillGraphBackground);
+            return rect;
         }
 
-        private void CreateGraphBackgroundRect()
+        private Rectangle CreateGraphBackgroundRect()
         {
             var lgGraphBrowsingSettings = drawingGraph.LayoutAlgorithmSettings as LgLayoutSettings;
             if (lgGraphBrowsingSettings is null)
             {
-                this._rectToFillGraphBackground = new System.Windows.Shapes.Rectangle();
+                return this.SetGraphBackgroundSize(new Rectangle());
             }
+            else return null;
         }
 
-        private void SetBackgroundRectanglePositionAndSize()
+        private Rectangle SetGraphBackgroundSize(Rectangle graphBackground)
         {
             if (this.GeometryGraph is null)
-                return;
-            //            Canvas.SetLeft(_rectToFillGraphBackground, geomGraph.Left);
-            //            Canvas.SetTop(_rectToFillGraphBackground, geomGraph.Bottom);
-            this._rectToFillGraphBackground.Width = GeometryGraph.Width;
-            this._rectToFillGraphBackground.Height = GeometryGraph.Height;
+                return graphBackground;
 
-            var center = this.GeometryGraph.BoundingBox.Center;
+            // Canvas.SetLeft(_rectToFillGraphBackground, geomGraph.Left);
+            // Canvas.SetTop(_rectToFillGraphBackground, geomGraph.Bottom);
+            graphBackground.Width = this.GeometryGraph.Width;
+            graphBackground.Height = this.GeometryGraph.Height;
+            graphBackground.Fill = this.Graph.Attr.BackgroundColor.ToWpf();
 
-            Wpf2MsaglConverters.PositionFrameworkElement(_rectToFillGraphBackground, center, 1);
+            Panel.SetZIndex(graphBackground, -1);
+
+            Wpf2MsaglConverters.PositionFrameworkElement(graphBackground, this.GeometryGraph.BoundingBox.Center, 1);
+
+            return graphBackground;
         }
 
         #endregion Draw the background of the graph
