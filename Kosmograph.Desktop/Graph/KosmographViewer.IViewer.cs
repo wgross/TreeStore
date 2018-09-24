@@ -1,12 +1,30 @@
-﻿using Microsoft.Msagl.Drawing;
+﻿using Microsoft.Msagl.Core.Layout;
+using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.Miscellaneous.LayoutEditing;
 using Microsoft.Msagl.WpfGraphControl;
+using System;
 using System.Windows;
 
 namespace Kosmograph.Desktop.Graph
 {
-    public partial class KosmographViewer
+    public partial class KosmographViewer : IViewer
     {
+        public Microsoft.Msagl.Drawing.Graph Graph
+        {
+            get => this.drawingGraph;
+            set
+            {
+                this.drawingGraph = value;
+                if (this.drawingGraph != null)
+                    Console.WriteLine("starting processing a graph with {0} nodes and {1} edges", drawingGraph.NodeCount, drawingGraph.EdgeCount);
+                this.FillKosmographViewer();
+            }
+        }
+
+        private Microsoft.Msagl.Drawing.Graph drawingGraph;
+
+        private GeometryGraph GeometryGraph => this.drawingGraph.GeometryGraph;
+
         /// <summary>
         /// creates a viewer node
         /// </summary>
@@ -14,7 +32,7 @@ namespace Kosmograph.Desktop.Graph
         /// <returns></returns>
         public IViewerNode CreateIViewerNode(Microsoft.Msagl.Drawing.Node drawingNode)
         {
-            var frameworkElement = CreateTextBlockForMsaglDrawingObject(drawingNode);
+            var frameworkElement = CreateTextBlockForDrawingObject(drawingNode);
             var width = frameworkElement.Width + 2 * drawingNode.Attr.LabelMargin;
             var height = frameworkElement.Height + 2 * drawingNode.Attr.LabelMargin;
             var bc = NodeBoundaryCurves.GetNodeBoundaryCurve(drawingNode, width, height);
@@ -29,7 +47,7 @@ namespace Kosmograph.Desktop.Graph
             if (this.drawingGraph == null)
                 return null;
 
-            var frameworkElement = visualElement as FrameworkElement ?? this.CreateTextBlockForMsaglDrawingObject(drawingNode);
+            var frameworkElement = visualElement as FrameworkElement ?? this.CreateTextBlockForDrawingObject(drawingNode);
 
             var width = frameworkElement.Width + 2 * drawingNode.Attr.LabelMargin;
             var height = frameworkElement.Height + 2 * drawingNode.Attr.LabelMargin;

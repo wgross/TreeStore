@@ -61,6 +61,8 @@ namespace Kosmograph.Desktop.Graph
 {
     public partial class KosmographViewer : IViewer
     {
+        private readonly object syncRoot = new object();
+
         private Path _targetArrowheadPathForRubberEdge;
 
         private Path _rubberEdgePath;
@@ -88,29 +90,6 @@ namespace Kosmograph.Desktop.Graph
         /// </summary>
         public bool RunLayoutAsync;
 
-        #region MSAGL State: Graph -> GeometryGraph
-
-        public Microsoft.Msagl.Drawing.Graph Graph
-        {
-            get => this.drawingGraph;
-            set
-            {
-                this.drawingGraph = value;
-                if (this.drawingGraph != null)
-                    Console.WriteLine("starting processing a graph with {0} nodes and {1} edges", drawingGraph.NodeCount, drawingGraph.EdgeCount);
-                this.ProcessGraph();
-            }
-        }
-
-        private Microsoft.Msagl.Drawing.Graph drawingGraph;
-
-        private GeometryGraph GeometryGraph => drawingGraph.GeometryGraph;
-
-        #endregion MSAGL State: Graph -> GeometryGraph
-
-        private readonly Dictionary<DrawingObject, FrameworkElement> drawingObjectsToFrameworkElements =
-            new Dictionary<DrawingObject, FrameworkElement>();
-
         private readonly LayoutEditor layoutEditor;
 
         private GeometryGraph geometryGraphUnderLayout;
@@ -127,11 +106,6 @@ namespace Kosmograph.Desktop.Graph
 
         private FrameworkElement _rectToFillGraphBackground;
         private System.Windows.Shapes.Rectangle _rectToFillCanvas;
-
-        /// <summary>
-        /// the canvas to draw the graph
-        /// </summary>
-        public Canvas GraphCanvas { get; }
 
         public KosmographViewer(Canvas graphCanvas)
         {
@@ -531,32 +505,21 @@ namespace Kosmograph.Desktop.Graph
                 if (args.Error != null)
                 {
                     MessageBox.Show(args.Error.ToString());
-                    ClearGraphViewer();
+                    this.ClearKosmographViewer();
                 }
                 else if (CancelToken.Canceled)
                 {
-                    ClearGraphViewer();
+                    this.ClearKosmographViewer();
                 }
                 else
                 {
-                    if (GraphCanvas.Dispatcher.CheckAccess())
-                        PostLayoutStep();
-                    else
-                        GraphCanvas.Dispatcher.Invoke(PostLayoutStep);
+                    this.GraphCanvas.InvokeInUiThread(this.PostLayoutStep);
                 }
                 _backgroundWorker = null; //this will signal that we are not under layout anymore
 
                 this.LayoutComplete?.Invoke(null, null);
             };
             _backgroundWorker.RunWorkerAsync();
-        }
-
-        private void HideCanvas()
-        {
-            if (GraphCanvas.Dispatcher.CheckAccess())
-                GraphCanvas.Visibility = Visibility.Hidden; // hide canvas while we lay it out asynchronously.
-            else
-                GraphCanvas.Dispatcher.Invoke(() => GraphCanvas.Visibility = Visibility.Hidden);
         }
 
         private void LayoutGraph()
@@ -854,7 +817,7 @@ namespace Kosmograph.Desktop.Graph
 
         private VEdge CreateEdge(DrawingEdge edge, LgLayoutSettings lgSettings)
         {
-            lock (this)
+            lock (this.syncRoot)
             {
                 if (drawingObjectsToIViewerObjects.ContainsKey(edge))
                     return (VEdge)drawingObjectsToIViewerObjects[edge];
@@ -902,7 +865,7 @@ namespace Kosmograph.Desktop.Graph
             if (!drawingObjectsToFrameworkElements.TryGetValue(edge, out frameworkElementForEdgeLabel))
             {
                 drawingObjectsToFrameworkElements[edge] =
-                    frameworkElementForEdgeLabel = CreateTextBlockForMsaglDrawingObject(edge);
+                    frameworkElementForEdgeLabel = CreateTextBlockForDrawingObject(edge);
                 frameworkElementForEdgeLabel.Tag = new VLabel(edge, frameworkElementForEdgeLabel);
             }
 
@@ -939,7 +902,7 @@ namespace Kosmograph.Desktop.Graph
 
         private IViewerNode CreateVNode(Microsoft.Msagl.Drawing.Node node)
         {
-            lock (this)
+            lock (this.syncRoot)
             {
                 if (drawingObjectsToIViewerObjects.ContainsKey(node))
                     return (IViewerNode)drawingObjectsToIViewerObjects[node];
@@ -980,8 +943,8 @@ namespace Kosmograph.Desktop.Graph
 
         public FrameworkElement CreateAndRegisterFrameworkElementOfDrawingNode(Microsoft.Msagl.Drawing.Node node)
         {
-            lock (this)
-                return drawingObjectsToFrameworkElements[node] = CreateTextBlockForMsaglDrawingObject(node);
+            lock (this.syncRoot)
+                return drawingObjectsToFrameworkElements[node] = CreateTextBlockForDrawingObject(node);
         }
 
         private void CreateAndPositionGraphBackgroundRectangle()
@@ -1257,7 +1220,7 @@ namespace Kosmograph.Desktop.Graph
 
         public void RemoveEdge(IViewerEdge edge, bool registerForUndo)
         {
-            lock (this)
+            lock (this.syncRoot)
             {
                 var vedge = (VEdge)edge;
                 var dedge = vedge.Edge;
@@ -1272,7 +1235,7 @@ namespace Kosmograph.Desktop.Graph
 
         public void RemoveNode(IViewerNode node, bool registerForUndo)
         {
-            lock (this)
+            lock (this.syncRoot)
             {
                 RemoveEdges(node.Node.OutEdges);
                 RemoveEdges(node.Node.InEdges);

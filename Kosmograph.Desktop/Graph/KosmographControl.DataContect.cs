@@ -37,7 +37,7 @@ namespace Kosmograph.Desktop.Graph
         {
             var (isEntity, entity) = notification.TryGetViewModel<EntityViewModel>();
             if (isEntity)
-                this.MsaglGraphViewer.Graph.FindNode(entity.Model.Id.ToString()).LabelText = entity.Name;
+                this.MsaglGraphViewer.UpdateNodeLabel(entity.Model.Id.ToString(), entity.Name);
         }
 
         private void AddKosmographNodesAndEdges(KosmographViewModel viewModel)

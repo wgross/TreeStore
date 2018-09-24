@@ -13,6 +13,14 @@ namespace Kosmograph.Desktop.Graph
                 dispatcherObject.Dispatcher.Invoke(action);
         }
 
+        public static void InvokeInUiThread<T>(this T dispatcherObject, Action<T> action) where T : DispatcherObject
+        {
+            if (dispatcherObject.Dispatcher.CheckAccess())
+                action(dispatcherObject);
+            else
+                dispatcherObject.Dispatcher.Invoke(() => action(dispatcherObject));
+        }
+
         public static R InvokeInUiThread<T, R>(this T dispatcherObject, Func<R> action) where T : DispatcherObject
         {
             if (dispatcherObject.Dispatcher.CheckAccess())

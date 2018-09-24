@@ -143,7 +143,8 @@
     </Compile>
     <Compile Include="Graph\KosmographControl.cs" />
     <Compile Include="Graph\KosmographViewer.Geometry.cs" />
-    <Compile Include="Graph\KosmographViewer.Graph.cs" />
+    <Compile Include="Graph\KosmographViewer.Fill.cs" />
+    <Compile Include="Graph\KosmographViewer.GraphCanvas.cs" />
     <Compile Include="Graph\KosmographViewer.Mouse.cs" />
     <Compile Include="Graph\KosmographViewer.IViewer.cs" />
     <Compile Include="Graph\Wpf2MsaglConverters.cs" />
