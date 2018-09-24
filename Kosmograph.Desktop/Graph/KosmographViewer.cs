@@ -465,15 +465,12 @@ namespace Kosmograph.Desktop.Graph
         //            }
         //        }
 
-        private const double DesiredPathThicknessInInches = 0.008;
+        
 
         private readonly ClickCounter clickCounter;
         public string MsaglFileToSave;
 
-        private double GetBorderPathThickness()
-        {
-            return DesiredPathThicknessInInches * DpiX;
-        }
+        
 
         private void RunLayoutInUIThread()
         {

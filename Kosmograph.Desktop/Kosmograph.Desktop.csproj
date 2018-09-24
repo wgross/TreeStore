@@ -135,7 +135,7 @@
     <Compile Include="Graph\ClickCounter.cs" />
     <Compile Include="Graph\DispatcherObjectExtensions.cs" />
     <Compile Include="Graph\GvMouseEventArgs.cs" />
-    <Compile Include="Graph\Kosmograph.IViewerNode.cs" />
+    <Compile Include="Graph\KosmographViewer.IViewerNode.cs" />
     <Compile Include="Graph\KosmographControl.DataContect.cs" />
     <Compile Include="Graph\KosmographControl.Mouse.cs" />
     <Compile Include="Graph\KosmographViewer.cs" />

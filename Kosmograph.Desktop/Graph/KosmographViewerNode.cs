@@ -23,11 +23,10 @@ namespace Kosmograph.Desktop.Graph
 {
     public class KosmographViewerNode : IViewerNode, IInvalidatable
     {
-        public Path BoundaryPath;
-        public FrameworkElement FrameworkElementOfNodeForLabel;
+        public Path BoundaryPath { get; private set; }
+        public FrameworkElement FrameworkElementOfNodeForLabel { get; }
         private readonly Func<Edge, VEdge> _funcFromDrawingEdgeToVEdge;
-        private Subgraph _subgraph;
-        private Node _node;
+
         private Border _collapseButtonBorder;
         private Rectangle _topMarginRect;
         private Path _collapseSymbolPath;
@@ -54,22 +53,12 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        public Node Node
-        {
-            get { return _node; }
-            private set
-            {
-                _node = value;
-                _subgraph = _node as Subgraph;
-            }
-        }
-
         public KosmographViewerNode(Node node, FrameworkElement frameworkElementOfNodeForLabelOfLabel,
             Func<Edge, VEdge> funcFromDrawingEdgeToVEdge, Func<double> pathStrokeThicknessFunc)
         {
-            PathStrokeThicknessFunc = pathStrokeThicknessFunc;
-            Node = node;
-            FrameworkElementOfNodeForLabel = frameworkElementOfNodeForLabelOfLabel;
+            this.PathStrokeThicknessFunc = pathStrokeThicknessFunc;
+            this.Node = node;
+            this.FrameworkElementOfNodeForLabel = frameworkElementOfNodeForLabelOfLabel;
 
             _funcFromDrawingEdgeToVEdge = funcFromDrawingEdgeToVEdge;
 
@@ -91,13 +80,113 @@ namespace Kosmograph.Desktop.Graph
             };
         }
 
+        #region IViewerObject Members
+
+        public DrawingObject DrawingObject => this.Node;
+
+        private bool markedForDragging;
+
+        /// <summary>
+        /// Implements a property of an interface IEditViewer
+        /// </summary>
+        public bool MarkedForDragging
+        {
+            get => this.markedForDragging;
+            set
+            {
+                this.markedForDragging = value;
+                if (value)
+                {
+                    MarkedForDraggingEvent?.Invoke(this, null);
+                }
+                else
+                {
+                    UnmarkedForDraggingEvent?.Invoke(this, null);
+                }
+            }
+        }
+
+        public event EventHandler MarkedForDraggingEvent;
+
+        public event EventHandler UnmarkedForDraggingEvent;
+
+        #endregion IViewerObject Members
+
+        #region IViewerNode Members
+
+        public Node Node
+        {
+            get { return _node; }
+            private set
+            {
+                _node = value;
+                _subgraph = _node as Subgraph;
+            }
+        }
+
+        private Subgraph _subgraph;
+        private Node _node;
+
+        public IEnumerable<IViewerEdge> InEdges => this.Node.InEdges.Select(e => _funcFromDrawingEdgeToVEdge(e));
+
+        public IEnumerable<IViewerEdge> OutEdges => this.Node.OutEdges.Select(e => _funcFromDrawingEdgeToVEdge(e));
+
+        public IEnumerable<IViewerEdge> SelfEdges => this.Node.SelfEdges.Select(e => _funcFromDrawingEdgeToVEdge(e));
+
+        public event Action<IViewerNode> IsCollapsedChanged;
+
+        #endregion IViewerNode Members
+
+        #region IInvalidatable members
+
+        public void Invalidate()
+        {
+            if (!this.Node.IsVisible)
+            {
+                foreach (var fe in FrameworkElements)
+                    fe.Visibility = Visibility.Hidden;
+                return;
+            }
+
+            this.BoundaryPath.Data = this.CreatePathFromNodeBoundary();
+
+            Wpf2MsaglConverters.PositionFrameworkElement(FrameworkElementOfNodeForLabel, Node.BoundingBox.Center, 1);
+
+            this.SetFillAndStroke();
+
+            if (_subgraph is null)
+                return;
+
+            this.PositionTopMarginBorder((Cluster)_subgraph.GeometryNode);
+
+            double collapseBorderSize = GetCollapseBorderSymbolSize();
+            var collapseButtonCenter = GetCollapseButtonCenter(collapseBorderSize);
+
+            Wpf2MsaglConverters.PositionFrameworkElement(_collapseButtonBorder, collapseButtonCenter, 1);
+
+            double w = collapseBorderSize * 0.4;
+
+            _collapseSymbolPath.Data = CreateCollapseSymbolPath(collapseButtonCenter + new Point(0, -w / 2), w);
+            _collapseSymbolPath.RenderTransform = ((Cluster)_subgraph.GeometryNode).IsCollapsed
+                ? new RotateTransform(180, collapseButtonCenter.X, collapseButtonCenter.Y)
+                : null;
+
+            _topMarginRect.Visibility = _collapseSymbolPath.Visibility = _collapseButtonBorder.Visibility = Visibility.Visible;
+        }
+
+        #endregion IInvalidatable members
+
         public IEnumerable<FrameworkElement> FrameworkElements
         {
             get
             {
-                if (FrameworkElementOfNodeForLabel != null) yield return FrameworkElementOfNodeForLabel;
-                if (BoundaryPath != null) yield return BoundaryPath;
-                if (_collapseButtonBorder != null)
+                if (this.FrameworkElementOfNodeForLabel != null)
+                    yield return this.FrameworkElementOfNodeForLabel;
+
+                if (this.BoundaryPath != null)
+                    yield return BoundaryPath;
+
+                if (this._collapseButtonBorder != null)
                 {
                     yield return _collapseButtonBorder;
                     yield return _topMarginRect;
@@ -180,10 +269,6 @@ namespace Kosmograph.Desktop.Graph
             Panel.SetZIndex(_collapseSymbolPath, Panel.GetZIndex(_collapseButtonBorder) + 1);
             _topMarginRect.MouseLeftButtonDown += TopMarginRectMouseLeftButtonDown;
         }
-
-        /// <summary>
-        /// </summary>
-        public event Action<IViewerNode> IsCollapsedChanged;
 
         private void InvokeIsCollapsedChanged()
         {
@@ -276,7 +361,7 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        public Func<double> PathStrokeThicknessFunc;
+        public Func<double> PathStrokeThicknessFunc { get; }
 
         private double PathStrokeThickness
         {
@@ -420,90 +505,6 @@ namespace Kosmograph.Desktop.Graph
         private Geometry GetEllipseGeometry()
         {
             return new EllipseGeometry(Node.BoundingBox.Center.ToWpf(), Node.BoundingBox.Width / 2, Node.BoundingBox.Height / 2);
-        }
-
-        #region Implementation of IViewerObject
-
-        public DrawingObject DrawingObject
-        {
-            get { return Node; }
-        }
-
-        private bool markedForDragging;
-
-        /// <summary>
-        /// Implements a property of an interface IEditViewer
-        /// </summary>
-        public bool MarkedForDragging
-        {
-            get
-            {
-                return markedForDragging;
-            }
-            set
-            {
-                markedForDragging = value;
-                if (value)
-                {
-                    MarkedForDraggingEvent?.Invoke(this, null);
-                }
-                else
-                {
-                    UnmarkedForDraggingEvent?.Invoke(this, null);
-                }
-            }
-        }
-
-        public event EventHandler MarkedForDraggingEvent;
-
-        public event EventHandler UnmarkedForDraggingEvent;
-
-        #endregion Implementation of IViewerObject
-
-        public IEnumerable<IViewerEdge> InEdges
-        {
-            get { return Node.InEdges.Select(e => _funcFromDrawingEdgeToVEdge(e)); }
-        }
-
-        public IEnumerable<IViewerEdge> OutEdges
-        {
-            get { return Node.OutEdges.Select(e => _funcFromDrawingEdgeToVEdge(e)); }
-        }
-
-        public IEnumerable<IViewerEdge> SelfEdges
-        {
-            get { return Node.SelfEdges.Select(e => _funcFromDrawingEdgeToVEdge(e)); }
-        }
-
-        public void Invalidate()
-        {
-            if (!Node.IsVisible)
-            {
-                foreach (var fe in FrameworkElements)
-                    fe.Visibility = Visibility.Hidden;
-                return;
-            }
-
-            BoundaryPath.Data = CreatePathFromNodeBoundary();
-
-            Wpf2MsaglConverters.PositionFrameworkElement(FrameworkElementOfNodeForLabel, Node.BoundingBox.Center, 1);
-
-            SetFillAndStroke();
-            if (_subgraph == null) return;
-            PositionTopMarginBorder((Cluster)_subgraph.GeometryNode);
-            double collapseBorderSize = GetCollapseBorderSymbolSize();
-            var collapseButtonCenter = GetCollapseButtonCenter(collapseBorderSize);
-            Wpf2MsaglConverters.PositionFrameworkElement(_collapseButtonBorder, collapseButtonCenter, 1);
-            double w = collapseBorderSize * 0.4;
-            _collapseSymbolPath.Data = CreateCollapseSymbolPath(collapseButtonCenter + new Point(0, -w / 2), w);
-            _collapseSymbolPath.RenderTransform = ((Cluster)_subgraph.GeometryNode).IsCollapsed
-                ? new RotateTransform(180, collapseButtonCenter.X,
-                    collapseButtonCenter.Y)
-                : null;
-
-            _topMarginRect.Visibility =
-                _collapseSymbolPath.Visibility =
-                    _collapseButtonBorder.Visibility = Visibility.Visible;
         }
 
         public override string ToString()
