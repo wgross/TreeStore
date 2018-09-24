@@ -35,7 +35,7 @@ namespace Kosmograph.Desktop.Graph
 
                 this.GraphCanvasHide();
                 this.ClearKosmographViewerImpl();
-                this.FillFrameworkElementsFromDrawingObjectLabels();
+                this.FillFrameworkElementsFromDrawingObjects();
 
                 if (this.NeedToCalculateLayout)
                 {
@@ -55,10 +55,12 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        // The graph items are inspected and for all graph objects a mapping of
+        // The graph items are inspected and for all graph object labels a mapping of
         // DrawingObject -> FrameworkElements is created.
+        // The resulting TextBlocks are measured and have attributes set as defined by the
+        // MSAGL Label.
 
-        private void FillFrameworkElementsFromDrawingObjectLabels()
+        private void FillFrameworkElementsFromDrawingObjects()
         {
             foreach (var drawingEdge in this.Graph.Edges)
                 this.FillFrameworkElementsFromEdgeLabel(drawingEdge, out var _);

@@ -126,6 +126,8 @@ namespace Kosmograph.Desktop.Graph
 
             this.clickCounter = new ClickCounter(() => Mouse.GetPosition((IInputElement)this.GraphCanvas.Parent));
             this.clickCounter.Elapsed += ClickCounterElapsed;
+
+            this.RunLayoutAsync = true;
         }
 
         #region WPF stuff
@@ -492,8 +494,7 @@ namespace Kosmograph.Desktop.Graph
         {
             LayoutGraph();
             PostLayoutStep();
-            if (LayoutComplete != null)
-                LayoutComplete(null, null);
+            LayoutComplete?.Invoke(null, null);
         }
 
         private void SetUpBackgrounWorkerAndRunAsync()
