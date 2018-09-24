@@ -66,15 +66,14 @@ namespace Kosmograph.Desktop.Graph
 
         private void PushDataFromLayoutGraphToFrameworkElements()
         {
-            this.DrawGraphBackgound();
-
-            this.CreateVNodes();
+            this.DrawGraphBackground();
+            this.CreateViewerNodes();
             this.CreateEdges();
         }
 
-        #region Draw the background of the graph
+        #region Draw the background of the Canvas and the Graph
 
-        public void DrawGraphBackgound()
+        public void DrawGraphBackground()
         {
             // at the very back (Z order -2) is a transparent background.
             this.canvasBackgroundRect = this.CreateCanvasBackgroundRect();
@@ -142,6 +141,6 @@ namespace Kosmograph.Desktop.Graph
             return graphBackground;
         }
 
-        #endregion Draw the background of the graph
+        #endregion Draw the background of the Canvas and the Graph
     }
 }

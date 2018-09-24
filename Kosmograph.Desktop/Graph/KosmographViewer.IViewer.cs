@@ -3,6 +3,7 @@ using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.Miscellaneous.LayoutEditing;
 using Microsoft.Msagl.WpfGraphControl;
 using System;
+using System.Collections.Generic;
 using System.Windows;
 
 namespace Kosmograph.Desktop.Graph
@@ -26,20 +27,26 @@ namespace Kosmograph.Desktop.Graph
         private GeometryGraph GeometryGraph => this.drawingGraph.GeometryGraph;
 
         /// <summary>
+        /// Keep all created IViewr objects for later lookup
+        /// </summary>
+        private readonly Dictionary<DrawingObject, IViewerObject> drawingObjectsToIViewerObjects = new Dictionary<DrawingObject, IViewerObject>();
+
+        /// <summary>
         /// creates a viewer node
         /// </summary>
         /// <param name="drawingNode"></param>
         /// <returns></returns>
         public IViewerNode CreateIViewerNode(Microsoft.Msagl.Drawing.Node drawingNode)
         {
-            var frameworkElement = CreateTextBlockFromDrawingObjectLabel(drawingNode.Label);
-            var width = frameworkElement.Width + 2 * drawingNode.Attr.LabelMargin;
-            var height = frameworkElement.Height + 2 * drawingNode.Attr.LabelMargin;
-            var bc = NodeBoundaryCurves.GetNodeBoundaryCurve(drawingNode, width, height);
-            drawingNode.GeometryNode = new Microsoft.Msagl.Core.Layout.Node(bc, drawingNode);
-            var vNode = CreateVNode(drawingNode);
-            layoutEditor.AttachLayoutChangeEvent(vNode);
-            return vNode;
+            throw new NotImplementedException();
+            //var frameworkElement = CreateTextBlockFromDrawingObjectLabel(drawingNode.Label);
+            //var width = frameworkElement.Width + 2 * drawingNode.Attr.LabelMargin;
+            //var height = frameworkElement.Height + 2 * drawingNode.Attr.LabelMargin;
+            //var bc = NodeBoundaryCurves.GetNodeBoundaryCurve(drawingNode, width, height);
+            //drawingNode.GeometryNode = new Microsoft.Msagl.Core.Layout.Node(bc, drawingNode);
+            //var vNode = GetOrCreateViewerNode(drawingNode);
+            //layoutEditor.AttachLayoutChangeEvent(vNode);
+            //return vNode;
         }
 
         public IViewerNode CreateIViewerNode(Microsoft.Msagl.Drawing.Node drawingNode, Microsoft.Msagl.Core.Geometry.Point center, object visualElement)
@@ -56,7 +63,7 @@ namespace Kosmograph.Desktop.Graph
 
             drawingNode.GeometryNode = new Microsoft.Msagl.Core.Layout.Node(bc, drawingNode) { Center = center };
 
-            var vNode = CreateVNode(drawingNode);
+            var vNode = GetOrCreateViewerNode(drawingNode);
             drawingGraph.AddNode(drawingNode);
             drawingGraph.GeometryGraph.Nodes.Add(drawingNode.GeometryNode);
             layoutEditor.AttachLayoutChangeEvent(vNode);
@@ -76,7 +83,7 @@ namespace Kosmograph.Desktop.Graph
             foreach (var n in incrementalDragger.ChangedGraph.Nodes)
             {
                 var dn = (Microsoft.Msagl.Drawing.Node)n.UserData;
-                var vn = drawingObjectsToIViewerObjects[dn] as VNode;
+                var vn = drawingObjectsToIViewerObjects[dn] as KosmographViewerNode;
                 if (vn != null)
                     vn.Invalidate();
             }
@@ -89,5 +96,7 @@ namespace Kosmograph.Desktop.Graph
                     ve.Invalidate();
             }
         }
+
+        public void Invalidate(IViewerObject objectToInvalidate) => ((IInvalidatable)objectToInvalidate).Invalidate();
     }
 }

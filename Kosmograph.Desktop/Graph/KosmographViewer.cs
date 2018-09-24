@@ -94,9 +94,6 @@ namespace Kosmograph.Desktop.Graph
         private static double _dpiX;
         private static int _dpiY;
 
-        private readonly Dictionary<DrawingObject, IViewerObject> drawingObjectsToIViewerObjects =
-            new Dictionary<DrawingObject, IViewerObject>();
-
         public KosmographViewer(Canvas graphCanvas)
         {
             this.layoutEditor = new LayoutEditor(this);
@@ -177,7 +174,7 @@ namespace Kosmograph.Desktop.Graph
         {
             FrameworkElement ret;
 
-            var vNode = viewerObject as VNode;
+            var vNode = viewerObject as KosmographViewerNode;
             if (vNode != null) ret = vNode.FrameworkElementOfNodeForLabel ?? vNode.BoundaryPath;
             else
             {
@@ -224,7 +221,7 @@ namespace Kosmograph.Desktop.Graph
                     if (ivo.DrawingObject.IsVisible)
                     {
                         objectUnderMouseCursor = ivo;
-                        if (tag is VNode || tag is Label)
+                        if (tag is KosmographViewerNode || tag is Label)
                             return HitTestResultBehavior.Stop;
                     }
                 }
@@ -315,8 +312,6 @@ namespace Kosmograph.Desktop.Graph
                 return null;
             return obj as IViewerObject;
         }
-
-        public void Invalidate(IViewerObject objectToInvalidate) => ((IInvalidatable)objectToInvalidate).Invalidate();
 
         public void Invalidate()
         {
@@ -655,7 +650,7 @@ namespace Kosmograph.Desktop.Graph
                 IViewerObject o;
                 if (drawingObjectsToIViewerObjects.TryGetValue(node, out o))
                 {
-                    ((VNode)o).Invalidate();
+                    ((KosmographViewerNode)o).Invalidate();
                 }
             }
 
@@ -780,8 +775,8 @@ namespace Kosmograph.Desktop.Graph
 
         private int ZIndexOfEdge(DrawingEdge edge)
         {
-            var source = (VNode)drawingObjectsToIViewerObjects[edge.SourceNode];
-            var target = (VNode)drawingObjectsToIViewerObjects[edge.TargetNode];
+            var source = (KosmographViewerNode)drawingObjectsToIViewerObjects[edge.SourceNode];
+            var target = (KosmographViewerNode)drawingObjectsToIViewerObjects[edge.TargetNode];
 
             var zIndex = Math.Max(source.ZIndex, target.ZIndex) + 1;
             return zIndex;
@@ -823,56 +818,6 @@ namespace Kosmograph.Desktop.Graph
             {
                 Panel.SetZIndex(vEdge.TargetArrowHeadPath, zIndex);
                 GraphCanvas.Children.Add(vEdge.TargetArrowHeadPath);
-            }
-        }
-
-        private void CreateVNodes()
-        {
-            foreach (var node in drawingGraph.Nodes.Concat(drawingGraph.RootSubgraph.AllSubgraphsDepthFirstExcludingSelf()))
-            {
-                CreateVNode(node);
-                Invalidate(drawingObjectsToIViewerObjects[node]);
-            }
-        }
-
-        private IViewerNode CreateVNode(Microsoft.Msagl.Drawing.Node node)
-        {
-            lock (this.syncRoot)
-            {
-                if (drawingObjectsToIViewerObjects.ContainsKey(node))
-                    return (IViewerNode)drawingObjectsToIViewerObjects[node];
-
-                FrameworkElement feOfLabel;
-                if (!drawingObjectsToFrameworkElements.TryGetValue(node, out feOfLabel))
-                    feOfLabel = CreateAndRegisterFrameworkElementOfDrawingNode(node);
-
-                var vn = new VNode(node, feOfLabel,
-                    e => (VEdge)drawingObjectsToIViewerObjects[e], () => GetBorderPathThickness() * node.Attr.LineWidth);
-
-                foreach (var fe in vn.FrameworkElements)
-                    GraphCanvas.Children.Add(fe);
-
-                drawingObjectsToIViewerObjects[node] = vn;
-
-                #region commented out animation
-
-                /* //playing with the animation
-                p.Fill = Brushes.Green;
-
-                SolidColorBrush brush = new SolidColorBrush();
-                p.Fill = brush;
-                ColorAnimation ca = new ColorAnimation(Colors.Green, Colors.White, new Duration(TimeSpan.FromMilliseconds(3000)));
-                //Storyboard sb = new Storyboard();
-                //Storyboard.SetTargetProperty(ca, new PropertyPath("Color"));
-                //Storyboard.SetTarget(ca, brush);
-                //sb.Children.Add(ca);
-                //sb.Begin(p);
-                brush.BeginAnimation(SolidColorBrush.ColorProperty, ca);
-                */
-
-                #endregion commented out animation
-
-                return vn;
             }
         }
 
@@ -1097,7 +1042,7 @@ namespace Kosmograph.Desktop.Graph
         {
             if (drawingGraph == null)
                 throw new InvalidOperationException(); // adding a node when the graph does not exist
-            var vNode = (VNode)node;
+            var vNode = (KosmographViewerNode)node;
             drawingGraph.AddNode(vNode.Node);
             drawingGraph.GeometryGraph.Nodes.Add(vNode.Node.GeometryNode);
             layoutEditor.AttachLayoutChangeEvent(vNode);
@@ -1108,7 +1053,7 @@ namespace Kosmograph.Desktop.Graph
         public IViewerObject AddNode(Microsoft.Msagl.Drawing.Node drawingNode)
         {
             Graph.AddNode(drawingNode);
-            var vNode = CreateVNode(drawingNode);
+            var vNode = GetOrCreateViewerNode(drawingNode);
             LayoutEditor.AttachLayoutChangeEvent(vNode);
             LayoutEditor.CleanObstacles();
             return vNode;
@@ -1138,7 +1083,7 @@ namespace Kosmograph.Desktop.Graph
                 RemoveEdges(node.Node.SelfEdges);
                 drawingObjectsToFrameworkElements.Remove(node.Node);
                 drawingObjectsToIViewerObjects.Remove(node.Node);
-                var vnode = (VNode)node;
+                var vnode = (KosmographViewerNode)node;
                 vnode.DetachFromCanvas(GraphCanvas);
 
                 drawingGraph.RemoveNode(node.Node);
