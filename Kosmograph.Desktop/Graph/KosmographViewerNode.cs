@@ -23,8 +23,8 @@ namespace Kosmograph.Desktop.Graph
 {
     public class KosmographViewerNode : IViewerNode, IInvalidatable
     {
-        public Path BoundaryPath { get; private set; }
-        public FrameworkElement FrameworkElementOfNodeForLabel { get; }
+        public Path NodeBoundaryPath { get; private set; }
+        public FrameworkElement NodeLabelFrameworkElement { get; }
         private readonly Func<Edge, VEdge> _funcFromDrawingEdgeToVEdge;
 
         private Border _collapseButtonBorder;
@@ -53,27 +53,30 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        public KosmographViewerNode(Node node, FrameworkElement frameworkElementOfNodeForLabelOfLabel,
+        public KosmographViewerNode(Node node, FrameworkElement nodeLabelFrameworkElement,
             Func<Edge, VEdge> funcFromDrawingEdgeToVEdge, Func<double> pathStrokeThicknessFunc)
         {
             this.PathStrokeThicknessFunc = pathStrokeThicknessFunc;
             this.Node = node;
-            this.FrameworkElementOfNodeForLabel = frameworkElementOfNodeForLabelOfLabel;
+            this.NodeLabelFrameworkElement = nodeLabelFrameworkElement;
 
             _funcFromDrawingEdgeToVEdge = funcFromDrawingEdgeToVEdge;
 
-            CreateNodeBoundaryPath();
-            if (FrameworkElementOfNodeForLabel != null)
+            this.NodeBoundaryPath = this.CreateNodeBoundaryPath(this.NodeLabelFrameworkElement);
+
+            if (this.NodeLabelFrameworkElement != null)
             {
-                FrameworkElementOfNodeForLabel.Tag = this; //get a backpointer to the KosmographViewerNode
-                Wpf2MsaglConverters.PositionFrameworkElement(FrameworkElementOfNodeForLabel, node.GeometryNode.Center, 1);
-                Panel.SetZIndex(FrameworkElementOfNodeForLabel, Panel.GetZIndex(BoundaryPath) + 1);
+                this.NodeLabelFrameworkElement.Tag = this; //get a backpointer to the KosmographViewerNode
+                Wpf2MsaglConverters.PositionFrameworkElement(NodeLabelFrameworkElement, node.GeometryNode.Center, 1);
+                Panel.SetZIndex(NodeLabelFrameworkElement, Panel.GetZIndex(NodeBoundaryPath) + 1);
             }
-            SetupSubgraphDrawing();
+
+            this.SetupSubgraphDrawing();
+
             Node.Attr.VisualsChanged += (a, b) => Invalidate();
             Node.IsVisibleChanged += obj =>
             {
-                foreach (var frameworkElement in FrameworkElements)
+                foreach (var frameworkElement in this.FrameworkElements)
                 {
                     frameworkElement.Visibility = Node.IsVisible ? Visibility.Visible : Visibility.Hidden;
                 }
@@ -148,11 +151,11 @@ namespace Kosmograph.Desktop.Graph
                 return;
             }
 
-            this.BoundaryPath.Data = this.CreatePathFromNodeBoundary();
+            this.NodeBoundaryPath.Data = this.CreatePathFromNodeBoundary(this.Node.Attr.Shape);
 
-            Wpf2MsaglConverters.PositionFrameworkElement(FrameworkElementOfNodeForLabel, Node.BoundingBox.Center, 1);
+            Wpf2MsaglConverters.PositionFrameworkElement(NodeLabelFrameworkElement, Node.BoundingBox.Center, 1);
 
-            this.SetFillAndStroke();
+            this.SetFillAndStroke(this.NodeBoundaryPath);
 
             if (_subgraph is null)
                 return;
@@ -180,11 +183,11 @@ namespace Kosmograph.Desktop.Graph
         {
             get
             {
-                if (this.FrameworkElementOfNodeForLabel != null)
-                    yield return this.FrameworkElementOfNodeForLabel;
+                if (this.NodeLabelFrameworkElement != null)
+                    yield return this.NodeLabelFrameworkElement;
 
-                if (this.BoundaryPath != null)
-                    yield return BoundaryPath;
+                if (this.NodeBoundaryPath != null)
+                    yield return NodeBoundaryPath;
 
                 if (this._collapseButtonBorder != null)
                 {
@@ -253,7 +256,7 @@ namespace Kosmograph.Desktop.Graph
                 CornerRadius = new CornerRadius(collapseBorderSize / 2)
             };
 
-            Panel.SetZIndex(_collapseButtonBorder, Panel.GetZIndex(BoundaryPath) + 1);
+            Panel.SetZIndex(_collapseButtonBorder, Panel.GetZIndex(NodeBoundaryPath) + 1);
 
             var collapseButtonCenter = GetCollapseButtonCenter(collapseBorderSize);
             Wpf2MsaglConverters.PositionFrameworkElement(_collapseButtonBorder, collapseButtonCenter, 1);
@@ -336,30 +339,7 @@ namespace Kosmograph.Desktop.Graph
             return pathGeometry;
         }
 
-        public void CreateNodeBoundaryPath()
-        {
-            if (FrameworkElementOfNodeForLabel != null)
-            {
-                // FrameworkElementOfNode.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-                var center = Node.GeometryNode.Center;
-                var margin = 2 * Node.Attr.LabelMargin;
-                var bc = NodeBoundaryCurves.GetNodeBoundaryCurve(Node,
-                    FrameworkElementOfNodeForLabel
-                        .Width + margin,
-                    FrameworkElementOfNodeForLabel
-                        .Height + margin);
-                bc.Translate(center);
-            }
-            BoundaryPath = new Path { Data = CreatePathFromNodeBoundary(), Tag = this };
-            Panel.SetZIndex(BoundaryPath, ZIndex);
-            SetFillAndStroke();
-            if (Node.Label != null)
-            {
-                BoundaryPath.ToolTip = Node.LabelText;
-                if (FrameworkElementOfNodeForLabel != null)
-                    FrameworkElementOfNodeForLabel.ToolTip = Node.LabelText;
-            }
-        }
+        #region Create NodeBoundaryPath
 
         public Func<double> PathStrokeThicknessFunc { get; }
 
@@ -368,30 +348,78 @@ namespace Kosmograph.Desktop.Graph
             get { return PathStrokeThicknessFunc != null ? PathStrokeThicknessFunc() : Node.Attr.LineWidth; }
         }
 
-        private byte GetTransparency(byte t)
+        public Path CreateNodeBoundaryPath(FrameworkElement frameworkElementToDecorate)
         {
-            return t;
+            if (frameworkElementToDecorate != null)
+            {
+                // FrameworkElementOfNode.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                var margin = 2 * this.Node.Attr.LabelMargin;
+
+                // MSAGL calculates the boundray curve.
+                // it used the externally given width and height for this instead of the Nodes geometry data
+
+                var boundaryCurve = NodeBoundaryCurves.GetNodeBoundaryCurve(this.Node, frameworkElementToDecorate.Width + margin, frameworkElementToDecorate.Height + margin);
+
+                boundaryCurve.Translate(this.Node.GeometryNode.Center);
+            }
+
+            var nodeBoundaryPath = new Path
+            {
+                Data = this.CreatePathFromNodeBoundary(this.Node.Attr.Shape),
+                Tag = this
+            };
+
+            Panel.SetZIndex(nodeBoundaryPath, this.ZIndex);
+
+            this.SetFillAndStroke(nodeBoundaryPath);
+
+            if (Node.Label != null)
+            {
+                nodeBoundaryPath.ToolTip = Node.LabelText;
+                if (this.NodeLabelFrameworkElement != null)
+                    this.NodeLabelFrameworkElement.ToolTip = Node.LabelText;
+            }
+
+            return nodeBoundaryPath;
         }
 
-        private void SetFillAndStroke()
+        private void SetFillAndStroke(Path nodeBoundaryPath)
         {
-            byte trasparency = GetTransparency(Node.Attr.Color.A);
-            BoundaryPath.Stroke = new Microsoft.Msagl.Drawing.Color(trasparency, Node.Attr.Color.R, Node.Attr.Color.G, Node.Attr.Color.B).ToWpf();
-            SetBoundaryFill();
-            BoundaryPath.StrokeThickness = PathStrokeThickness;
+            byte transparency = this.Node.Attr.Color.A;
 
-            var textBlock = FrameworkElementOfNodeForLabel as TextBlock;
+            nodeBoundaryPath.Stroke = this.Node.Attr.Color.ToWpf();
+            nodeBoundaryPath.Fill = Node.Attr.FillColor.ToWpf();
+            nodeBoundaryPath.StrokeThickness = this.PathStrokeThickness;
+
+            var textBlock = this.NodeLabelFrameworkElement as TextBlock;
             if (textBlock != null)
             {
                 var col = Node.Label.FontColor;
-                textBlock.Foreground = new Microsoft.Msagl.Drawing.Color(GetTransparency(col.A), col.R, col.G, col.B).ToWpf();
+                textBlock.Foreground = this.Node.Attr.Color.ToWpf();
             }
         }
 
-        private void SetBoundaryFill()
+        private Geometry CreatePathFromNodeBoundary(Microsoft.Msagl.Drawing.Shape nodeShape)
         {
-            BoundaryPath.Fill = Node.Attr.FillColor.ToWpf();
+            switch (nodeShape)
+            {
+                case Shape.Box:
+                case Shape.House:
+                case Shape.InvHouse:
+                case Shape.Diamond:
+                case Shape.Octagon:
+                case Shape.Hexagon:
+                    return CreateGeometryFromMsaglCurve(Node.GeometryNode.BoundaryCurve);
+
+                case Shape.DoubleCircle:
+                    return DoubleCircle();
+
+                default:
+                    return GetEllipseGeometry();
+            }
         }
+
+        #endregion Create NodeBoundaryPath
 
         private Geometry DoubleCircle()
         {
@@ -405,33 +433,6 @@ namespace Kosmograph.Desktop.Graph
             r.Inflate(-inflation, -inflation);
             pathGeometry.AddGeometry(new EllipseGeometry(r));
             return pathGeometry;
-        }
-
-        private Geometry CreatePathFromNodeBoundary()
-        {
-            Geometry geometry;
-            switch (Node.Attr.Shape)
-            {
-                case Shape.Box:
-                case Shape.House:
-                case Shape.InvHouse:
-                case Shape.Diamond:
-                case Shape.Octagon:
-                case Shape.Hexagon:
-
-                    geometry = CreateGeometryFromMsaglCurve(Node.GeometryNode.BoundaryCurve);
-                    break;
-
-                case Shape.DoubleCircle:
-                    geometry = DoubleCircle();
-                    break;
-
-                default:
-                    geometry = GetEllipseGeometry();
-                    break;
-            }
-
-            return geometry;
         }
 
         private Geometry CreateGeometryFromMsaglCurve(ICurve iCurve)
@@ -514,10 +515,10 @@ namespace Kosmograph.Desktop.Graph
 
         public void DetachFromCanvas(Canvas graphCanvas)
         {
-            if (BoundaryPath != null)
-                graphCanvas.Children.Remove(BoundaryPath);
-            if (FrameworkElementOfNodeForLabel != null)
-                graphCanvas.Children.Remove(FrameworkElementOfNodeForLabel);
+            if (NodeBoundaryPath != null)
+                graphCanvas.Children.Remove(NodeBoundaryPath);
+            if (NodeLabelFrameworkElement != null)
+                graphCanvas.Children.Remove(NodeLabelFrameworkElement);
         }
     }
 }

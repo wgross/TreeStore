@@ -149,13 +149,23 @@ namespace Kosmograph.Desktop.Graph
             if (drawingNode is null)
                 return;
 
-            drawingNode.LabelText = newLabelText;
+            // update the underlying label
+            drawingNode.Label.Text = newLabelText;
 
             this.drawingObjectsToFrameworkElements.TryGetValue(drawingNode, out var frameworkElement);
             if ((frameworkElement is null) || ((frameworkElement as TextBlock) is null))
                 return;
 
             ((TextBlock)frameworkElement).InvokeInUiThread(() => UpdateTextBlockForMsaglDrawingObjectLabel((TextBlock)frameworkElement, drawingNode.Label));
+
+            this.drawingObjectsToIViewerObjects.TryGetValue(drawingNode, out var nodeViewer);
+            if ((nodeViewer is null) || ((nodeViewer as KosmographViewerNode) is null))
+                return;
+
+            var node = ((KosmographViewerNode)nodeViewer);
+
+            //this.GraphCanvas.InvokeInUiThread(node.Invalidate);
+            this.ViewChangeEvent?.Invoke(null, null);
         }
 
         public TextBlock UpdateTextBlockForMsaglDrawingObjectLabel(TextBlock textBlock, Microsoft.Msagl.Drawing.Label drawingLabel)

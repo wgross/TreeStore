@@ -175,7 +175,7 @@ namespace Kosmograph.Desktop.Graph
             FrameworkElement ret;
 
             var vNode = viewerObject as KosmographViewerNode;
-            if (vNode != null) ret = vNode.FrameworkElementOfNodeForLabel ?? vNode.BoundaryPath;
+            if (vNode != null) ret = vNode.NodeLabelFrameworkElement ?? vNode.NodeBoundaryPath;
             else
             {
                 var vLabel = viewerObject as VLabel;
@@ -465,12 +465,8 @@ namespace Kosmograph.Desktop.Graph
         //            }
         //        }
 
-        
-
         private readonly ClickCounter clickCounter;
         public string MsaglFileToSave;
-
-        
 
         private void RunLayoutInUIThread()
         {
@@ -1043,7 +1039,7 @@ namespace Kosmograph.Desktop.Graph
             drawingGraph.AddNode(vNode.Node);
             drawingGraph.GeometryGraph.Nodes.Add(vNode.Node.GeometryNode);
             layoutEditor.AttachLayoutChangeEvent(vNode);
-            GraphCanvas.Children.Add(vNode.FrameworkElementOfNodeForLabel);
+            GraphCanvas.Children.Add(vNode.NodeLabelFrameworkElement);
             layoutEditor.CleanObstacles();
         }
 

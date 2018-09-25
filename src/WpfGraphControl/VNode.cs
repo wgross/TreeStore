@@ -96,8 +96,10 @@ namespace Microsoft.Msagl.WpfGraphControl
             {
                 if (FrameworkElementOfNodeForLabel != null) yield return FrameworkElementOfNodeForLabel;
                 if (BoundaryPath != null) yield return BoundaryPath;
+
                 if (_collapseButtonBorder != null)
                 {
+                    // subgraph only?
                     yield return _collapseButtonBorder;
                     yield return _topMarginRect;
                     yield return _collapseSymbolPath;
