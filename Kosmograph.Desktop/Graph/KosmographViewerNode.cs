@@ -67,14 +67,14 @@ namespace Kosmograph.Desktop.Graph
             if (this.NodeLabelFrameworkElement != null)
             {
                 this.NodeLabelFrameworkElement.Tag = this; //get a backpointer to the KosmographViewerNode
-                Wpf2MsaglConverters.PositionFrameworkElement(NodeLabelFrameworkElement, node.GeometryNode.Center, 1);
-                Panel.SetZIndex(NodeLabelFrameworkElement, Panel.GetZIndex(NodeBoundaryPath) + 1);
+                Wpf2MsaglConverters.PositionFrameworkElement(this.NodeLabelFrameworkElement, node.GeometryNode.Center, 1);
+                Panel.SetZIndex(this.NodeLabelFrameworkElement, Panel.GetZIndex(this.NodeBoundaryPath) + 1);
             }
 
             this.SetupSubgraphDrawing();
 
-            Node.Attr.VisualsChanged += (a, b) => Invalidate();
-            Node.IsVisibleChanged += obj =>
+            this.Node.Attr.VisualsChanged += (a, b) => Invalidate();
+            this.Node.IsVisibleChanged += obj =>
             {
                 foreach (var frameworkElement in this.FrameworkElements)
                 {
@@ -146,14 +146,15 @@ namespace Kosmograph.Desktop.Graph
         {
             if (!this.Node.IsVisible)
             {
-                foreach (var fe in FrameworkElements)
+                foreach (var fe in this.FrameworkElements)
                     fe.Visibility = Visibility.Hidden;
                 return;
             }
 
-            this.NodeBoundaryPath.Data = this.CreatePathFromNodeBoundary(this.Node.Attr.Shape);
+            this.NodeBoundaryPath.Data = this.CreateNodeBoundaryGeometry();
 
-            Wpf2MsaglConverters.PositionFrameworkElement(NodeLabelFrameworkElement, Node.BoundingBox.Center, 1);
+            // The RextBlock is centered at the node center of the logical geomtry node.
+            Wpf2MsaglConverters.PositionFrameworkElement(this.NodeLabelFrameworkElement, this.Node.BoundingBox.Center, 1);
 
             this.SetFillAndStroke(this.NodeBoundaryPath);
 
@@ -350,22 +351,22 @@ namespace Kosmograph.Desktop.Graph
 
         public Path CreateNodeBoundaryPath(FrameworkElement frameworkElementToDecorate)
         {
-            if (frameworkElementToDecorate != null)
-            {
-                // FrameworkElementOfNode.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-                var margin = 2 * this.Node.Attr.LabelMargin;
+            //if (frameworkElementToDecorate != null)
+            //{
+            //    // FrameworkElementOfNode.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+            //    var margin = 2 * this.Node.Attr.LabelMargin;
 
-                // MSAGL calculates the boundray curve.
-                // it used the externally given width and height for this instead of the Nodes geometry data
+            //    // MSAGL calculates the boundary curve depending from the Node.Attr.Shape and the given height and margin
+            //    // for Shape.Box the coreners are rounded if the Node.Attr.Xradius and Yradiuis properties are != 0
+            //    var boundaryCurve = NodeBoundaryCurves.GetNodeBoundaryCurve(this.Node, frameworkElementToDecorate.Width + margin, frameworkElementToDecorate.Height + margin);
 
-                var boundaryCurve = NodeBoundaryCurves.GetNodeBoundaryCurve(this.Node, frameworkElementToDecorate.Width + margin, frameworkElementToDecorate.Height + margin);
-
-                boundaryCurve.Translate(this.Node.GeometryNode.Center);
-            }
+            //    // the box is moved to the center of the geometry node.
+            //    boundaryCurve.Translate(this.Node.GeometryNode.Center);
+            //}
 
             var nodeBoundaryPath = new Path
             {
-                Data = this.CreatePathFromNodeBoundary(this.Node.Attr.Shape),
+                Data = this.CreateNodeBoundaryGeometry(),
                 Tag = this
             };
 
@@ -399,9 +400,9 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        private Geometry CreatePathFromNodeBoundary(Microsoft.Msagl.Drawing.Shape nodeShape)
+        private Geometry CreateNodeBoundaryGeometry()
         {
-            switch (nodeShape)
+            switch (this.Node.Attr.Shape)
             {
                 case Shape.Box:
                 case Shape.House:
@@ -409,21 +410,18 @@ namespace Kosmograph.Desktop.Graph
                 case Shape.Diamond:
                 case Shape.Octagon:
                 case Shape.Hexagon:
-                    return CreateGeometryFromMsaglCurve(Node.GeometryNode.BoundaryCurve);
+                    return CreateGeometryFromMsaglCurve(this.Node.GeometryNode.BoundaryCurve);
 
                 case Shape.DoubleCircle:
-                    return DoubleCircle();
+                    return CreateDoubleCircleGeometryFromMsaglRectangle(this.Node.BoundingBox);
 
                 default:
-                    return GetEllipseGeometry();
+                    return CreateEllipseGeometryFromMsaglRectangle(this.Node.BoundingBox);
             }
         }
 
-        #endregion Create NodeBoundaryPath
-
-        private Geometry DoubleCircle()
+        private static Geometry CreateDoubleCircleGeometryFromMsaglRectangle(Microsoft.Msagl.Core.Geometry.Rectangle box)
         {
-            var box = Node.BoundingBox;
             double w = box.Width;
             double h = box.Height;
             var pathGeometry = new PathGeometry();
@@ -435,7 +433,7 @@ namespace Kosmograph.Desktop.Graph
             return pathGeometry;
         }
 
-        private Geometry CreateGeometryFromMsaglCurve(ICurve iCurve)
+        private static Geometry CreateGeometryFromMsaglCurve(ICurve iCurve)
         {
             var pathGeometry = new PathGeometry();
             var pathFigure = new PathFigure
@@ -503,10 +501,12 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        private Geometry GetEllipseGeometry()
+        private static Geometry CreateEllipseGeometryFromMsaglRectangle(Microsoft.Msagl.Core.Geometry.Rectangle box)
         {
-            return new EllipseGeometry(Node.BoundingBox.Center.ToWpf(), Node.BoundingBox.Width / 2, Node.BoundingBox.Height / 2);
+            return new EllipseGeometry(box.Center.ToWpf(), box.Width / 2, box.Height / 2);
         }
+
+        #endregion Create NodeBoundaryPath
 
         public override string ToString()
         {

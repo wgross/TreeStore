@@ -114,7 +114,7 @@ namespace Kosmograph.Desktop.Graph
             this.clickCounter = new ClickCounter(() => Mouse.GetPosition((IInputElement)this.GraphCanvas.Parent));
             this.clickCounter.Elapsed += ClickCounterElapsed;
 
-            this.RunLayoutAsync = true;
+            this.RunLayoutAsync = false;
         }
 
         #region WPF stuff
@@ -788,7 +788,7 @@ namespace Kosmograph.Desktop.Graph
             FrameworkElement frameworkElementForEdgeLabel;
             if (!drawingObjectsToFrameworkElements.TryGetValue(edge, out frameworkElementForEdgeLabel))
             {
-                this.FillFrameworkElementsFromEdgeLabel(edge, out frameworkElementForEdgeLabel);
+                this.FillFrameworkElementsWithEdgeLabels(edge, out frameworkElementForEdgeLabel);
                 frameworkElementForEdgeLabel.Tag = new VLabel(edge, frameworkElementForEdgeLabel);
             }
 
@@ -820,41 +820,51 @@ namespace Kosmograph.Desktop.Graph
                 return drawingObjectsToFrameworkElements[node] = CreateTextBlockFromDrawingObjectLabel(node.Label);
         }
 
-        private void PopulateGeometryOfGeometryGraph()
+        /// <summary>
+        /// INsitilaizes some of the gemotry nodes/edges with values depending of the
+        /// prepared Framework Elements
+        /// </summary>
+        private void InitializeGeometryGraph()
         {
-            this.geometryGraphUnderLayout = this.GeometryGraph;
-            foreach (Node layoutNode in this.geometryGraphUnderLayout.Nodes)
-            {
-                var drawingNode = (Microsoft.Msagl.Drawing.Node)layoutNode.UserData;
-                if (GraphCanvas.Dispatcher.CheckAccess())
-                    layoutNode.BoundaryCurve = GetNodeBoundaryCurve(drawingNode);
-                else
-                {
-                    var msagNodeInThread = layoutNode;
-                    GraphCanvas.Dispatcher.Invoke(() => msagNodeInThread.BoundaryCurve = GetNodeBoundaryCurve(drawingNode));
-                }
-                //AssignLabelWidthHeight(msaglNode, msaglNode.UserData as DrawingObject);
-            }
+            this.InitializeGeometryGraphNodes(this.GeometryGraph);
+            this.InitializeGeometryGraphSubGraphs(this.GeometryGraph);
+            this.InitializeGemoetrtyGraphEdges(this.GeometryGraph);
+        }
 
-            foreach (Cluster cluster in this.geometryGraphUnderLayout.RootCluster.AllClustersWideFirstExcludingSelf())
+        private void InitializeGeometryGraphNodes(GeometryGraph geometryGraph)
+        {
+            foreach (Node layoutNode in geometryGraph.Nodes)
             {
-                var subgraph = (Subgraph)cluster.UserData;
-                if (GraphCanvas.Dispatcher.CheckAccess())
-                    cluster.CollapsedBoundary = GetClusterCollapsedBoundary(subgraph);
-                else
+                var closure_layoutNode = layoutNode;
+                this.GraphCanvas.InvokeInUiThread(() =>
                 {
-                    var clusterInThread = cluster;
-                    GraphCanvas.Dispatcher.Invoke(
-                        () => clusterInThread.BoundaryCurve = GetClusterCollapsedBoundary(subgraph));
-                }
+                    // the layout node is initialized with a boundray curve.
+                    closure_layoutNode.BoundaryCurve = this.GetNodeBoundaryCurve((Microsoft.Msagl.Drawing.Node)closure_layoutNode.UserData);
+                });
+            }
+        }
+
+        private void InitializeGeometryGraphSubGraphs(GeometryGraph geometryGraph)
+        {
+            foreach (Cluster cluster in geometryGraph.RootCluster.AllClustersWideFirstExcludingSelf())
+            {
+                var closure_cluster = cluster;
+                this.GraphCanvas.InvokeInUiThread(() => closure_cluster.BoundaryCurve =
+                    this.GetClusterCollapsedBoundary((Subgraph)closure_cluster.UserData));
+
+                var subgraph = (Subgraph)cluster.UserData;
+
                 if (cluster.RectangularBoundary == null)
                     cluster.RectangularBoundary = new RectangularClusterBoundary();
-                cluster.RectangularBoundary.TopMargin = subgraph.DiameterOfOpenCollapseButton + 0.5 +
-                                                        subgraph.Attr.LineWidth / 2;
+
+                cluster.RectangularBoundary.TopMargin = subgraph.DiameterOfOpenCollapseButton + 0.5 + subgraph.Attr.LineWidth / 2;
                 //AssignLabelWidthHeight(msaglNode, msaglNode.UserData as DrawingObject);
             }
+        }
 
-            foreach (var layoutEdge in this.geometryGraphUnderLayout.Edges)
+        private void InitializeGemoetrtyGraphEdges(GeometryGraph geometryGraph)
+        {
+            foreach (var layoutEdge in geometryGraph.Edges)
             {
                 var drawingEdge = (DrawingEdge)layoutEdge.UserData;
                 AssignLabelWidthHeight(layoutEdge, drawingEdge);
@@ -871,8 +881,7 @@ namespace Kosmograph.Desktop.Graph
                 width = fe.Width + 2 * subgraph.Attr.LabelMargin + subgraph.DiameterOfOpenCollapseButton;
                 height = Math.Max(fe.Height + 2 * subgraph.Attr.LabelMargin, subgraph.DiameterOfOpenCollapseButton);
             }
-            else
-                return GetApproximateCollapsedBoundary(subgraph);
+            else return GetApproximateCollapsedBoundary(subgraph);
 
             if (width < drawingGraph.Attr.MinNodeWidth)
                 width = drawingGraph.Attr.MinNodeWidth;
@@ -922,19 +931,22 @@ namespace Kosmograph.Desktop.Graph
         {
             double width, height;
 
-            FrameworkElement fe;
-            if (drawingObjectsToFrameworkElements.TryGetValue(node, out fe))
+            FrameworkElement frameworkElement;
+            if (this.drawingObjectsToFrameworkElements.TryGetValue(node, out frameworkElement))
             {
-                width = fe.Width + 2 * node.Attr.LabelMargin;
-                height = fe.Height + 2 * node.Attr.LabelMargin;
+                // a Frameworkelement was prerpared beforehand.
+                width = frameworkElement.Width + 2 * node.Attr.LabelMargin;
+                height = frameworkElement.Height + 2 * node.Attr.LabelMargin;
             }
-            else
-                return GetNodeBoundaryCurveByMeasuringText(node);
+            else return GetNodeBoundaryCurveByMeasuringText(node);
+
+            // the calculated width must not be smaller the minimal size.
 
             if (width < drawingGraph.Attr.MinNodeWidth)
                 width = drawingGraph.Attr.MinNodeWidth;
             if (height < drawingGraph.Attr.MinNodeHeight)
                 height = drawingGraph.Attr.MinNodeHeight;
+
             return NodeBoundaryCurves.GetNodeBoundaryCurve(node, width, height);
         }
 
