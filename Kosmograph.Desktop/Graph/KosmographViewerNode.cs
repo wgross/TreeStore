@@ -367,9 +367,9 @@ namespace Kosmograph.Desktop.Graph
             textBlock.FontFamily = new System.Windows.Media.FontFamily(this.Node.Label.FontName);
             textBlock.FontSize = this.Node.Label.FontSize;
             textBlock.Foreground = this.Node.Label.FontColor.ToWpf();
-            textBlock.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
             textBlock.ToolTip = this.Node.LabelText ?? string.Empty;
-            textBlock.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+            textBlock.Width = this.Node.GeometryNode.BoundingBox.Width;
+            textBlock.Height = this.Node.GeometryNode.BoundingBox.Height;
 
             Wpf2MsaglConverters.PositionFrameworkElement(textBlock, this.Node.GeometryNode.Center, 1);
 

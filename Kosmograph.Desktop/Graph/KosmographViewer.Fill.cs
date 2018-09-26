@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using GeometryRectangle = Microsoft.Msagl.Core.Geometry.Rectangle;
 
 namespace Kosmograph.Desktop.Graph
 {
@@ -124,6 +125,8 @@ namespace Kosmograph.Desktop.Graph
             textBlock.FontFamily = new System.Windows.Media.FontFamily(drawingLabel.FontName);
             textBlock.FontSize = drawingLabel.FontSize;
             textBlock.Foreground = drawingLabel.FontColor.ToWpf();
+            textBlock.HorizontalAlignment = HorizontalAlignment.Center;
+            textBlock.VerticalAlignment = VerticalAlignment.Center;
             textBlock.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
 
             Console.WriteLine($"measure:tb(Height={textBlock.DesiredSize.Height},Width={textBlock.DesiredSize.Width})");
@@ -131,7 +134,7 @@ namespace Kosmograph.Desktop.Graph
             textBlock.Width = textBlock.DesiredSize.Width;
             textBlock.Height = textBlock.DesiredSize.Height;
 
-            Console.WriteLine($"update:tb(Height={textBlock.Height},Width={textBlock.Width})");
+            //Console.WriteLine($"update:tb(Height={textBlock.Height},Width={textBlock.Width})");
 
             return textBlock;
         }
@@ -165,8 +168,17 @@ namespace Kosmograph.Desktop.Graph
 
             // update the underlying label
             drawingNode.Label.Text = newLabelText;
-            //drawingNode.GeometryNode.BoundaryCurve = NodeBoundaryCurves.GetNodeBoundaryCurve(drawingNode, 99, 33);
-            
+
+            var tb = new TextBlock { Text = newLabelText };
+            tb.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+
+            var currentBox = drawingNode.GeometryNode.BoundingBox;
+            var currentCenter = currentBox.Center;
+            var newBox = new GeometryRectangle(0,0, tb.DesiredSize.Width, tb.DesiredSize.Height);
+            newBox.Center = currentCenter;
+            //newBox.PadWidth((tb.DesiredSize.Width-currentBox.Width)/2);
+            drawingNode.GeometryNode.BoundingBox = newBox;
+
             //this.drawingObjectsToFrameworkElements.TryGetValue(drawingNode, out var frameworkElement);
             //if ((frameworkElement is null) || ((frameworkElement as TextBlock) is null))
             //    return;

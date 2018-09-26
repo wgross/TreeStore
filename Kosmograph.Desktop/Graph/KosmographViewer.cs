@@ -37,6 +37,7 @@ using Microsoft.Msagl.WpfGraphControl;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -891,11 +892,14 @@ namespace Kosmograph.Desktop.Graph
 
         private ICurve GetNodeBoundaryCurve(Microsoft.Msagl.Drawing.Node node)
         {
+            
             double width, height;
 
             FrameworkElement frameworkElement;
             if (this.drawingObjectsToFrameworkElements.TryGetValue(node, out frameworkElement))
             {
+                Debug.Assert(frameworkElement.CheckAccess());
+
                 // a Frameworkelement was prerpared beforehand.
                 width = frameworkElement.Width + 2 * node.Attr.LabelMargin;
                 height = frameworkElement.Height + 2 * node.Attr.LabelMargin;
