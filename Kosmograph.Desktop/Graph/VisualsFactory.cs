@@ -20,7 +20,6 @@ namespace Kosmograph.Desktop.Graph
         {
             return new TextBlock
             {
-                Tag = drawingLabel,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
             }
@@ -61,11 +60,7 @@ namespace Kosmograph.Desktop.Graph
 
         public static Path CreateNodeBoundary(DrawingNode drawingNode)
         {
-            return new Path
-            {
-                Tag = drawingNode
-            }
-            .Update(drawingNode);
+            return new Path().Update(drawingNode);
         }
 
         public static Path Update(this Path nodeBoundary, DrawingNode drawingNode)

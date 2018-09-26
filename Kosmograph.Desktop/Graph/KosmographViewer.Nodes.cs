@@ -2,6 +2,7 @@
 using Microsoft.Msagl.WpfGraphControl;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace Kosmograph.Desktop.Graph
 {
@@ -31,7 +32,7 @@ namespace Kosmograph.Desktop.Graph
                 if (!this.drawingObjectsToFrameworkElements.TryGetValue(drawingNode, out nodeLabel))
                     nodeLabel = this.CreateAndRegisterFrameworkElementOfDrawingNode(drawingNode);
 
-                var viewerNode = new KosmographViewerNode(drawingNode, nodeLabel,
+                var viewerNode = new KosmographViewerNode(drawingNode, (TextBlock)nodeLabel,
                     funcFromDrawingEdgeToVEdge: e => (VEdge)drawingObjectsToIViewerObjects[e],
                     pathStrokeThicknessFunc: () => GetBorderPathThickness() * drawingNode.Attr.LineWidth);
 

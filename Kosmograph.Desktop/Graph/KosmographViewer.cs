@@ -175,7 +175,7 @@ namespace Kosmograph.Desktop.Graph
             FrameworkElement ret;
 
             var vNode = viewerObject as KosmographViewerNode;
-            if (vNode != null) ret = vNode.NodeLabel ?? vNode.NodeBoundaryPath;
+            if (vNode != null) ret = (FrameworkElement)(vNode.NodeLabel) ?? (FrameworkElement)(vNode.NodeBoundaryPath);
             else
             {
                 var vLabel = viewerObject as VLabel;
@@ -781,8 +781,6 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-      
-
         /// <summary>
         /// INsitilaizes some of the gemotry nodes/edges with values depending of the
         /// prepared Framework Elements
@@ -892,7 +890,6 @@ namespace Kosmograph.Desktop.Graph
 
         private ICurve GetNodeBoundaryCurve(Microsoft.Msagl.Drawing.Node node)
         {
-            
             double width, height;
 
             FrameworkElement frameworkElement;
