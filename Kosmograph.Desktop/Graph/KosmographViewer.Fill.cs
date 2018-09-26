@@ -128,13 +128,8 @@ namespace Kosmograph.Desktop.Graph
             textBlock.HorizontalAlignment = HorizontalAlignment.Center;
             textBlock.VerticalAlignment = VerticalAlignment.Center;
             textBlock.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
-
-            Console.WriteLine($"measure:tb(Height={textBlock.DesiredSize.Height},Width={textBlock.DesiredSize.Width})");
-
             textBlock.Width = textBlock.DesiredSize.Width;
             textBlock.Height = textBlock.DesiredSize.Height;
-
-            //Console.WriteLine($"update:tb(Height={textBlock.Height},Width={textBlock.Width})");
 
             return textBlock;
         }
@@ -172,27 +167,10 @@ namespace Kosmograph.Desktop.Graph
             var tb = new TextBlock { Text = newLabelText };
             tb.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
 
-            var currentBox = drawingNode.GeometryNode.BoundingBox;
-            var currentCenter = currentBox.Center;
-            var newBox = new GeometryRectangle(0,0, tb.DesiredSize.Width, tb.DesiredSize.Height);
-            newBox.Center = currentCenter;
-            //newBox.PadWidth((tb.DesiredSize.Width-currentBox.Width)/2);
-            drawingNode.GeometryNode.BoundingBox = newBox;
-
-            //this.drawingObjectsToFrameworkElements.TryGetValue(drawingNode, out var frameworkElement);
-            //if ((frameworkElement is null) || ((frameworkElement as TextBlock) is null))
-            //    return;
-
-            //((TextBlock)frameworkElement).InvokeInUiThread(tb =>
-            //{
-            //    this.SetTextBlockPropertiesFromDrawingLabel(tb, drawingNode.Label).Arrange(new Rect(tb.DesiredSize));
-            //});
-
-            //this.drawingObjectsToIViewerObjects.TryGetValue(drawingNode, out var viewerNode);
-            //if ((viewerNode is null) || ((viewerNode as KosmographViewerNode) is null))
-            //    return;
-
-            //((KosmographViewerNode)viewerNode).Invalidate();
+            drawingNode.GeometryNode.BoundingBox = new GeometryRectangle(0, 0, tb.DesiredSize.Width, tb.DesiredSize.Height)
+            {
+                Center = drawingNode.GeometryNode.BoundingBox.Center
+            };
         }
 
         #endregion Update a node

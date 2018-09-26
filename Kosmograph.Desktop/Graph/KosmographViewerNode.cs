@@ -12,7 +12,6 @@ using System.Windows.Shapes;
 using Edge = Microsoft.Msagl.Drawing.Edge;
 using Node = Microsoft.Msagl.Drawing.Node;
 using Point = Microsoft.Msagl.Core.Geometry.Point;
-using Size = System.Windows.Size;
 
 namespace Kosmograph.Desktop.Graph
 {
@@ -364,24 +363,19 @@ namespace Kosmograph.Desktop.Graph
         private Path UpdateNodeVisuals(TextBlock textBlock, Path nodeBoundaryPath)
         {
             textBlock.Text = this.Node.Label.Text;
-            textBlock.FontFamily = new System.Windows.Media.FontFamily(this.Node.Label.FontName);
+            textBlock.FontFamily = new FontFamily(this.Node.Label.FontName);
             textBlock.FontSize = this.Node.Label.FontSize;
             textBlock.Foreground = this.Node.Label.FontColor.ToWpf();
             textBlock.ToolTip = this.Node.LabelText ?? string.Empty;
-            textBlock.Width = this.Node.GeometryNode.BoundingBox.Width;
-            textBlock.Height = this.Node.GeometryNode.BoundingBox.Height;
+            textBlock.Width = this.Node.Width;
+            textBlock.Height = this.Node.Height;
 
             Wpf2MsaglConverters.PositionFrameworkElement(textBlock, this.Node.GeometryNode.Center, 1);
-
-            // byte transparency = this.Node.Attr.Color.A;
 
             nodeBoundaryPath.Data = NodeBoundaryGeometry.Create(this.Node);
             nodeBoundaryPath.Stroke = this.Node.Attr.Color.ToWpf();
             nodeBoundaryPath.Fill = this.Node.Attr.FillColor.ToWpf();
             nodeBoundaryPath.StrokeThickness = this.PathStrokeThickness;
-
-            // explicietly positioning this break panning and dragging
-            // Wpf2MsaglConverters.PositionFrameworkElement(nodeBoundaryPath, this.Node.GeometryNode.Center, 1);
 
             // the node boundary is placed behind the label.
             Panel.SetZIndex(nodeBoundaryPath, this.ZIndex);
