@@ -1,4 +1,3 @@
-using Microsoft.Msagl.Core.Geometry.Curves;
 using Microsoft.Msagl.Core.Layout;
 using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.WpfGraphControl;
@@ -11,21 +10,16 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using Edge = Microsoft.Msagl.Drawing.Edge;
-using Ellipse = Microsoft.Msagl.Core.Geometry.Curves.Ellipse;
-using LineSegment = Microsoft.Msagl.Core.Geometry.Curves.LineSegment;
 using Node = Microsoft.Msagl.Drawing.Node;
 using Point = Microsoft.Msagl.Core.Geometry.Point;
-using Polyline = Microsoft.Msagl.Core.Geometry.Curves.Polyline;
-using Shape = Microsoft.Msagl.Drawing.Shape;
 using Size = System.Windows.Size;
 
 namespace Kosmograph.Desktop.Graph
 {
     public class KosmographViewerNode : IViewerNode, IInvalidatable
     {
-        public Path NodeBoundaryPath { get; private set; }
-        public FrameworkElement NodeLabelFrameworkElement { get; }
-        private readonly Func<Edge, VEdge> _funcFromDrawingEdgeToVEdge;
+        public FrameworkElement NodeLabel { get; }
+        private readonly Func<Edge, VEdge> funcFromDrawingEdgeToVEdge;
 
         private Border _collapseButtonBorder;
         private Rectangle _topMarginRect;
@@ -53,27 +47,24 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        public KosmographViewerNode(Node node, FrameworkElement nodeLabelFrameworkElement,
-            Func<Edge, VEdge> funcFromDrawingEdgeToVEdge, Func<double> pathStrokeThicknessFunc)
+        public KosmographViewerNode(Node node, FrameworkElement nodeLabelFrameworkElement, Func<Edge, VEdge> funcFromDrawingEdgeToVEdge, Func<double> pathStrokeThicknessFunc)
         {
-            this.PathStrokeThicknessFunc = pathStrokeThicknessFunc;
+            this.pathStrokeThicknessFunc = pathStrokeThicknessFunc;
+            this.funcFromDrawingEdgeToVEdge = funcFromDrawingEdgeToVEdge;
+
             this.Node = node;
-            this.NodeLabelFrameworkElement = nodeLabelFrameworkElement;
+            // deoending of the state opf the node the KosmographVioewNode maps events from the graoh engionew to actions in
+            // WPF.
+            this.NodeLabel = nodeLabelFrameworkElement;
+            this.NodeLabel.Tag = this; //get a backpointer to the KosmographViewerNode
+            this.NodeBoundaryPath = this.CreateNodeBoundaryPath(this.NodeLabel);
 
-            _funcFromDrawingEdgeToVEdge = funcFromDrawingEdgeToVEdge;
-
-            this.NodeBoundaryPath = this.CreateNodeBoundaryPath(this.NodeLabelFrameworkElement);
-
-            if (this.NodeLabelFrameworkElement != null)
-            {
-                this.NodeLabelFrameworkElement.Tag = this; //get a backpointer to the KosmographViewerNode
-                Wpf2MsaglConverters.PositionFrameworkElement(this.NodeLabelFrameworkElement, node.GeometryNode.Center, 1);
-                Panel.SetZIndex(this.NodeLabelFrameworkElement, Panel.GetZIndex(this.NodeBoundaryPath) + 1);
-            }
+            Wpf2MsaglConverters.PositionFrameworkElement(this.NodeLabel, node.GeometryNode.Center, 1);
+            Panel.SetZIndex(this.NodeLabel, Panel.GetZIndex(this.NodeBoundaryPath) + 1);
 
             this.SetupSubgraphDrawing();
 
-            this.Node.Attr.VisualsChanged += (a, b) => Invalidate();
+            this.Node.Attr.VisualsChanged += (a, b) => this.Invalidate();
             this.Node.IsVisibleChanged += obj =>
             {
                 foreach (var frameworkElement in this.FrameworkElements)
@@ -130,11 +121,11 @@ namespace Kosmograph.Desktop.Graph
         private Subgraph _subgraph;
         private Node _node;
 
-        public IEnumerable<IViewerEdge> InEdges => this.Node.InEdges.Select(e => _funcFromDrawingEdgeToVEdge(e));
+        public IEnumerable<IViewerEdge> InEdges => this.Node.InEdges.Select(e => funcFromDrawingEdgeToVEdge(e));
 
-        public IEnumerable<IViewerEdge> OutEdges => this.Node.OutEdges.Select(e => _funcFromDrawingEdgeToVEdge(e));
+        public IEnumerable<IViewerEdge> OutEdges => this.Node.OutEdges.Select(e => funcFromDrawingEdgeToVEdge(e));
 
-        public IEnumerable<IViewerEdge> SelfEdges => this.Node.SelfEdges.Select(e => _funcFromDrawingEdgeToVEdge(e));
+        public IEnumerable<IViewerEdge> SelfEdges => this.Node.SelfEdges.Select(e => funcFromDrawingEdgeToVEdge(e));
 
         public event Action<IViewerNode> IsCollapsedChanged;
 
@@ -142,8 +133,14 @@ namespace Kosmograph.Desktop.Graph
 
         #region IInvalidatable members
 
+        /// <summary>
+        /// Handles any change in the visulas triggred by the MSAGl node classes.
+        /// This doesn ot change the visuals itself to avoid endless recursion
+        /// </summary>
         public void Invalidate()
         {
+            Debug.Assert(this.NodeLabel.Dispatcher.CheckAccess());
+
             if (!this.Node.IsVisible)
             {
                 foreach (var fe in this.FrameworkElements)
@@ -151,12 +148,7 @@ namespace Kosmograph.Desktop.Graph
                 return;
             }
 
-            this.NodeBoundaryPath.Data = this.CreateNodeBoundaryGeometry();
-
-            // The RextBlock is centered at the node center of the logical geomtry node.
-            Wpf2MsaglConverters.PositionFrameworkElement(this.NodeLabelFrameworkElement, this.Node.BoundingBox.Center, 1);
-
-            this.SetFillAndStroke(this.NodeBoundaryPath);
+            this.UpdateNodeVisuals(this.NodeLabel, this.NodeBoundaryPath);
 
             if (_subgraph is null)
                 return;
@@ -184,8 +176,8 @@ namespace Kosmograph.Desktop.Graph
         {
             get
             {
-                if (this.NodeLabelFrameworkElement != null)
-                    yield return this.NodeLabelFrameworkElement;
+                if (this.NodeLabel != null)
+                    yield return this.NodeLabel;
 
                 if (this.NodeBoundaryPath != null)
                     yield return NodeBoundaryPath;
@@ -340,16 +332,18 @@ namespace Kosmograph.Desktop.Graph
             return pathGeometry;
         }
 
-        #region Create NodeBoundaryPath
+        #region Nodes have a boundary
 
-        public Func<double> PathStrokeThicknessFunc { get; }
+        public Path NodeBoundaryPath { get; set; }
+
+        private Func<double> pathStrokeThicknessFunc { get; }
 
         private double PathStrokeThickness
         {
-            get { return PathStrokeThicknessFunc != null ? PathStrokeThicknessFunc() : Node.Attr.LineWidth; }
+            get { return pathStrokeThicknessFunc != null ? this.pathStrokeThicknessFunc() : Node.Attr.LineWidth; }
         }
 
-        public Path CreateNodeBoundaryPath(FrameworkElement frameworkElementToDecorate)
+        private Path CreateNodeBoundaryPath(FrameworkElement frameworkElementToDecorate)
         {
             //if (frameworkElementToDecorate != null)
             //{
@@ -364,149 +358,38 @@ namespace Kosmograph.Desktop.Graph
             //    boundaryCurve.Translate(this.Node.GeometryNode.Center);
             //}
 
-            var nodeBoundaryPath = new Path
-            {
-                Data = this.CreateNodeBoundaryGeometry(),
-                Tag = this
-            };
+            return this.UpdateNodeVisuals(frameworkElementToDecorate, new Path { Tag = this });
+        }
 
+        private Path UpdateNodeVisuals(FrameworkElement frameworkElementToDecorate, Path nodeBoundaryPath)
+        {
+            frameworkElementToDecorate.ToolTip = this.Node.LabelText ?? string.Empty;
+            ((TextBlock)frameworkElementToDecorate).Text = this.Node.LabelText;
+
+            TextBlock.SetForeground(frameworkElementToDecorate, this.Node.Attr.Color.ToWpf());
+
+            frameworkElementToDecorate.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+
+            Wpf2MsaglConverters.PositionFrameworkElement(frameworkElementToDecorate, this.Node.GeometryNode.Center, 1);
+
+            // byte transparency = this.Node.Attr.Color.A;
+
+            nodeBoundaryPath.Data = NodeBoundaryGeometry.Create(this.Node);
+            nodeBoundaryPath.Stroke = this.Node.Attr.Color.ToWpf();
+            nodeBoundaryPath.Fill = this.Node.Attr.FillColor.ToWpf();
+            nodeBoundaryPath.StrokeThickness = this.PathStrokeThickness;
+
+            // explicietly positioning this break panning and dragging
+            // Wpf2MsaglConverters.PositionFrameworkElement(nodeBoundaryPath, this.Node.GeometryNode.Center, 1);
+
+            // the node boundary is placed behind the label.
             Panel.SetZIndex(nodeBoundaryPath, this.ZIndex);
-
-            this.SetFillAndStroke(nodeBoundaryPath);
-
-            if (Node.Label != null)
-            {
-                nodeBoundaryPath.ToolTip = Node.LabelText;
-                if (this.NodeLabelFrameworkElement != null)
-                    this.NodeLabelFrameworkElement.ToolTip = Node.LabelText;
-            }
+            Panel.SetZIndex(frameworkElementToDecorate, Panel.GetZIndex(nodeBoundaryPath) + 1);
 
             return nodeBoundaryPath;
         }
 
-        private void SetFillAndStroke(Path nodeBoundaryPath)
-        {
-            byte transparency = this.Node.Attr.Color.A;
-
-            nodeBoundaryPath.Stroke = this.Node.Attr.Color.ToWpf();
-            nodeBoundaryPath.Fill = Node.Attr.FillColor.ToWpf();
-            nodeBoundaryPath.StrokeThickness = this.PathStrokeThickness;
-
-            var textBlock = this.NodeLabelFrameworkElement as TextBlock;
-            if (textBlock != null)
-            {
-                var col = Node.Label.FontColor;
-                textBlock.Foreground = this.Node.Attr.Color.ToWpf();
-            }
-        }
-
-        private Geometry CreateNodeBoundaryGeometry()
-        {
-            switch (this.Node.Attr.Shape)
-            {
-                case Shape.Box:
-                case Shape.House:
-                case Shape.InvHouse:
-                case Shape.Diamond:
-                case Shape.Octagon:
-                case Shape.Hexagon:
-                    return CreateGeometryFromMsaglCurve(this.Node.GeometryNode.BoundaryCurve);
-
-                case Shape.DoubleCircle:
-                    return CreateDoubleCircleGeometryFromMsaglRectangle(this.Node.BoundingBox);
-
-                default:
-                    return CreateEllipseGeometryFromMsaglRectangle(this.Node.BoundingBox);
-            }
-        }
-
-        private static Geometry CreateDoubleCircleGeometryFromMsaglRectangle(Microsoft.Msagl.Core.Geometry.Rectangle box)
-        {
-            double w = box.Width;
-            double h = box.Height;
-            var pathGeometry = new PathGeometry();
-            var r = new Rect(box.Left, box.Bottom, w, h);
-            pathGeometry.AddGeometry(new EllipseGeometry(r));
-            var inflation = Math.Min(5.0, Math.Min(w / 3, h / 3));
-            r.Inflate(-inflation, -inflation);
-            pathGeometry.AddGeometry(new EllipseGeometry(r));
-            return pathGeometry;
-        }
-
-        private static Geometry CreateGeometryFromMsaglCurve(ICurve iCurve)
-        {
-            var pathGeometry = new PathGeometry();
-            var pathFigure = new PathFigure
-            {
-                IsClosed = true,
-                IsFilled = true,
-                StartPoint = iCurve.Start.ToWpf()
-            };
-
-            var curve = iCurve as Curve;
-            if (curve != null)
-            {
-                AddCurve(pathFigure, curve);
-            }
-            else
-            {
-                var rect = iCurve as RoundedRect;
-                if (rect != null)
-                    AddCurve(pathFigure, rect.Curve);
-                else
-                {
-                    var ellipse = iCurve as Ellipse;
-                    if (ellipse != null)
-                    {
-                        return new EllipseGeometry(ellipse.Center.ToWpf(), ellipse.AxisA.Length, ellipse.AxisB.Length);
-                    }
-                    var poly = iCurve as Polyline;
-                    if (poly != null)
-                    {
-                        var p = poly.StartPoint.Next;
-                        do
-                        {
-                            pathFigure.Segments.Add(new System.Windows.Media.LineSegment(p.Point.ToWpf(), true));
-
-                            p = p.NextOnPolyline;
-                        } while (p != poly.StartPoint);
-                    }
-                }
-            }
-
-            pathGeometry.Figures.Add(pathFigure);
-
-            return pathGeometry;
-        }
-
-        private static void AddCurve(PathFigure pathFigure, Curve curve)
-        {
-            foreach (ICurve seg in curve.Segments)
-            {
-                var ls = seg as LineSegment;
-                if (ls != null)
-                    pathFigure.Segments.Add(new System.Windows.Media.LineSegment(ls.End.ToWpf(), true));
-                else
-                {
-                    var ellipse = seg as Ellipse;
-                    if (ellipse != null)
-                        pathFigure.Segments.Add(new ArcSegment(ellipse.End.ToWpf(),
-                            new Size(ellipse.AxisA.Length, ellipse.AxisB.Length),
-                            Point.Angle(new Point(1, 0), ellipse.AxisA),
-                            ellipse.ParEnd - ellipse.ParEnd >= Math.PI,
-                            !ellipse.OrientedCounterclockwise()
-                                ? SweepDirection.Counterclockwise
-                                : SweepDirection.Clockwise, true));
-                }
-            }
-        }
-
-        private static Geometry CreateEllipseGeometryFromMsaglRectangle(Microsoft.Msagl.Core.Geometry.Rectangle box)
-        {
-            return new EllipseGeometry(box.Center.ToWpf(), box.Width / 2, box.Height / 2);
-        }
-
-        #endregion Create NodeBoundaryPath
+        #endregion Nodes have a boundary
 
         public override string ToString()
         {
@@ -517,8 +400,8 @@ namespace Kosmograph.Desktop.Graph
         {
             if (NodeBoundaryPath != null)
                 graphCanvas.Children.Remove(NodeBoundaryPath);
-            if (NodeLabelFrameworkElement != null)
-                graphCanvas.Children.Remove(NodeLabelFrameworkElement);
+            if (NodeLabel != null)
+                graphCanvas.Children.Remove(NodeLabel);
         }
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.WpfGraphControl;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -112,38 +113,25 @@ namespace Kosmograph.Desktop.Graph
         public TextBlock CreateTextBlockFromDrawingObjectLabel(Microsoft.Msagl.Drawing.Label drawingLabel)
         {
             return this.SetTextBlockPropertiesFromDrawingLabel(new System.Windows.Controls.TextBlock(), drawingLabel);
-            //{
-            //    Tag = drawingLabel,
-            //    Text = drawingLabel.Text,
-            //    FontFamily = new System.Windows.Media.FontFamily(drawingLabel.FontName),
-            //    FontSize = drawingLabel.FontSize,
-            //    Foreground = drawingLabel.FontColor.ToWpf()
-            //};
-
-            //textBlock.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
-            //textBlock.Width = textBlock.DesiredSize.Width;
-            //textBlock.Height = textBlock.DesiredSize.Height;
-
-            //Console.WriteLine($"tb(Height={textBlock.Height},textBlock.Width={textBlock.Width})");
-
-            //return textBlock;
         }
 
         public TextBlock SetTextBlockPropertiesFromDrawingLabel(TextBlock textBlock, Microsoft.Msagl.Drawing.Label drawingLabel)
         {
+            Debug.Assert(textBlock.Dispatcher.CheckAccess());
+
             textBlock.Tag = drawingLabel;
             textBlock.Text = drawingLabel.Text;
             textBlock.FontFamily = new System.Windows.Media.FontFamily(drawingLabel.FontName);
             textBlock.FontSize = drawingLabel.FontSize;
             textBlock.Foreground = drawingLabel.FontColor.ToWpf();
             textBlock.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
-            
-            Console.WriteLine($"measure:tb(Height={textBlock.DesiredSize.Height},textBlock.Width={textBlock.DesiredSize.Width})");
+
+            Console.WriteLine($"measure:tb(Height={textBlock.DesiredSize.Height},Width={textBlock.DesiredSize.Width})");
 
             textBlock.Width = textBlock.DesiredSize.Width;
             textBlock.Height = textBlock.DesiredSize.Height;
 
-            Console.WriteLine($"update:tb(Height={textBlock.Height},textBlock.Width={textBlock.Width})");
+            Console.WriteLine($"update:tb(Height={textBlock.Height},Width={textBlock.Width})");
 
             return textBlock;
         }
@@ -177,19 +165,21 @@ namespace Kosmograph.Desktop.Graph
 
             // update the underlying label
             drawingNode.Label.Text = newLabelText;
-
+            
             this.drawingObjectsToFrameworkElements.TryGetValue(drawingNode, out var frameworkElement);
             if ((frameworkElement is null) || ((frameworkElement as TextBlock) is null))
                 return;
 
-            ((TextBlock)frameworkElement).InvokeInUiThread(tb =>
-            {
-                this.SetTextBlockPropertiesFromDrawingLabel(tb, drawingNode.Label).Arrange(new Rect(tb.DesiredSize));
-            });
+            //((TextBlock)frameworkElement).InvokeInUiThread(tb =>
+            //{
+            //    this.SetTextBlockPropertiesFromDrawingLabel(tb, drawingNode.Label).Arrange(new Rect(tb.DesiredSize));
+            //});
 
-            this.drawingObjectsToIViewerObjects.TryGetValue(drawingNode, out var nodeViewer);
-            if ((nodeViewer is null) || ((nodeViewer as KosmographViewerNode) is null))
+            this.drawingObjectsToIViewerObjects.TryGetValue(drawingNode, out var viewerNode);
+            if ((viewerNode is null) || ((viewerNode as KosmographViewerNode) is null))
                 return;
+
+            ((KosmographViewerNode)viewerNode).Invalidate();
         }
 
         #endregion Update a node

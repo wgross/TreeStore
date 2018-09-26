@@ -27,7 +27,6 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-using Microsoft.Msagl.Core;
 using Microsoft.Msagl.Core.Geometry;
 using Microsoft.Msagl.Core.Geometry.Curves;
 using Microsoft.Msagl.Core.Layout;
@@ -175,7 +174,7 @@ namespace Kosmograph.Desktop.Graph
             FrameworkElement ret;
 
             var vNode = viewerObject as KosmographViewerNode;
-            if (vNode != null) ret = vNode.NodeLabelFrameworkElement ?? vNode.NodeBoundaryPath;
+            if (vNode != null) ret = vNode.NodeLabel ?? vNode.NodeBoundaryPath;
             else
             {
                 var vLabel = viewerObject as VLabel;
@@ -467,39 +466,6 @@ namespace Kosmograph.Desktop.Graph
 
         private readonly ClickCounter clickCounter;
         public string MsaglFileToSave;
-
-        private void RunLayoutInUIThread()
-        {
-            LayoutGraph();
-            PostLayoutStep();
-            LayoutComplete?.Invoke(null, null);
-        }
-
-        private void SetUpBackgrounWorkerAndRunAsync()
-        {
-            backgroundWorker = new BackgroundWorker();
-            backgroundWorker.DoWork += (a, b) => LayoutGraph();
-            backgroundWorker.RunWorkerCompleted += (sender, args) =>
-            {
-                if (args.Error != null)
-                {
-                    MessageBox.Show(args.Error.ToString());
-                    this.ClearKosmographViewer();
-                }
-                else if (CancelToken.Canceled)
-                {
-                    this.ClearKosmographViewer();
-                }
-                else
-                {
-                    this.GraphCanvas.InvokeInUiThread(this.PostLayoutStep);
-                }
-                backgroundWorker = null; //this will signal that we are not under layout anymore
-
-                this.LayoutComplete?.Invoke(null, null);
-            };
-            backgroundWorker.RunWorkerAsync();
-        }
 
         /*
                 void SubscribeToChangeVisualsEvents() {
@@ -814,11 +780,7 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        public FrameworkElement CreateAndRegisterFrameworkElementOfDrawingNode(Microsoft.Msagl.Drawing.Node node)
-        {
-            lock (this.syncRoot)
-                return drawingObjectsToFrameworkElements[node] = CreateTextBlockFromDrawingObjectLabel(node.Label);
-        }
+      
 
         /// <summary>
         /// INsitilaizes some of the gemotry nodes/edges with values depending of the
@@ -1051,7 +1013,7 @@ namespace Kosmograph.Desktop.Graph
             drawingGraph.AddNode(vNode.Node);
             drawingGraph.GeometryGraph.Nodes.Add(vNode.Node.GeometryNode);
             layoutEditor.AttachLayoutChangeEvent(vNode);
-            GraphCanvas.Children.Add(vNode.NodeLabelFrameworkElement);
+            GraphCanvas.Children.Add(vNode.NodeLabel);
             layoutEditor.CleanObstacles();
         }
 
@@ -1188,11 +1150,6 @@ namespace Kosmograph.Desktop.Graph
             _rubberEdgePath.Data = VEdge.GetICurveWpfGeometry(edgeGeometry.Curve);
             _targetArrowheadPathForRubberEdge.Data = VEdge.DefiningTargetArrowHead(edgeGeometry,
                                                                                   edgeGeometry.LineWidth);
-        }
-
-        private bool UnderLayout
-        {
-            get { return backgroundWorker != null; }
         }
 
         public void StopDrawingRubberEdge()

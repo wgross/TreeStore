@@ -11,7 +11,7 @@ namespace Kosmograph.Desktop.Graph
 
         private double GetBorderPathThickness() => DesiredPathThicknessInInches * DpiX;
 
-        private void CreateViewerNodes()
+        private void GetOrCreateViewNodes()
         {
             foreach (var node in this.Graph.Nodes.Concat(this.Graph.RootSubgraph.AllSubgraphsDepthFirstExcludingSelf()))
             {
@@ -27,22 +27,26 @@ namespace Kosmograph.Desktop.Graph
                 if (this.drawingObjectsToIViewerObjects.TryGetValue(drawingNode, out var existingViewerNode))
                     return (IViewerNode)existingViewerNode;
 
-                FrameworkElement feOfLabel;
-                if (!this.drawingObjectsToFrameworkElements.TryGetValue(drawingNode, out feOfLabel))
-                    feOfLabel = this.CreateAndRegisterFrameworkElementOfDrawingNode(drawingNode);
+                FrameworkElement nodeLabel;
+                if (!this.drawingObjectsToFrameworkElements.TryGetValue(drawingNode, out nodeLabel))
+                    nodeLabel = this.CreateAndRegisterFrameworkElementOfDrawingNode(drawingNode);
 
-                var viewerNode = new KosmographViewerNode(drawingNode, feOfLabel,
+                var viewerNode = new KosmographViewerNode(drawingNode, nodeLabel,
                     funcFromDrawingEdgeToVEdge: e => (VEdge)drawingObjectsToIViewerObjects[e],
                     pathStrokeThicknessFunc: () => GetBorderPathThickness() * drawingNode.Attr.LineWidth);
 
-                foreach (var fe in viewerNode.FrameworkElements)
-                    this.GraphCanvas.Children.Add(fe);
+                this.GraphCanvasAddChildren(viewerNode.FrameworkElements);
 
                 // remember the created KosmographViewerNode.
                 this.drawingObjectsToIViewerObjects[drawingNode] = viewerNode;
 
                 return viewerNode;
             }
+        }
+
+        private FrameworkElement CreateAndRegisterFrameworkElementOfDrawingNode(Microsoft.Msagl.Drawing.Node node)
+        {
+            return this.drawingObjectsToFrameworkElements[node] = CreateTextBlockFromDrawingObjectLabel(node.Label);
         }
     }
 }

@@ -3,6 +3,8 @@ using Microsoft.Msagl.Core.Layout;
 using Microsoft.Msagl.Layout.LargeGraphLayout;
 using Microsoft.Msagl.Miscellaneous;
 using System;
+using System.ComponentModel;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Shapes;
 
@@ -33,13 +35,13 @@ namespace Kosmograph.Desktop.Graph
 
         private GeometryGraph geometryGraphUnderLayout;
 
-        private void LayoutGraph()
+        private void LayoutGraph(GeometryGraph geometryGraph)
         {
             if (this.NeedToCalculateLayout)
             {
                 try
                 {
-                    LayoutHelpers.CalculateLayout(this.geometryGraphUnderLayout, this.Graph.LayoutAlgorithmSettings, this.CancelToken);
+                    LayoutHelpers.CalculateLayout(geometryGraph, this.Graph.LayoutAlgorithmSettings, this.CancelToken);
 
                     //if (MsaglFileToSave != null)
                     //{
@@ -67,8 +69,46 @@ namespace Kosmograph.Desktop.Graph
         private void PushDataFromLayoutGraphToFrameworkElements()
         {
             this.DrawGraphBackground();
-            this.CreateViewerNodes();
+            this.GetOrCreateViewNodes();
             this.CreateEdges();
+        }
+
+        private void RunLayoutInUIThread()
+        {
+            this.LayoutGraph(this.geometryGraphUnderLayout);
+            this.PostLayoutStep();
+            this.LayoutComplete?.Invoke(null, null);
+        }
+
+        private bool UnderLayout
+        {
+            get { return backgroundWorker != null; }
+        }
+
+        private void SetUpBackgrounWorkerAndRunAsync()
+        {
+            this.backgroundWorker = new BackgroundWorker();
+            this.backgroundWorker.DoWork += (a, b) => this.LayoutGraph(this.geometryGraphUnderLayout);
+            this.backgroundWorker.RunWorkerCompleted += (sender, args) =>
+            {
+                if (args.Error != null)
+                {
+                    MessageBox.Show(args.Error.ToString());
+                    this.ClearKosmographViewer();
+                }
+                else if (CancelToken.Canceled)
+                {
+                    this.ClearKosmographViewer();
+                }
+                else
+                {
+                    this.GraphCanvas.InvokeInUiThread(this.PostLayoutStep);
+                }
+                this.backgroundWorker = null; //this will signal that we are not under layout anymore
+
+                this.LayoutComplete?.Invoke(null, null);
+            };
+            this.backgroundWorker.RunWorkerAsync();
         }
 
         #region Draw the background of the Canvas and the Graph
