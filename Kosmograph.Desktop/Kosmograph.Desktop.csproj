@@ -126,7 +126,7 @@
     <Compile Include="Graph\ClickCounter.cs" />
     <Compile Include="Graph\DispatcherObjectExtensions.cs" />
     <Compile Include="Graph\GvMouseEventArgs.cs" />
-    <Compile Include="Graph\KosmographViewer.IViewerNode.cs" />
+    <Compile Include="Graph\KosmographViewer.Nodes.cs" />
     <Compile Include="Graph\KosmographControl.DataContect.cs" />
     <Compile Include="Graph\KosmographControl.Mouse.cs" />
     <Compile Include="Graph\KosmographViewer.cs" />
@@ -141,7 +141,7 @@
     <Compile Include="Graph\KosmographViewer.IViewer.cs" />
     <Compile Include="Graph\KosmographViewer.Layout.cs" />
     <Compile Include="Graph\KosmographViewerNode.cs" />
-    <Compile Include="Graph\NodeBoundaryGeometry.cs" />
+    <Compile Include="Graph\VisualsFactory.cs" />
     <Compile Include="Graph\Wpf2MsaglConverters.cs" />
     <Compile Include="KosmographCommands.cs" />
     <Compile Include="NullToVisiblityConverter.cs" />

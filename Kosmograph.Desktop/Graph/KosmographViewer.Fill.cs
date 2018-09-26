@@ -3,7 +3,6 @@ using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.WpfGraphControl;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using GeometryRectangle = Microsoft.Msagl.Core.Geometry.Rectangle;
@@ -113,25 +112,7 @@ namespace Kosmograph.Desktop.Graph
 
         public TextBlock CreateTextBlockFromDrawingObjectLabel(Microsoft.Msagl.Drawing.Label drawingLabel)
         {
-            return this.SetTextBlockPropertiesFromDrawingLabel(new System.Windows.Controls.TextBlock(), drawingLabel);
-        }
-
-        public TextBlock SetTextBlockPropertiesFromDrawingLabel(TextBlock textBlock, Microsoft.Msagl.Drawing.Label drawingLabel)
-        {
-            Debug.Assert(textBlock.Dispatcher.CheckAccess());
-
-            textBlock.Tag = drawingLabel;
-            textBlock.Text = drawingLabel.Text;
-            textBlock.FontFamily = new System.Windows.Media.FontFamily(drawingLabel.FontName);
-            textBlock.FontSize = drawingLabel.FontSize;
-            textBlock.Foreground = drawingLabel.FontColor.ToWpf();
-            textBlock.HorizontalAlignment = HorizontalAlignment.Center;
-            textBlock.VerticalAlignment = VerticalAlignment.Center;
-            textBlock.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
-            textBlock.Width = textBlock.DesiredSize.Width;
-            textBlock.Height = textBlock.DesiredSize.Height;
-
-            return textBlock;
+            return VisualsFactory.CreateLabel(drawingLabel);
         }
 
         #endregion Fill the viewer with labels for edges and nodes

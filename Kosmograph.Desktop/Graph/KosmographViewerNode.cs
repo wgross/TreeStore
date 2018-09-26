@@ -362,19 +362,11 @@ namespace Kosmograph.Desktop.Graph
 
         private Path UpdateNodeVisuals(TextBlock textBlock, Path nodeBoundaryPath)
         {
-            textBlock.Text = this.Node.Label.Text;
-            textBlock.FontFamily = new FontFamily(this.Node.Label.FontName);
-            textBlock.FontSize = this.Node.Label.FontSize;
-            textBlock.Foreground = this.Node.Label.FontColor.ToWpf();
-            textBlock.ToolTip = this.Node.LabelText ?? string.Empty;
-            textBlock.Width = this.Node.Width;
-            textBlock.Height = this.Node.Height;
+            textBlock.UpdateFrom(this.Node);
 
             Wpf2MsaglConverters.PositionFrameworkElement(textBlock, this.Node.GeometryNode.Center, 1);
 
-            nodeBoundaryPath.Data = NodeBoundaryGeometry.Create(this.Node);
-            nodeBoundaryPath.Stroke = this.Node.Attr.Color.ToWpf();
-            nodeBoundaryPath.Fill = this.Node.Attr.FillColor.ToWpf();
+            nodeBoundaryPath.Update(this.Node);
             nodeBoundaryPath.StrokeThickness = this.PathStrokeThickness;
 
             // the node boundary is placed behind the label.

@@ -1,19 +1,74 @@
 ﻿using Microsoft.Msagl.Core.Geometry.Curves;
 using System;
+using System.Diagnostics;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
-
+using System.Windows.Shapes;
+using DrawingLabel = Microsoft.Msagl.Drawing.Label;
 using DrawingNode = Microsoft.Msagl.Drawing.Node;
 using DrawingShape = Microsoft.Msagl.Drawing.Shape;
+using GeometryRectangle = Microsoft.Msagl.Core.Geometry.Rectangle;
 
 namespace Kosmograph.Desktop.Graph
 {
-    /// <summary>
-    /// Depening on the Shape or Bounding Boxc of the DrawingNode a conversion to WPF class is made.
-    /// </summary>
-    public class NodeBoundaryGeometry
+    public static class VisualsFactory
     {
-        public static Geometry Create(DrawingNode drawingNode)
+        #region A nodes label is visualized by a TextBlock instance
+
+        public static TextBlock CreateLabel(DrawingLabel drawingLabel)
+        {
+            return new TextBlock
+            {
+                Tag = drawingLabel,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+            }
+            .UpdateFrom(drawingLabel);
+        }
+
+        public static TextBlock UpdateFrom(this TextBlock textBlock, DrawingLabel drawingLabel)
+        {
+            Debug.Assert(textBlock.Dispatcher.CheckAccess());
+
+            textBlock.Text = drawingLabel.Text ?? string.Empty;
+            textBlock.ToolTip = drawingLabel.Text ?? string.Empty;
+            textBlock.FontFamily = new System.Windows.Media.FontFamily(drawingLabel.FontName);
+            textBlock.FontSize = drawingLabel.FontSize;
+            textBlock.Foreground = drawingLabel.FontColor.ToWpf();
+
+            textBlock.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
+            textBlock.Width = textBlock.DesiredSize.Width;
+            textBlock.Height = textBlock.DesiredSize.Height;
+
+            return textBlock;
+        }
+
+        public static TextBlock UpdateFrom(this TextBlock textBlock, DrawingNode drawingNode)
+        {
+            Debug.Assert(textBlock.Dispatcher.CheckAccess());
+
+            var tmp = textBlock.UpdateFrom(drawingNode.Label);
+            tmp.Width = drawingNode.Width;
+            tmp.Height = drawingNode.Height;
+
+            return textBlock;
+        }
+
+        #endregion A nodes label is visualized by a TextBlock instance
+
+        #region A node is separated from the background by a boundary Line or Shape.
+
+        public static Path CreateNodeBoundary(DrawingNode drawingNode)
+        {
+            return new Path
+            {
+                Tag = drawingNode
+            }
+            .Update(drawingNode);
+        }
+
+        public static Path Update(this Path nodeBoundary, DrawingNode drawingNode)
         {
             switch (drawingNode.Attr.Shape)
             {
@@ -23,17 +78,24 @@ namespace Kosmograph.Desktop.Graph
                 case DrawingShape.Diamond:
                 case DrawingShape.Octagon:
                 case DrawingShape.Hexagon:
-                    return NodeBoundaryGeometry.ConvertMsaglCurveToPathGeometry(drawingNode.GeometryNode.BoundaryCurve);
+                    nodeBoundary.Data = ConvertMsaglCurveToPathGeometry(drawingNode.GeometryNode.BoundaryCurve);
+                    break;
 
                 case DrawingShape.DoubleCircle:
-                    return NodeBoundaryGeometry.ConvertMsaglRectangleToDoubleCirclePathGeometry(drawingNode.BoundingBox);
+                    nodeBoundary.Data = ConvertMsaglRectangleToDoubleCirclePathGeometry(drawingNode.BoundingBox);
+                    break;
 
                 default:
-                    return NodeBoundaryGeometry.ConvertMsaglRectangleToEllipseGeometry(drawingNode.BoundingBox);
+                    nodeBoundary.Data = ConvertMsaglRectangleToEllipseGeometry(drawingNode.BoundingBox);
+                    break;
             }
+
+            nodeBoundary.Stroke = drawingNode.Attr.Color.ToWpf();
+            nodeBoundary.Fill = drawingNode.Attr.FillColor.ToWpf();
+            return nodeBoundary;
         }
 
-        private static PathGeometry ConvertMsaglRectangleToDoubleCirclePathGeometry(Microsoft.Msagl.Core.Geometry.Rectangle box)
+        private static PathGeometry ConvertMsaglRectangleToDoubleCirclePathGeometry(GeometryRectangle box)
         {
             double w = box.Width;
             double h = box.Height;
@@ -73,12 +135,12 @@ namespace Kosmograph.Desktop.Graph
                 else
                 {
                     // Really?
-                    var ellipse = iCurve as Ellipse;
+                    var ellipse = iCurve as Microsoft.Msagl.Core.Geometry.Curves.Ellipse;
                     if (ellipse != null)
                     {
                         return new EllipseGeometry(ellipse.Center.ToWpf(), ellipse.AxisA.Length, ellipse.AxisB.Length);
                     }
-                    var poly = iCurve as Polyline;
+                    var poly = iCurve as Microsoft.Msagl.Core.Geometry.Curves.Polyline;
                     if (poly != null)
                     {
                         var p = poly.StartPoint.Next;
@@ -106,7 +168,7 @@ namespace Kosmograph.Desktop.Graph
                     pathFigure.Segments.Add(new System.Windows.Media.LineSegment(ls.End.ToWpf(), true));
                 else
                 {
-                    var ellipse = seg as Ellipse;
+                    var ellipse = seg as Microsoft.Msagl.Core.Geometry.Curves.Ellipse;
                     if (ellipse != null)
                         pathFigure.Segments.Add(new ArcSegment(ellipse.End.ToWpf(),
                             new Size(ellipse.AxisA.Length, ellipse.AxisB.Length),
@@ -119,9 +181,11 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        private static EllipseGeometry ConvertMsaglRectangleToEllipseGeometry(Microsoft.Msagl.Core.Geometry.Rectangle box)
+        private static EllipseGeometry ConvertMsaglRectangleToEllipseGeometry(GeometryRectangle box)
         {
             return new EllipseGeometry(box.Center.ToWpf(), box.Width / 2, box.Height / 2);
         }
+
+        #endregion A node is separated from the background by a boundary Line or Shape.
     }
 }
