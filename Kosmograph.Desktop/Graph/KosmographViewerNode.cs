@@ -57,7 +57,7 @@ namespace Kosmograph.Desktop.Graph
             // WPF.
             this.NodeLabel = nodeLabelFrameworkElement;
             this.NodeLabel.Tag = this; //get a backpointer to the KosmographViewerNode
-            this.NodeBoundaryPath = this.CreateNodeBoundaryPath(this.NodeLabel);
+            this.NodeBoundaryPath = this.CreateNodeBoundaryPath((TextBlock)this.NodeLabel);
 
             Wpf2MsaglConverters.PositionFrameworkElement(this.NodeLabel, node.GeometryNode.Center, 1);
             Panel.SetZIndex(this.NodeLabel, Panel.GetZIndex(this.NodeBoundaryPath) + 1);
@@ -148,7 +148,7 @@ namespace Kosmograph.Desktop.Graph
                 return;
             }
 
-            this.UpdateNodeVisuals(this.NodeLabel, this.NodeBoundaryPath);
+            this.UpdateNodeVisuals((TextBlock)this.NodeLabel, this.NodeBoundaryPath);
 
             if (_subgraph is null)
                 return;
@@ -343,7 +343,7 @@ namespace Kosmograph.Desktop.Graph
             get { return pathStrokeThicknessFunc != null ? this.pathStrokeThicknessFunc() : Node.Attr.LineWidth; }
         }
 
-        private Path CreateNodeBoundaryPath(FrameworkElement frameworkElementToDecorate)
+        private Path CreateNodeBoundaryPath(TextBlock frameworkElementToDecorate)
         {
             //if (frameworkElementToDecorate != null)
             //{
@@ -361,16 +361,17 @@ namespace Kosmograph.Desktop.Graph
             return this.UpdateNodeVisuals(frameworkElementToDecorate, new Path { Tag = this });
         }
 
-        private Path UpdateNodeVisuals(FrameworkElement frameworkElementToDecorate, Path nodeBoundaryPath)
+        private Path UpdateNodeVisuals(TextBlock textBlock, Path nodeBoundaryPath)
         {
-            frameworkElementToDecorate.ToolTip = this.Node.LabelText ?? string.Empty;
-            ((TextBlock)frameworkElementToDecorate).Text = this.Node.LabelText;
+            textBlock.Text = this.Node.Label.Text;
+            textBlock.FontFamily = new System.Windows.Media.FontFamily(this.Node.Label.FontName);
+            textBlock.FontSize = this.Node.Label.FontSize;
+            textBlock.Foreground = this.Node.Label.FontColor.ToWpf();
+            textBlock.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
+            textBlock.ToolTip = this.Node.LabelText ?? string.Empty;
+            textBlock.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
 
-            TextBlock.SetForeground(frameworkElementToDecorate, this.Node.Attr.Color.ToWpf());
-
-            frameworkElementToDecorate.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-
-            Wpf2MsaglConverters.PositionFrameworkElement(frameworkElementToDecorate, this.Node.GeometryNode.Center, 1);
+            Wpf2MsaglConverters.PositionFrameworkElement(textBlock, this.Node.GeometryNode.Center, 1);
 
             // byte transparency = this.Node.Attr.Color.A;
 
@@ -384,7 +385,7 @@ namespace Kosmograph.Desktop.Graph
 
             // the node boundary is placed behind the label.
             Panel.SetZIndex(nodeBoundaryPath, this.ZIndex);
-            Panel.SetZIndex(frameworkElementToDecorate, Panel.GetZIndex(nodeBoundaryPath) + 1);
+            Panel.SetZIndex(textBlock, Panel.GetZIndex(nodeBoundaryPath) + 1);
 
             return nodeBoundaryPath;
         }

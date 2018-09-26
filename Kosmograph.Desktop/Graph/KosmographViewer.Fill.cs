@@ -165,21 +165,22 @@ namespace Kosmograph.Desktop.Graph
 
             // update the underlying label
             drawingNode.Label.Text = newLabelText;
+            //drawingNode.GeometryNode.BoundaryCurve = NodeBoundaryCurves.GetNodeBoundaryCurve(drawingNode, 99, 33);
             
-            this.drawingObjectsToFrameworkElements.TryGetValue(drawingNode, out var frameworkElement);
-            if ((frameworkElement is null) || ((frameworkElement as TextBlock) is null))
-                return;
+            //this.drawingObjectsToFrameworkElements.TryGetValue(drawingNode, out var frameworkElement);
+            //if ((frameworkElement is null) || ((frameworkElement as TextBlock) is null))
+            //    return;
 
             //((TextBlock)frameworkElement).InvokeInUiThread(tb =>
             //{
             //    this.SetTextBlockPropertiesFromDrawingLabel(tb, drawingNode.Label).Arrange(new Rect(tb.DesiredSize));
             //});
 
-            this.drawingObjectsToIViewerObjects.TryGetValue(drawingNode, out var viewerNode);
-            if ((viewerNode is null) || ((viewerNode as KosmographViewerNode) is null))
-                return;
+            //this.drawingObjectsToIViewerObjects.TryGetValue(drawingNode, out var viewerNode);
+            //if ((viewerNode is null) || ((viewerNode as KosmographViewerNode) is null))
+            //    return;
 
-            ((KosmographViewerNode)viewerNode).Invalidate();
+            //((KosmographViewerNode)viewerNode).Invalidate();
         }
 
         #endregion Update a node
