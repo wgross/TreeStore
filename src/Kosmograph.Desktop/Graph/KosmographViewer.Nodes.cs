@@ -30,6 +30,7 @@ namespace Kosmograph.Desktop.Graph
                 if (this.drawingObjectsToIViewerObjects.TryGetValue(drawingNode, out var existingViewerNode))
                     return (KosmographViewerNode)existingViewerNode;
 
+                // create unexisting node label
                 FrameworkElement nodeLabel;
                 if (!this.drawingObjectsToFrameworkElements.TryGetValue(drawingNode, out nodeLabel))
                     nodeLabel = this.CreateAndRegisterFrameworkElementOfDrawingNode(drawingNode);
