@@ -48,7 +48,7 @@
                 FontWeight="Bold" />
             <Button DockPanel.Dock="Right" 
                 Style="{StaticResource addButtonInHeaderStyle}"
-                Command="{Binding CreateEntityCommand}"/>
+                Command="{Binding Entities.CreateCommand}"/>
         </DockPanel>
         <ListBox
             Name="entityListBox"

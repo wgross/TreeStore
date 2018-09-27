@@ -1,8 +1,10 @@
-﻿using Microsoft.Msagl.Core;
+﻿using Kosmograph.Desktop.ViewModel;
+using Microsoft.Msagl.Core;
 using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.WpfGraphControl;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Windows;
 using System.Windows.Controls;
 using GeometryRectangle = Microsoft.Msagl.Core.Geometry.Rectangle;
@@ -134,26 +136,6 @@ namespace Kosmograph.Desktop.Graph
 
         #endregion Clear all nodes and edges from the viewer
 
-        #region Update a node
-
-        public void UpdateNodeLabel(string nodeId, string newLabelText)
-        {
-            var drawingNode = this.Graph.FindNode(nodeId);
-            if (drawingNode is null)
-                return;
-
-            // update the underlying label
-            drawingNode.Label.Text = newLabelText;
-
-            var tb = new TextBlock { Text = newLabelText };
-            tb.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-
-            drawingNode.GeometryNode.BoundingBox = new GeometryRectangle(0, 0, tb.DesiredSize.Width, tb.DesiredSize.Height)
-            {
-                Center = drawingNode.GeometryNode.BoundingBox.Center
-            };
-        }
-
-        #endregion Update a node
+       
     }
 }

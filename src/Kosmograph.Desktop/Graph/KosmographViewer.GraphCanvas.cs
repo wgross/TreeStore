@@ -22,5 +22,14 @@ namespace Kosmograph.Desktop.Graph
                     c.Children.Add(child);
             });
         }
+
+        private void GraphCanvasRemoveChildren(IEnumerable<FrameworkElement> children)
+        {
+            this.GraphCanvas.InvokeInUiThread(c =>
+            {
+                foreach (var child in children)
+                    c.Children.Remove(child);
+            });
+        }
     }
 }

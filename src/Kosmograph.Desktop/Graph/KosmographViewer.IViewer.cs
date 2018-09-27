@@ -4,7 +4,10 @@ using Microsoft.Msagl.Miscellaneous.LayoutEditing;
 using Microsoft.Msagl.WpfGraphControl;
 using System;
 using System.Collections.Generic;
-using System.Windows;
+using System.Windows.Controls;
+using DrawingNode = Microsoft.Msagl.Drawing.Node;
+using GeometryPoint = Microsoft.Msagl.Core.Geometry.Point;
+using LayoutNode = Microsoft.Msagl.Core.Layout.Node;
 
 namespace Kosmograph.Desktop.Graph
 {
@@ -31,58 +34,41 @@ namespace Kosmograph.Desktop.Graph
         /// </summary>
         private readonly Dictionary<DrawingObject, IViewerObject> drawingObjectsToIViewerObjects = new Dictionary<DrawingObject, IViewerObject>();
 
-        /// <summary>
-        /// creates a viewer node
-        /// </summary>
-        /// <param name="drawingNode"></param>
-        /// <returns></returns>
-        public IViewerNode CreateIViewerNode(Microsoft.Msagl.Drawing.Node drawingNode)
+        public IViewerNode CreateIViewerNode(DrawingNode drawingNode) => this.CreateIViewerNode(drawingNode, new GeometryPoint(10, 10), null);
+
+        public IViewerNode CreateIViewerNode(DrawingNode drawingNode, GeometryPoint center, object visualElement)
         {
-            throw new NotImplementedException();
-            //var frameworkElement = CreateTextBlockFromDrawingObjectLabel(drawingNode.Label);
-            //var width = frameworkElement.Width + 2 * drawingNode.Attr.LabelMargin;
-            //var height = frameworkElement.Height + 2 * drawingNode.Attr.LabelMargin;
-            //var bc = NodeBoundaryCurves.GetNodeBoundaryCurve(drawingNode, width, height);
-            //drawingNode.GeometryNode = new Microsoft.Msagl.Core.Layout.Node(bc, drawingNode);
-            //var vNode = GetOrCreateViewerNode(drawingNode);
-            //layoutEditor.AttachLayoutChangeEvent(vNode);
-            //return vNode;
-        }
+            
 
-        public IViewerNode CreateIViewerNode(Microsoft.Msagl.Drawing.Node drawingNode, Microsoft.Msagl.Core.Geometry.Point center, object visualElement)
-        {
-            if (this.drawingGraph == null)
-                return null;
+            var visualFrameworkElement = (visualElement as TextBlock) ?? VisualsFactory.CreateLabel(drawingNode.Label);
 
-            var frameworkElement = visualElement as FrameworkElement ?? this.CreateTextBlockFromDrawingObjectLabel(drawingNode.Label);
+            var bc = NodeBoundaryCurves.GetNodeBoundaryCurve(drawingNode, visualFrameworkElement.Width + (2 * drawingNode.Attr.LabelMargin), visualFrameworkElement.Height + (2 * drawingNode.Attr.LabelMargin));
 
-            var width = frameworkElement.Width + 2 * drawingNode.Attr.LabelMargin;
-            var height = frameworkElement.Height + 2 * drawingNode.Attr.LabelMargin;
+            drawingNode.GeometryNode = new LayoutNode(bc, drawingNode) { Center = center };
 
-            var bc = NodeBoundaryCurves.GetNodeBoundaryCurve(drawingNode, width, height);
+            var vNode = this.GetOrCreateViewerNode(drawingNode);
 
-            drawingNode.GeometryNode = new Microsoft.Msagl.Core.Layout.Node(bc, drawingNode) { Center = center };
+            this.Graph.AddNode(drawingNode);
+            this.Graph.GeometryGraph.Nodes.Add(drawingNode.GeometryNode);
+            this.layoutEditor.AttachLayoutChangeEvent(vNode);
 
-            var vNode = GetOrCreateViewerNode(drawingNode);
-            drawingGraph.AddNode(drawingNode);
-            drawingGraph.GeometryGraph.Nodes.Add(drawingNode.GeometryNode);
-            layoutEditor.AttachLayoutChangeEvent(vNode);
+            vNode.Invalidate();
 
             this.MakeRoomForNewNode(drawingNode);
 
             return vNode;
         }
 
-        private void MakeRoomForNewNode(Microsoft.Msagl.Drawing.Node drawingNode)
+        private void MakeRoomForNewNode(DrawingNode drawingNode)
         {
             IncrementalDragger incrementalDragger = new IncrementalDragger(new[] { drawingNode.GeometryNode },
                                                                            Graph.GeometryGraph,
                                                                            Graph.LayoutAlgorithmSettings);
-            incrementalDragger.Drag(new Microsoft.Msagl.Core.Geometry.Point());
+            incrementalDragger.Drag(new GeometryPoint());
 
             foreach (var n in incrementalDragger.ChangedGraph.Nodes)
             {
-                var dn = (Microsoft.Msagl.Drawing.Node)n.UserData;
+                var dn = (DrawingNode)n.UserData;
                 var vn = drawingObjectsToIViewerObjects[dn] as KosmographViewerNode;
                 if (vn != null)
                     vn.Invalidate();

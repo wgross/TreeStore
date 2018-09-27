@@ -50,6 +50,7 @@ namespace Kosmograph.Desktop.Graph
             var tmp = textBlock.UpdateFrom(drawingNode.Label);
             tmp.Width = drawingNode.Width;
             tmp.Height = drawingNode.Height;
+            tmp.Margin = new Thickness(drawingNode.Attr.LabelMargin);
 
             return textBlock;
         }

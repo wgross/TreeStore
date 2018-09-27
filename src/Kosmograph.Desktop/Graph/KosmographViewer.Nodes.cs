@@ -1,8 +1,10 @@
-﻿using Microsoft.Msagl.Drawing;
+﻿using Kosmograph.Desktop.ViewModel;
+using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.WpfGraphControl;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using GeometryRectangle = Microsoft.Msagl.Core.Geometry.Rectangle;
 
 namespace Kosmograph.Desktop.Graph
 {
@@ -20,13 +22,13 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        private IViewerNode GetOrCreateViewerNode(Node drawingNode)
+        private KosmographViewerNode GetOrCreateViewerNode(Node drawingNode)
         {
             // this moethod looks like weird twin of IVIewer.CreateIViewerNode...
             lock (this.syncRoot)
             {
                 if (this.drawingObjectsToIViewerObjects.TryGetValue(drawingNode, out var existingViewerNode))
-                    return (IViewerNode)existingViewerNode;
+                    return (KosmographViewerNode)existingViewerNode;
 
                 FrameworkElement nodeLabel;
                 if (!this.drawingObjectsToFrameworkElements.TryGetValue(drawingNode, out nodeLabel))
@@ -49,5 +51,76 @@ namespace Kosmograph.Desktop.Graph
         {
             return this.drawingObjectsToFrameworkElements[node] = CreateTextBlockFromDrawingObjectLabel(node.Label);
         }
+
+        #region Update a node
+
+        public void UpdateNode(EntityViewModel node)
+        {
+            var drawingNode = this.Graph.FindNode(node.Model.Id.ToString());
+            if (drawingNode is null)
+                return;
+
+            // update the underlying label
+            drawingNode.Label.Text = node.Name;
+
+            // remasure the node
+            var tb = new TextBlock { Text = node.Name };
+            tb.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+
+            drawingNode.GeometryNode.BoundingBox = new GeometryRectangle(0, 0, tb.DesiredSize.Width, tb.DesiredSize.Height)
+            {
+                Center = drawingNode.GeometryNode.BoundingBox.Center
+            };
+        }
+
+        #endregion Update a node
+
+        #region Add Node
+
+        public void CreateNode(EntityViewModel node)
+        {
+            var drawingNode = this.Graph.AddNode(node.Model.Id.ToString());
+            drawingNode.Attr.LineWidth = 1;
+            drawingNode.Attr.XRadius = 0;
+            drawingNode.Attr.YRadius = 0;
+            drawingNode.Label.Text = node.Name;
+
+            var viewerNode = this.CreateIViewerNode(drawingNode);
+            this.RunLayoutInUIThread();
+        }
+
+        #endregion Add Node
+
+        #region Remove a Node
+
+        public void RemoveNode(EntityViewModel node)
+        {
+            var drawingNode = this.Graph.FindNode(node.Model.Id.ToString());
+            if (drawingNode is null)
+                return;
+
+            // remove the node
+            if (this.drawingObjectsToIViewerObjects.TryGetValue(drawingNode, out var viewerNode))
+                this.GraphCanvasRemoveChildren(((KosmographViewerNode)viewerNode).FrameworkElements);
+            this.drawingObjectsToIViewerObjects.Remove(drawingNode);
+            this.drawingObjectsToFrameworkElements.Remove(drawingNode);
+            
+            // removes the nodes edges
+            foreach (var drawingEdge in drawingNode.Edges)
+            {
+                if (this.drawingObjectsToIViewerObjects.TryGetValue(drawingEdge, out var viewerEdge))
+                {
+                    this.GraphCanvasRemoveChildren(((VEdge)viewerEdge).FrameworkElements);
+                    this.drawingObjectsToIViewerObjects.Remove(drawingEdge);
+                    this.drawingObjectsToFrameworkElements.Remove(drawingEdge);
+                }
+            }
+
+            // remove the node from te underlying MSAGL graph.
+            // this will incliude the edges
+            this.Graph.RemoveNode(drawingNode);
+        }
+
+        #endregion Remove a Node
     }
 }
