@@ -284,23 +284,23 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\github\automatic-graph-layout\GraphLayout\Drawing\drawing.csproj">
+    <ProjectReference Include="..\..\..\github\automatic-graph-layout\GraphLayout\Drawing\drawing.csproj">
       <Project>{b76f8f71-4b00-4242-be36-c9f0732511f7}</Project>
       <Name>drawing</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\github\automatic-graph-layout\GraphLayout\MSAGL\Msagl.csproj">
+    <ProjectReference Include="..\..\..\github\automatic-graph-layout\GraphLayout\MSAGL\Msagl.csproj">
       <Project>{415d3e3f-7105-46c1-84d2-7ecb34213d92}</Project>
       <Name>Msagl</Name>
     </ProjectReference>
-    <ProjectReference Include="..\src\Kosmograph.LiteDb\Kosmograph.LiteDb.csproj">
+    <ProjectReference Include="..\Kosmograph.LiteDb\Kosmograph.LiteDb.csproj">
       <Project>{28a8b0b7-a988-4f74-9091-5dad0cb14d59}</Project>
       <Name>Kosmograph.LiteDb</Name>
     </ProjectReference>
-    <ProjectReference Include="..\src\Kosmograph.Model\Kosmograph.Model.csproj">
+    <ProjectReference Include="..\Kosmograph.Model\Kosmograph.Model.csproj">
       <Project>{89824D16-940A-4B72-9F23-A4F5AB487E8C}</Project>
       <Name>Kosmograph.Model</Name>
     </ProjectReference>
-    <ProjectReference Include="..\src\WpfGraphControl\WpfGraphControl.csproj">
+    <ProjectReference Include="..\WpfGraphControl\WpfGraphControl.csproj">
       <Project>{fce1d24e-cc6b-47bc-9ce4-427e5d56b71e}</Project>
       <Name>WpfGraphControl</Name>
     </ProjectReference>
