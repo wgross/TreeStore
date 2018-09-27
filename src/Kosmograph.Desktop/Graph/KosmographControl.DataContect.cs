@@ -1,4 +1,7 @@
-﻿using Kosmograph.Desktop.ViewModel;
+﻿using Kosmograph.Desktop.EditModel;
+using Kosmograph.Desktop.ViewModel;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 
 namespace Kosmograph.Desktop.Graph
@@ -26,24 +29,34 @@ namespace Kosmograph.Desktop.Graph
 
         private void Entities_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
+            switch (e.Action)
+            {
+                case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
+                    this.MsaglGraphViewer.CreateNode(e.NewItems.OfType<EntityViewModel>().Single());
+                    break;
+
+                case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
+                    this.MsaglGraphViewer.RemoveNode(e.OldItems.OfType<EntityViewModel>().Single());
+                    break;
+            }
         }
 
         private void Relationships_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
         }
 
+        private void EditModelCommitted(EditModelCommitted notification)
+        {
+            var (isEntity, entity) = notification.TryGetViewModel<EntityViewModel>();
+            if (isEntity)
+                this.MsaglGraphViewer.UpdateNode(entity);
+        }
+
         private void AddKosmographNodesAndEdges(KosmographViewModel viewModel)
         {
             var graph = new Microsoft.Msagl.Drawing.Graph();
 
-            foreach (var entity in viewModel.Entities)
-            {
-                var node = graph.AddNode(entity.Model.Id.ToString());
-                node.LabelText = entity.Name;
-                node.Attr.LineWidth = 1;
-                node.Attr.XRadius = 0;
-                node.Attr.YRadius = 0;
-            }
+            this.AddEntities(viewModel.Entities, graph);
 
             foreach (var relationship in viewModel.Relationships)
             {
@@ -51,7 +64,19 @@ namespace Kosmograph.Desktop.Graph
                 edge.LabelText = relationship.Name;
             }
             graph.Attr.LayerDirection = Microsoft.Msagl.Drawing.LayerDirection.LR;
-            this.msaglGraphViewer.Graph = graph;
+            this.MsaglGraphViewer.Graph = graph;
+        }
+
+        private void AddEntities(IEnumerable<EntityViewModel> entities, Microsoft.Msagl.Drawing.Graph graph)
+        {
+            foreach (var entity in entities)
+            {
+                var node = graph.AddNode(entity.Model.Id.ToString());
+                node.LabelText = entity.Name;
+                node.Attr.LineWidth = 1;
+                node.Attr.XRadius = 0;
+                node.Attr.YRadius = 0;
+            }
         }
     }
 }

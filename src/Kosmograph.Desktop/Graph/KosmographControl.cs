@@ -1,4 +1,6 @@
-﻿using Kosmograph.Desktop.ViewModel;
+﻿using GalaSoft.MvvmLight.Messaging;
+using Kosmograph.Desktop.EditModel;
+using Kosmograph.Desktop.ViewModel;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -35,7 +37,7 @@ namespace Kosmograph.Desktop.Graph
     /// </summary>
     public partial class KosmographControl : Canvas
     {
-        private readonly KosmographViewer msaglGraphViewer;
+        public KosmographViewer MsaglGraphViewer { get; }
 
         static KosmographControl()
         {
@@ -44,8 +46,9 @@ namespace Kosmograph.Desktop.Graph
 
         public KosmographControl()
         {
-            this.msaglGraphViewer = new KosmographViewer(this);
+            this.MsaglGraphViewer = new KosmographViewer(this);
             this.Loaded += this.KosmographControl_Loaded;
+            Messenger.Default.Register<EditModelCommitted>(this, this.EditModelCommitted);
         }
 
         private void KosmographControl_Loaded(object sender, RoutedEventArgs e)
