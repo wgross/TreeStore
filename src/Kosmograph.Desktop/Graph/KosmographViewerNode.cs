@@ -17,12 +17,8 @@ namespace Kosmograph.Desktop.Graph
 {
     public class KosmographViewerNode : IViewerNode, IInvalidatable
     {
-        public TextBlock NodeLabel { get; }
         private readonly Func<Edge, KosmographviewerEdge> funcFromDrawingEdgeToVEdge;
 
-        private Border _collapseButtonBorder;
-        private Rectangle _topMarginRect;
-        private Path _collapseSymbolPath;
         private readonly Brush _collapseSymbolPathInactive = Brushes.Silver;
 
         public int ZIndex
@@ -160,6 +156,22 @@ namespace Kosmograph.Desktop.Graph
 
         #endregion IInvalidatable members
 
+        #region Node viewer is composed of mutiples visual elements
+
+        /// <summary>
+        /// The label text of the node visulizes the <see cref="Microsoft.Msagl.Drawing.Label"/> of <see cref="Node"/>.
+        /// </summary>
+        public TextBlock NodeLabel { get; }
+
+        /// <summary>
+        /// The path gemeotry surrunding the <see cref="NodeLabel"/> iof the viewers <see cref="Node"/>
+        /// </summary>
+        public Path NodeBoundaryPath { get; }
+
+        private Border _collapseButtonBorder;
+        private Rectangle _topMarginRect;
+        private Path _collapseSymbolPath;
+
         public IEnumerable<FrameworkElement> FrameworkElements
         {
             get
@@ -168,7 +180,7 @@ namespace Kosmograph.Desktop.Graph
                     yield return this.NodeLabel;
 
                 if (this.NodeBoundaryPath != null)
-                    yield return NodeBoundaryPath;
+                    yield return this.NodeBoundaryPath;
 
                 if (this._collapseButtonBorder != null)
                 {
@@ -178,6 +190,10 @@ namespace Kosmograph.Desktop.Graph
                 }
             }
         }
+
+        #endregion Node viewer is composed of mutiples visual elements
+
+        #region Subgraphing
 
         private void SetupSubgraphDrawing()
         {
@@ -320,9 +336,9 @@ namespace Kosmograph.Desktop.Graph
             return pathGeometry;
         }
 
-        #region Nodes have a boundary
+        #endregion Subgraphing
 
-        public Path NodeBoundaryPath { get; set; }
+        #region Nodes have a boundary
 
         private Func<double> pathStrokeThicknessFunc { get; }
 
