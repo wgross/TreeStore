@@ -97,11 +97,11 @@ namespace Kosmograph.Desktop.Graph
 
         public FrameworkElement LabelFrameworkElement;
 
-        public Path CurvePath { get; set; }
+        public Path CurvePath { get; }
 
-        public Path SourceArrowHeadPath { get; set; }
+        public Path SourceArrowHeadPath { get; }
 
-        public Path TargetArrowHeadPath { get; set; }
+        public Path TargetArrowHeadPath { get; }
 
         override public IEnumerable<FrameworkElement> FrameworkElements
         {

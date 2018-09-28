@@ -26,7 +26,7 @@ namespace Kosmograph.Desktop.Graph
             .UpdateFrom(drawingLabel);
         }
 
-        public static TextBlock UpdateFrom(this TextBlock textBlock, DrawingLabel drawingLabel)
+        private static TextBlock UpdateFrom(this TextBlock textBlock, DrawingLabel drawingLabel)
         {
             Debug.Assert(textBlock.Dispatcher.CheckAccess());
 

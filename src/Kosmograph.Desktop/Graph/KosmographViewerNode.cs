@@ -49,12 +49,10 @@ namespace Kosmograph.Desktop.Graph
             this.funcFromDrawingEdgeToVEdge = funcFromDrawingEdgeToVEdge;
 
             this.Node = node;
-            this.NodeLabel = nodeLabelFrameworkElement;
-            this.NodeLabel.Tag = this; //get a backpointer to the KosmographViewerNode
-            this.NodeBoundaryPath = new Path { Tag = this };
-            this.UpdateNodeVisualsPosition();
 
-            this.SetupSubgraphDrawing();
+            (this.NodeLabel, this.NodeBoundaryPath) = this.SetupNodeVisuals(nodeLabelFrameworkElement);
+
+            this.UpdateNodeVisualsPosition();
 
             this.Node.Attr.VisualsChanged += (a, b) => this.Invalidate();
             this.Node.IsVisibleChanged += obj =>
@@ -157,7 +155,14 @@ namespace Kosmograph.Desktop.Graph
 
         #endregion IInvalidatable members
 
-        #region Node viewer is composed of mutiples visual elements
+        #region Node viewer is composed of mutiple visual elements
+
+        private Func<double> pathStrokeThicknessFunc { get; }
+
+        private double PathStrokeThickness
+        {
+            get { return pathStrokeThicknessFunc != null ? this.pathStrokeThicknessFunc() : Node.Attr.LineWidth; }
+        }
 
         /// <summary>
         /// The label text of the node visulizes the <see cref="Microsoft.Msagl.Drawing.Label"/> of <see cref="Node"/>.
@@ -173,7 +178,7 @@ namespace Kosmograph.Desktop.Graph
         private Rectangle _topMarginRect;
         private Path _collapseSymbolPath;
 
-        public IEnumerable<FrameworkElement> FrameworkElements
+        override public IEnumerable<FrameworkElement> FrameworkElements
         {
             get
             {
@@ -192,9 +197,22 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        #endregion Node viewer is composed of mutiples visual elements
+        #endregion Node viewer is composed of mutiple visual elements
 
-        #region Subgraphing
+        #region Setup node viewers visual elements
+
+        public (TextBlock, Path) SetupNodeVisuals(TextBlock nodeLabelFrameworkElement)
+        {
+            nodeLabelFrameworkElement.Tag = this;
+
+            this.SetupSubgraphDrawing();
+
+            return (nodeLabelFrameworkElement, new Path { Tag = this });
+        }
+
+        #endregion Setup node viewers visual elements
+
+        #region Setup Subgraphing
 
         private void SetupSubgraphDrawing()
         {
@@ -337,16 +355,9 @@ namespace Kosmograph.Desktop.Graph
             return pathGeometry;
         }
 
-        #endregion Subgraphing
+        #endregion Setup Subgraphing
 
-        #region Nodes have a boundary
-
-        private Func<double> pathStrokeThicknessFunc { get; }
-
-        private double PathStrokeThickness
-        {
-            get { return pathStrokeThicknessFunc != null ? this.pathStrokeThicknessFunc() : Node.Attr.LineWidth; }
-        }
+        #region Update node viewers visuals
 
         private void UpdateNodeVisuals()
         {
@@ -372,7 +383,7 @@ namespace Kosmograph.Desktop.Graph
             Panel.SetZIndex(this.NodeLabel, this.ZIndex + 1);
         }
 
-        #endregion Nodes have a boundary
+        #endregion Update node viewers visuals
 
         public override string ToString()
         {
