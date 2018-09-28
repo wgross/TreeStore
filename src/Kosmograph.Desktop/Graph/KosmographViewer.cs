@@ -131,7 +131,7 @@ namespace Kosmograph.Desktop.Graph
 
         private void ClickCounterElapsed(object sender, EventArgs e)
         {
-            var vedge = this.clickCounter.ClickedObject as KosmographviewerEdge;
+            var vedge = this.clickCounter.ClickedObject as KosmographViewerEdge;
             if (vedge != null)
             {
                 if (this.clickCounter.UpCount == this.clickCounter.DownCount && this.clickCounter.UpCount == 1)
@@ -150,7 +150,7 @@ namespace Kosmograph.Desktop.Graph
             canvasBackgroundRect.Height = parent.ActualHeight;
         }
 
-        private void HandleClickForEdge(KosmographviewerEdge vEdge)
+        private void HandleClickForEdge(KosmographViewerEdge vEdge)
         {
             //todo : add a hook
             var lgSettings = Graph.LayoutAlgorithmSettings as LgLayoutSettings;
@@ -182,7 +182,7 @@ namespace Kosmograph.Desktop.Graph
                 if (vLabel != null) ret = vLabel.FrameworkElement;
                 else
                 {
-                    var vEdge = viewerObject as KosmographviewerEdge;
+                    var vEdge = viewerObject as KosmographViewerEdge;
                     if (vEdge != null) ret = vEdge.CurvePath;
                     else
                     {
@@ -361,7 +361,7 @@ namespace Kosmograph.Desktop.Graph
                 foreach (var viewerObject in drawingObjectsToIViewerObjects.Values)
                 {
                     yield return viewerObject;
-                    var edge = viewerObject as KosmographviewerEdge;
+                    var edge = viewerObject as KosmographViewerEdge;
                     if (edge != null)
                         if (edge.VLabel != null)
                             yield return edge.VLabel;
@@ -706,18 +706,18 @@ namespace Kosmograph.Desktop.Graph
                 CreateEdge(edge, null);
         }
 
-        private KosmographviewerEdge CreateEdge(DrawingEdge edge, LgLayoutSettings lgSettings)
+        private KosmographViewerEdge CreateEdge(DrawingEdge edge, LgLayoutSettings lgSettings)
         {
             lock (this.syncRoot)
             {
                 if (drawingObjectsToIViewerObjects.ContainsKey(edge))
-                    return (KosmographviewerEdge)drawingObjectsToIViewerObjects[edge];
+                    return (KosmographViewerEdge)drawingObjectsToIViewerObjects[edge];
                 if (lgSettings != null)
                     return CreateEdgeForLgCase(lgSettings, edge);
 
                 FrameworkElement labelTextBox;
                 drawingObjectsToFrameworkElements.TryGetValue(edge, out labelTextBox);
-                var vEdge = new KosmographviewerEdge(edge, labelTextBox);
+                var vEdge = new KosmographViewerEdge(edge, labelTextBox);
 
                 var zIndex = ZIndexOfEdge(edge);
                 drawingObjectsToIViewerObjects[edge] = vEdge;
@@ -742,15 +742,15 @@ namespace Kosmograph.Desktop.Graph
             return zIndex;
         }
 
-        private KosmographviewerEdge CreateEdgeForLgCase(LgLayoutSettings lgSettings, DrawingEdge edge)
+        private KosmographViewerEdge CreateEdgeForLgCase(LgLayoutSettings lgSettings, DrawingEdge edge)
         {
-            return (KosmographviewerEdge)(drawingObjectsToIViewerObjects[edge] = new KosmographviewerEdge(edge, lgSettings)
+            return (KosmographViewerEdge)(drawingObjectsToIViewerObjects[edge] = new KosmographViewerEdge(edge, lgSettings)
             {
                 PathStrokeThicknessFunc = () => GetBorderPathThickness() * edge.Attr.LineWidth
             });
         }
 
-        private void SetVEdgeLabel(DrawingEdge edge, KosmographviewerEdge vEdge, int zIndex)
+        private void SetVEdgeLabel(DrawingEdge edge, KosmographViewerEdge vEdge, int zIndex)
         {
             FrameworkElement frameworkElementForEdgeLabel;
             if (!drawingObjectsToFrameworkElements.TryGetValue(edge, out frameworkElementForEdgeLabel))
@@ -767,7 +767,7 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        private void SetVEdgeArrowheads(KosmographviewerEdge vEdge, int zIndex)
+        private void SetVEdgeArrowheads(KosmographViewerEdge vEdge, int zIndex)
         {
             if (vEdge.SourceArrowHeadPath != null)
             {
@@ -1031,7 +1031,7 @@ namespace Kosmograph.Desktop.Graph
         {
             lock (this.syncRoot)
             {
-                var vedge = (KosmographviewerEdge)edge;
+                var vedge = (KosmographViewerEdge)edge;
                 var dedge = vedge.Edge;
                 drawingGraph.RemoveEdge(dedge);
                 drawingGraph.GeometryGraph.Edges.Remove(dedge.GeometryEdge);
@@ -1065,7 +1065,7 @@ namespace Kosmograph.Desktop.Graph
         {
             foreach (var de in drawingEdges.ToArray())
             {
-                var vedge = (KosmographviewerEdge)drawingObjectsToIViewerObjects[de];
+                var vedge = (KosmographViewerEdge)drawingObjectsToIViewerObjects[de];
                 RemoveEdge(vedge, false);
             }
         }
@@ -1148,8 +1148,8 @@ namespace Kosmograph.Desktop.Graph
                 };
                 GraphCanvas.Children.Add(_targetArrowheadPathForRubberEdge);
             }
-            _rubberEdgePath.Data = KosmographviewerEdge.GetICurveWpfGeometry(edgeGeometry.Curve);
-            _targetArrowheadPathForRubberEdge.Data = KosmographviewerEdge.DefiningTargetArrowHead(edgeGeometry,
+            _rubberEdgePath.Data = KosmographViewerEdge.GetICurveWpfGeometry(edgeGeometry.Curve);
+            _targetArrowheadPathForRubberEdge.Data = KosmographViewerEdge.DefiningTargetArrowHead(edgeGeometry,
                                                                                   edgeGeometry.LineWidth);
         }
 
@@ -1212,7 +1212,7 @@ namespace Kosmograph.Desktop.Graph
                 //                graphCanvas.Children.Add(targetArrowheadPathForRubberLine);
             }
             _rubberLinePath.Data =
-                KosmographviewerEdge.GetICurveWpfGeometry(new LineSegment(_sourcePortLocationForEdgeRouting, rubberEnd));
+                KosmographViewerEdge.GetICurveWpfGeometry(new LineSegment(_sourcePortLocationForEdgeRouting, rubberEnd));
         }
 
         public void StartDrawingRubberLine(Point startingPoint)

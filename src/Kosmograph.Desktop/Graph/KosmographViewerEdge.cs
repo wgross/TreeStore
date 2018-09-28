@@ -27,6 +27,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+using Kosmograph.Desktop.Graph.Base;
 using Microsoft.Msagl.Core.Geometry.Curves;
 using Microsoft.Msagl.Core.Layout;
 using Microsoft.Msagl.Drawing;
@@ -48,11 +49,9 @@ using Size = System.Windows.Size;
 
 namespace Kosmograph.Desktop.Graph
 {
-    public class KosmographviewerEdge : IViewerEdge, IInvalidatable
+    public class KosmographViewerEdge : KosmographViewerItemBase, IViewerEdge, IInvalidatable
     {
-        public FrameworkElement LabelFrameworkElement;
-
-        public KosmographviewerEdge(DrawingEdge edge, FrameworkElement labelFrameworkElement)
+        public KosmographViewerEdge(DrawingEdge edge, FrameworkElement labelFrameworkElement)
         {
             Edge = edge;
             CurvePath = new Path
@@ -94,24 +93,34 @@ namespace Kosmograph.Desktop.Graph
             };
         }
 
-        public IEnumerable<FrameworkElement> FrameworkElements
+        #region Edge viewer is composed of multiple visual elements
+
+        public FrameworkElement LabelFrameworkElement;
+
+        public Path CurvePath { get; set; }
+
+        public Path SourceArrowHeadPath { get; set; }
+
+        public Path TargetArrowHeadPath { get; set; }
+
+        override public IEnumerable<FrameworkElement> FrameworkElements
         {
             get
             {
-                if (SourceArrowHeadPath != null)
+                if (this.SourceArrowHeadPath != null)
                     yield return this.SourceArrowHeadPath;
-                if (TargetArrowHeadPath != null)
-                    yield return TargetArrowHeadPath;
+                if (this.TargetArrowHeadPath != null)
+                    yield return this.TargetArrowHeadPath;
 
-                if (CurvePath != null)
-                    yield return CurvePath;
+                if (this.CurvePath != null)
+                    yield return this.CurvePath;
 
-                if (
-                    LabelFrameworkElement != null)
-                    yield return
-                        LabelFrameworkElement;
+                if (this.LabelFrameworkElement != null)
+                    yield return this.LabelFrameworkElement;
             }
         }
+
+        #endregion Edge viewer is composed of multiple visual elements
 
         public EdgeAttr EdgeAttrClone { get; set; }
 
@@ -145,10 +154,6 @@ namespace Kosmograph.Desktop.Graph
                 return PathStrokeThicknessFunc != null ? PathStrokeThicknessFunc() : this.Edge.Attr.LineWidth;
             }
         }
-
-        public Path CurvePath { get; set; }
-        public Path SourceArrowHeadPath { get; set; }
-        public Path TargetArrowHeadPath { get; set; }
 
         static public Geometry GetICurveWpfGeometry(ICurve curve)
         {
@@ -442,7 +447,7 @@ namespace Kosmograph.Desktop.Graph
         public static double _dashSize = 0.05; //inches
         public Func<double> PathStrokeThicknessFunc;
 
-        public KosmographviewerEdge(DrawingEdge edge, LgLayoutSettings lgSettings)
+        public KosmographViewerEdge(DrawingEdge edge, LgLayoutSettings lgSettings)
         {
             Edge = edge;
             EdgeAttrClone = edge.Attr.Clone();

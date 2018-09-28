@@ -123,6 +123,7 @@
     <Compile Include="Editor\EditorControl.xaml.cs">
       <DependentUpon>EditorControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Graph\Base\KosmographViewerItemBase.cs" />
     <Compile Include="Graph\ClickCounter.cs" />
     <Compile Include="Graph\DispatcherObjectExtensions.cs" />
     <Compile Include="Graph\GvMouseEventArgs.cs" />

@@ -1,3 +1,4 @@
+using Kosmograph.Desktop.Graph.Base;
 using Microsoft.Msagl.Core.Layout;
 using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.WpfGraphControl;
@@ -15,9 +16,9 @@ using Point = Microsoft.Msagl.Core.Geometry.Point;
 
 namespace Kosmograph.Desktop.Graph
 {
-    public class KosmographViewerNode : IViewerNode, IInvalidatable
+    public class KosmographViewerNode : KosmographViewerItemBase, IViewerNode, IInvalidatable
     {
-        private readonly Func<Edge, KosmographviewerEdge> funcFromDrawingEdgeToVEdge;
+        private readonly Func<Edge, KosmographViewerEdge> funcFromDrawingEdgeToVEdge;
 
         private readonly Brush _collapseSymbolPathInactive = Brushes.Silver;
 
@@ -42,7 +43,7 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        public KosmographViewerNode(Node node, TextBlock nodeLabelFrameworkElement, Func<Edge, KosmographviewerEdge> funcFromDrawingEdgeToVEdge, Func<double> pathStrokeThicknessFunc)
+        public KosmographViewerNode(Node node, TextBlock nodeLabelFrameworkElement, Func<Edge, KosmographViewerEdge> funcFromDrawingEdgeToVEdge, Func<double> pathStrokeThicknessFunc)
         {
             this.pathStrokeThicknessFunc = pathStrokeThicknessFunc;
             this.funcFromDrawingEdgeToVEdge = funcFromDrawingEdgeToVEdge;
