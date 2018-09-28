@@ -58,6 +58,7 @@ namespace Kosmograph.Desktop.Graph
 
             Wpf2MsaglConverters.PositionFrameworkElement(this.EdgeLabel, this.Edge.Label.Center, 1);
 
+            // events sent from the MSAGL graphs
             this.Edge.Attr.VisualsChanged += (a, b) => Invalidate();
             this.Edge.IsVisibleChanged += this.UpdateVisibility;
         }
@@ -172,23 +173,27 @@ namespace Kosmograph.Desktop.Graph
 
         public void Invalidate()
         {
-            this.UpdateVisibility(this.Edge);
-            if (!this.Edge.IsVisible)
-                return;
+            this.EdgeLabel.InvokeInUiThread(() =>
+            {
+                this.UpdateVisibility(this.Edge);
+                if (!this.Edge.IsVisible)
+                    return;
 
-            this.EdgePath.Data = VisualsFactory.CreateEdgePath(Edge.GeometryEdge.Curve);
+                this.EdgePath.Data = VisualsFactory.CreateEdgePath(Edge.GeometryEdge.Curve);
 
-            // arrows should be nulled and removed if they are nor required anymore.
-            // revist on graphic property editing
-            // --wgross 28.09.2018
-            if (this.Edge.Attr.ArrowAtSource)
-                SourceArrowHeadPath.Data = VisualsFactory.CreateEdgeSourceArrow(this.Edge.GeometryEdge.EdgeGeometry, this.PathStrokeThickness);
-            if (this.Edge.Attr.ArrowAtTarget)
-                TargetArrowHeadPath.Data = VisualsFactory.CreateEdgeTargetArrow(this.Edge.GeometryEdge.EdgeGeometry, this.PathStrokeThickness);
+                // arrows should be nulled and removed if they are nor required anymore.
+                // revist on graphic property editing
+                // --wgross 28.09.2018
+                if (this.Edge.Attr.ArrowAtSource)
+                    this.SourceArrowHeadPath.Data = VisualsFactory.CreateEdgeSourceArrow(this.Edge.GeometryEdge.EdgeGeometry, this.PathStrokeThickness);
+                if (this.Edge.Attr.ArrowAtTarget)
+                    this.TargetArrowHeadPath.Data = VisualsFactory.CreateEdgeTargetArrow(this.Edge.GeometryEdge.EdgeGeometry, this.PathStrokeThickness);
 
-            this.SetPathStroke();
-            if (VLabel != null)
-                ((IInvalidatable)VLabel).Invalidate();
+                this.SetPathStroke();
+
+                if (VLabel != null)
+                    ((IInvalidatable)VLabel).Invalidate();
+            });
         }
 
         #endregion IInvalidate members

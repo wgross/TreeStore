@@ -123,28 +123,29 @@ namespace Kosmograph.Desktop.Graph
         /// </summary>
         public void Invalidate()
         {
-            Debug.Assert(this.NodeLabel.Dispatcher.CheckAccess());
+            this.NodeLabel.InvokeInUiThread(() =>
+            {
+                this.UpdateNodeVisuals();
 
-            this.UpdateNodeVisuals();
+                if (_subgraph is null)
+                    return;
 
-            if (_subgraph is null)
-                return;
+                this.PositionTopMarginBorder((Cluster)_subgraph.GeometryNode);
 
-            this.PositionTopMarginBorder((Cluster)_subgraph.GeometryNode);
+                double collapseBorderSize = GetCollapseBorderSymbolSize();
+                var collapseButtonCenter = GetCollapseButtonCenter(collapseBorderSize);
 
-            double collapseBorderSize = GetCollapseBorderSymbolSize();
-            var collapseButtonCenter = GetCollapseButtonCenter(collapseBorderSize);
+                Wpf2MsaglConverters.PositionFrameworkElement(_collapseButtonBorder, collapseButtonCenter, 1);
 
-            Wpf2MsaglConverters.PositionFrameworkElement(_collapseButtonBorder, collapseButtonCenter, 1);
+                double w = collapseBorderSize * 0.4;
 
-            double w = collapseBorderSize * 0.4;
+                _collapseSymbolPath.Data = CreateCollapseSymbolPath(collapseButtonCenter + new Point(0, -w / 2), w);
+                _collapseSymbolPath.RenderTransform = ((Cluster)_subgraph.GeometryNode).IsCollapsed
+                    ? new RotateTransform(180, collapseButtonCenter.X, collapseButtonCenter.Y)
+                    : null;
 
-            _collapseSymbolPath.Data = CreateCollapseSymbolPath(collapseButtonCenter + new Point(0, -w / 2), w);
-            _collapseSymbolPath.RenderTransform = ((Cluster)_subgraph.GeometryNode).IsCollapsed
-                ? new RotateTransform(180, collapseButtonCenter.X, collapseButtonCenter.Y)
-                : null;
-
-            _topMarginRect.Visibility = _collapseSymbolPath.Visibility = _collapseButtonBorder.Visibility = Visibility.Visible;
+                _topMarginRect.Visibility = _collapseSymbolPath.Visibility = _collapseButtonBorder.Visibility = Visibility.Visible;
+            });
         }
 
         #endregion IInvalidatable members
@@ -155,7 +156,7 @@ namespace Kosmograph.Desktop.Graph
 
         private double PathStrokeThickness
         {
-            get { return pathStrokeThicknessFunc != null ? this.pathStrokeThicknessFunc() : Node.Attr.LineWidth; }
+            get { return this.pathStrokeThicknessFunc is null ? Node.Attr.LineWidth : this.pathStrokeThicknessFunc(); }
         }
 
         /// <summary>
@@ -349,19 +350,15 @@ namespace Kosmograph.Desktop.Graph
             return pathGeometry;
         }
 
-        #endregion Setup Subgraphing
+        #endregion Setup Subgraphing    
 
         #region Update node viewers visuals
 
         private void UpdateNodeVisuals()
         {
-            if (!this.Node.IsVisible)
-            {
-                foreach (var nodeVisuals in this.FrameworkElements)
-                    nodeVisuals.Visibility = Visibility.Hidden;
-                return;
-            }
-            else
+            this.UpdateVisibility(this.Node);
+
+            if (this.Node.IsVisible)
             {
                 this.NodeLabel.UpdateFrom(this.Node);
                 this.NodeBoundaryPath.Update(this.Node);
