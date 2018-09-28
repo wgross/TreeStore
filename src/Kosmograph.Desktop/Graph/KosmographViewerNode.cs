@@ -55,13 +55,7 @@ namespace Kosmograph.Desktop.Graph
             this.UpdateNodeVisualsPosition();
 
             this.Node.Attr.VisualsChanged += (a, b) => this.Invalidate();
-            this.Node.IsVisibleChanged += obj =>
-            {
-                foreach (var frameworkElement in this.FrameworkElements)
-                {
-                    frameworkElement.Visibility = Node.IsVisible ? Visibility.Visible : Visibility.Hidden;
-                }
-            };
+            this.Node.IsVisibleChanged += this.UpdateVisibility;
         }
 
         #region IViewerObject Members

@@ -1148,9 +1148,8 @@ namespace Kosmograph.Desktop.Graph
                 };
                 GraphCanvas.Children.Add(_targetArrowheadPathForRubberEdge);
             }
-            _rubberEdgePath.Data = KosmographViewerEdge.GetICurveWpfGeometry(edgeGeometry.Curve);
-            _targetArrowheadPathForRubberEdge.Data = KosmographViewerEdge.DefiningTargetArrowHead(edgeGeometry,
-                                                                                  edgeGeometry.LineWidth);
+            _rubberEdgePath.Data = VisualsFactory.CreateEdgePath(edgeGeometry.Curve);
+            _targetArrowheadPathForRubberEdge.Data = KosmographViewerEdge.DefiningTargetArrowHead(edgeGeometry, edgeGeometry.LineWidth);
         }
 
         public void StopDrawingRubberEdge()
@@ -1211,8 +1210,7 @@ namespace Kosmograph.Desktop.Graph
                 //                };
                 //                graphCanvas.Children.Add(targetArrowheadPathForRubberLine);
             }
-            _rubberLinePath.Data =
-                KosmographViewerEdge.GetICurveWpfGeometry(new LineSegment(_sourcePortLocationForEdgeRouting, rubberEnd));
+            _rubberLinePath.Data = VisualsFactory.CreateEdgePath(new LineSegment(_sourcePortLocationForEdgeRouting, rubberEnd));
         }
 
         public void StartDrawingRubberLine(Point startingPoint)

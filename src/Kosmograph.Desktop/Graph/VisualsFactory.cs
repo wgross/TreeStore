@@ -8,6 +8,9 @@ using System.Windows.Shapes;
 using DrawingLabel = Microsoft.Msagl.Drawing.Label;
 using DrawingNode = Microsoft.Msagl.Drawing.Node;
 using DrawingShape = Microsoft.Msagl.Drawing.Shape;
+using GeometryEllipse = Microsoft.Msagl.Core.Geometry.Curves.Ellipse;
+using GeometryLineSegment = Microsoft.Msagl.Core.Geometry.Curves.LineSegment;
+using GeometryPolyline = Microsoft.Msagl.Core.Geometry.Curves.Polyline;
 using GeometryRectangle = Microsoft.Msagl.Core.Geometry.Rectangle;
 
 namespace Kosmograph.Desktop.Graph
@@ -183,5 +186,131 @@ namespace Kosmograph.Desktop.Graph
         }
 
         #endregion A node is separated from the background by a boundary Line or Shape.
+
+        #region Any edge is drawn from a MSAGL Geometry Curve
+
+        static public Geometry CreateEdgePath(ICurve curve)
+        {
+            var streamGeometry = new StreamGeometry();
+            if (curve is null)
+                return streamGeometry;
+
+            using (StreamGeometryContext context = streamGeometry.Open())
+                FillContextForICurve(context, curve);
+            return streamGeometry;
+        }
+
+        static public void FillContextForICurve(StreamGeometryContext context, ICurve iCurve)
+        {
+            context.BeginFigure(iCurve.Start.ToWpf(), false, false);
+
+            var c = iCurve as Curve;
+            if (c != null)
+            {
+                FillContexForCurve(context, c);
+                return;
+            }
+
+            var cubicBezierSeg = iCurve as CubicBezierSegment;
+            if (cubicBezierSeg != null)
+            {
+                context.BezierTo(cubicBezierSeg.B(1).ToWpf(), cubicBezierSeg.B(2).ToWpf(), cubicBezierSeg.B(3).ToWpf(), true, false);
+                return;
+            }
+
+            var ls = iCurve as GeometryLineSegment;
+            if (ls != null)
+            {
+                context.LineTo(ls.End.ToWpf(), true, false);
+                return;
+            }
+
+            var rr = iCurve as RoundedRect;
+            if (rr != null)
+            {
+                FillContexForCurve(context, rr.Curve);
+                return;
+            }
+
+            var poly = iCurve as GeometryPolyline;
+            if (poly != null)
+            {
+                FillContexForPolyline(context, poly);
+                return;
+            }
+
+            var ellipse = iCurve as GeometryEllipse;
+            if (ellipse != null)
+            {
+                //       context.LineTo(Common.WpfPoint(ellipse.End),true,false);
+                double sweepAngle = EllipseSweepAngle(ellipse);
+                bool largeArc = Math.Abs(sweepAngle) >= Math.PI;
+                GeometryRectangle box = ellipse.FullBox();
+                context.ArcTo(ellipse.End.ToWpf(),
+                                new Size(box.Width / 2, box.Height / 2),
+                                sweepAngle,
+                                largeArc,
+                                sweepAngle < 0
+                                    ? SweepDirection.Counterclockwise
+                                    : SweepDirection.Clockwise,
+                                true, true);
+
+                return;
+            }
+            else throw new NotImplementedException($"{iCurve.GetType()}");
+        }
+
+        private static void FillContexForPolyline(StreamGeometryContext context, GeometryPolyline poly)
+        {
+            for (PolylinePoint pp = poly.StartPoint.Next; pp != null; pp = pp.Next)
+                context.LineTo(pp.Point.ToWpf(), true, false);
+        }
+
+        private static void FillContexForCurve(StreamGeometryContext context, Curve c)
+        {
+            foreach (ICurve seg in c.Segments)
+            {
+                var bezSeg = seg as CubicBezierSegment;
+                if (bezSeg != null)
+                {
+                    context.BezierTo(bezSeg.B(1).ToWpf(), bezSeg.B(2).ToWpf(), bezSeg.B(3).ToWpf(), true, false);
+                }
+                else
+                {
+                    var ls = seg as GeometryLineSegment;
+                    if (ls != null)
+                        context.LineTo(ls.End.ToWpf(), true, false);
+                    else
+                    {
+                        var ellipse = seg as GeometryEllipse;
+                        if (ellipse != null)
+                        {
+                            //       context.LineTo(Common.WpfPoint(ellipse.End),true,false);
+                            double sweepAngle = EllipseSweepAngle(ellipse);
+                            bool largeArc = Math.Abs(sweepAngle) >= Math.PI;
+                            GeometryRectangle box = ellipse.FullBox();
+                            context.ArcTo(ellipse.End.ToWpf(),
+                                          new Size(box.Width / 2, box.Height / 2),
+                                          sweepAngle,
+                                          largeArc,
+                                          sweepAngle < 0
+                                              ? SweepDirection.Counterclockwise
+                                              : SweepDirection.Clockwise,
+                                          true, true);
+                        }
+                        else
+                            throw new NotImplementedException();
+                    }
+                }
+            }
+        }
+
+        public static double EllipseSweepAngle(GeometryEllipse ellipse)
+        {
+            double sweepAngle = ellipse.ParEnd - ellipse.ParStart;
+            return ellipse.OrientedCounterclockwise() ? sweepAngle : -sweepAngle;
+        }
+
+        #endregion Any edge is drawn from a MSAGL Geometry Curve
     }
 }
