@@ -183,7 +183,7 @@ namespace Kosmograph.Desktop.Graph
                 else
                 {
                     var vEdge = viewerObject as KosmographViewerEdge;
-                    if (vEdge != null) ret = vEdge.CurvePath;
+                    if (vEdge != null) ret = vEdge.EdgePath;
                     else
                     {
                         throw new InvalidOperationException(
@@ -725,8 +725,8 @@ namespace Kosmograph.Desktop.Graph
                 if (edge.Label != null)
                     SetVEdgeLabel(edge, vEdge, zIndex);
 
-                Panel.SetZIndex(vEdge.CurvePath, zIndex);
-                GraphCanvas.Children.Add(vEdge.CurvePath);
+                Panel.SetZIndex(vEdge.EdgePath, zIndex);
+                GraphCanvas.Children.Add(vEdge.EdgePath);
                 SetVEdgeArrowheads(vEdge, zIndex);
 
                 return vEdge;
@@ -1149,7 +1149,7 @@ namespace Kosmograph.Desktop.Graph
                 GraphCanvas.Children.Add(_targetArrowheadPathForRubberEdge);
             }
             _rubberEdgePath.Data = VisualsFactory.CreateEdgePath(edgeGeometry.Curve);
-            _targetArrowheadPathForRubberEdge.Data = KosmographViewerEdge.DefiningTargetArrowHead(edgeGeometry, edgeGeometry.LineWidth);
+            _targetArrowheadPathForRubberEdge.Data = VisualsFactory.CreateEdgeTargetArrow(edgeGeometry, edgeGeometry.LineWidth);
         }
 
         public void StopDrawingRubberEdge()

@@ -1,4 +1,6 @@
 ﻿using Microsoft.Msagl.Core.Geometry.Curves;
+using Microsoft.Msagl.Core.Layout;
+using Microsoft.Msagl.Layout.LargeGraphLayout;
 using System;
 using System.Diagnostics;
 using System.Windows;
@@ -10,6 +12,7 @@ using DrawingNode = Microsoft.Msagl.Drawing.Node;
 using DrawingShape = Microsoft.Msagl.Drawing.Shape;
 using GeometryEllipse = Microsoft.Msagl.Core.Geometry.Curves.Ellipse;
 using GeometryLineSegment = Microsoft.Msagl.Core.Geometry.Curves.LineSegment;
+using GeometryPoint = Microsoft.Msagl.Core.Geometry.Point;
 using GeometryPolyline = Microsoft.Msagl.Core.Geometry.Curves.Polyline;
 using GeometryRectangle = Microsoft.Msagl.Core.Geometry.Rectangle;
 
@@ -29,6 +32,18 @@ namespace Kosmograph.Desktop.Graph
             .UpdateFrom(drawingLabel);
         }
 
+        public static TextBlock UpdateFrom(this TextBlock textBlock, DrawingNode drawingNode)
+        {
+            Debug.Assert(textBlock.Dispatcher.CheckAccess());
+
+            var tmp = textBlock.UpdateFrom(drawingNode.Label);
+            tmp.Width = drawingNode.Width;
+            tmp.Height = drawingNode.Height;
+            tmp.Margin = new Thickness(drawingNode.Attr.LabelMargin);
+
+            return textBlock;
+        }
+
         private static TextBlock UpdateFrom(this TextBlock textBlock, DrawingLabel drawingLabel)
         {
             Debug.Assert(textBlock.Dispatcher.CheckAccess());
@@ -46,21 +61,9 @@ namespace Kosmograph.Desktop.Graph
             return textBlock;
         }
 
-        public static TextBlock UpdateFrom(this TextBlock textBlock, DrawingNode drawingNode)
-        {
-            Debug.Assert(textBlock.Dispatcher.CheckAccess());
-
-            var tmp = textBlock.UpdateFrom(drawingNode.Label);
-            tmp.Width = drawingNode.Width;
-            tmp.Height = drawingNode.Height;
-            tmp.Margin = new Thickness(drawingNode.Attr.LabelMargin);
-
-            return textBlock;
-        }
-
         #endregion A nodes label is visualized by a TextBlock instance
 
-        #region A node is separated from the background by a boundary Line or Shape.
+        #region Draw an boundary line/shape.
 
         public static Path CreateNodeBoundary(DrawingNode drawingNode)
         {
@@ -185,9 +188,9 @@ namespace Kosmograph.Desktop.Graph
             return new EllipseGeometry(box.Center.ToWpf(), box.Width / 2, box.Height / 2);
         }
 
-        #endregion A node is separated from the background by a boundary Line or Shape.
+        #endregion Draw an boundary line/shape.
 
-        #region Any edge is drawn from a MSAGL Geometry Curve
+        #region Draw an edge path from a MSAGL Geometry Curve
 
         static public Geometry CreateEdgePath(ICurve curve)
         {
@@ -196,11 +199,11 @@ namespace Kosmograph.Desktop.Graph
                 return streamGeometry;
 
             using (StreamGeometryContext context = streamGeometry.Open())
-                FillContextForICurve(context, curve);
+                CreateEdgePathFromCurve(context, curve);
             return streamGeometry;
         }
 
-        static public void FillContextForICurve(StreamGeometryContext context, ICurve iCurve)
+        static private void CreateEdgePathFromCurve(StreamGeometryContext context, ICurve iCurve)
         {
             context.BeginFigure(iCurve.Start.ToWpf(), false, false);
 
@@ -311,6 +314,132 @@ namespace Kosmograph.Desktop.Graph
             return ellipse.OrientedCounterclockwise() ? sweepAngle : -sweepAngle;
         }
 
-        #endregion Any edge is drawn from a MSAGL Geometry Curve
+        #endregion Draw an edge path from a MSAGL Geometry Curve
+
+        #region Draw an edge arrow
+
+        public static Geometry CreateEdgeSourceArrow(EdgeGeometry edgeGeometry, double pathStrokeThickness)
+        {
+            var streamGeometry = new StreamGeometry();
+            using (StreamGeometryContext context = streamGeometry.Open())
+                CreateEdgeArrow(context, edgeGeometry.Curve.Start, edgeGeometry.SourceArrowhead.TipPosition, pathStrokeThickness);
+
+            return streamGeometry;
+        }
+
+        public static Geometry CreateEdgeTargetArrow(EdgeGeometry edgeGeometry, double pathStrokeThickness)
+        {
+            var streamGeometry = new StreamGeometry();
+            using (StreamGeometryContext context = streamGeometry.Open())
+                CreateEdgeArrow(context, edgeGeometry.Curve.End, edgeGeometry.TargetArrowhead.TipPosition, pathStrokeThickness);
+
+            return streamGeometry;
+        }
+
+        private static void CreateEdgeArrow(StreamGeometryContext context, GeometryPoint start, GeometryPoint end, double pathStrokeThickness)
+        {
+            if (pathStrokeThickness > 1)
+                CreateWideEdgeArrow(context, start, end, pathStrokeThickness);
+            else
+                CreateThinEdgeArrow(context, start, end, pathStrokeThickness);
+        }
+
+        private static readonly double HalfArrowAngleTan = Math.Tan(ArrowAngle * 0.5 * Math.PI / 180.0);
+        private static readonly double HalfArrowAngleCos = Math.Cos(ArrowAngle * 0.5 * Math.PI / 180.0);
+        private const double ArrowAngle = 30.0; //degrees
+
+        private static void CreateWideEdgeArrow(StreamGeometryContext context, GeometryPoint start, GeometryPoint end, double pathStrokeThickness)
+
+        {
+            GeometryPoint dir = end - start;
+            GeometryPoint h = dir;
+            double dl = dir.Length;
+            if (dl < 0.001)
+                return;
+            dir /= dl;
+
+            var s = new GeometryPoint(-dir.Y, dir.X);
+            double w = 0.5 * pathStrokeThickness;
+            GeometryPoint s0 = w * s;
+
+            s *= h.Length * HalfArrowAngleTan;
+            s += s0;
+
+            double rad = w / HalfArrowAngleCos;
+
+            context.BeginFigure((start + s).ToWpf(), true, true);
+            context.LineTo((start - s).ToWpf(), true, false);
+            context.LineTo((end - s0).ToWpf(), true, false);
+            context.ArcTo((end + s0).ToWpf(), new Size(rad, rad), Math.PI - ArrowAngle, false, SweepDirection.Clockwise, true, false);
+        }
+
+        private static void CreateThinEdgeArrow(StreamGeometryContext context, GeometryPoint start, GeometryPoint end, double pathStrokeThickness)
+        {
+            GeometryPoint dir = end - start;
+            double dl = dir.Length;
+            //take into account the widths
+            double delta = Math.Min(dl / 2, pathStrokeThickness + pathStrokeThickness / 2);
+            dir *= (dl - delta) / dl;
+            end = start + dir;
+            dir = dir.Rotate(Math.PI / 2);
+            GeometryPoint s = dir * HalfArrowAngleTan;
+
+            context.BeginFigure((start + s).ToWpf(), true, true);
+            context.LineTo(end.ToWpf(), true, true);
+            context.LineTo((start - s).ToWpf(), true, true);
+        }
+
+        #endregion Draw an edge arrow
+
+        #region Draw an edge rail
+
+        public static Path CreateEdgeRail(Rail rail, byte edgeTransparency, double pathStrokeThickness)
+        {
+            var railGeometryCurve = rail.Geometry as ICurve;
+
+            Path edgeRailPath;
+            if (railGeometryCurve is null)
+            {
+                var arrowhead = rail.Geometry as Arrowhead;
+                if (arrowhead != null)
+                {
+                    edgeRailPath = CreateEdgeRailArrowhead(rail, arrowhead, rail.CurveAttachmentPoint, edgeTransparency, pathStrokeThickness);
+                }
+                else throw new InvalidOperationException();
+            }
+            else
+            {
+                edgeRailPath = CreateFrameworkElementForRailCurve(rail, railGeometryCurve, edgeTransparency);
+            }
+            edgeRailPath.Tag = rail;
+            return edgeRailPath;
+        }
+
+        private static Path CreateEdgeRailArrowhead(Rail rail, Arrowhead arrowhead, GeometryPoint curveAttachmentPoint, byte edgeTransparency, double pathStrokeThickness)
+        {
+            var streamGeometry = new StreamGeometry();
+
+            using (StreamGeometryContext context = streamGeometry.Open())
+                CreateEdgeArrow(context, curveAttachmentPoint, arrowhead.TipPosition, pathStrokeThickness);
+
+            var path = new Path
+            {
+                Data = streamGeometry,
+            };
+
+            return path;
+        }
+
+        private static Path CreateFrameworkElementForRailCurve(Rail rail, ICurve iCurve, byte transparency)
+        {
+            var path = new Path
+            {
+                Data = VisualsFactory.CreateEdgePath(iCurve),
+            };
+
+            return path;
+        }
+
+        #endregion Draw an edge rail
     }
 }

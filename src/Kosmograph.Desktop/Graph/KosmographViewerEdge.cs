@@ -28,7 +28,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 using Kosmograph.Desktop.Graph.Base;
-using Microsoft.Msagl.Core.Geometry.Curves;
 using Microsoft.Msagl.Core.Layout;
 using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.Layout.LargeGraphLayout;
@@ -40,57 +39,39 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using DrawingEdge = Microsoft.Msagl.Drawing.Edge;
-using GeometryPoint = Microsoft.Msagl.Core.Geometry.Point;
-using Size = System.Windows.Size;
 
 namespace Kosmograph.Desktop.Graph
 {
     public class KosmographViewerEdge : KosmographViewerItemBase, IViewerEdge, IInvalidatable
     {
-        public EdgeAttr EdgeAttrClone { get; set; }
-
         public KosmographViewerEdge(DrawingEdge edge, FrameworkElement labelFrameworkElement)
         {
-            Edge = edge;
-            CurvePath = new Path
+            this.Edge = edge;
+            this.EdgePath = new Path
             {
                 Data = VisualsFactory.CreateEdgePath(this.Edge.GeometryEdge.Curve),
                 Tag = this
             };
 
-            EdgeAttrClone = edge.Attr.Clone();
+            (this.EdgeLabel, this.EdgePath, this.SourceArrowHeadPath, this.TargetArrowHeadPath) = this.SetupEdgeVisuals(labelFrameworkElement);
+            this.SetPathStroke();
 
-            if (edge.Attr.ArrowAtSource)
-                SourceArrowHeadPath = new Path
-                {
-                    Data = DefiningSourceArrowHead(),
-                    Tag = this
-                };
-            if (edge.Attr.ArrowAtTarget)
-                TargetArrowHeadPath = new Path
-                {
-                    Data = DefiningTargetArrowHead(Edge.GeometryEdge.EdgeGeometry, PathStrokeThickness),
-                    Tag = this
-                };
+            Wpf2MsaglConverters.PositionFrameworkElement(this.EdgeLabel, this.Edge.Label.Center, 1);
 
-            SetPathStroke();
+            this.Edge.Attr.VisualsChanged += (a, b) => Invalidate();
+            this.Edge.IsVisibleChanged += this.UpdateVisibility;
+        }
 
-            this.LabelFrameworkElement = this.SetupEdgeVisuals(labelFrameworkElement);
-
-            if (labelFrameworkElement != null)
-            {
-                LabelFrameworkElement = labelFrameworkElement;
-                Wpf2MsaglConverters.PositionFrameworkElement(LabelFrameworkElement, edge.Label.Center, 1);
-            }
-            edge.Attr.VisualsChanged += (a, b) => Invalidate();
-            edge.IsVisibleChanged += this.UpdateVisibility;
+        public KosmographViewerEdge(DrawingEdge edge, LgLayoutSettings lgSettings)
+        {
+            Edge = edge;
         }
 
         #region Edge viewer is composed of multiple visual elements
 
-        public FrameworkElement LabelFrameworkElement;
+        public FrameworkElement EdgeLabel;
 
-        public Path CurvePath { get; }
+        public Path EdgePath { get; }
 
         public Path SourceArrowHeadPath { get; }
 
@@ -105,11 +86,11 @@ namespace Kosmograph.Desktop.Graph
                 if (this.TargetArrowHeadPath != null)
                     yield return this.TargetArrowHeadPath;
 
-                if (this.CurvePath != null)
-                    yield return this.CurvePath;
+                if (this.EdgePath != null)
+                    yield return this.EdgePath;
 
-                if (this.LabelFrameworkElement != null)
-                    yield return this.LabelFrameworkElement;
+                if (this.EdgeLabel != null)
+                    yield return this.EdgeLabel;
             }
         }
 
@@ -117,37 +98,34 @@ namespace Kosmograph.Desktop.Graph
 
         #region Setup Edge viewers visuals
 
-        public FrameworkElement SetupEdgeVisuals(FrameworkElement edgeLabel)
+        public (FrameworkElement edgeLabel, Path edgePath, Path edgeSourceArrow, Path edgeTargetArrow) SetupEdgeVisuals(FrameworkElement edgeLabel)
         {
             // nope: this must be VLabel//edgeLabel.Tag = this;
 
-            return edgeLabel;
+            var edgePath = new Path
+            {
+                Data = VisualsFactory.CreateEdgePath(this.Edge.GeometryEdge.Curve),
+                Tag = this
+            };
+
+            var edgeSourceArrow = this.Edge.Attr.ArrowAtSource ?
+                new Path
+                {
+                    Data = VisualsFactory.CreateEdgeSourceArrow(this.Edge.GeometryEdge.EdgeGeometry, this.PathStrokeThickness),
+                    Tag = this
+                } : null;
+
+            var edgeTargetArrow = this.Edge.Attr.ArrowAtTarget ?
+                new Path
+                {
+                    Data = VisualsFactory.CreateEdgeTargetArrow(this.Edge.GeometryEdge.EdgeGeometry, this.PathStrokeThickness),
+                    Tag = this
+                } : null;
+
+            return (edgeLabel, edgePath, edgeSourceArrow, edgeTargetArrow);
         }
 
         #endregion Setup Edge viewers visuals
-
-        public static Geometry DefiningTargetArrowHead(EdgeGeometry edgeGeometry, double thickness)
-        {
-            if (edgeGeometry.TargetArrowhead == null || edgeGeometry.Curve == null)
-                return null;
-            var streamGeometry = new StreamGeometry();
-            using (StreamGeometryContext context = streamGeometry.Open())
-            {
-                AddArrow(context, edgeGeometry.Curve.End,
-                         edgeGeometry.TargetArrowhead.TipPosition, thickness);
-                return streamGeometry;
-            }
-        }
-
-        private Geometry DefiningSourceArrowHead()
-        {
-            var streamGeometry = new StreamGeometry();
-            using (StreamGeometryContext context = streamGeometry.Open())
-            {
-                AddArrow(context, Edge.GeometryEdge.Curve.Start, Edge.GeometryEdge.EdgeGeometry.SourceArrowhead.TipPosition, PathStrokeThickness);
-                return streamGeometry;
-            }
-        }
 
         private double PathStrokeThickness
         {
@@ -157,177 +135,7 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        //static public Geometry GetICurveWpfGeometry(ICurve curve)
-        //{
-        //    var streamGeometry = new StreamGeometry();
-        //    using (StreamGeometryContext context = streamGeometry.Open())
-        //    {
-        //        FillStreamGeometryContext(context, curve);
-        //        return streamGeometry;
-        //    }
-        //}
-
-        //private static void FillStreamGeometryContext(StreamGeometryContext context, ICurve curve)
-        //{
-        //    if (curve == null)
-        //        return;
-        //    FillContextForICurve(context, curve);
-        //}
-
-        //static public void FillContextForICurve(StreamGeometryContext context, ICurve iCurve)
-        //{
-        //    context.BeginFigure(iCurve.Start.ToWpf(), false, false);
-
-        //    var c = iCurve as Curve;
-        //    if (c != null)
-        //        FillContexForCurve(context, c);
-        //    else
-        //    {
-        //        var cubicBezierSeg = iCurve as CubicBezierSegment;
-        //        if (cubicBezierSeg != null)
-        //            context.BezierTo(cubicBezierSeg.B(1).ToWpf(), cubicBezierSeg.B(2).ToWpf(), cubicBezierSeg.B(3).ToWpf(), true, false);
-        //        else
-        //        {
-        //            var ls = iCurve as LineSegment;
-        //            if (ls != null)
-        //                context.LineTo(ls.End.ToWpf(), true, false);
-        //            else
-        //            {
-        //                var rr = iCurve as RoundedRect;
-        //                if (rr != null)
-        //                    FillContexForCurve(context, rr.Curve);
-        //                else
-        //                {
-        //                    var poly = iCurve as Polyline;
-        //                    if (poly != null)
-        //                        FillContexForPolyline(context, poly);
-        //                    else
-        //                    {
-        //                        var ellipse = iCurve as Ellipse;
-        //                        if (ellipse != null)
-        //                        {
-        //                            //       context.LineTo(Common.WpfPoint(ellipse.End),true,false);
-        //                            double sweepAngle = EllipseSweepAngle(ellipse);
-        //                            bool largeArc = Math.Abs(sweepAngle) >= Math.PI;
-        //                            Rectangle box = ellipse.FullBox();
-        //                            context.ArcTo(ellipse.End.ToWpf(),
-        //                                          new Size(box.Width / 2, box.Height / 2),
-        //                                          sweepAngle,
-        //                                          largeArc,
-        //                                          sweepAngle < 0
-        //                                              ? SweepDirection.Counterclockwise
-        //                                              : SweepDirection.Clockwise,
-        //                                          true, true);
-        //                        }
-        //                        else
-        //                        {
-        //                            throw new NotImplementedException();
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
-
-        //private static void FillContexForPolyline(StreamGeometryContext context, Polyline poly)
-        //{
-        //    for (PolylinePoint pp = poly.StartPoint.Next; pp != null; pp = pp.Next)
-        //        context.LineTo(pp.Point.ToWpf(), true, false);
-        //}
-
-        //private static void FillContexForCurve(StreamGeometryContext context, Curve c)
-        //{
-        //    foreach (ICurve seg in c.Segments)
-        //    {
-        //        var bezSeg = seg as CubicBezierSegment;
-        //        if (bezSeg != null)
-        //        {
-        //            context.BezierTo(bezSeg.B(1).ToWpf(), bezSeg.B(2).ToWpf(), bezSeg.B(3).ToWpf(), true, false);
-        //        }
-        //        else
-        //        {
-        //            var ls = seg as LineSegment;
-        //            if (ls != null)
-        //                context.LineTo(ls.End.ToWpf(), true, false);
-        //            else
-        //            {
-        //                var ellipse = seg as Ellipse;
-        //                if (ellipse != null)
-        //                {
-        //                    //       context.LineTo(Common.WpfPoint(ellipse.End),true,false);
-        //                    double sweepAngle = EllipseSweepAngle(ellipse);
-        //                    bool largeArc = Math.Abs(sweepAngle) >= Math.PI;
-        //                    Rectangle box = ellipse.FullBox();
-        //                    context.ArcTo(ellipse.End.ToWpf(),
-        //                                  new Size(box.Width / 2, box.Height / 2),
-        //                                  sweepAngle,
-        //                                  largeArc,
-        //                                  sweepAngle < 0
-        //                                      ? SweepDirection.Counterclockwise
-        //                                      : SweepDirection.Clockwise,
-        //                                  true, true);
-        //                }
-        //                else
-        //                    throw new NotImplementedException();
-        //            }
-        //        }
-        //    }
-        //}
-
-        //public static double EllipseSweepAngle(Ellipse ellipse)
-        //{
-        //    double sweepAngle = ellipse.ParEnd - ellipse.ParStart;
-        //    return ellipse.OrientedCounterclockwise() ? sweepAngle : -sweepAngle;
-        //}
-
-        private static void AddArrow(StreamGeometryContext context, GeometryPoint start, GeometryPoint end, double thickness)
-        {
-            if (thickness > 1)
-            {
-                GeometryPoint dir = end - start;
-                GeometryPoint h = dir;
-                double dl = dir.Length;
-                if (dl < 0.001)
-                    return;
-                dir /= dl;
-
-                var s = new GeometryPoint(-dir.Y, dir.X);
-                double w = 0.5 * thickness;
-                GeometryPoint s0 = w * s;
-
-                s *= h.Length * HalfArrowAngleTan;
-                s += s0;
-
-                double rad = w / HalfArrowAngleCos;
-
-                context.BeginFigure((start + s).ToWpf(), true, true);
-                context.LineTo((start - s).ToWpf(), true, false);
-                context.LineTo((end - s0).ToWpf(), true, false);
-                context.ArcTo((end + s0).ToWpf(), new Size(rad, rad), Math.PI - ArrowAngle, false, SweepDirection.Clockwise, true, false);
-            }
-            else
-            {
-                GeometryPoint dir = end - start;
-                double dl = dir.Length;
-                //take into account the widths
-                double delta = Math.Min(dl / 2, thickness + thickness / 2);
-                dir *= (dl - delta) / dl;
-                end = start + dir;
-                dir = dir.Rotate(Math.PI / 2);
-                GeometryPoint s = dir * HalfArrowAngleTan;
-
-                context.BeginFigure((start + s).ToWpf(), true, true);
-                context.LineTo(end.ToWpf(), true, true);
-                context.LineTo((start - s).ToWpf(), true, true);
-            }
-        }
-
-        private static readonly double HalfArrowAngleTan = Math.Tan(ArrowAngle * 0.5 * Math.PI / 180.0);
-        private static readonly double HalfArrowAngleCos = Math.Cos(ArrowAngle * 0.5 * Math.PI / 180.0);
-        private const double ArrowAngle = 30.0; //degrees
-
-        #region Implementation of IViewerObject
+        #region IViewerObject Members
 
         public DrawingObject DrawingObject => this.Edge;
 
@@ -337,18 +145,23 @@ namespace Kosmograph.Desktop.Graph
 
         public event EventHandler UnmarkedForDraggingEvent;
 
-        #endregion Implementation of IViewerObject
+        #endregion IViewerObject Members
 
-        #region Implementation of IViewerEdge
+        #region IViewerEdge Members
 
         public DrawingEdge Edge { get; private set; }
+
         public IViewerNode Source { get; private set; }
+
         public IViewerNode Target { get; private set; }
+
         public double RadiusOfPolylineCorner { get; set; }
 
         public VLabel VLabel { get; set; }
 
-        #endregion Implementation of IViewerEdge
+        #endregion IViewerEdge Members
+
+        #region IInvalidate members
 
         public void Invalidate(FrameworkElement fe, Rail rail, byte edgeTransparency)
         {
@@ -359,23 +172,30 @@ namespace Kosmograph.Desktop.Graph
 
         public void Invalidate()
         {
-            var vis = Edge.IsVisible ? Visibility.Visible : Visibility.Hidden;
-            foreach (var fe in FrameworkElements) fe.Visibility = vis;
-            if (vis == Visibility.Hidden)
+            this.UpdateVisibility(this.Edge);
+            if (!this.Edge.IsVisible)
                 return;
-            CurvePath.Data = VisualsFactory.CreateEdgePath(Edge.GeometryEdge.Curve);
-            if (Edge.Attr.ArrowAtSource)
-                SourceArrowHeadPath.Data = DefiningSourceArrowHead();
-            if (Edge.Attr.ArrowAtTarget)
-                TargetArrowHeadPath.Data = DefiningTargetArrowHead(Edge.GeometryEdge.EdgeGeometry, PathStrokeThickness);
-            SetPathStroke();
+
+            this.EdgePath.Data = VisualsFactory.CreateEdgePath(Edge.GeometryEdge.Curve);
+
+            // arrows should be nulled and removed if they are nor required anymore.
+            // revist on graphic property editing
+            // --wgross 28.09.2018
+            if (this.Edge.Attr.ArrowAtSource)
+                SourceArrowHeadPath.Data = VisualsFactory.CreateEdgeSourceArrow(this.Edge.GeometryEdge.EdgeGeometry, this.PathStrokeThickness);
+            if (this.Edge.Attr.ArrowAtTarget)
+                TargetArrowHeadPath.Data = VisualsFactory.CreateEdgeTargetArrow(this.Edge.GeometryEdge.EdgeGeometry, this.PathStrokeThickness);
+
+            this.SetPathStroke();
             if (VLabel != null)
                 ((IInvalidatable)VLabel).Invalidate();
         }
 
+        #endregion IInvalidate members
+
         private void SetPathStroke()
         {
-            SetPathStrokeToPath(CurvePath);
+            SetPathStrokeToPath(EdgePath);
             if (SourceArrowHeadPath != null)
             {
                 SourceArrowHeadPath.Stroke = SourceArrowHeadPath.Fill = Edge.Attr.Color.ToWpf();
@@ -449,12 +269,6 @@ namespace Kosmograph.Desktop.Graph
         public static double _dashSize = 0.05; //inches
         public Func<double> PathStrokeThicknessFunc;
 
-        public KosmographViewerEdge(DrawingEdge edge, LgLayoutSettings lgSettings)
-        {
-            Edge = edge;
-            EdgeAttrClone = edge.Attr.Clone();
-        }
-
         public double DashSize()
         {
             var w = PathStrokeThickness;
@@ -464,8 +278,8 @@ namespace Kosmograph.Desktop.Graph
 
         public void RemoveItselfFromCanvas(Canvas graphCanvas)
         {
-            if (CurvePath != null)
-                graphCanvas.Children.Remove(CurvePath);
+            if (EdgePath != null)
+                graphCanvas.Children.Remove(EdgePath);
 
             if (SourceArrowHeadPath != null)
                 graphCanvas.Children.Remove(SourceArrowHeadPath);
@@ -475,59 +289,6 @@ namespace Kosmograph.Desktop.Graph
 
             if (VLabel != null)
                 graphCanvas.Children.Remove(VLabel.FrameworkElement);
-        }
-
-        public FrameworkElement CreateFrameworkElementForRail(Rail rail, byte edgeTransparency)
-        {
-            var iCurve = rail.Geometry as ICurve;
-            Path fe;
-            if (iCurve != null)
-            {
-                fe = (Path)CreateFrameworkElementForRailCurve(rail, iCurve, edgeTransparency);
-            }
-            else
-            {
-                var arrowhead = rail.Geometry as Arrowhead;
-                if (arrowhead != null)
-                {
-                    fe = (Path)CreateFrameworkElementForRailArrowhead(rail, arrowhead, rail.CurveAttachmentPoint, edgeTransparency);
-                }
-                else
-                    throw new InvalidOperationException();
-            }
-            fe.Tag = rail;
-            return fe;
-        }
-
-        private FrameworkElement CreateFrameworkElementForRailArrowhead(Rail rail, Arrowhead arrowhead, GeometryPoint curveAttachmentPoint, byte edgeTransparency)
-        {
-            var streamGeometry = new StreamGeometry();
-
-            using (StreamGeometryContext context = streamGeometry.Open())
-            {
-                AddArrow(context, curveAttachmentPoint, arrowhead.TipPosition,
-                         PathStrokeThickness);
-            }
-
-            var path = new Path
-            {
-                Data = streamGeometry,
-                Tag = this
-            };
-
-            SetPathStrokeToRailPath(rail, path, edgeTransparency);
-            return path;
-        }
-
-        private FrameworkElement CreateFrameworkElementForRailCurve(Rail rail, ICurve iCurve, byte transparency)
-        {
-            var path = new Path
-            {
-                Data = VisualsFactory.CreateEdgePath(iCurve),
-            };
-            SetPathStrokeToRailPath(rail, path, transparency);
-
-            return path;
         }
     }
 }
