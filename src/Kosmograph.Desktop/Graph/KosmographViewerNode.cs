@@ -18,7 +18,7 @@ namespace Kosmograph.Desktop.Graph
     public class KosmographViewerNode : IViewerNode, IInvalidatable
     {
         public TextBlock NodeLabel { get; }
-        private readonly Func<Edge, VEdge> funcFromDrawingEdgeToVEdge;
+        private readonly Func<Edge, KosmographviewerEdge> funcFromDrawingEdgeToVEdge;
 
         private Border _collapseButtonBorder;
         private Rectangle _topMarginRect;
@@ -46,7 +46,7 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        public KosmographViewerNode(Node node, TextBlock nodeLabelFrameworkElement, Func<Edge, VEdge> funcFromDrawingEdgeToVEdge, Func<double> pathStrokeThicknessFunc)
+        public KosmographViewerNode(Node node, TextBlock nodeLabelFrameworkElement, Func<Edge, KosmographviewerEdge> funcFromDrawingEdgeToVEdge, Func<double> pathStrokeThicknessFunc)
         {
             this.pathStrokeThicknessFunc = pathStrokeThicknessFunc;
             this.funcFromDrawingEdgeToVEdge = funcFromDrawingEdgeToVEdge;

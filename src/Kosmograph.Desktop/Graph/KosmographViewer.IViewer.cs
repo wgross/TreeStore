@@ -77,7 +77,7 @@ namespace Kosmograph.Desktop.Graph
             foreach (var n in incrementalDragger.ChangedGraph.Edges)
             {
                 var dn = (Microsoft.Msagl.Drawing.Edge)n.UserData;
-                var ve = drawingObjectsToIViewerObjects[dn] as VEdge;
+                var ve = drawingObjectsToIViewerObjects[dn] as KosmographviewerEdge;
                 if (ve != null)
                     ve.Invalidate();
             }

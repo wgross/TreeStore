@@ -141,6 +141,7 @@
     <Compile Include="Graph\KosmographViewer.IViewer.cs" />
     <Compile Include="Graph\KosmographViewer.Layout.cs" />
     <Compile Include="Graph\KosmographViewerNode.cs" />
+    <Compile Include="Graph\KosmographViewerEdge.cs" />
     <Compile Include="Graph\VisualsFactory.cs" />
     <Compile Include="Graph\Wpf2MsaglConverters.cs" />
     <Compile Include="KosmographCommands.cs" />

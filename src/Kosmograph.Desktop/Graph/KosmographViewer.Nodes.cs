@@ -36,7 +36,7 @@ namespace Kosmograph.Desktop.Graph
                     nodeLabel = this.CreateAndRegisterFrameworkElementOfDrawingNode(drawingNode);
 
                 var viewerNode = new KosmographViewerNode(drawingNode, (TextBlock)nodeLabel,
-                    funcFromDrawingEdgeToVEdge: e => (VEdge)drawingObjectsToIViewerObjects[e],
+                    funcFromDrawingEdgeToVEdge: e => (KosmographviewerEdge)drawingObjectsToIViewerObjects[e],
                     pathStrokeThicknessFunc: () => GetBorderPathThickness() * drawingNode.Attr.LineWidth);
 
                 this.GraphCanvasAddChildren(viewerNode.FrameworkElements);
@@ -111,7 +111,7 @@ namespace Kosmograph.Desktop.Graph
             {
                 if (this.drawingObjectsToIViewerObjects.TryGetValue(drawingEdge, out var viewerEdge))
                 {
-                    this.GraphCanvasRemoveChildren(((VEdge)viewerEdge).FrameworkElements);
+                    this.GraphCanvasRemoveChildren(((KosmographviewerEdge)viewerEdge).FrameworkElements);
                     this.drawingObjectsToIViewerObjects.Remove(drawingEdge);
                     this.drawingObjectsToFrameworkElements.Remove(drawingEdge);
                 }
