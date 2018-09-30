@@ -9,7 +9,7 @@ namespace Kosmograph.Desktop.Graph.Base
         /// <summary>
         /// A Kosmograoh viewer item is composed of multiple visual elements
         /// </summary>
-        virtual public IEnumerable<FrameworkElement> FrameworkElements { get; }
+        abstract public IEnumerable<FrameworkElement> FrameworkElements { get; }
 
         protected void UpdateVisibility(DrawingObject drawingObject)
         {

@@ -178,7 +178,7 @@ namespace Kosmograph.Desktop.Graph
             if (vNode != null) ret = (FrameworkElement)(vNode.NodeLabel) ?? (FrameworkElement)(vNode.NodeBoundaryPath);
             else
             {
-                var vLabel = viewerObject as VLabel;
+                var vLabel = viewerObject as KosmographViewerEdgeLabel;
                 if (vLabel != null) ret = vLabel.FrameworkElement;
                 else
                 {
@@ -363,8 +363,8 @@ namespace Kosmograph.Desktop.Graph
                     yield return viewerObject;
                     var edge = viewerObject as KosmographViewerEdge;
                     if (edge != null)
-                        if (edge.VLabel != null)
-                            yield return edge.VLabel;
+                        if (edge.EdgeLabelViewer != null)
+                            yield return edge.EdgeLabelViewer;
                 }
             }
         }
@@ -717,19 +717,20 @@ namespace Kosmograph.Desktop.Graph
 
                 FrameworkElement labelTextBox;
                 drawingObjectsToFrameworkElements.TryGetValue(edge, out labelTextBox);
-                var vEdge = new KosmographViewerEdge(edge, labelTextBox);
+                var edgeViewer = new KosmographViewerEdge(edge, labelTextBox);
 
-                var zIndex = ZIndexOfEdge(edge);
-                drawingObjectsToIViewerObjects[edge] = vEdge;
+                var zIndex = this.ZIndexOfEdge(edge);
+                drawingObjectsToIViewerObjects[edge] = edgeViewer;
 
                 if (edge.Label != null)
-                    SetVEdgeLabel(edge, vEdge, zIndex);
+                    this.SetVEdgeLabel(edge, edgeViewer, zIndex);
 
-                Panel.SetZIndex(vEdge.EdgePath, zIndex);
-                GraphCanvas.Children.Add(vEdge.EdgePath);
-                SetVEdgeArrowheads(vEdge, zIndex);
+                Panel.SetZIndex(edgeViewer.EdgePath, zIndex);
 
-                return vEdge;
+                GraphCanvas.Children.Add(edgeViewer.EdgePath);
+                this.SetVEdgeArrowheads(edgeViewer, zIndex);
+
+                return edgeViewer;
             }
         }
 
@@ -750,16 +751,16 @@ namespace Kosmograph.Desktop.Graph
             });
         }
 
-        private void SetVEdgeLabel(DrawingEdge edge, KosmographViewerEdge vEdge, int zIndex)
+        private void SetVEdgeLabel(DrawingEdge edge, KosmographViewerEdge edgeViewer, int zIndex)
         {
             FrameworkElement frameworkElementForEdgeLabel;
             if (!drawingObjectsToFrameworkElements.TryGetValue(edge, out frameworkElementForEdgeLabel))
             {
                 this.FillFrameworkElementsWithEdgeLabels(edge, out frameworkElementForEdgeLabel);
-                frameworkElementForEdgeLabel.Tag = new VLabel(edge, frameworkElementForEdgeLabel);
+                frameworkElementForEdgeLabel.Tag = new KosmographViewerEdgeLabel(edge, frameworkElementForEdgeLabel);
             }
 
-            vEdge.VLabel = (VLabel)frameworkElementForEdgeLabel.Tag;
+            edgeViewer.EdgeLabelViewer = (KosmographViewerEdgeLabel)frameworkElementForEdgeLabel.Tag;
             if (frameworkElementForEdgeLabel.Parent == null)
             {
                 GraphCanvas.Children.Add(frameworkElementForEdgeLabel);

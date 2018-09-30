@@ -68,7 +68,7 @@ namespace Kosmograph.Desktop.Graph
             Edge = edge;
         }
 
-        #region Edge viewer is composed of multiple visual elements
+        #region Viewer Edge Visuals
 
         public FrameworkElement EdgeLabel;
 
@@ -95,9 +95,9 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        #endregion Edge viewer is composed of multiple visual elements
+        #endregion Viewer Edge Visuals
 
-        #region Setup Edge viewers visuals
+        #region Setup Viewer Edge Visuals
 
         public (FrameworkElement edgeLabel, Path edgePath, Path edgeSourceArrow, Path edgeTargetArrow) SetupEdgeVisuals(FrameworkElement edgeLabel)
         {
@@ -126,7 +126,7 @@ namespace Kosmograph.Desktop.Graph
             return (edgeLabel, edgePath, edgeSourceArrow, edgeTargetArrow);
         }
 
-        #endregion Setup Edge viewers visuals
+        #endregion Setup Viewer Edge Visuals
 
         private double PathStrokeThickness
         {
@@ -158,11 +158,11 @@ namespace Kosmograph.Desktop.Graph
 
         public double RadiusOfPolylineCorner { get; set; }
 
-        public VLabel VLabel { get; set; }
+        public KosmographViewerEdgeLabel EdgeLabelViewer { get; set; }
 
         #endregion IViewerEdge Members
 
-        #region IInvalidate members
+        #region IInvalidate Members
 
         public void Invalidate(FrameworkElement fe, Rail rail, byte edgeTransparency)
         {
@@ -190,13 +190,11 @@ namespace Kosmograph.Desktop.Graph
                     this.TargetArrowHeadPath.Data = VisualsFactory.CreateEdgeTargetArrow(this.Edge.GeometryEdge.EdgeGeometry, this.PathStrokeThickness);
 
                 this.SetPathStroke();
-
-                if (VLabel != null)
-                    ((IInvalidatable)VLabel).Invalidate();
+                this.EdgeLabelViewer?.Invalidate();
             });
         }
 
-        #endregion IInvalidate members
+        #endregion IInvalidate Members
 
         private void SetPathStroke()
         {
@@ -292,8 +290,8 @@ namespace Kosmograph.Desktop.Graph
             if (TargetArrowHeadPath != null)
                 graphCanvas.Children.Remove(TargetArrowHeadPath);
 
-            if (VLabel != null)
-                graphCanvas.Children.Remove(VLabel.FrameworkElement);
+            if (EdgeLabelViewer != null)
+                graphCanvas.Children.Remove(EdgeLabelViewer.FrameworkElement);
         }
     }
 }

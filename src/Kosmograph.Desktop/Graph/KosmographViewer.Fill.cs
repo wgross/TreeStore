@@ -93,7 +93,7 @@ namespace Kosmograph.Desktop.Graph
             this.drawingObjectsToFrameworkElements[drawingEdge] = textBlock;
 
             var localEdge = drawingEdge;
-            this.GraphCanvas.InvokeInUiThread(() => textBlock.Tag = new VLabel(localEdge, textBlock));
+            this.GraphCanvas.InvokeInUiThread(() => textBlock.Tag = new KosmographViewerEdgeLabel(localEdge, textBlock));
 
             fe = textBlock;
         }
