@@ -13,7 +13,7 @@ namespace Kosmograph.Desktop.Graph
 
         private double GetBorderPathThickness() => DesiredPathThicknessInInches * DpiX;
 
-        private void FillFrameworkElementsWithNodeLabels(DrawingNode drawingNode, out TextBlock fe)
+        private void PrepareNodeLabels(DrawingNode drawingNode, out TextBlock fe)
         {
             fe = null;
 
