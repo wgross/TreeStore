@@ -13,6 +13,8 @@ namespace Kosmograph.Desktop.Graph
 {
     public partial class KosmographViewer : IViewer
     {
+        public event EventHandler GraphChanged;
+
         public Microsoft.Msagl.Drawing.Graph Graph
         {
             get => this.drawingGraph;
@@ -38,8 +40,6 @@ namespace Kosmograph.Desktop.Graph
 
         public IViewerNode CreateIViewerNode(DrawingNode drawingNode, GeometryPoint center, object visualElement)
         {
-            
-
             var visualFrameworkElement = (visualElement as TextBlock) ?? VisualsFactory.CreateLabel(drawingNode.Label);
 
             var bc = NodeBoundaryCurves.GetNodeBoundaryCurve(drawingNode, visualFrameworkElement.Width + (2 * drawingNode.Attr.LabelMargin), visualFrameworkElement.Height + (2 * drawingNode.Attr.LabelMargin));
@@ -84,5 +84,10 @@ namespace Kosmograph.Desktop.Graph
         }
 
         public void Invalidate(IViewerObject objectToInvalidate) => ((IInvalidatable)objectToInvalidate).Invalidate();
+
+        public void Invalidate()
+        {
+            //todo: is it right to do nothing
+        }
     }
 }

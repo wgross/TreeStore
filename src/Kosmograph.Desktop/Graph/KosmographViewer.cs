@@ -313,13 +313,6 @@ namespace Kosmograph.Desktop.Graph
             return obj as IViewerObject;
         }
 
-        public void Invalidate()
-        {
-            //todo: is it right to do nothing
-        }
-
-        public event EventHandler GraphChanged;
-
         public ModifierKeys ModifierKeys
         {
             get
@@ -468,108 +461,6 @@ namespace Kosmograph.Desktop.Graph
         private readonly ClickCounter clickCounter;
         public string MsaglFileToSave;
 
-        /*
-                void SubscribeToChangeVisualsEvents() {
-                    //            foreach(var cluster in drawingGraph.RootSubgraph.AllSubgraphsDepthFirstExcludingSelf())
-                    //                cluster.Attr.VisualsChanged += AttrVisualsChanged;
-                    foreach (var edge in drawingGraph.Edges) {
-                        DrawingEdge edge1 = edge;
-                        edge.Attr.VisualsChanged += (a, b) => AttrVisualsChangedForEdge(edge1);
-                    }
-
-                    foreach (var node in drawingGraph.Nodes) {
-                        Drawing.Node node1 = node;
-                        node.Attr.VisualsChanged += (a, b) => AttrVisualsChangedForNode(node1);
-                    }
-                }
-        */
-
-        /*
-                void AttrVisualsChangedForNode(Drawing.Node node) {
-                    IViewerObject viewerObject;
-                    if (drawingObjectsToIViewerObjects.TryGetValue(node, out viewerObject)) {
-                        var vNode = (VNode) viewerObject;
-                        if (vNode != null)
-                            vNode.Invalidate();
-                    }
-                }
-        */
-
-        //        void SetupTimerOnViewChangeEvent(object sender, EventArgs e) {
-        //            SetupRoutingTimer();
-        //        }
-
-        /*
-                void TestCorrectness(GeometryGraph oGraph, Set<Drawing.Node> oDrawingNodes, Set<DrawingEdge> oDrawgingEdges) {
-                    if (Entities.Count() != oGraph.Nodes.Count + oGraph.Edges.Count) {
-                        foreach (var newDrawingNode in oDrawingNodes) {
-                            if (!drawingObjectsToIViewerObjects.ContainsKey(newDrawingNode))
-                                Console.WriteLine();
-                        }
-                        foreach (var drawingEdge in oDrawgingEdges) {
-                            if (!drawingObjectsToIViewerObjects.ContainsKey(drawingEdge))
-                                Console.WriteLine();
-                        }
-                        foreach (var viewerObject in Entities) {
-                            if (viewerObject is VEdge) {
-                                Debug.Assert(oDrawgingEdges.Contains(viewerObject.DrawingObject));
-                            } else {
-                                if (viewerObject is VNode) {
-                                    Debug.Assert(oDrawingNodes.Contains(viewerObject.DrawingObject));
-                                } else {
-                                    Debug.Fail("expecting a node or an edge");
-                                }
-                            }
-                        }
-                    }
-                }
-        */
-
-        /*
-                void StartLayoutCalculationInThread() {
-                    PushGeometryIntoLayoutGraph();
-                    graphCanvas.RaiseEvent(new RoutedEventArgs(LayoutStartEvent));
-
-                    layoutThread =
-                        new Thread(
-                            () =>
-                            LayoutHelpers.CalculateLayout(geometryGraphUnderLayout, graph.LayoutAlgorithmSettings));
-
-                    layoutThread.Start();
-
-                    //the timer monitors the thread and then pushes the data from layout graph to the framework
-                    layoutThreadCheckingTimer.IsEnabled = true;
-                    layoutThreadCheckingTimer.Tick += LayoutThreadCheckingTimerTick;
-                    layoutThreadCheckingTimer.Interval = new TimeSpan((long) 10e6);
-                    layoutThreadCheckingTimer.Start();
-                }
-        */
-
-        /*
-                void LayoutThreadCheckingTimerTick(object sender, EventArgs e) {
-                    if (layoutThread.IsAlive)
-                        return;
-
-                    if (Monitor.TryEnter(layoutThreadCheckingTimer)) {
-                        if (layoutThreadCheckingTimer.IsEnabled == false)
-                            return; //somehow it is called on more time after stopping and disabling
-                        layoutThreadCheckingTimer.Stop();
-                        layoutThreadCheckingTimer.IsEnabled = false;
-
-                        TransferLayoutDataToWpf();
-
-                        graphCanvas.RaiseEvent(new RoutedEventArgs(LayoutEndEvent));
-                        if (LayoutComplete != null)
-                            LayoutComplete(this, new EventArgs());
-                    }
-                }
-        */
-
-        //        void TransferLayoutDataToWpf() {
-        //            PushDataFromLayoutGraphToFrameworkElements();
-        //            graphCanvas.Visibility = Visibility.Visible;
-        //            SetInitialTransform();
-        //        }
         /// <summary>
         /// zooms to the default view
         /// </summary>
@@ -700,40 +591,6 @@ namespace Kosmograph.Desktop.Graph
             return scale < 0.000001 || scale > 100000.0; //todo: remove hardcoded values
         }
 
-        private void CreateEdges()
-        {
-            foreach (var edge in drawingGraph.Edges)
-                CreateEdge(edge, null);
-        }
-
-        private KosmographViewerEdge CreateEdge(DrawingEdge edge, LgLayoutSettings lgSettings)
-        {
-            lock (this.syncRoot)
-            {
-                if (drawingObjectsToIViewerObjects.ContainsKey(edge))
-                    return (KosmographViewerEdge)drawingObjectsToIViewerObjects[edge];
-                if (lgSettings != null)
-                    return CreateEdgeForLgCase(lgSettings, edge);
-
-                FrameworkElement labelTextBox;
-                drawingObjectsToFrameworkElements.TryGetValue(edge, out labelTextBox);
-                var edgeViewer = new KosmographViewerEdge(edge, labelTextBox);
-
-                var zIndex = this.ZIndexOfEdge(edge);
-                drawingObjectsToIViewerObjects[edge] = edgeViewer;
-
-                if (edge.Label != null)
-                    this.SetVEdgeLabel(edge, edgeViewer, zIndex);
-
-                Panel.SetZIndex(edgeViewer.EdgePath, zIndex);
-
-                GraphCanvas.Children.Add(edgeViewer.EdgePath);
-                this.SetVEdgeArrowheads(edgeViewer, zIndex);
-
-                return edgeViewer;
-            }
-        }
-
         private int ZIndexOfEdge(DrawingEdge edge)
         {
             var source = (KosmographViewerNode)drawingObjectsToIViewerObjects[edge.SourceNode];
@@ -743,44 +600,7 @@ namespace Kosmograph.Desktop.Graph
             return zIndex;
         }
 
-        private KosmographViewerEdge CreateEdgeForLgCase(LgLayoutSettings lgSettings, DrawingEdge edge)
-        {
-            return (KosmographViewerEdge)(drawingObjectsToIViewerObjects[edge] = new KosmographViewerEdge(edge, lgSettings)
-            {
-                PathStrokeThicknessFunc = () => GetBorderPathThickness() * edge.Attr.LineWidth
-            });
-        }
-
-        private void SetVEdgeLabel(DrawingEdge edge, KosmographViewerEdge edgeViewer, int zIndex)
-        {
-            FrameworkElement frameworkElementForEdgeLabel;
-            if (!drawingObjectsToFrameworkElements.TryGetValue(edge, out frameworkElementForEdgeLabel))
-            {
-                this.FillFrameworkElementsWithEdgeLabels(edge, out frameworkElementForEdgeLabel);
-                frameworkElementForEdgeLabel.Tag = new KosmographViewerEdgeLabel(edge, frameworkElementForEdgeLabel);
-            }
-
-            edgeViewer.EdgeLabelViewer = (KosmographViewerEdgeLabel)frameworkElementForEdgeLabel.Tag;
-            if (frameworkElementForEdgeLabel.Parent == null)
-            {
-                GraphCanvas.Children.Add(frameworkElementForEdgeLabel);
-                Panel.SetZIndex(frameworkElementForEdgeLabel, zIndex);
-            }
-        }
-
-        private void SetVEdgeArrowheads(KosmographViewerEdge vEdge, int zIndex)
-        {
-            if (vEdge.SourceArrowHeadPath != null)
-            {
-                Panel.SetZIndex(vEdge.SourceArrowHeadPath, zIndex);
-                GraphCanvas.Children.Add(vEdge.SourceArrowHeadPath);
-            }
-            if (vEdge.TargetArrowHeadPath != null)
-            {
-                Panel.SetZIndex(vEdge.TargetArrowHeadPath, zIndex);
-                GraphCanvas.Children.Add(vEdge.TargetArrowHeadPath);
-            }
-        }
+       
 
         /// <summary>
         /// INsitilaizes some of the gemotry nodes/edges with values depending of the
@@ -837,7 +657,7 @@ namespace Kosmograph.Desktop.Graph
         {
             double width, height;
 
-            FrameworkElement fe;
+            TextBlock fe;
             if (drawingObjectsToFrameworkElements.TryGetValue(subgraph, out fe))
             {
                 width = fe.Width + 2 * subgraph.Attr.LabelMargin + subgraph.DiameterOfOpenCollapseButton;
@@ -893,7 +713,7 @@ namespace Kosmograph.Desktop.Graph
         {
             double width, height;
 
-            FrameworkElement frameworkElement;
+            TextBlock frameworkElement;
             if (this.drawingObjectsToFrameworkElements.TryGetValue(node, out frameworkElement))
             {
                 Debug.Assert(frameworkElement.CheckAccess());
@@ -1004,7 +824,7 @@ namespace Kosmograph.Desktop.Graph
 
         public IViewerEdge CreateEdgeWithGivenGeometry(DrawingEdge drawingEdge)
         {
-            return CreateEdge(drawingEdge, drawingGraph.LayoutAlgorithmSettings as LgLayoutSettings);
+            return CreateEdgeViewer(drawingEdge, drawingGraph.LayoutAlgorithmSettings as LgLayoutSettings);
         }
 
         public void AddNode(IViewerNode node, bool registerForUndo)
@@ -1076,7 +896,7 @@ namespace Kosmograph.Desktop.Graph
             var geomEdge = GeometryGraphCreator.CreateGeometryEdgeFromDrawingEdge(drawingEdge);
             var geomGraph = drawingGraph.GeometryGraph;
             LayoutHelpers.RouteAndLabelEdges(geomGraph, drawingGraph.LayoutAlgorithmSettings, new[] { geomEdge });
-            return CreateEdge(drawingEdge, drawingGraph.LayoutAlgorithmSettings as LgLayoutSettings);
+            return CreateEdgeViewer(drawingEdge, drawingGraph.LayoutAlgorithmSettings as LgLayoutSettings);
         }
 
         public IViewerGraph ViewerGraph { get; set; }

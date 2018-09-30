@@ -13,7 +13,7 @@ namespace Kosmograph.Desktop.Graph
 {
     public partial class KosmographViewer
     {
-        private readonly Dictionary<DrawingObject, FrameworkElement> drawingObjectsToFrameworkElements = new Dictionary<DrawingObject, FrameworkElement>();
+        private readonly Dictionary<DrawingObject, TextBlock> drawingObjectsToFrameworkElements = new Dictionary<DrawingObject, TextBlock>();
 
         #region Fill the viewer with labels for edges and nodes
 
@@ -80,23 +80,7 @@ namespace Kosmograph.Desktop.Graph
                     this.FillFrameworkElementsWithNodeLabels(subgraph, out var _);
         }
 
-        private void FillFrameworkElementsWithEdgeLabels(Edge drawingEdge, out FrameworkElement fe)
-        {
-            fe = null;
-
-            var textBlock = this.GraphCanvas
-                .InvokeInUiThread(() => CreateTextBlockFromDrawingObjectLabel(drawingEdge.Label));
-
-            if (textBlock is null)
-                return;
-
-            this.drawingObjectsToFrameworkElements[drawingEdge] = textBlock;
-
-            var localEdge = drawingEdge;
-            this.GraphCanvas.InvokeInUiThread(() => textBlock.Tag = new KosmographViewerEdgeLabel(localEdge, textBlock));
-
-            fe = textBlock;
-        }
+       
 
         private void FillFrameworkElementsWithNodeLabels(Node drawingNode, out FrameworkElement fe)
         {

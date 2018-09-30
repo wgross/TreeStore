@@ -31,7 +31,7 @@ namespace Kosmograph.Desktop.Graph
                     return (KosmographViewerNode)existingViewerNode;
 
                 // create unexisting node label
-                FrameworkElement nodeLabel;
+                TextBlock nodeLabel;
                 if (!this.drawingObjectsToFrameworkElements.TryGetValue(drawingNode, out nodeLabel))
                     nodeLabel = this.CreateAndRegisterFrameworkElementOfDrawingNode(drawingNode);
 
@@ -48,7 +48,7 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        private FrameworkElement CreateAndRegisterFrameworkElementOfDrawingNode(Microsoft.Msagl.Drawing.Node node)
+        private TextBlock CreateAndRegisterFrameworkElementOfDrawingNode(Microsoft.Msagl.Drawing.Node node)
         {
             return this.drawingObjectsToFrameworkElements[node] = CreateTextBlockFromDrawingObjectLabel(node.Label);
         }
