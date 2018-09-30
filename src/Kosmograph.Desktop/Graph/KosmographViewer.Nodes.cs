@@ -1,8 +1,8 @@
 ﻿using Kosmograph.Desktop.ViewModel;
-using Microsoft.Msagl.Drawing;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using DrawingNode = Microsoft.Msagl.Drawing.Node;
 using GeometryRectangle = Microsoft.Msagl.Core.Geometry.Rectangle;
 
 namespace Kosmograph.Desktop.Graph
@@ -13,7 +13,7 @@ namespace Kosmograph.Desktop.Graph
 
         private double GetBorderPathThickness() => DesiredPathThicknessInInches * DpiX;
 
-        private void FillFrameworkElementsWithNodeLabels(Node drawingNode, out TextBlock fe)
+        private void FillFrameworkElementsWithNodeLabels(DrawingNode drawingNode, out TextBlock fe)
         {
             fe = null;
 
@@ -35,7 +35,7 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        private KosmographViewerNode GetOrCreateViewerNode(Node drawingNode)
+        private KosmographViewerNode GetOrCreateViewerNode(DrawingNode drawingNode)
         {
             // this moethod looks like weird twin of IVIewer.CreateIViewerNode...
             lock (this.syncRoot)
@@ -61,7 +61,7 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        private TextBlock CreateAndRegisterFrameworkElementOfDrawingNode(Microsoft.Msagl.Drawing.Node node)
+        private TextBlock CreateAndRegisterFrameworkElementOfDrawingNode(DrawingNode node)
         {
             return this.drawingObjectsToFrameworkElements[node] = CreateTextBlockFromDrawingObjectLabel(node.Label);
         }

@@ -1,13 +1,9 @@
-﻿using Kosmograph.Desktop.ViewModel;
-using Microsoft.Msagl.Core;
+﻿using Microsoft.Msagl.Core;
 using Microsoft.Msagl.Drawing;
-using Microsoft.Msagl.WpfGraphControl;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Windows;
 using System.Windows.Controls;
-using GeometryRectangle = Microsoft.Msagl.Core.Geometry.Rectangle;
 
 namespace Kosmograph.Desktop.Graph
 {
@@ -80,9 +76,6 @@ namespace Kosmograph.Desktop.Graph
                     this.FillFrameworkElementsWithNodeLabels(subgraph, out var _);
         }
 
-       
-
-
         public TextBlock CreateTextBlockFromDrawingObjectLabel(Microsoft.Msagl.Drawing.Label drawingLabel)
         {
             return VisualsFactory.CreateLabel(drawingLabel);
@@ -106,7 +99,5 @@ namespace Kosmograph.Desktop.Graph
         }
 
         #endregion Clear all nodes and edges from the viewer
-
-       
     }
 }
