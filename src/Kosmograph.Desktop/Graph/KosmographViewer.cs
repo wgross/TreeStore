@@ -179,7 +179,7 @@ namespace Kosmograph.Desktop.Graph
             else
             {
                 var vLabel = viewerObject as KosmographViewerEdgeLabel;
-                if (vLabel != null) ret = vLabel.FrameworkElement;
+                if (vLabel != null) ret = vLabel.EdgeLabelVisual;
                 else
                 {
                     var vEdge = viewerObject as KosmographViewerEdge;

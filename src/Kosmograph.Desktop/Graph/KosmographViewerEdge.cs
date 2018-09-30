@@ -291,7 +291,7 @@ namespace Kosmograph.Desktop.Graph
                 graphCanvas.Children.Remove(TargetArrowHeadPath);
 
             if (EdgeLabelViewer != null)
-                graphCanvas.Children.Remove(EdgeLabelViewer.FrameworkElement);
+                graphCanvas.Children.Remove(EdgeLabelViewer.EdgeLabelVisual);
         }
     }
 }

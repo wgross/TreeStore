@@ -2,7 +2,6 @@ using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.WpfGraphControl;
 using System;
 using System.Collections.Generic;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Shapes;
 using DrawingLabel = Microsoft.Msagl.Drawing.Label;
@@ -11,14 +10,14 @@ namespace Kosmograph.Desktop.Graph
 {
     public class KosmographViewerEdgeLabel : IViewerObject, IInvalidatable
     {
-        public readonly FrameworkElement FrameworkElement;
+        public TextBlock EdgeLabelVisual { get; }
 
         public DrawingLabel EdgeLabel { get; }
 
-        public KosmographViewerEdgeLabel(Edge edge, FrameworkElement frameworkElement)
+        public KosmographViewerEdgeLabel(DrawingLabel edgeLabel, TextBlock edgeLabelVisual)
         {
-            this.FrameworkElement = frameworkElement;
-            this.EdgeLabel = edge.Label;
+            this.EdgeLabel = edgeLabel;
+            this.EdgeLabelVisual = edgeLabelVisual;
         }
 
         #region IViewerObject members
@@ -39,11 +38,11 @@ namespace Kosmograph.Desktop.Graph
                         StrokeDashArray = new System.Windows.Media.DoubleCollection(OffsetElems())
                     }; //the line will have 0,0, 0,0 start and end so it would not be rendered
 
-                    ((Canvas)FrameworkElement.Parent).Children.Add(AttachmentLine);
+                    ((Canvas)EdgeLabelVisual.Parent).Children.Add(AttachmentLine);
                 }
                 else
                 {
-                    ((Canvas)FrameworkElement.Parent).Children.Remove(AttachmentLine);
+                    ((Canvas)EdgeLabelVisual.Parent).Children.Remove(AttachmentLine);
                     this.AttachmentLine = null;
                 }
             }
@@ -70,7 +69,7 @@ namespace Kosmograph.Desktop.Graph
         public void Invalidate()
         {
             var label = (DrawingLabel)DrawingObject;
-            Wpf2MsaglConverters.PositionFrameworkElement(FrameworkElement, label.Center, 1);
+            Wpf2MsaglConverters.PositionFrameworkElement(EdgeLabelVisual, label.Center, 1);
             var geomLabel = label.GeometryLabel;
             if (AttachmentLine != null)
             {
