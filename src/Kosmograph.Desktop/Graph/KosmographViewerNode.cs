@@ -150,7 +150,7 @@ namespace Kosmograph.Desktop.Graph
 
         #endregion IInvalidatable members
 
-        #region Node viewer is composed of mutiple visual elements
+        #region Node Viewer Visuals
 
         private Func<double> pathStrokeThicknessFunc { get; }
 
@@ -168,6 +168,8 @@ namespace Kosmograph.Desktop.Graph
         /// The path gemeotry surrunding the <see cref="NodeLabel"/> iof the viewers <see cref="Node"/>
         /// </summary>
         public Path NodeBoundaryPath { get; }
+
+        // subgraph visuals
 
         private Border _collapseButtonBorder;
         private Rectangle _topMarginRect;
@@ -192,7 +194,7 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        #endregion Node viewer is composed of mutiple visual elements
+        #endregion Node Viewer Visuals
 
         #region Setup node viewers visual elements
 
@@ -350,7 +352,7 @@ namespace Kosmograph.Desktop.Graph
             return pathGeometry;
         }
 
-        #endregion Setup Subgraphing    
+        #endregion Setup Subgraphing
 
         #region Update node viewers visuals
 

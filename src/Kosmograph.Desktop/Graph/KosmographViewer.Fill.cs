@@ -69,11 +69,11 @@ namespace Kosmograph.Desktop.Graph
                 this.PrepareEdgeLabels(drawingEdge, out var _);
 
             foreach (var drawingNode in this.Graph.Nodes)
-                this.FillFrameworkElementsWithNodeLabels(drawingNode, out var _);
+                this.PrepareNodeLabels(drawingNode, out var _);
 
             if (drawingGraph.RootSubgraph != null)
                 foreach (var subgraph in this.Graph.RootSubgraph.AllSubgraphsWidthFirstExcludingSelf())
-                    this.FillFrameworkElementsWithNodeLabels(subgraph, out var _);
+                    this.PrepareNodeLabels(subgraph, out var _);
         }
 
         public TextBlock CreateTextBlockFromDrawingObjectLabel(Microsoft.Msagl.Drawing.Label drawingLabel)
