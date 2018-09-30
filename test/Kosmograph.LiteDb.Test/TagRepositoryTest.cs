@@ -81,6 +81,23 @@ namespace Kosmograph.LiteDb.Test
         }
 
         [Fact]
+        public void TagRepository_rejects_duplicate_name()
+        {
+            // ARRANGE
+
+            var tag = this.repository.Upsert(new Tag("tag"));
+
+            // ACT
+
+            var result = Assert.Throws<LiteException>(() => this.repository.Upsert(new Tag("TAG")));
+
+            // ASSERT
+
+            Assert.Equal("Cannot insert duplicate key in unique index 'Name'. The duplicate value is '\"tag\"'.", result.Message);
+            Assert.Single(this.tags.FindAll());
+        }
+
+        [Fact]
         public void TagRepository_finds_all_tags()
         {
             // ARRANGE

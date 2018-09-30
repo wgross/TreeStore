@@ -9,8 +9,11 @@ namespace Kosmograph.LiteDb
 
         private readonly FacetRepository facets;
 
-        public TagRepository(LiteRepository db) : base(db, CollectionName)
+        public TagRepository(LiteRepository repo) : base(repo, CollectionName)
         {
+            repo.Database
+                .GetCollection(CollectionName)
+                .EnsureIndex(field: nameof(Tag.Name), expression: $"LOWER($.{nameof(Tag.Name)})", unique: true);
         }
     }
 }
