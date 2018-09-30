@@ -8,7 +8,7 @@ namespace Kosmograph.Desktop.Graph
 {
     public partial class KosmographViewer
     {
-        private void FillFrameworkElementsWithEdgeLabels(DrawingEdge drawingEdge, out TextBlock textBlock)
+        private void PrepareEdgeLabels(DrawingEdge drawingEdge, out TextBlock textBlock)
         {
             textBlock = this.GraphCanvas
                 .InvokeInUiThread(() => CreateTextBlockFromDrawingObjectLabel(drawingEdge.Label));
@@ -26,7 +26,7 @@ namespace Kosmograph.Desktop.Graph
             this.GraphCanvas.InvokeInUiThread(() => textBlock_closure.Tag = new KosmographViewerEdgeLabel(edgeLabel_closure, textBlock_closure));
         }
 
-        private void CreateEdges()
+        private void CreateEdgeViewers()
         {
             foreach (var edge in this.drawingGraph.Edges)
                 this.CreateEdgeViewer(edge, lgSettings: null);

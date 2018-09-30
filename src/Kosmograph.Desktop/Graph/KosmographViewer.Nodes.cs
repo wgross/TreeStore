@@ -1,6 +1,5 @@
 ﻿using Kosmograph.Desktop.ViewModel;
 using Microsoft.Msagl.Drawing;
-using Microsoft.Msagl.WpfGraphControl;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,6 +12,20 @@ namespace Kosmograph.Desktop.Graph
         private const double DesiredPathThicknessInInches = 0.008;
 
         private double GetBorderPathThickness() => DesiredPathThicknessInInches * DpiX;
+
+        private void FillFrameworkElementsWithNodeLabels(Node drawingNode, out TextBlock fe)
+        {
+            fe = null;
+
+            var textBlock = this.GraphCanvas
+                .InvokeInUiThread(() => CreateTextBlockFromDrawingObjectLabel(drawingNode.Label));
+
+            if (textBlock is null)
+                return;
+
+            this.drawingObjectsToFrameworkElements[drawingNode] = textBlock;
+            fe = textBlock;
+        }
 
         private void GetOrCreateViewNodes()
         {
@@ -105,7 +118,7 @@ namespace Kosmograph.Desktop.Graph
                 this.GraphCanvasRemoveChildren(((KosmographViewerNode)viewerNode).FrameworkElements);
             this.drawingObjectsToIViewerObjects.Remove(drawingNode);
             this.drawingObjectsToFrameworkElements.Remove(drawingNode);
-            
+
             // removes the nodes edges
             foreach (var drawingEdge in drawingNode.Edges)
             {

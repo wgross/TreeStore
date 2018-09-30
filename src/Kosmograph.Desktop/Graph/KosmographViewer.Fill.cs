@@ -70,7 +70,7 @@ namespace Kosmograph.Desktop.Graph
         private void FillFrameworkElementsFromDrawingObjects()
         {
             foreach (var drawingEdge in this.Graph.Edges)
-                this.FillFrameworkElementsWithEdgeLabels(drawingEdge, out var _);
+                this.PrepareEdgeLabels(drawingEdge, out var _);
 
             foreach (var drawingNode in this.Graph.Nodes)
                 this.FillFrameworkElementsWithNodeLabels(drawingNode, out var _);
@@ -82,19 +82,6 @@ namespace Kosmograph.Desktop.Graph
 
        
 
-        private void FillFrameworkElementsWithNodeLabels(Node drawingNode, out FrameworkElement fe)
-        {
-            fe = null;
-
-            var textBlock = this.GraphCanvas
-                .InvokeInUiThread(() => CreateTextBlockFromDrawingObjectLabel(drawingNode.Label));
-
-            if (textBlock is null)
-                return;
-
-            this.drawingObjectsToFrameworkElements[drawingNode] = textBlock;
-            fe = textBlock;
-        }
 
         public TextBlock CreateTextBlockFromDrawingObjectLabel(Microsoft.Msagl.Drawing.Label drawingLabel)
         {

@@ -70,7 +70,7 @@ namespace Kosmograph.Desktop.Graph
         {
             this.DrawGraphBackground();
             this.GetOrCreateViewNodes();
-            this.CreateEdges();
+            this.CreateEdgeViewers();
         }
 
         private void RunLayoutInUIThread()
