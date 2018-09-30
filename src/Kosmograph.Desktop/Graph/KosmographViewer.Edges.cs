@@ -1,5 +1,6 @@
 ﻿using Microsoft.Msagl.Layout.LargeGraphLayout;
 using System;
+using System.Windows;
 using System.Windows.Controls;
 using DrawingEdge = Microsoft.Msagl.Drawing.Edge;
 
@@ -41,20 +42,22 @@ namespace Kosmograph.Desktop.Graph
                 if (lgSettings != null)
                     return CreateEdgeForLgCase(lgSettings, edge);
 
-                // fetches the textbl.oicj from the 'Fill' method
+                // fetches the textBlock 'Fill' method
                 TextBlock labelTextBox;
                 this.drawingObjectsToFrameworkElements.TryGetValue(edge, out labelTextBox);
                 var edgeViewer = new KosmographViewerEdge(edge, (KosmographViewerEdgeLabel)(labelTextBox.Tag));
 
+                this.drawingObjectsToIViewerObjects[edge] = edgeViewer;
+
+                if (labelTextBox.Parent is null)
+                {
+                    this.GraphCanvasAddChildren(new FrameworkElement[] { labelTextBox, edgeViewer.EdgePath });
+                }
+
                 var zIndex = this.ZIndexOfEdge(edge);
-                drawingObjectsToIViewerObjects[edge] = edgeViewer;
-
-                if (edge.Label != null)
-                    this.SetVEdgeLabel(edge, edgeViewer, zIndex);
-
+                Panel.SetZIndex(labelTextBox, zIndex);
                 Panel.SetZIndex(edgeViewer.EdgePath, zIndex);
 
-                GraphCanvas.Children.Add(edgeViewer.EdgePath);
                 this.SetVEdgeArrowheads(edgeViewer, zIndex);
 
                 return edgeViewer;
@@ -68,23 +71,6 @@ namespace Kosmograph.Desktop.Graph
 
             var zIndex = Math.Max(source.ZIndex, target.ZIndex) + 1;
             return zIndex;
-        }
-
-        private void SetVEdgeLabel(DrawingEdge edge, KosmographViewerEdge edgeViewer, int zIndex)
-        {
-            TextBlock frameworkElementForEdgeLabel;
-            if (!drawingObjectsToFrameworkElements.TryGetValue(edge, out frameworkElementForEdgeLabel))
-            {
-                this.FillFrameworkElementsWithEdgeLabels(edge, out frameworkElementForEdgeLabel);
-                frameworkElementForEdgeLabel.Tag = new KosmographViewerEdgeLabel(edge.Label, frameworkElementForEdgeLabel);
-            }
-
-            //edgeViewer.EdgeLabelViewer = (KosmographViewerEdgeLabel)frameworkElementForEdgeLabel.Tag;
-            if (frameworkElementForEdgeLabel.Parent == null)
-            {
-                GraphCanvas.Children.Add(frameworkElementForEdgeLabel);
-                Panel.SetZIndex(frameworkElementForEdgeLabel, zIndex);
-            }
         }
 
         private KosmographViewerEdge CreateEdgeForLgCase(LgLayoutSettings lgSettings, DrawingEdge edge)
