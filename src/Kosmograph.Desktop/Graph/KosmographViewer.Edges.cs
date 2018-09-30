@@ -17,12 +17,7 @@ namespace Kosmograph.Desktop.Graph
 
             this.drawingObjectsToFrameworkElements[drawingEdge] = textBlock;
 
-            var edgeLabel_closure = drawingEdge.Label;
-            var textBlock_closure = textBlock;
-
-            // sync into UI thread an make the label viewer object
-
-            this.GraphCanvas.InvokeInUiThread(() => textBlock_closure.Tag = new KosmographViewerEdgeLabel(edgeLabel_closure, textBlock_closure));
+            textBlock.Tag = new KosmographViewerEdgeLabel(drawingEdge.Label, textBlock);
         }
 
         private void CreateEdgeViewers()
