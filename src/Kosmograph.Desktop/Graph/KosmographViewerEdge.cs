@@ -44,16 +44,17 @@ namespace Kosmograph.Desktop.Graph
 {
     public class KosmographViewerEdge : KosmographViewerItemBase, IViewerEdge, IInvalidatable
     {
-        public KosmographViewerEdge(DrawingEdge edge, TextBlock labelFrameworkElement)
+        public KosmographViewerEdge(DrawingEdge edge, KosmographViewerEdgeLabel edgeLabelViewer)
         {
             this.Edge = edge;
+            this.EdgeLabelViewer = edgeLabelViewer;
             this.EdgePath = new Path
             {
                 Data = VisualsFactory.CreateEdgePath(this.Edge.GeometryEdge.Curve),
                 Tag = this
             };
 
-            this.EdgeLabel = labelFrameworkElement;
+            //this.EdgeLabel = labelFrameworkElement;
             (this.EdgePath, this.SourceArrowHeadPath, this.TargetArrowHeadPath) = this.SetupEdgeVisuals();
 
             this.SetPathStroke();
@@ -70,7 +71,7 @@ namespace Kosmograph.Desktop.Graph
             Edge = edge;
         }
 
-        public TextBlock EdgeLabel { get; }
+        public TextBlock EdgeLabel => this.EdgeLabelViewer?.EdgeLabelVisual;
 
         public KosmographViewerEdgeLabel EdgeLabelViewer { get; set; }
 

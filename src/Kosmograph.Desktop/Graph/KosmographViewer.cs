@@ -591,17 +591,6 @@ namespace Kosmograph.Desktop.Graph
             return scale < 0.000001 || scale > 100000.0; //todo: remove hardcoded values
         }
 
-        private int ZIndexOfEdge(DrawingEdge edge)
-        {
-            var source = (KosmographViewerNode)drawingObjectsToIViewerObjects[edge.SourceNode];
-            var target = (KosmographViewerNode)drawingObjectsToIViewerObjects[edge.TargetNode];
-
-            var zIndex = Math.Max(source.ZIndex, target.ZIndex) + 1;
-            return zIndex;
-        }
-
-       
-
         /// <summary>
         /// INsitilaizes some of the gemotry nodes/edges with values depending of the
         /// prepared Framework Elements

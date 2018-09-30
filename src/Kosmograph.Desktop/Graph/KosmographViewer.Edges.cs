@@ -1,4 +1,5 @@
 ﻿using Microsoft.Msagl.Layout.LargeGraphLayout;
+using System;
 using System.Windows.Controls;
 using DrawingEdge = Microsoft.Msagl.Drawing.Edge;
 
@@ -43,7 +44,7 @@ namespace Kosmograph.Desktop.Graph
                 // fetches the textbl.oicj from the 'Fill' method
                 TextBlock labelTextBox;
                 this.drawingObjectsToFrameworkElements.TryGetValue(edge, out labelTextBox);
-                var edgeViewer = new KosmographViewerEdge(edge, labelTextBox);
+                var edgeViewer = new KosmographViewerEdge(edge, (KosmographViewerEdgeLabel)(labelTextBox.Tag));
 
                 var zIndex = this.ZIndexOfEdge(edge);
                 drawingObjectsToIViewerObjects[edge] = edgeViewer;
@@ -60,6 +61,15 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
+        private int ZIndexOfEdge(DrawingEdge edge)
+        {
+            var source = (KosmographViewerNode)drawingObjectsToIViewerObjects[edge.SourceNode];
+            var target = (KosmographViewerNode)drawingObjectsToIViewerObjects[edge.TargetNode];
+
+            var zIndex = Math.Max(source.ZIndex, target.ZIndex) + 1;
+            return zIndex;
+        }
+
         private void SetVEdgeLabel(DrawingEdge edge, KosmographViewerEdge edgeViewer, int zIndex)
         {
             TextBlock frameworkElementForEdgeLabel;
@@ -69,7 +79,7 @@ namespace Kosmograph.Desktop.Graph
                 frameworkElementForEdgeLabel.Tag = new KosmographViewerEdgeLabel(edge.Label, frameworkElementForEdgeLabel);
             }
 
-            edgeViewer.EdgeLabelViewer = (KosmographViewerEdgeLabel)frameworkElementForEdgeLabel.Tag;
+            //edgeViewer.EdgeLabelViewer = (KosmographViewerEdgeLabel)frameworkElementForEdgeLabel.Tag;
             if (frameworkElementForEdgeLabel.Parent == null)
             {
                 GraphCanvas.Children.Add(frameworkElementForEdgeLabel);
