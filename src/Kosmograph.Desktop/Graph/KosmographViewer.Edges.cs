@@ -10,8 +10,7 @@ namespace Kosmograph.Desktop.Graph
     {
         private void PrepareEdgeLabels(DrawingEdge drawingEdge, out TextBlock textBlock)
         {
-            textBlock = this.GraphCanvas
-                .InvokeInUiThread(() => CreateTextBlockFromDrawingObjectLabel(drawingEdge.Label));
+            textBlock = this.CreateTextBlockFromDrawingObjectLabel(drawingEdge.Label);
 
             if (textBlock is null)
                 return;

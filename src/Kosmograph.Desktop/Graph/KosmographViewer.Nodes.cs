@@ -17,8 +17,7 @@ namespace Kosmograph.Desktop.Graph
         {
             fe = null;
 
-            var textBlock = this.GraphCanvas
-                .InvokeInUiThread(() => CreateTextBlockFromDrawingObjectLabel(drawingNode.Label));
+            var textBlock = this.CreateTextBlockFromDrawingObjectLabel(drawingNode.Label);
 
             if (textBlock is null)
                 return;
