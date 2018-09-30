@@ -44,7 +44,7 @@ namespace Kosmograph.Desktop.Graph
 {
     public class KosmographViewerEdge : KosmographViewerItemBase, IViewerEdge, IInvalidatable
     {
-        public KosmographViewerEdge(DrawingEdge edge, FrameworkElement labelFrameworkElement)
+        public KosmographViewerEdge(DrawingEdge edge, TextBlock labelFrameworkElement)
         {
             this.Edge = edge;
             this.EdgePath = new Path
@@ -53,7 +53,9 @@ namespace Kosmograph.Desktop.Graph
                 Tag = this
             };
 
-            (this.EdgeLabel, this.EdgePath, this.SourceArrowHeadPath, this.TargetArrowHeadPath) = this.SetupEdgeVisuals(labelFrameworkElement);
+            this.EdgeLabel = labelFrameworkElement;
+            (this.EdgePath, this.SourceArrowHeadPath, this.TargetArrowHeadPath) = this.SetupEdgeVisuals();
+
             this.SetPathStroke();
 
             Wpf2MsaglConverters.PositionFrameworkElement(this.EdgeLabel, this.Edge.Label.Center, 1);
@@ -68,9 +70,11 @@ namespace Kosmograph.Desktop.Graph
             Edge = edge;
         }
 
-        #region Viewer Edge Visuals
+        public TextBlock EdgeLabel { get; }
 
-        public FrameworkElement EdgeLabel;
+        public KosmographViewerEdgeLabel EdgeLabelViewer { get; set; }
+
+        #region Viewer Edge Visuals
 
         public Path EdgePath { get; }
 
@@ -99,7 +103,7 @@ namespace Kosmograph.Desktop.Graph
 
         #region Setup Viewer Edge Visuals
 
-        public (FrameworkElement edgeLabel, Path edgePath, Path edgeSourceArrow, Path edgeTargetArrow) SetupEdgeVisuals(FrameworkElement edgeLabel)
+        public (Path edgePath, Path edgeSourceArrow, Path edgeTargetArrow) SetupEdgeVisuals()
         {
             // nope: this must be VLabel//edgeLabel.Tag = this;
 
@@ -123,7 +127,7 @@ namespace Kosmograph.Desktop.Graph
                     Tag = this
                 } : null;
 
-            return (edgeLabel, edgePath, edgeSourceArrow, edgeTargetArrow);
+            return (edgePath, edgeSourceArrow, edgeTargetArrow);
         }
 
         #endregion Setup Viewer Edge Visuals
@@ -157,8 +161,6 @@ namespace Kosmograph.Desktop.Graph
         public IViewerNode Target { get; private set; }
 
         public double RadiusOfPolylineCorner { get; set; }
-
-        public KosmographViewerEdgeLabel EdgeLabelViewer { get; set; }
 
         #endregion IViewerEdge Members
 
