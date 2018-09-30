@@ -1,6 +1,6 @@
 ﻿using Microsoft.Msagl.Layout.LargeGraphLayout;
 using System;
-using System.Windows;
+using System.Linq;
 using System.Windows.Controls;
 using DrawingEdge = Microsoft.Msagl.Drawing.Edge;
 
@@ -49,16 +49,12 @@ namespace Kosmograph.Desktop.Graph
 
                 this.drawingObjectsToIViewerObjects[edge] = edgeViewer;
 
-                if (labelTextBox.Parent is null)
-                {
-                    this.GraphCanvasAddChildren(new FrameworkElement[] { labelTextBox, edgeViewer.EdgePath });
-                }
-
                 var zIndex = this.ZIndexOfEdge(edge);
-                Panel.SetZIndex(labelTextBox, zIndex);
-                Panel.SetZIndex(edgeViewer.EdgePath, zIndex);
-
-                this.SetVEdgeArrowheads(edgeViewer, zIndex);
+                this.GraphCanvasAddChildren(edgeViewer.FrameworkElements.Select(fe =>
+                {
+                    Panel.SetZIndex(fe, zIndex);
+                    return fe;
+                }));
 
                 return edgeViewer;
             }
@@ -79,20 +75,6 @@ namespace Kosmograph.Desktop.Graph
             {
                 PathStrokeThicknessFunc = () => GetBorderPathThickness() * edge.Attr.LineWidth
             });
-        }
-
-        private void SetVEdgeArrowheads(KosmographViewerEdge vEdge, int zIndex)
-        {
-            if (vEdge.SourceArrowHeadPath != null)
-            {
-                Panel.SetZIndex(vEdge.SourceArrowHeadPath, zIndex);
-                GraphCanvas.Children.Add(vEdge.SourceArrowHeadPath);
-            }
-            if (vEdge.TargetArrowHeadPath != null)
-            {
-                Panel.SetZIndex(vEdge.TargetArrowHeadPath, zIndex);
-                GraphCanvas.Children.Add(vEdge.TargetArrowHeadPath);
-            }
         }
     }
 }

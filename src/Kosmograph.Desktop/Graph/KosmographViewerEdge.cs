@@ -71,9 +71,9 @@ namespace Kosmograph.Desktop.Graph
             Edge = edge;
         }
 
-        public TextBlock EdgeLabel => this.EdgeLabelViewer?.EdgeLabelVisual;
+        public KosmographViewerEdgeLabel EdgeLabelViewer { get; }
 
-        public KosmographViewerEdgeLabel EdgeLabelViewer { get; set; }
+        public TextBlock EdgeLabel => this.EdgeLabelViewer?.EdgeLabelVisual;
 
         #region Viewer Edge Visuals
 
@@ -89,6 +89,7 @@ namespace Kosmograph.Desktop.Graph
             {
                 if (this.SourceArrowHeadPath != null)
                     yield return this.SourceArrowHeadPath;
+
                 if (this.TargetArrowHeadPath != null)
                     yield return this.TargetArrowHeadPath;
 
@@ -193,7 +194,7 @@ namespace Kosmograph.Desktop.Graph
                     this.TargetArrowHeadPath.Data = VisualsFactory.CreateEdgeTargetArrow(this.Edge.GeometryEdge.EdgeGeometry, this.PathStrokeThickness);
 
                 this.SetPathStroke();
-                this.EdgeLabelViewer?.Invalidate();
+                this.EdgeLabelViewer.Invalidate();
             });
         }
 
