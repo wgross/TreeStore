@@ -46,7 +46,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using DrawingEdge = Microsoft.Msagl.Drawing.Edge;
-using DrawingNode = Microsoft.Msagl.Drawing.Node;
+using DrawingGraph = Microsoft.Msagl.Drawing.Graph;
 using Edge = Microsoft.Msagl.Core.Layout.Edge;
 using Ellipse = System.Windows.Shapes.Ellipse;
 using Label = Microsoft.Msagl.Drawing.Label;
@@ -592,36 +592,31 @@ namespace Kosmograph.Desktop.Graph
         }
 
         /// <summary>
-        /// INsitilaizes some of the gemotry nodes/edges with values depending of the
+        /// Initialize geometry nodes/edges(subgraphs with measutred sizes of the
         /// prepared Framework Elements
         /// </summary>
-        private void InitializeGeometryGraph()
+        private void InitializeGeometryGraphFromVisuals(DrawingGraph drawingGraph)
         {
-            this.InitializeGeometryGraphNodes(this.GeometryGraph);
-            this.InitializeGeometryGraphSubGraphs(this.GeometryGraph);
-            this.InitializeGemoetrtyGraphEdges(this.GeometryGraph);
+            this.InitializeGeometryGraphNodes(drawingGraph);
+            this.InitializeGeometryGraphSubGraphs(drawingGraph);
+            this.InitializeGeometryGraphEdges(drawingGraph);
         }
 
-        private void InitializeGeometryGraphNodes(GeometryGraph geometryGraph)
+        private void InitializeGeometryGraphNodes(DrawingGraph drawingGraph)
         {
-            foreach (var layoutNode in geometryGraph.Nodes)
+            foreach (var drawingNode in drawingGraph.Nodes.Where(n => n.GeometryNode != null))
             {
-                var closure_layoutNode = layoutNode;
-                
-                closure_layoutNode.BoundaryCurve = this.GetNodeBoundaryCurve((DrawingNode)closure_layoutNode.UserData);
-
+                drawingNode.GeometryNode.BoundaryCurve = this.GetNodeBoundaryCurve(drawingNode);
             }
         }
 
-        private void InitializeGeometryGraphSubGraphs(GeometryGraph geometryGraph)
+        private void InitializeGeometryGraphSubGraphs(DrawingGraph geometryGraph)
         {
-            foreach (Cluster cluster in geometryGraph.RootCluster.AllClustersWideFirstExcludingSelf())
+            foreach (Cluster cluster in geometryGraph.GeometryGraph.RootCluster.AllClustersWideFirstExcludingSelf())
             {
-                var closure_cluster = cluster;
-                this.GraphCanvas.InvokeInUiThread(() => closure_cluster.BoundaryCurve =
-                    this.GetClusterCollapsedBoundary((Subgraph)closure_cluster.UserData));
-
                 var subgraph = (Subgraph)cluster.UserData;
+
+                cluster.BoundaryCurve = this.GetClusterCollapsedBoundary(subgraph);
 
                 if (cluster.RectangularBoundary == null)
                     cluster.RectangularBoundary = new RectangularClusterBoundary();
@@ -631,12 +626,11 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        private void InitializeGemoetrtyGraphEdges(GeometryGraph geometryGraph)
+        private void InitializeGeometryGraphEdges(DrawingGraph geometryGraph)
         {
-            foreach (var layoutEdge in geometryGraph.Edges)
+            foreach (var drawingEdge in geometryGraph.Edges.Where(e => e.GeometryEdge != null))
             {
-                var drawingEdge = (DrawingEdge)layoutEdge.UserData;
-                AssignLabelWidthHeight(layoutEdge, drawingEdge);
+                AssignLabelWidthHeight(drawingEdge.GeometryEdge, drawingEdge);
             }
         }
 

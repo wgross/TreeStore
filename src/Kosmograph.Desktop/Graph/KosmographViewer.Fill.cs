@@ -44,7 +44,7 @@ namespace Kosmograph.Desktop.Graph
                 if (this.NeedToCalculateLayout)
                 {
                     this.Graph.CreateGeometryGraph(); // forcing the layout recalculation
-                    this.GraphCanvas.InvokeInUiThread(this.InitializeGeometryGraph);
+                    this.InitializeGeometryGraphFromVisuals(this.Graph);
                 }
 
                 this.geometryGraphUnderLayout = this.GeometryGraph;
