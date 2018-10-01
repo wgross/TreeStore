@@ -588,52 +588,7 @@ namespace Kosmograph.Desktop.Graph
             return scale < 0.000001 || scale > 100000.0; //todo: remove hardcoded values
         }
 
-        private ICurve GetClusterCollapsedBoundary(Subgraph subgraph)
-        {
-            double width, height;
-
-            TextBlock fe;
-            if (drawingObjectsToFrameworkElements.TryGetValue(subgraph, out fe))
-            {
-                width = fe.Width + 2 * subgraph.Attr.LabelMargin + subgraph.DiameterOfOpenCollapseButton;
-                height = Math.Max(fe.Height + 2 * subgraph.Attr.LabelMargin, subgraph.DiameterOfOpenCollapseButton);
-            }
-            else return GetApproximateCollapsedBoundary(subgraph);
-
-            if (width < drawingGraph.Attr.MinNodeWidth)
-                width = drawingGraph.Attr.MinNodeWidth;
-            if (height < drawingGraph.Attr.MinNodeHeight)
-                height = drawingGraph.Attr.MinNodeHeight;
-            return NodeBoundaryCurves.GetNodeBoundaryCurve(subgraph, width, height);
-        }
-
-        private ICurve GetApproximateCollapsedBoundary(Subgraph subgraph)
-        {
-            if (textBoxForApproxNodeBoundaries == null)
-                SetUpTextBoxForApproxNodeBoundaries();
-
-            double width, height;
-            if (String.IsNullOrEmpty(subgraph.LabelText))
-                height = width = subgraph.DiameterOfOpenCollapseButton;
-            else
-            {
-                double a = ((double)subgraph.LabelText.Length) / textBoxForApproxNodeBoundaries.Text.Length *
-                           subgraph.Label.FontSize / Label.DefaultFontSize;
-                width = textBoxForApproxNodeBoundaries.Width * a + subgraph.DiameterOfOpenCollapseButton;
-                height =
-                    Math.Max(
-                        textBoxForApproxNodeBoundaries.Height * subgraph.Label.FontSize / Label.DefaultFontSize,
-                        subgraph.DiameterOfOpenCollapseButton);
-            }
-
-            if (width < drawingGraph.Attr.MinNodeWidth)
-                width = drawingGraph.Attr.MinNodeWidth;
-            if (height < drawingGraph.Attr.MinNodeHeight)
-                height = drawingGraph.Attr.MinNodeHeight;
-
-            return NodeBoundaryCurves.GetNodeBoundaryCurve(subgraph, width, height);
-        }
-
+   
         private TextBlock textBoxForApproxNodeBoundaries;
 
         private void SetUpTextBoxForApproxNodeBoundaries()

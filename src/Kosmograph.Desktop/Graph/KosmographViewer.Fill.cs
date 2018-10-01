@@ -9,6 +9,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using DrawingGraph = Microsoft.Msagl.Drawing.Graph;
+using DrawingLabel = Microsoft.Msagl.Drawing.Label;
 using DrawingNode = Microsoft.Msagl.Drawing.Node;
 
 namespace Kosmograph.Desktop.Graph
@@ -44,7 +45,7 @@ namespace Kosmograph.Desktop.Graph
                 // fill the map
                 //   frameworkElementsToDrawingObjects
                 // with WPF drawable ibjewt representing the texts shown in on teh canvas.
-                this.FillFrameworkElementsFromDrawingObjects(this.Graph);
+                this.PrepareVisualsFromDrawingObjects(this.Graph);
 
                 if (this.NeedToCalculateLayout)
                 {
@@ -64,12 +65,20 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        // The graph items are inspected and for all graph object labels a mapping of
-        // DrawingObject -> FrameworkElements is created.
-        // The resulting TextBlocks are measured and have attributes set as defined by the
-        // MSAGL Label.
+        private void ClearKosmographViewer()
+        {
+            lock (this.syncRoot)
+                this.ClearKosmographViewerImpl();
+        }
 
-        private void FillFrameworkElementsFromDrawingObjects(DrawingGraph graph)
+        private void ClearKosmographViewerImpl()
+        {
+            this.GraphCanvasClearChildren();
+            this.drawingObjectsToIViewerObjects.Clear();
+            this.drawingObjectsToFrameworkElements.Clear();
+        }
+
+        private void PrepareVisualsFromDrawingObjects(DrawingGraph graph)
         {
             foreach (var drawingEdge in graph.Edges)
                 this.PrepareEdgeLabels(drawingEdge, out var _);
@@ -84,24 +93,7 @@ namespace Kosmograph.Desktop.Graph
 
         #endregion Fill the viewer with labels for edges and nodes
 
-        #region Clear all nodes and edges from the viewer
-
-        private void ClearKosmographViewer()
-        {
-            lock (this.syncRoot)
-                this.ClearKosmographViewerImpl();
-        }
-
-        private void ClearKosmographViewerImpl()
-        {
-            this.GraphCanvasClearChildren();
-            this.drawingObjectsToIViewerObjects.Clear();
-            this.drawingObjectsToFrameworkElements.Clear();
-        }
-
-        #endregion Clear all nodes and edges from the viewer
-
-        #region Push initial state of framework element measurement to the gemoetry nodes
+        #region Push initial state of framework element measurement to the geomotry nodes
 
         /// <summary>
         /// Initialize geometry nodes/edges(subgraphs with measutred sizes of the
@@ -178,6 +170,52 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        #endregion Push initial state of framework element measurement to the gemoetry nodes
+        private ICurve GetClusterCollapsedBoundary(Subgraph subgraph)
+        {
+            double width, height;
+
+            TextBlock fe;
+            if (drawingObjectsToFrameworkElements.TryGetValue(subgraph, out fe))
+            {
+                width = fe.Width + 2 * subgraph.Attr.LabelMargin + subgraph.DiameterOfOpenCollapseButton;
+                height = Math.Max(fe.Height + 2 * subgraph.Attr.LabelMargin, subgraph.DiameterOfOpenCollapseButton);
+            }
+            else return GetApproximateCollapsedBoundary(subgraph);
+
+            if (width < drawingGraph.Attr.MinNodeWidth)
+                width = drawingGraph.Attr.MinNodeWidth;
+            if (height < drawingGraph.Attr.MinNodeHeight)
+                height = drawingGraph.Attr.MinNodeHeight;
+            return NodeBoundaryCurves.GetNodeBoundaryCurve(subgraph, width, height);
+        }
+
+        private ICurve GetApproximateCollapsedBoundary(Subgraph subgraph)
+        {
+            if (textBoxForApproxNodeBoundaries == null)
+                SetUpTextBoxForApproxNodeBoundaries();
+
+            double width, height;
+            if (String.IsNullOrEmpty(subgraph.LabelText))
+                height = width = subgraph.DiameterOfOpenCollapseButton;
+            else
+            {
+                double a = ((double)subgraph.LabelText.Length) / textBoxForApproxNodeBoundaries.Text.Length *
+                           subgraph.Label.FontSize / DrawingLabel.DefaultFontSize;
+                width = textBoxForApproxNodeBoundaries.Width * a + subgraph.DiameterOfOpenCollapseButton;
+                height =
+                    Math.Max(
+                        textBoxForApproxNodeBoundaries.Height * subgraph.Label.FontSize / DrawingLabel.DefaultFontSize,
+                        subgraph.DiameterOfOpenCollapseButton);
+            }
+
+            if (width < drawingGraph.Attr.MinNodeWidth)
+                width = drawingGraph.Attr.MinNodeWidth;
+            if (height < drawingGraph.Attr.MinNodeHeight)
+                height = drawingGraph.Attr.MinNodeHeight;
+
+            return NodeBoundaryCurves.GetNodeBoundaryCurve(subgraph, width, height);
+        }
+
+        #endregion Push initial state of framework element measurement to the geomotry nodes
     }
 }
