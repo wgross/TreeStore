@@ -27,7 +27,6 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-using Microsoft.Msagl.Core.Geometry;
 using Microsoft.Msagl.Core.Geometry.Curves;
 using Microsoft.Msagl.Core.Layout;
 using Microsoft.Msagl.Drawing;
@@ -37,7 +36,6 @@ using Microsoft.Msagl.WpfGraphControl;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -46,7 +44,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using DrawingEdge = Microsoft.Msagl.Drawing.Edge;
-using DrawingGraph = Microsoft.Msagl.Drawing.Graph;
 using Edge = Microsoft.Msagl.Core.Layout.Edge;
 using Ellipse = System.Windows.Shapes.Ellipse;
 using Label = Microsoft.Msagl.Drawing.Label;
@@ -591,49 +588,6 @@ namespace Kosmograph.Desktop.Graph
             return scale < 0.000001 || scale > 100000.0; //todo: remove hardcoded values
         }
 
-        /// <summary>
-        /// Initialize geometry nodes/edges(subgraphs with measutred sizes of the
-        /// prepared Framework Elements
-        /// </summary>
-        private void InitializeGeometryGraphFromVisuals(DrawingGraph drawingGraph)
-        {
-            this.InitializeGeometryGraphNodes(drawingGraph);
-            this.InitializeGeometryGraphSubGraphs(drawingGraph);
-            this.InitializeGeometryGraphEdges(drawingGraph);
-        }
-
-        private void InitializeGeometryGraphNodes(DrawingGraph drawingGraph)
-        {
-            foreach (var drawingNode in drawingGraph.Nodes.Where(n => n.GeometryNode != null))
-            {
-                drawingNode.GeometryNode.BoundaryCurve = this.GetNodeBoundaryCurve(drawingNode);
-            }
-        }
-
-        private void InitializeGeometryGraphSubGraphs(DrawingGraph geometryGraph)
-        {
-            foreach (Cluster cluster in geometryGraph.GeometryGraph.RootCluster.AllClustersWideFirstExcludingSelf())
-            {
-                var subgraph = (Subgraph)cluster.UserData;
-
-                cluster.BoundaryCurve = this.GetClusterCollapsedBoundary(subgraph);
-
-                if (cluster.RectangularBoundary == null)
-                    cluster.RectangularBoundary = new RectangularClusterBoundary();
-
-                cluster.RectangularBoundary.TopMargin = subgraph.DiameterOfOpenCollapseButton + 0.5 + subgraph.Attr.LineWidth / 2;
-                //AssignLabelWidthHeight(msaglNode, msaglNode.UserData as DrawingObject);
-            }
-        }
-
-        private void InitializeGeometryGraphEdges(DrawingGraph geometryGraph)
-        {
-            foreach (var drawingEdge in geometryGraph.Edges.Where(e => e.GeometryEdge != null))
-            {
-                AssignLabelWidthHeight(drawingEdge.GeometryEdge, drawingEdge);
-            }
-        }
-
         private ICurve GetClusterCollapsedBoundary(Subgraph subgraph)
         {
             double width, height;
@@ -680,83 +634,7 @@ namespace Kosmograph.Desktop.Graph
             return NodeBoundaryCurves.GetNodeBoundaryCurve(subgraph, width, height);
         }
 
-        private void AssignLabelWidthHeight(Microsoft.Msagl.Core.Layout.ILabeledObject labeledGeomObj, DrawingObject drawingObj)
-        {
-            if (drawingObjectsToFrameworkElements.ContainsKey(drawingObj))
-            {
-                FrameworkElement fe = drawingObjectsToFrameworkElements[drawingObj];
-                labeledGeomObj.Label.Width = fe.Width;
-                labeledGeomObj.Label.Height = fe.Height;
-            }
-        }
-
-        private ICurve GetNodeBoundaryCurve(Microsoft.Msagl.Drawing.Node node)
-        {
-            double width, height;
-
-            TextBlock frameworkElement;
-            if (this.drawingObjectsToFrameworkElements.TryGetValue(node, out frameworkElement))
-            {
-                Debug.Assert(frameworkElement.CheckAccess());
-
-                // a Frameworkelement was prerpared beforehand.
-                width = frameworkElement.Width + 2 * node.Attr.LabelMargin;
-                height = frameworkElement.Height + 2 * node.Attr.LabelMargin;
-            }
-            else return GetNodeBoundaryCurveByMeasuringText(node);
-
-            // the calculated width must not be smaller the minimal size.
-
-            if (width < drawingGraph.Attr.MinNodeWidth)
-                width = drawingGraph.Attr.MinNodeWidth;
-            if (height < drawingGraph.Attr.MinNodeHeight)
-                height = drawingGraph.Attr.MinNodeHeight;
-
-            return NodeBoundaryCurves.GetNodeBoundaryCurve(node, width, height);
-        }
-
         private TextBlock textBoxForApproxNodeBoundaries;
-
-        public static Size MeasureText(string text,
-        FontFamily family, double size)
-        {
-            FormattedText formattedText = new FormattedText(
-                text,
-                System.Globalization.CultureInfo.CurrentCulture,
-                FlowDirection.LeftToRight,
-                new Typeface(family, new System.Windows.FontStyle(), FontWeights.Regular, FontStretches.Normal),
-                size,
-                Brushes.Black,
-                null);
-
-            return new Size(formattedText.Width, formattedText.Height);
-        }
-
-        private ICurve GetNodeBoundaryCurveByMeasuringText(Microsoft.Msagl.Drawing.Node node)
-        {
-            double width, height;
-            if (String.IsNullOrEmpty(node.LabelText))
-            {
-                width = 10;
-                height = 10;
-            }
-            else
-            {
-                var size = MeasureText(node.LabelText, new FontFamily(node.Label.FontName), node.Label.FontSize);
-                width = size.Width;
-                height = size.Height;
-            }
-
-            width += 2 * node.Attr.LabelMargin;
-            height += 2 * node.Attr.LabelMargin;
-
-            if (width < drawingGraph.Attr.MinNodeWidth)
-                width = drawingGraph.Attr.MinNodeWidth;
-            if (height < drawingGraph.Attr.MinNodeHeight)
-                height = drawingGraph.Attr.MinNodeHeight;
-
-            return NodeBoundaryCurves.GetNodeBoundaryCurve(node, width, height);
-        }
 
         private void SetUpTextBoxForApproxNodeBoundaries()
         {

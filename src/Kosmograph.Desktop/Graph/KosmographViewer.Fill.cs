@@ -1,10 +1,15 @@
 ﻿using Microsoft.Msagl.Core;
+using Microsoft.Msagl.Core.Geometry;
+using Microsoft.Msagl.Core.Geometry.Curves;
+using Microsoft.Msagl.Core.Layout;
 using Microsoft.Msagl.Drawing;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using DrawingGraph = Microsoft.Msagl.Drawing.Graph;
+using DrawingNode = Microsoft.Msagl.Drawing.Node;
 
 namespace Kosmograph.Desktop.Graph
 {
@@ -95,5 +100,84 @@ namespace Kosmograph.Desktop.Graph
         }
 
         #endregion Clear all nodes and edges from the viewer
+
+        #region Push initial state of framework element measurement to the gemoetry nodes
+
+        /// <summary>
+        /// Initialize geometry nodes/edges(subgraphs with measutred sizes of the
+        /// prepared Framework Elements
+        /// </summary>
+        private void InitializeGeometryGraphFromVisuals(DrawingGraph drawingGraph)
+        {
+            this.InitializeGeometryGraphNodes(drawingGraph);
+            this.InitializeGeometryGraphSubGraphs(drawingGraph);
+            this.InitializeGeometryGraphEdges(drawingGraph);
+        }
+
+        private void InitializeGeometryGraphNodes(DrawingGraph drawingGraph)
+        {
+            foreach (var drawingNode in drawingGraph.Nodes.Where(n => n.GeometryNode != null))
+            {
+                drawingNode.GeometryNode.BoundaryCurve = this.GetNodeBoundaryCurve(drawingNode);
+            }
+        }
+
+        private void InitializeGeometryGraphSubGraphs(DrawingGraph geometryGraph)
+        {
+            foreach (Cluster cluster in geometryGraph.GeometryGraph.RootCluster.AllClustersWideFirstExcludingSelf())
+            {
+                var subgraph = (Subgraph)cluster.UserData;
+
+                cluster.BoundaryCurve = this.GetClusterCollapsedBoundary(subgraph);
+
+                if (cluster.RectangularBoundary == null)
+                    cluster.RectangularBoundary = new RectangularClusterBoundary();
+
+                cluster.RectangularBoundary.TopMargin = subgraph.DiameterOfOpenCollapseButton + 0.5 + subgraph.Attr.LineWidth / 2;
+                //AssignLabelWidthHeight(msaglNode, msaglNode.UserData as DrawingObject);
+            }
+        }
+
+        private void InitializeGeometryGraphEdges(DrawingGraph geometryGraph)
+        {
+            foreach (var drawingEdge in geometryGraph.Edges.Where(e => e.GeometryEdge != null))
+            {
+                AssignLabelWidthHeight(drawingEdge.GeometryEdge, drawingEdge);
+            }
+        }
+
+        private ICurve GetNodeBoundaryCurve(DrawingNode node)
+        {
+            double width, height;
+
+            TextBlock frameworkElement;
+            if (this.drawingObjectsToFrameworkElements.TryGetValue(node, out frameworkElement))
+            {
+                // a Frameworkelement was prerpared beforehand.
+                width = frameworkElement.Width + 2 * node.Attr.LabelMargin;
+                height = frameworkElement.Height + 2 * node.Attr.LabelMargin;
+            }
+            else throw new InvalidOperationException($"node({node}) not prepared");
+
+            // the calculated width must not be smaller the minimal size.
+
+            if (width < drawingGraph.Attr.MinNodeWidth)
+                width = drawingGraph.Attr.MinNodeWidth;
+            if (height < drawingGraph.Attr.MinNodeHeight)
+                height = drawingGraph.Attr.MinNodeHeight;
+
+            return NodeBoundaryCurves.GetNodeBoundaryCurve(node, width, height);
+        }
+
+        private void AssignLabelWidthHeight(Microsoft.Msagl.Core.Layout.ILabeledObject labeledGeomObj, DrawingObject drawingObj)
+        {
+            if (drawingObjectsToFrameworkElements.TryGetValue(drawingObj, out var fe))
+            {
+                labeledGeomObj.Label.Width = fe.Width;
+                labeledGeomObj.Label.Height = fe.Height;
+            }
+        }
+
+        #endregion Push initial state of framework element measurement to the gemoetry nodes
     }
 }
