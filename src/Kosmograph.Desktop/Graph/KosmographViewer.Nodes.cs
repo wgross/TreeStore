@@ -13,17 +13,11 @@ namespace Kosmograph.Desktop.Graph
 
         private double GetBorderPathThickness() => DesiredPathThicknessInInches * DpiX;
 
-        private void PrepareNodeLabels(DrawingNode drawingNode, out TextBlock fe)
+        private void PrepareNodeLabels(DrawingNode drawingNode, out TextBlock textBlock)
         {
-            fe = null;
-
-            var textBlock = this.CreateTextBlockFromDrawingObjectLabel(drawingNode.Label);
-
-            if (textBlock is null)
-                return;
+            textBlock = VisualsFactory.CreateLabel(drawingNode.Label);
 
             this.drawingObjectsToFrameworkElements[drawingNode] = textBlock;
-            fe = textBlock;
         }
 
         private void GetOrCreateViewNodes()
@@ -60,9 +54,9 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        private TextBlock CreateAndRegisterFrameworkElementOfDrawingNode(DrawingNode node)
+        private TextBlock CreateAndRegisterFrameworkElementOfDrawingNode(DrawingNode drawingNode)
         {
-            return this.drawingObjectsToFrameworkElements[node] = CreateTextBlockFromDrawingObjectLabel(node.Label);
+            return this.drawingObjectsToFrameworkElements[drawingNode] = VisualsFactory.CreateLabel(drawingNode.Label);
         }
 
         #region Update a node

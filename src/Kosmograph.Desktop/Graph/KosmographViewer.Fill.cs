@@ -76,11 +76,6 @@ namespace Kosmograph.Desktop.Graph
                     this.PrepareNodeLabels(subgraph, out var _);
         }
 
-        public TextBlock CreateTextBlockFromDrawingObjectLabel(Microsoft.Msagl.Drawing.Label drawingLabel)
-        {
-            return VisualsFactory.CreateLabel(drawingLabel);
-        }
-
         #endregion Fill the viewer with labels for edges and nodes
 
         #region Clear all nodes and edges from the viewer

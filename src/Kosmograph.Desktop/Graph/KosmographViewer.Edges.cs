@@ -11,10 +11,7 @@ namespace Kosmograph.Desktop.Graph
     {
         private void PrepareEdgeLabels(DrawingEdge drawingEdge, out TextBlock textBlock)
         {
-            textBlock = this.CreateTextBlockFromDrawingObjectLabel(drawingEdge.Label);
-
-            if (textBlock is null)
-                return;
+            textBlock = VisualsFactory.CreateLabel(drawingEdge.Label);
 
             this.drawingObjectsToFrameworkElements[drawingEdge] = textBlock;
 
@@ -88,7 +85,7 @@ namespace Kosmograph.Desktop.Graph
             // update the underlying label
             drawingEdge.Label.Text = relationship.Name;
 
-            if(this.drawingObjectsToIViewerObjects.TryGetValue(drawingEdge, out var edgeViewer))
+            if (this.drawingObjectsToIViewerObjects.TryGetValue(drawingEdge, out var edgeViewer))
                 this.Invalidate(edgeViewer);
 
             // remasure the node
