@@ -51,6 +51,7 @@ namespace Kosmograph.Desktop.Graph
             this.Node = node;
 
             (this.NodeLabel, this.NodeBoundaryPath) = this.SetupNodeVisuals(nodeLabelFrameworkElement);
+            this.SetupSubgraphDrawing();
 
             this.UpdateNodeVisualsPosition();
 
@@ -130,21 +131,7 @@ namespace Kosmograph.Desktop.Graph
                 if (_subgraph is null)
                     return;
 
-                this.PositionTopMarginBorder((Cluster)_subgraph.GeometryNode);
-
-                double collapseBorderSize = GetCollapseBorderSymbolSize();
-                var collapseButtonCenter = GetCollapseButtonCenter(collapseBorderSize);
-
-                Wpf2MsaglConverters.PositionFrameworkElement(_collapseButtonBorder, collapseButtonCenter, 1);
-
-                double w = collapseBorderSize * 0.4;
-
-                _collapseSymbolPath.Data = CreateCollapseSymbolPath(collapseButtonCenter + new Point(0, -w / 2), w);
-                _collapseSymbolPath.RenderTransform = ((Cluster)_subgraph.GeometryNode).IsCollapsed
-                    ? new RotateTransform(180, collapseButtonCenter.X, collapseButtonCenter.Y)
-                    : null;
-
-                _topMarginRect.Visibility = _collapseSymbolPath.Visibility = _collapseButtonBorder.Visibility = Visibility.Visible;
+                this.UpdateSubGraphVisuals();
             });
         }
 
@@ -194,20 +181,34 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        #endregion Node Viewer Visuals
-
-        #region Setup node viewers visual elements
-
         public (TextBlock, Path) SetupNodeVisuals(TextBlock nodeLabelFrameworkElement)
         {
             nodeLabelFrameworkElement.Tag = this;
 
-            this.SetupSubgraphDrawing();
-
             return (nodeLabelFrameworkElement, new Path { Tag = this });
         }
 
-        #endregion Setup node viewers visual elements
+        private void UpdateNodeVisuals()
+        {
+            this.UpdateVisibility(this.Node);
+
+            if (this.Node.IsVisible)
+            {
+                this.NodeLabel.UpdateFrom(this.Node);
+                this.NodeBoundaryPath.Update(this.Node);
+                this.NodeBoundaryPath.StrokeThickness = this.PathStrokeThickness;
+                this.UpdateNodeVisualsPosition();
+            }
+        }
+
+        private void UpdateNodeVisualsPosition()
+        {
+            Wpf2MsaglConverters.PositionFrameworkElement(this.NodeLabel, this.Node.GeometryNode.Center, 1);
+            Panel.SetZIndex(this.NodeBoundaryPath, this.ZIndex);
+            Panel.SetZIndex(this.NodeLabel, this.ZIndex + 1);
+        }
+
+        #endregion Node Viewer Visuals
 
         #region Setup Subgraphing
 
@@ -354,29 +355,28 @@ namespace Kosmograph.Desktop.Graph
 
         #endregion Setup Subgraphing
 
-        #region Update node viewers visuals
+        #region Update Subgraphing
 
-        private void UpdateNodeVisuals()
+        private void UpdateSubGraphVisuals()
         {
-            this.UpdateVisibility(this.Node);
+            this.PositionTopMarginBorder((Cluster)_subgraph.GeometryNode);
 
-            if (this.Node.IsVisible)
-            {
-                this.NodeLabel.UpdateFrom(this.Node);
-                this.NodeBoundaryPath.Update(this.Node);
-                this.NodeBoundaryPath.StrokeThickness = this.PathStrokeThickness;
-                this.UpdateNodeVisualsPosition();
-            }
+            double collapseBorderSize = GetCollapseBorderSymbolSize();
+            var collapseButtonCenter = GetCollapseButtonCenter(collapseBorderSize);
+
+            Wpf2MsaglConverters.PositionFrameworkElement(_collapseButtonBorder, collapseButtonCenter, 1);
+
+            double w = collapseBorderSize * 0.4;
+
+            _collapseSymbolPath.Data = CreateCollapseSymbolPath(collapseButtonCenter + new Point(0, -w / 2), w);
+            _collapseSymbolPath.RenderTransform = ((Cluster)_subgraph.GeometryNode).IsCollapsed
+                ? new RotateTransform(180, collapseButtonCenter.X, collapseButtonCenter.Y)
+                : null;
+
+            _topMarginRect.Visibility = _collapseSymbolPath.Visibility = _collapseButtonBorder.Visibility = Visibility.Visible;
         }
 
-        private void UpdateNodeVisualsPosition()
-        {
-            Wpf2MsaglConverters.PositionFrameworkElement(this.NodeLabel, this.Node.GeometryNode.Center, 1);
-            Panel.SetZIndex(this.NodeBoundaryPath, this.ZIndex);
-            Panel.SetZIndex(this.NodeLabel, this.ZIndex + 1);
-        }
-
-        #endregion Update node viewers visuals
+        #endregion Update Subgraphing
 
         public override string ToString()
         {
