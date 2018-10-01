@@ -84,6 +84,9 @@ namespace Kosmograph.Desktop.Graph
             {
                 Center = drawingNode.GeometryNode.BoundingBox.Center
             };
+
+            if (this.drawingObjectsToIViewerObjects.TryGetValue(drawingNode, out var nodeViewer))
+                this.Invalidate(nodeViewer);
         }
 
         #endregion Update a node
