@@ -1,4 +1,5 @@
-﻿using Microsoft.Msagl.Layout.LargeGraphLayout;
+﻿using Kosmograph.Desktop.ViewModel;
+using Microsoft.Msagl.Layout.LargeGraphLayout;
 using System;
 using System.Linq;
 using System.Windows.Controls;
@@ -69,6 +70,35 @@ namespace Kosmograph.Desktop.Graph
             {
                 PathStrokeThicknessFunc = () => GetBorderPathThickness() * edge.Attr.LineWidth
             });
+        }
+
+        public void UpdateEdge(RelationshipViewModel relationship)
+        {
+            var drawingNodeSource = this.Graph.FindNode(relationship.From.Model.Id.ToString());
+            if (drawingNodeSource is null)
+                return;
+
+            var drawingEdge = drawingNodeSource.OutEdges
+                .Where(e => e.Target.Equals(relationship.To.Model.Id.ToString()))
+                .FirstOrDefault();
+
+            if (drawingEdge is null)
+                return;
+
+            // update the underlying label
+            drawingEdge.Label.Text = relationship.Name;
+
+            if(this.drawingObjectsToIViewerObjects.TryGetValue(drawingEdge, out var edgeViewer))
+                this.Invalidate(edgeViewer);
+
+            // remasure the node
+            //var tb = new TextBlock { Text = node.Name };
+            //tb.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+
+            //drawingEdge.BoundingBox = new GeometryRectangle(0, 0, tb.DesiredSize.Width, tb.DesiredSize.Height)
+            //{
+            //    Center = drawingEdge.GeometryNode.BoundingBox.Center
+            //};
         }
     }
 }

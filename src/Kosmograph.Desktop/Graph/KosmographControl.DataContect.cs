@@ -50,8 +50,11 @@ namespace Kosmograph.Desktop.Graph
             var (isEntity, entity) = notification.TryGetViewModel<EntityViewModel>();
             if (isEntity)
                 this.MsaglGraphViewer.UpdateNode(entity);
+            var (isRelationship, relationship) = notification.TryGetViewModel<RelationshipViewModel>();
+            if(isRelationship)
+                this.MsaglGraphViewer.UpdateEdge(relationship);
         }
-
+        
         private void AddKosmographNodesAndEdges(KosmographViewModel viewModel)
         {
             var graph = new Microsoft.Msagl.Drawing.Graph();

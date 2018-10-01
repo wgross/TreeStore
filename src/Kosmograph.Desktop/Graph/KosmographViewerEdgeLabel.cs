@@ -10,10 +10,6 @@ namespace Kosmograph.Desktop.Graph
 {
     public class KosmographViewerEdgeLabel : IViewerObject, IInvalidatable
     {
-        public TextBlock EdgeLabelVisual { get; }
-
-        public DrawingLabel EdgeLabel { get; }
-
         public KosmographViewerEdgeLabel(DrawingLabel edgeLabel, TextBlock edgeLabelVisual)
         {
             this.EdgeLabel = edgeLabel;
@@ -62,25 +58,40 @@ namespace Kosmograph.Desktop.Graph
             yield return 2;
         }
 
-        private Line AttachmentLine { get; set; }
-
         #region IInvalidate members
 
         public void Invalidate()
         {
-            var label = (DrawingLabel)DrawingObject;
-            Wpf2MsaglConverters.PositionFrameworkElement(EdgeLabelVisual, label.Center, 1);
-            var geomLabel = label.GeometryLabel;
-            if (AttachmentLine != null)
-            {
-                AttachmentLine.X1 = geomLabel.AttachmentSegmentStart.X;
-                AttachmentLine.Y1 = geomLabel.AttachmentSegmentStart.Y;
-
-                AttachmentLine.X2 = geomLabel.AttachmentSegmentEnd.X;
-                AttachmentLine.Y2 = geomLabel.AttachmentSegmentEnd.Y;
-            }
+            this.EdgeLabelVisual.InvokeInUiThread(() => this.UpdateVisuals());
         }
 
         #endregion IInvalidate members
+
+        #region Edge Label Visuals
+
+        public TextBlock EdgeLabelVisual { get; }
+
+        public DrawingLabel EdgeLabel { get; }
+
+        private Line AttachmentLine { get; set; }
+
+        private void UpdateVisuals()
+        {
+            this.EdgeLabelVisual.UpdateFrom(this.EdgeLabel);
+
+            Wpf2MsaglConverters.PositionFrameworkElement(this.EdgeLabelVisual, this.EdgeLabel.Center, 1);
+
+            var geomLabel = this.EdgeLabel.GeometryLabel;
+
+            if (this.AttachmentLine is null)
+                return;
+
+            this.AttachmentLine.X1 = geomLabel.AttachmentSegmentStart.X;
+            this.AttachmentLine.Y1 = geomLabel.AttachmentSegmentStart.Y;
+            this.AttachmentLine.X2 = geomLabel.AttachmentSegmentEnd.X;
+            this.AttachmentLine.Y2 = geomLabel.AttachmentSegmentEnd.Y;
+        }
+
+        #endregion Edge Label Visuals
     }
 }
