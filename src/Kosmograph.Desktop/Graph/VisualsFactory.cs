@@ -7,7 +7,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using DrawingEdge = Microsoft.Msagl.Drawing.Edge;
 using DrawingLabel = Microsoft.Msagl.Drawing.Label;
 using DrawingNode = Microsoft.Msagl.Drawing.Node;
 using DrawingShape = Microsoft.Msagl.Drawing.Shape;
@@ -23,6 +22,12 @@ namespace Kosmograph.Desktop.Graph
     {
         #region A nodes label is visualized by a TextBlock instance
 
+        /// <summary>
+        /// Create a <see cref="TextBlock"/> from a MSAGL <see cref="Microsoft.Msagl.Drawing.Label"/>.
+        /// The box is configured from the node attributes and measured to an ideal size.
+        /// </summary>
+        /// <param name="drawingLabel"></param>
+        /// <returns></returns>
         public static TextBlock CreateLabel(DrawingLabel drawingLabel)
         {
             return new TextBlock
@@ -30,14 +35,19 @@ namespace Kosmograph.Desktop.Graph
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
             }
-            .UpdateFrom(drawingLabel);
+            .UpdateFrom(drawingLabel, measure: true);
         }
 
+        /// <summary>
+        /// Updates a <see cref="TextBlock"/> from a MSAGL <see cref="Microsoft.Msagl.Drawing.Label"/>.
+        /// Width an height of the box are iverwritten be the nodes Width and Height.
+        /// </summary>
+        /// <returns></returns>
         public static TextBlock UpdateFrom(this TextBlock textBlock, DrawingNode drawingNode)
         {
             Debug.Assert(textBlock.Dispatcher.CheckAccess());
 
-            var tmp = textBlock.UpdateFrom(drawingNode.Label);
+            var tmp = textBlock.UpdateFrom(drawingNode.Label, measure: false);
             tmp.Width = drawingNode.Width;
             tmp.Height = drawingNode.Height;
             tmp.Margin = new Thickness(drawingNode.Attr.LabelMargin);
@@ -45,7 +55,12 @@ namespace Kosmograph.Desktop.Graph
             return textBlock;
         }
 
-        public static TextBlock UpdateFrom(this TextBlock textBlock, DrawingLabel drawingLabel)
+        /// <summary>
+        /// Updates a <see cref="TextBlock"/> from a MSAGL <see cref="Microsoft.Msagl.Drawing.Label"/>.
+        /// the box will be remeasured.
+        /// </summary>
+        /// <returns></returns>
+        public static TextBlock UpdateFrom(this TextBlock textBlock, DrawingLabel drawingLabel, bool measure)
         {
             Debug.Assert(textBlock.Dispatcher.CheckAccess());
 
@@ -55,9 +70,12 @@ namespace Kosmograph.Desktop.Graph
             textBlock.FontSize = drawingLabel.FontSize;
             textBlock.Foreground = drawingLabel.FontColor.ToWpf();
 
-            textBlock.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
-            textBlock.Width = textBlock.DesiredSize.Width;
-            textBlock.Height = textBlock.DesiredSize.Height;
+            if (measure)
+            {
+                textBlock.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
+                textBlock.Width = textBlock.DesiredSize.Width;
+                textBlock.Height = textBlock.DesiredSize.Height;
+            }
 
             return textBlock;
         }

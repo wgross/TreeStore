@@ -77,7 +77,7 @@ namespace Kosmograph.Desktop.Graph
 
         private void UpdateVisuals()
         {
-            this.EdgeLabelVisual.UpdateFrom(this.EdgeLabel);
+            this.EdgeLabelVisual.UpdateFrom(this.EdgeLabel, measure:true);
 
             Wpf2MsaglConverters.PositionFrameworkElement(this.EdgeLabelVisual, this.EdgeLabel.Center, 1);
 

@@ -607,11 +607,9 @@ namespace Kosmograph.Desktop.Graph
             foreach (var layoutNode in geometryGraph.Nodes)
             {
                 var closure_layoutNode = layoutNode;
-                this.GraphCanvas.InvokeInUiThread(() =>
-                {
-                    // the layout node is initialized with a boundray curve.
-                    closure_layoutNode.BoundaryCurve = this.GetNodeBoundaryCurve((DrawingNode)closure_layoutNode.UserData);
-                });
+                
+                closure_layoutNode.BoundaryCurve = this.GetNodeBoundaryCurve((DrawingNode)closure_layoutNode.UserData);
+
             }
         }
 
