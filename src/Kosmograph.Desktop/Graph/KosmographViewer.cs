@@ -46,12 +46,12 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using DrawingEdge = Microsoft.Msagl.Drawing.Edge;
+using DrawingNode = Microsoft.Msagl.Drawing.Node;
 using Edge = Microsoft.Msagl.Core.Layout.Edge;
 using Ellipse = System.Windows.Shapes.Ellipse;
 using Label = Microsoft.Msagl.Drawing.Label;
 using LineSegment = Microsoft.Msagl.Core.Geometry.Curves.LineSegment;
 using ModifierKeys = Microsoft.Msagl.Drawing.ModifierKeys;
-using Node = Microsoft.Msagl.Core.Layout.Node;
 using Point = Microsoft.Msagl.Core.Geometry.Point;
 using Rectangle = Microsoft.Msagl.Core.Geometry.Rectangle;
 using Size = System.Windows.Size;
@@ -604,13 +604,13 @@ namespace Kosmograph.Desktop.Graph
 
         private void InitializeGeometryGraphNodes(GeometryGraph geometryGraph)
         {
-            foreach (Node layoutNode in geometryGraph.Nodes)
+            foreach (var layoutNode in geometryGraph.Nodes)
             {
                 var closure_layoutNode = layoutNode;
                 this.GraphCanvas.InvokeInUiThread(() =>
                 {
                     // the layout node is initialized with a boundray curve.
-                    closure_layoutNode.BoundaryCurve = this.GetNodeBoundaryCurve((Microsoft.Msagl.Drawing.Node)closure_layoutNode.UserData);
+                    closure_layoutNode.BoundaryCurve = this.GetNodeBoundaryCurve((DrawingNode)closure_layoutNode.UserData);
                 });
             }
         }

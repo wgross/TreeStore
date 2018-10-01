@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
+using DrawingGraph = Microsoft.Msagl.Drawing.Graph;
 
 namespace Kosmograph.Desktop.Graph
 {
@@ -38,7 +39,7 @@ namespace Kosmograph.Desktop.Graph
                 // fill the map
                 //   frameworkElementsToDrawingObjects
                 // with WPF drawable ibjewt representing the texts shown in on teh canvas.
-                this.FillFrameworkElementsFromDrawingObjects();
+                this.FillFrameworkElementsFromDrawingObjects(this.Graph);
 
                 if (this.NeedToCalculateLayout)
                 {
@@ -63,16 +64,16 @@ namespace Kosmograph.Desktop.Graph
         // The resulting TextBlocks are measured and have attributes set as defined by the
         // MSAGL Label.
 
-        private void FillFrameworkElementsFromDrawingObjects()
+        private void FillFrameworkElementsFromDrawingObjects(DrawingGraph graph)
         {
-            foreach (var drawingEdge in this.Graph.Edges)
+            foreach (var drawingEdge in graph.Edges)
                 this.PrepareEdgeLabels(drawingEdge, out var _);
 
-            foreach (var drawingNode in this.Graph.Nodes)
+            foreach (var drawingNode in graph.Nodes)
                 this.PrepareNodeLabels(drawingNode, out var _);
 
             if (drawingGraph.RootSubgraph != null)
-                foreach (var subgraph in this.Graph.RootSubgraph.AllSubgraphsWidthFirstExcludingSelf())
+                foreach (var subgraph in graph.RootSubgraph.AllSubgraphsWidthFirstExcludingSelf())
                     this.PrepareNodeLabels(subgraph, out var _);
         }
 
