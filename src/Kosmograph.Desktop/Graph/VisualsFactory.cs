@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using DrawingEdge = Microsoft.Msagl.Drawing.Edge;
 using DrawingLabel = Microsoft.Msagl.Drawing.Label;
 using DrawingNode = Microsoft.Msagl.Drawing.Node;
 using DrawingShape = Microsoft.Msagl.Drawing.Shape;
@@ -44,7 +45,7 @@ namespace Kosmograph.Desktop.Graph
             return textBlock;
         }
 
-        private static TextBlock UpdateFrom(this TextBlock textBlock, DrawingLabel drawingLabel)
+        public static TextBlock UpdateFrom(this TextBlock textBlock, DrawingLabel drawingLabel)
         {
             Debug.Assert(textBlock.Dispatcher.CheckAccess());
 
