@@ -46,7 +46,7 @@ namespace Kosmograph.Desktop.Graph
                 //   frameworkElementsToDrawingObjects
                 // with WPF drawable ibjewt representing the texts shown in on teh canvas.
                 this.PrepareVisualsFromDrawingObjects(this.Graph);
-                
+
                 if (this.NeedToCalculateLayout)
                 {
                     this.Graph.CreateGeometryGraph(); // forcing the layout recalculation
@@ -110,7 +110,7 @@ namespace Kosmograph.Desktop.Graph
         {
             foreach (var drawingNode in drawingGraph.Nodes.Where(n => n.GeometryNode != null))
             {
-                drawingNode.GeometryNode.BoundaryCurve = this.GetNodeBoundaryCurve(drawingNode);
+                drawingNode.GeometryNode.BoundaryCurve = this.GetNodeBoundaryCurve(drawingNode, this.drawingObjectsToFrameworkElements[drawingNode]);
             }
         }
 
@@ -138,18 +138,16 @@ namespace Kosmograph.Desktop.Graph
         //    }
         //}
 
-        private ICurve GetNodeBoundaryCurve(DrawingNode node)
+        private ICurve GetNodeBoundaryCurve(DrawingNode node, FrameworkElement frameworkElement)
         {
+            if (frameworkElement is null)
+                throw new InvalidOperationException($"node({node}) not prepared");
+
             double width, height;
 
-            TextBlock frameworkElement;
-            if (this.drawingObjectsToFrameworkElements.TryGetValue(node, out frameworkElement))
-            {
-                // a Frameworkelement was prerpared beforehand.
-                width = frameworkElement.Width + 2 * node.Attr.LabelMargin;
-                height = frameworkElement.Height + 2 * node.Attr.LabelMargin;
-            }
-            else throw new InvalidOperationException($"node({node}) not prepared");
+            // a Frameworkelement was prerpared beforehand.
+            width = frameworkElement.Width + 2 * node.Attr.LabelMargin;
+            height = frameworkElement.Height + 2 * node.Attr.LabelMargin;
 
             // the calculated width must not be smaller the minimal size.
 

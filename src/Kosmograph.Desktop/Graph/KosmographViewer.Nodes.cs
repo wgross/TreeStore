@@ -43,7 +43,7 @@ namespace Kosmograph.Desktop.Graph
         private KosmographViewerNode CreateViewerNode(DrawingNode drawingNode)
         {
             // create unexisting node label
-            TextBlock nodeLabel;
+            TextBlock nodeLabel = null;
             if (!this.drawingObjectsToFrameworkElements.TryGetValue(drawingNode, out nodeLabel))
                 nodeLabel = this.CreateAndRegisterFrameworkElementOfDrawingNode(drawingNode);
 
