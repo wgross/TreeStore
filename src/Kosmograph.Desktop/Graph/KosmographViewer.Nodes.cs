@@ -20,7 +20,15 @@ namespace Kosmograph.Desktop.Graph
             this.drawingObjectsToFrameworkElements[drawingNode] = textBlock;
         }
 
-        private void GetOrCreateViewNodes()
+        private void GetOrCreateViewerNodes2()
+        {
+            foreach (var node in this.Graph.Nodes.Concat(this.Graph.RootSubgraph.AllSubgraphsDepthFirstExcludingSelf()))
+            {
+                this.GetOrCreateViewerNode(node);
+            }
+        }
+
+        private void GetOrCreateViewerNodes()
         {
             foreach (var node in this.Graph.Nodes.Concat(this.Graph.RootSubgraph.AllSubgraphsDepthFirstExcludingSelf()))
             {

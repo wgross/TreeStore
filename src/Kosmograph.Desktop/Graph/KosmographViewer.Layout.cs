@@ -69,8 +69,8 @@ namespace Kosmograph.Desktop.Graph
         private void PushDataFromLayoutGraphToFrameworkElements()
         {
             this.DrawGraphBackground();
-            this.GetOrCreateViewNodes();
-            this.CreateEdgeViewers();
+            this.GetOrCreateViewerNodes();
+            this.GetOrCreateEdgeViewers();
         }
 
         private void RunLayoutInUIThread()

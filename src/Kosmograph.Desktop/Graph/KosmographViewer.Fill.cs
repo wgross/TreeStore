@@ -46,7 +46,7 @@ namespace Kosmograph.Desktop.Graph
                 //   frameworkElementsToDrawingObjects
                 // with WPF drawable ibjewt representing the texts shown in on teh canvas.
                 this.PrepareVisualsFromDrawingObjects(this.Graph);
-
+                
                 if (this.NeedToCalculateLayout)
                 {
                     this.Graph.CreateGeometryGraph(); // forcing the layout recalculation

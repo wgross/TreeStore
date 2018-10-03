@@ -638,7 +638,7 @@ namespace Kosmograph.Desktop.Graph
 
         public IViewerEdge CreateEdgeWithGivenGeometry(DrawingEdge drawingEdge)
         {
-            return CreateEdgeViewer(drawingEdge, drawingGraph.LayoutAlgorithmSettings as LgLayoutSettings);
+            return GetOrCreateEdgeViewer(drawingEdge, drawingGraph.LayoutAlgorithmSettings as LgLayoutSettings);
         }
 
         public void AddNode(IViewerNode node, bool registerForUndo)
@@ -656,7 +656,7 @@ namespace Kosmograph.Desktop.Graph
         public IViewerObject AddNode(Microsoft.Msagl.Drawing.Node drawingNode)
         {
             Graph.AddNode(drawingNode);
-            var vNode = GetOrCreateViewerNode(drawingNode);
+            var vNode = this.GetOrCreateViewerNode(drawingNode);
             LayoutEditor.AttachLayoutChangeEvent(vNode);
             LayoutEditor.CleanObstacles();
             return vNode;
@@ -710,7 +710,7 @@ namespace Kosmograph.Desktop.Graph
             var geomEdge = GeometryGraphCreator.CreateGeometryEdgeFromDrawingEdge(drawingEdge);
             var geomGraph = drawingGraph.GeometryGraph;
             LayoutHelpers.RouteAndLabelEdges(geomGraph, drawingGraph.LayoutAlgorithmSettings, new[] { geomEdge });
-            return CreateEdgeViewer(drawingEdge, drawingGraph.LayoutAlgorithmSettings as LgLayoutSettings);
+            return GetOrCreateEdgeViewer(drawingEdge, drawingGraph.LayoutAlgorithmSettings as LgLayoutSettings);
         }
 
         public IViewerGraph ViewerGraph { get; set; }

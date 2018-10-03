@@ -18,13 +18,13 @@ namespace Kosmograph.Desktop.Graph
             textBlock.Tag = new KosmographViewerEdgeLabel(drawingEdge.Label, textBlock);
         }
 
-        private void CreateEdgeViewers()
+        private void GetOrCreateEdgeViewers()
         {
             foreach (var edge in this.drawingGraph.Edges)
-                this.CreateEdgeViewer(edge, lgSettings: null);
+                this.GetOrCreateEdgeViewer(edge, lgSettings: null);
         }
 
-        private KosmographViewerEdge CreateEdgeViewer(DrawingEdge edge, LgLayoutSettings lgSettings)
+        private KosmographViewerEdge GetOrCreateEdgeViewer(DrawingEdge edge, LgLayoutSettings lgSettings)
         {
             lock (this.syncRoot)
             {
