@@ -76,17 +76,11 @@ namespace Kosmograph.Desktop.Graph
         {
             get
             {
-                if (this.SourceArrowHeadPath != null)
-                    yield return this.SourceArrowHeadPath;
-
-                if (this.TargetArrowHeadPath != null)
-                    yield return this.TargetArrowHeadPath;
-
-                if (this.EdgePath != null)
-                    yield return this.EdgePath;
-
-                if (this.EdgeLabel != null)
-                    yield return this.EdgeLabel;
+                yield return this.SourceArrowHeadPath;
+                yield return this.TargetArrowHeadPath;
+                yield return this.EdgePath;
+                yield return this.EdgeLabel;
+                yield return this.EdgeLabelViewer.AttachmentLine;
             }
         }
 

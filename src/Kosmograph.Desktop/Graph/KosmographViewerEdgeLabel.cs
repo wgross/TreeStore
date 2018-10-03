@@ -1,8 +1,8 @@
 using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.WpfGraphControl;
 using System;
-using System.Collections.Generic;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Shapes;
 using DrawingLabel = Microsoft.Msagl.Drawing.Label;
 
@@ -13,50 +13,20 @@ namespace Kosmograph.Desktop.Graph
         public KosmographViewerEdgeLabel(DrawingLabel edgeLabel, TextBlock edgeLabelVisual)
         {
             this.EdgeLabel = edgeLabel;
-            this.EdgeLabelVisual = this.SetupVisuals(edgeLabelVisual);
+            (this.EdgeLabelVisual, this.AttachmentLine) = this.SetupVisuals(edgeLabelVisual);
         }
 
         #region IViewerObject members
 
         public DrawingObject DrawingObject => this.EdgeLabel;
 
-        public bool MarkedForDragging
-        {
-            get => this.markedForDragging;
-            set
-            {
-                this.markedForDragging = value;
-                if (value)
-                {
-                    this.AttachmentLine = new Line
-                    {
-                        Stroke = System.Windows.Media.Brushes.Black,
-                        StrokeDashArray = new System.Windows.Media.DoubleCollection(OffsetElems())
-                    }; //the line will have 0,0, 0,0 start and end so it would not be rendered
-
-                    ((Canvas)EdgeLabelVisual.Parent).Children.Add(AttachmentLine);
-                }
-                else
-                {
-                    ((Canvas)EdgeLabelVisual.Parent).Children.Remove(AttachmentLine);
-                    this.AttachmentLine = null;
-                }
-            }
-        }
-
-        private bool markedForDragging;
+        public bool MarkedForDragging { get; set; }
 
         public event EventHandler MarkedForDraggingEvent;
 
         public event EventHandler UnmarkedForDraggingEvent;
 
         #endregion IViewerObject members
-
-        private IEnumerable<double> OffsetElems()
-        {
-            yield return 1;
-            yield return 2;
-        }
 
         #region IInvalidate members
 
@@ -73,13 +43,19 @@ namespace Kosmograph.Desktop.Graph
 
         public DrawingLabel EdgeLabel { get; }
 
-        private Line AttachmentLine { get; set; }
+        public Line AttachmentLine { get; set; }
 
-        private TextBlock SetupVisuals(TextBlock edgeLabelVisual)
+        private (TextBlock labelVisual, Line attachmentLine) SetupVisuals(TextBlock edgeLabelVisual)
         {
             this.EdgeLabel.Width = edgeLabelVisual.DesiredSize.Width;
             this.EdgeLabel.Height = edgeLabelVisual.DesiredSize.Height;
-            return edgeLabelVisual;
+            var attachmentLine = new Line
+            {
+                Stroke = System.Windows.Media.Brushes.Black,
+                StrokeDashArray = new DoubleCollection(new double[] { 1, 2 }),
+                Visibility = System.Windows.Visibility.Hidden
+            };
+            return (edgeLabelVisual, attachmentLine);
         }
 
         private void UpdateVisuals()
@@ -88,15 +64,17 @@ namespace Kosmograph.Desktop.Graph
 
             Wpf2MsaglConverters.PositionFrameworkElement(this.EdgeLabelVisual, this.EdgeLabel.Center, 1);
 
-            var geomLabel = this.EdgeLabel.GeometryLabel;
+            if (this.MarkedForDragging)
+            {
+                this.AttachmentLine.Visibility = System.Windows.Visibility.Visible;
 
-            if (this.AttachmentLine is null)
-                return;
-
-            this.AttachmentLine.X1 = geomLabel.AttachmentSegmentStart.X;
-            this.AttachmentLine.Y1 = geomLabel.AttachmentSegmentStart.Y;
-            this.AttachmentLine.X2 = geomLabel.AttachmentSegmentEnd.X;
-            this.AttachmentLine.Y2 = geomLabel.AttachmentSegmentEnd.Y;
+                var geomLabel = this.EdgeLabel.GeometryLabel;
+                this.AttachmentLine.X1 = geomLabel.AttachmentSegmentStart.X;
+                this.AttachmentLine.Y1 = geomLabel.AttachmentSegmentStart.Y;
+                this.AttachmentLine.X2 = geomLabel.AttachmentSegmentEnd.X;
+                this.AttachmentLine.Y2 = geomLabel.AttachmentSegmentEnd.Y;
+            }
+            else this.AttachmentLine.Visibility = System.Windows.Visibility.Hidden;
         }
 
         #endregion Edge Label Visuals
