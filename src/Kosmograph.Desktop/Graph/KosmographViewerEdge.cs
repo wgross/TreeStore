@@ -141,8 +141,6 @@ namespace Kosmograph.Desktop.Graph
                 this.TargetArrowHeadPath.Visibility = Visibility.Visible;
             }
             else this.TargetArrowHeadPath.Visibility = Visibility.Hidden;
-
-            Wpf2MsaglConverters.PositionFrameworkElement(this.EdgeLabel, this.Edge.Label.Center, 1);
         }
 
         #endregion Setup Viewer Edge Visuals

@@ -13,9 +13,7 @@ namespace Kosmograph.Desktop.Graph
         public KosmographViewerEdgeLabel(DrawingLabel edgeLabel, TextBlock edgeLabelVisual)
         {
             this.EdgeLabel = edgeLabel;
-            this.EdgeLabelVisual = edgeLabelVisual;
-            this.EdgeLabel.Width = this.EdgeLabelVisual.DesiredSize.Width;
-            this.EdgeLabel.Height = this.EdgeLabelVisual.DesiredSize.Height;
+            this.EdgeLabelVisual = this.SetupVisuals(edgeLabelVisual);
         }
 
         #region IViewerObject members
@@ -77,9 +75,16 @@ namespace Kosmograph.Desktop.Graph
 
         private Line AttachmentLine { get; set; }
 
+        private TextBlock SetupVisuals(TextBlock edgeLabelVisual)
+        {
+            this.EdgeLabel.Width = edgeLabelVisual.DesiredSize.Width;
+            this.EdgeLabel.Height = edgeLabelVisual.DesiredSize.Height;
+            return edgeLabelVisual;
+        }
+
         private void UpdateVisuals()
         {
-            this.EdgeLabelVisual.UpdateFrom(this.EdgeLabel, measure:true);
+            this.EdgeLabelVisual.UpdateFrom(this.EdgeLabel, measure: true);
 
             Wpf2MsaglConverters.PositionFrameworkElement(this.EdgeLabelVisual, this.EdgeLabel.Center, 1);
 
