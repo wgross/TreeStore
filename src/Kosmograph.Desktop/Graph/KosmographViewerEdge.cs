@@ -34,6 +34,7 @@ using Microsoft.Msagl.Layout.LargeGraphLayout;
 using Microsoft.Msagl.WpfGraphControl;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -76,11 +77,12 @@ namespace Kosmograph.Desktop.Graph
         {
             get
             {
-                yield return this.SourceArrowHeadPath;
-                yield return this.TargetArrowHeadPath;
-                yield return this.EdgePath;
-                yield return this.EdgeLabel;
-                yield return this.EdgeLabelViewer.AttachmentLine;
+                return new FrameworkElement[]
+                {
+                     this.SourceArrowHeadPath,
+                    this.TargetArrowHeadPath,
+                    this.EdgePath,
+                }.Concat(this.EdgeLabelViewer.FrameworkElements);
             }
         }
 

@@ -1,6 +1,9 @@
+using Kosmograph.Desktop.Graph.Base;
 using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.WpfGraphControl;
 using System;
+using System.Collections.Generic;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -8,8 +11,10 @@ using DrawingLabel = Microsoft.Msagl.Drawing.Label;
 
 namespace Kosmograph.Desktop.Graph
 {
-    public class KosmographViewerEdgeLabel : IViewerObject, IInvalidatable
+    public class KosmographViewerEdgeLabel : KosmographViewerItemBase, IViewerObject, IInvalidatable
     {
+        public DrawingLabel EdgeLabel { get; }
+
         public KosmographViewerEdgeLabel(DrawingLabel edgeLabel, TextBlock edgeLabelVisual)
         {
             this.EdgeLabel = edgeLabel;
@@ -41,9 +46,16 @@ namespace Kosmograph.Desktop.Graph
 
         public TextBlock EdgeLabelVisual { get; }
 
-        public DrawingLabel EdgeLabel { get; }
-
         public Line AttachmentLine { get; set; }
+
+        public override IEnumerable<FrameworkElement> FrameworkElements
+        {
+            get
+            {
+                yield return this.EdgeLabelVisual;
+                yield return this.AttachmentLine;
+            }
+        }
 
         private (TextBlock labelVisual, Line attachmentLine) SetupVisuals(TextBlock edgeLabelVisual)
         {
