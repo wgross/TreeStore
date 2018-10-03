@@ -130,13 +130,13 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        private void InitializeGeometryGraphEdges(DrawingGraph geometryGraph)
-        {
-            foreach (var drawingEdge in geometryGraph.Edges.Where(e => e.GeometryEdge != null))
-            {
-                AssignLabelWidthHeight(drawingEdge.GeometryEdge, drawingEdge);
-            }
-        }
+        //private void InitializeGeometryGraphEdges(DrawingGraph geometryGraph)
+        //{
+        //    foreach (var drawingEdge in geometryGraph.Edges.Where(e => e.GeometryEdge != null))
+        //    {
+        //        AssignLabelWidthHeight(drawingEdge.GeometryEdge, drawingEdge);
+        //    }
+        //}
 
         private ICurve GetNodeBoundaryCurve(DrawingNode node)
         {
