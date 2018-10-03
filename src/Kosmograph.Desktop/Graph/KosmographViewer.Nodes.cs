@@ -1,4 +1,5 @@
 ﻿using Kosmograph.Desktop.ViewModel;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -20,19 +21,11 @@ namespace Kosmograph.Desktop.Graph
             this.drawingObjectsToFrameworkElements[drawingNode] = textBlock;
         }
 
-        private void GetOrCreateViewerNodes2()
+        private IEnumerable<KosmographViewerNode> GetOrCreateViewerNodes()
         {
             foreach (var node in this.Graph.Nodes.Concat(this.Graph.RootSubgraph.AllSubgraphsDepthFirstExcludingSelf()))
             {
-                this.GetOrCreateViewerNode(node);
-            }
-        }
-
-        private void GetOrCreateViewerNodes()
-        {
-            foreach (var node in this.Graph.Nodes.Concat(this.Graph.RootSubgraph.AllSubgraphsDepthFirstExcludingSelf()))
-            {
-                this.Invalidate(this.GetOrCreateViewerNode(node));
+                yield return this.GetOrCreateViewerNode(node);
             }
         }
 
@@ -43,23 +36,25 @@ namespace Kosmograph.Desktop.Graph
             {
                 if (this.drawingObjectsToIViewerObjects.TryGetValue(drawingNode, out var existingViewerNode))
                     return (KosmographViewerNode)existingViewerNode;
-
-                // create unexisting node label
-                TextBlock nodeLabel;
-                if (!this.drawingObjectsToFrameworkElements.TryGetValue(drawingNode, out nodeLabel))
-                    nodeLabel = this.CreateAndRegisterFrameworkElementOfDrawingNode(drawingNode);
-
-                var viewerNode = new KosmographViewerNode(drawingNode, (TextBlock)nodeLabel,
-                    funcFromDrawingEdgeToVEdge: e => (KosmographViewerEdge)drawingObjectsToIViewerObjects[e],
-                    pathStrokeThicknessFunc: () => GetBorderPathThickness() * drawingNode.Attr.LineWidth);
-
-                this.GraphCanvasAddChildren(viewerNode.FrameworkElements);
-
-                // remember the created KosmographViewerNode.
-                this.drawingObjectsToIViewerObjects[drawingNode] = viewerNode;
-
-                return viewerNode;
+                else return this.CreateViewerNode(drawingNode);
             }
+        }
+
+        private KosmographViewerNode CreateViewerNode(DrawingNode drawingNode)
+        {
+            // create unexisting node label
+            TextBlock nodeLabel;
+            if (!this.drawingObjectsToFrameworkElements.TryGetValue(drawingNode, out nodeLabel))
+                nodeLabel = this.CreateAndRegisterFrameworkElementOfDrawingNode(drawingNode);
+
+            var viewerNode = new KosmographViewerNode(drawingNode, (TextBlock)nodeLabel,
+                funcFromDrawingEdgeToVEdge: e => (KosmographViewerEdge)drawingObjectsToIViewerObjects[e],
+                pathStrokeThicknessFunc: () => GetBorderPathThickness() * drawingNode.Attr.LineWidth);
+
+            // remember the created KosmographViewerNode.
+            this.drawingObjectsToIViewerObjects[drawingNode] = viewerNode;
+
+            return viewerNode;
         }
 
         private TextBlock CreateAndRegisterFrameworkElementOfDrawingNode(DrawingNode drawingNode)

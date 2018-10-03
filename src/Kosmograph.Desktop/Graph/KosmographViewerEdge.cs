@@ -79,10 +79,11 @@ namespace Kosmograph.Desktop.Graph
             {
                 return new FrameworkElement[]
                 {
-                     this.SourceArrowHeadPath,
+                    this.SourceArrowHeadPath,
                     this.TargetArrowHeadPath,
                     this.EdgePath,
-                }.Concat(this.EdgeLabelViewer.FrameworkElements);
+                }
+                .Concat(this.EdgeLabelViewer.FrameworkElements);
             }
         }
 

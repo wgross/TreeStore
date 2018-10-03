@@ -1,6 +1,7 @@
 ﻿using Kosmograph.Desktop.ViewModel;
 using Microsoft.Msagl.Layout.LargeGraphLayout;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Controls;
 using DrawingEdge = Microsoft.Msagl.Drawing.Edge;
@@ -18,10 +19,10 @@ namespace Kosmograph.Desktop.Graph
             textBlock.Tag = new KosmographViewerEdgeLabel(drawingEdge.Label, textBlock);
         }
 
-        private void GetOrCreateEdgeViewers()
+        private IEnumerable<KosmographViewerEdge> GetOrCreateEdgeViewers()
         {
             foreach (var edge in this.drawingGraph.Edges)
-                this.Invalidate(this.GetOrCreateEdgeViewer(edge, lgSettings: null));
+                yield return this.GetOrCreateEdgeViewer(edge, lgSettings: null);
         }
 
         private KosmographViewerEdge GetOrCreateEdgeViewer(DrawingEdge edge, LgLayoutSettings lgSettings)
@@ -30,26 +31,23 @@ namespace Kosmograph.Desktop.Graph
             {
                 if (this.drawingObjectsToIViewerObjects.TryGetValue(edge, out var existingEdgeViewer))
                     return (KosmographViewerEdge)existingEdgeViewer;
-
-                if (lgSettings != null)
-                    return CreateEdgeForLgCase(lgSettings, edge);
-
-                // fetches the textBlock 'Fill' method
-                TextBlock labelTextBox;
-                this.drawingObjectsToFrameworkElements.TryGetValue(edge, out labelTextBox);
-                var edgeViewer = new KosmographViewerEdge(edge, (KosmographViewerEdgeLabel)(labelTextBox.Tag));
-
-                this.drawingObjectsToIViewerObjects[edge] = edgeViewer;
-
-                var zIndex = this.ZIndexOfEdge(edge);
-                this.GraphCanvasAddChildren(edgeViewer.FrameworkElements.Select(fe =>
-                {
-                    Panel.SetZIndex(fe, zIndex);
-                    return fe;
-                }));
-
-                return edgeViewer;
+                else return this.CreateEdgeViewer(edge, lgSettings);
             }
+        }
+
+        private KosmographViewerEdge CreateEdgeViewer(DrawingEdge edge, LgLayoutSettings lgSettings)
+        {
+            if (lgSettings != null)
+                return CreateEdgeForLgCase(lgSettings, edge);
+
+            // fetches the textBlock 'Fill' method
+            TextBlock labelTextBox;
+            this.drawingObjectsToFrameworkElements.TryGetValue(edge, out labelTextBox);
+            var edgeViewer = new KosmographViewerEdge(edge, (KosmographViewerEdgeLabel)(labelTextBox.Tag));
+
+            this.drawingObjectsToIViewerObjects[edge] = edgeViewer;
+
+            return edgeViewer;
         }
 
         private int ZIndexOfEdge(DrawingEdge edge)
@@ -57,8 +55,7 @@ namespace Kosmograph.Desktop.Graph
             var source = (KosmographViewerNode)drawingObjectsToIViewerObjects[edge.SourceNode];
             var target = (KosmographViewerNode)drawingObjectsToIViewerObjects[edge.TargetNode];
 
-            var zIndex = Math.Max(source.ZIndex, target.ZIndex) + 1;
-            return zIndex;
+            return Math.Max(source.ZIndex, target.ZIndex) + 1;
         }
 
         private KosmographViewerEdge CreateEdgeForLgCase(LgLayoutSettings lgSettings, DrawingEdge edge)

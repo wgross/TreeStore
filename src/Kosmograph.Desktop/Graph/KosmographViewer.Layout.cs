@@ -4,6 +4,7 @@ using Microsoft.Msagl.Layout.LargeGraphLayout;
 using Microsoft.Msagl.Miscellaneous;
 using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Shapes;
@@ -69,8 +70,13 @@ namespace Kosmograph.Desktop.Graph
         private void PushDataFromLayoutGraphToFrameworkElements()
         {
             this.DrawGraphBackground();
-            this.GetOrCreateViewerNodes();
-            this.GetOrCreateEdgeViewers();
+            this.GraphCanvasAddChildren(this.GetOrCreateViewerNodes().SelectMany(n => { n.Invalidate(); return n.FrameworkElements; }));
+            this.GraphCanvasAddChildren(this.GetOrCreateEdgeViewers().SelectMany(e => 
+            {
+                Panel.SetZIndex(e.EdgeLabelViewer.EdgeLabelVisual, this.ZIndexOfEdge(e.Edge));
+                e.Invalidate();
+                return e.FrameworkElements;
+            }));
         }
 
         private void RunLayoutInUIThread()
