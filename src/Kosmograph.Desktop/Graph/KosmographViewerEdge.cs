@@ -48,20 +48,9 @@ namespace Kosmograph.Desktop.Graph
         {
             this.Edge = edge;
             this.EdgeLabelViewer = edgeLabelViewer;
-            this.EdgePath = new Path
-            {
-                Data = VisualsFactory.CreateEdgePath(this.Edge.GeometryEdge.Curve),
-                Tag = this
-            };
 
-            //this.EdgeLabel = labelFrameworkElement;
             (this.EdgePath, this.SourceArrowHeadPath, this.TargetArrowHeadPath) = this.SetupEdgeVisuals();
 
-            this.SetPathStroke();
-
-            Wpf2MsaglConverters.PositionFrameworkElement(this.EdgeLabel, this.Edge.Label.Center, 1);
-
-            // events sent from the MSAGL graphs
             this.Edge.Attr.VisualsChanged += (a, b) => Invalidate();
             this.Edge.IsVisibleChanged += this.UpdateVisibility;
         }
@@ -107,29 +96,53 @@ namespace Kosmograph.Desktop.Graph
 
         public (Path edgePath, Path edgeSourceArrow, Path edgeTargetArrow) SetupEdgeVisuals()
         {
-            // nope: this must be VLabel//edgeLabel.Tag = this;
+            Path emptyPath(Visibility visibility) => new Path { Tag = this, Visibility = visibility };
 
-            var edgePath = new Path
+            return (emptyPath(Visibility.Visible), emptyPath(Visibility.Hidden), emptyPath(Visibility.Hidden));
+        }
+
+        /// <summary>
+        /// The properties of this edges visuals are updated from the current state of the dunerlying <see cref="DrawingEdge"/>
+        /// </summary>
+        public void UpdateEdgeVisuals()
+        {
+            this.EdgePath.Data = VisualsFactory.CreateEdgePath(this.Edge.GeometryEdge.Curve);
+            this.EdgePath.Stroke = this.Edge.Attr.Color.ToWpf();
+            this.EdgePath.StrokeThickness = this.PathStrokeThickness;
+
+            foreach (var style in this.Edge.Attr.Styles)
             {
-                Data = VisualsFactory.CreateEdgePath(this.Edge.GeometryEdge.Curve),
-                Tag = this
-            };
-
-            var edgeSourceArrow = this.Edge.Attr.ArrowAtSource ?
-                new Path
+                if (style == Microsoft.Msagl.Drawing.Style.Dotted)
                 {
-                    Data = VisualsFactory.CreateEdgeSourceArrow(this.Edge.GeometryEdge.EdgeGeometry, this.PathStrokeThickness),
-                    Tag = this
-                } : null;
-
-            var edgeTargetArrow = this.Edge.Attr.ArrowAtTarget ?
-                new Path
+                    this.EdgePath.StrokeDashArray = new DoubleCollection { 1, 1 };
+                }
+                else if (style == Microsoft.Msagl.Drawing.Style.Dashed)
                 {
-                    Data = VisualsFactory.CreateEdgeTargetArrow(this.Edge.GeometryEdge.EdgeGeometry, this.PathStrokeThickness),
-                    Tag = this
-                } : null;
+                    var f = this.DashSize();
+                    this.EdgePath.StrokeDashArray = new DoubleCollection { f, f };
+                    //CurvePath.StrokeDashOffset = f;
+                }
+            }
 
-            return (edgePath, edgeSourceArrow, edgeTargetArrow);
+            if (this.Edge.Attr.ArrowAtSource)
+            {
+                this.SourceArrowHeadPath.Data = VisualsFactory.CreateEdgeSourceArrow(this.Edge.GeometryEdge.EdgeGeometry, this.PathStrokeThickness);
+                this.SourceArrowHeadPath.Stroke = this.SourceArrowHeadPath.Fill = Edge.Attr.Color.ToWpf();
+                this.SourceArrowHeadPath.StrokeThickness = this.PathStrokeThickness;
+                this.SourceArrowHeadPath.Visibility = Visibility.Visible;
+            }
+            else this.SourceArrowHeadPath.Visibility = Visibility.Hidden;
+
+            if (this.Edge.Attr.ArrowAtTarget)
+            {
+                this.TargetArrowHeadPath.Data = VisualsFactory.CreateEdgeTargetArrow(this.Edge.GeometryEdge.EdgeGeometry, this.PathStrokeThickness);
+                this.TargetArrowHeadPath.Stroke = this.TargetArrowHeadPath.Fill = this.Edge.Attr.Color.ToWpf();
+                this.TargetArrowHeadPath.StrokeThickness = this.PathStrokeThickness;
+                this.TargetArrowHeadPath.Visibility = Visibility.Visible;
+            }
+            else this.TargetArrowHeadPath.Visibility = Visibility.Hidden;
+
+            Wpf2MsaglConverters.PositionFrameworkElement(this.EdgeLabel, this.Edge.Label.Center, 1);
         }
 
         #endregion Setup Viewer Edge Visuals
@@ -183,37 +196,12 @@ namespace Kosmograph.Desktop.Graph
                 if (!this.Edge.IsVisible)
                     return;
 
-                this.EdgePath.Data = VisualsFactory.CreateEdgePath(Edge.GeometryEdge.Curve);
-
-                // arrows should be nulled and removed if they are nor required anymore.
-                // revist on graphic property editing
-                // --wgross 28.09.2018
-                if (this.Edge.Attr.ArrowAtSource)
-                    this.SourceArrowHeadPath.Data = VisualsFactory.CreateEdgeSourceArrow(this.Edge.GeometryEdge.EdgeGeometry, this.PathStrokeThickness);
-                if (this.Edge.Attr.ArrowAtTarget)
-                    this.TargetArrowHeadPath.Data = VisualsFactory.CreateEdgeTargetArrow(this.Edge.GeometryEdge.EdgeGeometry, this.PathStrokeThickness);
-
-                this.SetPathStroke();
+                this.UpdateEdgeVisuals();
                 this.EdgeLabelViewer.Invalidate();
             });
         }
 
         #endregion IInvalidate Members
-
-        private void SetPathStroke()
-        {
-            SetPathStrokeToPath(EdgePath);
-            if (SourceArrowHeadPath != null)
-            {
-                SourceArrowHeadPath.Stroke = SourceArrowHeadPath.Fill = Edge.Attr.Color.ToWpf();
-                SourceArrowHeadPath.StrokeThickness = PathStrokeThickness;
-            }
-            if (TargetArrowHeadPath != null)
-            {
-                TargetArrowHeadPath.Stroke = TargetArrowHeadPath.Fill = Edge.Attr.Color.ToWpf();
-                TargetArrowHeadPath.StrokeThickness = PathStrokeThickness;
-            }
-        }
 
         private void SetPathStrokeToRailPath(Rail rail, Path path, byte transparency)
         {
@@ -246,26 +234,6 @@ namespace Kosmograph.Desktop.Graph
                            B = Edge.Attr.Color.B
                        })
                        : Brushes.Red;
-        }
-
-        private void SetPathStrokeToPath(Path path)
-        {
-            path.Stroke = Edge.Attr.Color.ToWpf();
-            path.StrokeThickness = PathStrokeThickness;
-
-            foreach (var style in Edge.Attr.Styles)
-            {
-                if (style == Microsoft.Msagl.Drawing.Style.Dotted)
-                {
-                    path.StrokeDashArray = new DoubleCollection { 1, 1 };
-                }
-                else if (style == Microsoft.Msagl.Drawing.Style.Dashed)
-                {
-                    var f = DashSize();
-                    path.StrokeDashArray = new DoubleCollection { f, f };
-                    //CurvePath.StrokeDashOffset = f;
-                }
-            }
         }
 
         public override string ToString()

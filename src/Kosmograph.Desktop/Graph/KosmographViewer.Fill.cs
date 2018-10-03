@@ -103,7 +103,7 @@ namespace Kosmograph.Desktop.Graph
         {
             this.InitializeGeometryGraphNodes(drawingGraph);
             this.InitializeGeometryGraphSubGraphs(drawingGraph);
-            this.InitializeGeometryGraphEdges(drawingGraph);
+            //this.InitializeGeometryGraphEdges(drawingGraph);
         }
 
         private void InitializeGeometryGraphNodes(DrawingGraph drawingGraph)

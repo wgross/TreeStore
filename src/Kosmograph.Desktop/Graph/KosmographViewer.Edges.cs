@@ -21,7 +21,7 @@ namespace Kosmograph.Desktop.Graph
         private void GetOrCreateEdgeViewers()
         {
             foreach (var edge in this.drawingGraph.Edges)
-                this.GetOrCreateEdgeViewer(edge, lgSettings: null);
+                this.Invalidate(this.GetOrCreateEdgeViewer(edge, lgSettings: null));
         }
 
         private KosmographViewerEdge GetOrCreateEdgeViewer(DrawingEdge edge, LgLayoutSettings lgSettings)

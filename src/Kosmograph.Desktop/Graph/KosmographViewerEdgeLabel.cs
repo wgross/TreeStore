@@ -14,6 +14,8 @@ namespace Kosmograph.Desktop.Graph
         {
             this.EdgeLabel = edgeLabel;
             this.EdgeLabelVisual = edgeLabelVisual;
+            this.EdgeLabel.Width = this.EdgeLabelVisual.DesiredSize.Width;
+            this.EdgeLabel.Height = this.EdgeLabelVisual.DesiredSize.Height;
         }
 
         #region IViewerObject members
