@@ -21,11 +21,19 @@ namespace Kosmograph.Desktop.Graph
             this.drawingObjectsToFrameworkElements[drawingNode] = textBlock;
         }
 
+        private IEnumerable<KosmographViewerNode> CreateViewerNodes()
+        {
+            foreach (var node in this.Graph.Nodes.Concat(this.Graph.RootSubgraph.AllSubgraphsDepthFirstExcludingSelf()))
+            {
+                yield return this.CreateViewerNode(node);
+            }
+        }
+
         private IEnumerable<KosmographViewerNode> GetOrCreateViewerNodes()
         {
             foreach (var node in this.Graph.Nodes.Concat(this.Graph.RootSubgraph.AllSubgraphsDepthFirstExcludingSelf()))
             {
-                yield return this.GetOrCreateViewerNode(node);
+                yield return this.GetViewerNode(node);
             }
         }
 
@@ -34,10 +42,15 @@ namespace Kosmograph.Desktop.Graph
             // this moethod looks like weird twin of IVIewer.CreateIViewerNode...
             lock (this.syncRoot)
             {
-                if (this.drawingObjectsToIViewerObjects.TryGetValue(drawingNode, out var existingViewerNode))
-                    return (KosmographViewerNode)existingViewerNode;
-                else return this.CreateViewerNode(drawingNode);
+                return this.GetViewerNode(drawingNode) ?? this.CreateViewerNode(drawingNode);
             }
+        }
+
+        private KosmographViewerNode GetViewerNode(DrawingNode drawingNode)
+        {
+            if (this.drawingObjectsToIViewerObjects.TryGetValue(drawingNode, out var existingViewerNode))
+                return (KosmographViewerNode)existingViewerNode;
+            return null;
         }
 
         private KosmographViewerNode CreateViewerNode(DrawingNode drawingNode)

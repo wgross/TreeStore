@@ -19,33 +19,44 @@ namespace Kosmograph.Desktop.Graph
             textBlock.Tag = new KosmographViewerEdgeLabel(drawingEdge.Label, textBlock);
         }
 
+        private IEnumerable<KosmographViewerEdge> CreateViewerEdges()
+        {
+            foreach (var edge in this.drawingGraph.Edges)
+                yield return this.CreateViewerEdge(edge, lgSettings: null);
+        }
+
         private IEnumerable<KosmographViewerEdge> GetOrCreateEdgeViewers()
         {
             foreach (var edge in this.drawingGraph.Edges)
-                yield return this.GetOrCreateEdgeViewer(edge, lgSettings: null);
+                yield return this.GetViewerEdge(edge);
         }
 
-        private KosmographViewerEdge GetOrCreateEdgeViewer(DrawingEdge edge, LgLayoutSettings lgSettings)
+        private KosmographViewerEdge GetOrCreateEdgeViewer(DrawingEdge drawingEdge, LgLayoutSettings lgSettings)
         {
             lock (this.syncRoot)
             {
-                if (this.drawingObjectsToIViewerObjects.TryGetValue(edge, out var existingEdgeViewer))
-                    return (KosmographViewerEdge)existingEdgeViewer;
-                else return this.CreateEdgeViewer(edge, lgSettings);
+                return this.GetViewerEdge(drawingEdge) ?? this.CreateViewerEdge(drawingEdge, lgSettings);
             }
         }
 
-        private KosmographViewerEdge CreateEdgeViewer(DrawingEdge edge, LgLayoutSettings lgSettings)
+        private KosmographViewerEdge GetViewerEdge(DrawingEdge drawingEdge)
+        {
+            if (this.drawingObjectsToIViewerObjects.TryGetValue(drawingEdge, out var existingEdgeViewer))
+                return (KosmographViewerEdge)existingEdgeViewer;
+            else return null;
+        }
+
+        private KosmographViewerEdge CreateViewerEdge(DrawingEdge drawingEdge, LgLayoutSettings lgSettings)
         {
             if (lgSettings != null)
-                return CreateEdgeForLgCase(lgSettings, edge);
+                return CreateEdgeForLgCase(lgSettings, drawingEdge);
 
             // fetches the textBlock 'Fill' method
             TextBlock labelTextBox;
-            this.drawingObjectsToFrameworkElements.TryGetValue(edge, out labelTextBox);
-            var edgeViewer = new KosmographViewerEdge(edge, (KosmographViewerEdgeLabel)(labelTextBox.Tag));
+            this.drawingObjectsToFrameworkElements.TryGetValue(drawingEdge, out labelTextBox);
+            var edgeViewer = new KosmographViewerEdge(drawingEdge, (KosmographViewerEdgeLabel)(labelTextBox.Tag));
 
-            this.drawingObjectsToIViewerObjects[edge] = edgeViewer;
+            this.drawingObjectsToIViewerObjects[drawingEdge] = edgeViewer;
 
             return edgeViewer;
         }

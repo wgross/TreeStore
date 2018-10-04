@@ -10,7 +10,6 @@ using System.Windows;
 using System.Windows.Controls;
 using DrawingGraph = Microsoft.Msagl.Drawing.Graph;
 using DrawingLabel = Microsoft.Msagl.Drawing.Label;
-using DrawingNode = Microsoft.Msagl.Drawing.Node;
 
 namespace Kosmograph.Desktop.Graph
 {
@@ -42,16 +41,16 @@ namespace Kosmograph.Desktop.Graph
                 this.GraphCanvasHide();
                 this.ClearKosmographViewerImpl();
 
+                this.Graph.CreateGeometryGraph();
+
                 // fill the map
                 //   frameworkElementsToDrawingObjects
                 // with WPF drawable ibjewt representing the texts shown in on teh canvas.
                 this.PrepareVisualsFromDrawingObjects(this.Graph);
+                var nodes = this.CreateViewerNodes().ToArray();
+                var edges = this.CreateViewerEdges().ToArray();
 
-                if (this.NeedToCalculateLayout)
-                {
-                    this.Graph.CreateGeometryGraph(); // forcing the layout recalculation
-                    this.InitializeGeometryGraphFromVisuals(this.Graph);
-                }
+                this.InitializeGeometryGraphFromVisuals(this.Graph);
 
                 this.geometryGraphUnderLayout = this.GeometryGraph;
                 if (this.RunLayoutAsync)
@@ -95,24 +94,26 @@ namespace Kosmograph.Desktop.Graph
 
         #region Push initial state of framework element measurement to the geomotry nodes
 
+        // ONLY SUBGRAPH INITIALIZETION IS LEFT
+
         /// <summary>
         /// Initialize geometry nodes/edges(subgraphs with measutred sizes of the
         /// prepared Framework Elements
         /// </summary>
         private void InitializeGeometryGraphFromVisuals(DrawingGraph drawingGraph)
         {
-            this.InitializeGeometryGraphNodes(drawingGraph);
+            //this.InitializeGeometryGraphNodes(drawingGraph);
             this.InitializeGeometryGraphSubGraphs(drawingGraph);
             //this.InitializeGeometryGraphEdges(drawingGraph);
         }
 
-        private void InitializeGeometryGraphNodes(DrawingGraph drawingGraph)
-        {
-            foreach (var drawingNode in drawingGraph.Nodes.Where(n => n.GeometryNode != null))
-            {
-                drawingNode.GeometryNode.BoundaryCurve = this.GetNodeBoundaryCurve(drawingNode, this.drawingObjectsToFrameworkElements[drawingNode]);
-            }
-        }
+        //private void InitializeGeometryGraphNodes(DrawingGraph drawingGraph)
+        //{
+        //    foreach (var drawingNode in drawingGraph.Nodes.Where(n => n.GeometryNode != null))
+        //    {
+        //        drawingNode.GeometryNode.BoundaryCurve = this.GetNodeBoundaryCurve(drawingNode, this.drawingObjectsToFrameworkElements[drawingNode]);
+        //    }
+        //}
 
         private void InitializeGeometryGraphSubGraphs(DrawingGraph geometryGraph)
         {
@@ -138,35 +139,35 @@ namespace Kosmograph.Desktop.Graph
         //    }
         //}
 
-        private ICurve GetNodeBoundaryCurve(DrawingNode node, FrameworkElement frameworkElement)
-        {
-            if (frameworkElement is null)
-                throw new InvalidOperationException($"node({node}) not prepared");
+        //private ICurve GetNodeBoundaryCurve(DrawingNode node, FrameworkElement frameworkElement)
+        //{
+        //    if (frameworkElement is null)
+        //        throw new InvalidOperationException($"node({node}) not prepared");
 
-            double width, height;
+        //    double width, height;
 
-            // a Frameworkelement was prerpared beforehand.
-            width = frameworkElement.Width + 2 * node.Attr.LabelMargin;
-            height = frameworkElement.Height + 2 * node.Attr.LabelMargin;
+        //    // a Frameworkelement was prerpared beforehand.
+        //    width = frameworkElement.Width + 2 * node.Attr.LabelMargin;
+        //    height = frameworkElement.Height + 2 * node.Attr.LabelMargin;
 
-            // the calculated width must not be smaller the minimal size.
+        //    // the calculated width must not be smaller the minimal size.
 
-            if (width < drawingGraph.Attr.MinNodeWidth)
-                width = drawingGraph.Attr.MinNodeWidth;
-            if (height < drawingGraph.Attr.MinNodeHeight)
-                height = drawingGraph.Attr.MinNodeHeight;
+        //    if (width < drawingGraph.Attr.MinNodeWidth)
+        //        width = drawingGraph.Attr.MinNodeWidth;
+        //    if (height < drawingGraph.Attr.MinNodeHeight)
+        //        height = drawingGraph.Attr.MinNodeHeight;
 
-            return NodeBoundaryCurves.GetNodeBoundaryCurve(node, width, height);
-        }
+        //    return NodeBoundaryCurves.GetNodeBoundaryCurve(node, width, height);
+        //}
 
-        private void AssignLabelWidthHeight(Microsoft.Msagl.Core.Layout.ILabeledObject labeledGeomObj, DrawingObject drawingObj)
-        {
-            if (drawingObjectsToFrameworkElements.TryGetValue(drawingObj, out var fe))
-            {
-                labeledGeomObj.Label.Width = fe.Width;
-                labeledGeomObj.Label.Height = fe.Height;
-            }
-        }
+        //private void AssignLabelWidthHeight(Microsoft.Msagl.Core.Layout.ILabeledObject labeledGeomObj, DrawingObject drawingObj)
+        //{
+        //    if (drawingObjectsToFrameworkElements.TryGetValue(drawingObj, out var fe))
+        //    {
+        //        labeledGeomObj.Label.Width = fe.Width;
+        //        labeledGeomObj.Label.Height = fe.Height;
+        //    }
+        //}
 
         private ICurve GetClusterCollapsedBoundary(Subgraph subgraph)
         {

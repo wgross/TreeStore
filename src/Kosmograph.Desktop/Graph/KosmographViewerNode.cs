@@ -184,7 +184,7 @@ namespace Kosmograph.Desktop.Graph
         public (TextBlock, Path) SetupNodeVisuals(TextBlock nodeLabel)
         {
             nodeLabel.Tag = this;
-            //this.Node.GeometryNode.BoundaryCurve = this.GetNodeBoundaryCurve(nodeLabel);
+            this.Node.GeometryNode.BoundaryCurve = this.GetNodeBoundaryCurve(nodeLabel);
             return (nodeLabel, new Path { Tag = this });
         }
 
