@@ -14,12 +14,7 @@ namespace Kosmograph.Desktop.Graph
 
         private double GetBorderPathThickness() => DesiredPathThicknessInInches * DpiX;
 
-        private void PrepareNodeLabels(DrawingNode drawingNode, out TextBlock textBlock)
-        {
-            textBlock = VisualsFactory.CreateLabel(drawingNode.Label);
-
-            this.drawingObjectsToFrameworkElements[drawingNode] = textBlock;
-        }
+        
 
         private IEnumerable<KosmographViewerNode> CreateViewerNodes()
         {
@@ -55,12 +50,8 @@ namespace Kosmograph.Desktop.Graph
 
         private KosmographViewerNode CreateViewerNode(DrawingNode drawingNode)
         {
-            // create unexisting node label
-            TextBlock nodeLabel = null;
-            if (!this.drawingObjectsToFrameworkElements.TryGetValue(drawingNode, out nodeLabel))
-                nodeLabel = this.CreateAndRegisterFrameworkElementOfDrawingNode(drawingNode);
-
-            var viewerNode = new KosmographViewerNode(drawingNode, (TextBlock)nodeLabel,
+            var viewerNode = new KosmographViewerNode(drawingNode,
+                VisualsFactory.CreateLabel(drawingNode.Label),
                 funcFromDrawingEdgeToVEdge: e => (KosmographViewerEdge)drawingObjectsToIViewerObjects[e],
                 pathStrokeThicknessFunc: () => GetBorderPathThickness() * drawingNode.Attr.LineWidth);
 

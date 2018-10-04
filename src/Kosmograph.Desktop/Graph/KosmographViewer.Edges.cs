@@ -3,22 +3,12 @@ using Microsoft.Msagl.Layout.LargeGraphLayout;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Controls;
 using DrawingEdge = Microsoft.Msagl.Drawing.Edge;
 
 namespace Kosmograph.Desktop.Graph
 {
     public partial class KosmographViewer
     {
-        private void PrepareEdgeLabels(DrawingEdge drawingEdge, out TextBlock textBlock)
-        {
-            textBlock = VisualsFactory.CreateLabel(drawingEdge.Label);
-
-            this.drawingObjectsToFrameworkElements[drawingEdge] = textBlock;
-
-            textBlock.Tag = new KosmographViewerEdgeLabel(drawingEdge.Label, textBlock);
-        }
-
         private IEnumerable<KosmographViewerEdge> CreateViewerEdges()
         {
             foreach (var edge in this.drawingGraph.Edges)
@@ -52,9 +42,11 @@ namespace Kosmograph.Desktop.Graph
                 return CreateEdgeForLgCase(lgSettings, drawingEdge);
 
             // fetches the textBlock 'Fill' method
-            TextBlock labelTextBox;
-            this.drawingObjectsToFrameworkElements.TryGetValue(drawingEdge, out labelTextBox);
-            var edgeViewer = new KosmographViewerEdge(drawingEdge, (KosmographViewerEdgeLabel)(labelTextBox.Tag));
+            var labelTextBlock = VisualsFactory.CreateLabel(drawingEdge.Label);
+            var viewerEdgeLabel = new KosmographViewerEdgeLabel(drawingEdge.Label, labelTextBlock);
+            labelTextBlock.Tag = viewerEdgeLabel;
+
+            var edgeViewer = new KosmographViewerEdge(drawingEdge, viewerEdgeLabel);
 
             this.drawingObjectsToIViewerObjects[drawingEdge] = edgeViewer;
 
