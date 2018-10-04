@@ -22,10 +22,10 @@ namespace Kosmograph.Desktop.Graph
 
         private KosmographViewerNode CreateViewerNode(DrawingNode drawingNode)
         {
-            var viewerNode = new KosmographViewerNode(drawingNode,
-                VisualsFactory.CreateLabel(drawingNode.Label),
-                funcFromDrawingEdgeToVEdge: e => (KosmographViewerEdge)drawingObjectsToIViewerObjects[e],
-                pathStrokeThicknessFunc: () => GetBorderPathThickness() * drawingNode.Attr.LineWidth);
+            var viewerNode = new KosmographViewerNode(drawingNode, VisualsFactory.CreateLabel(drawingNode.Label), funcFromDrawingEdgeToVEdge: e => (KosmographViewerEdge)drawingObjectsToIViewerObjects[e])
+            {
+                PathStrokeThicknessFunc = () => GetBorderPathThickness() * drawingNode.Attr.LineWidth
+            };
 
             this.drawingObjectsToIViewerObjects[drawingNode] = viewerNode;
 

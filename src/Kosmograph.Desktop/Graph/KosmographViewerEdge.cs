@@ -87,10 +87,6 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        #endregion Viewer Edge Visuals
-
-        #region Setup Viewer Edge Visuals
-
         public (Path edgePath, Path edgeSourceArrow, Path edgeTargetArrow) SetupEdgeVisuals()
         {
             Path emptyPath(Visibility visibility) => new Path { Tag = this, Visibility = visibility };
@@ -140,15 +136,11 @@ namespace Kosmograph.Desktop.Graph
             else this.TargetArrowHeadPath.Visibility = Visibility.Hidden;
         }
 
-        #endregion Setup Viewer Edge Visuals
+        #endregion Viewer Edge Visuals
 
-        private double PathStrokeThickness
-        {
-            get
-            {
-                return PathStrokeThicknessFunc != null ? PathStrokeThicknessFunc() : this.Edge.Attr.LineWidth;
-            }
-        }
+        private double PathStrokeThickness => this.PathStrokeThicknessFunc is null ? this.Edge.Attr.LineWidth : this.PathStrokeThicknessFunc();
+
+        public Func<double> PathStrokeThicknessFunc { private get; set; }
 
         #region IViewerObject Members
 
@@ -237,7 +229,6 @@ namespace Kosmograph.Desktop.Graph
         }
 
         public static double _dashSize = 0.05; //inches
-        public Func<double> PathStrokeThicknessFunc;
 
         public double DashSize()
         {

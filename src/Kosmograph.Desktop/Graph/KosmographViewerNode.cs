@@ -58,9 +58,8 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        public KosmographViewerNode(DrawingNode node, TextBlock nodeLabelFrameworkElement, Func<Edge, KosmographViewerEdge> funcFromDrawingEdgeToVEdge, Func<double> pathStrokeThicknessFunc)
+        public KosmographViewerNode(DrawingNode node, TextBlock nodeLabelFrameworkElement, Func<Edge, KosmographViewerEdge> funcFromDrawingEdgeToVEdge)
         {
-            this.pathStrokeThicknessFunc = pathStrokeThicknessFunc;
             this.funcFromDrawingEdgeToVEdge = funcFromDrawingEdgeToVEdge;
 
             this.Node = node;
@@ -139,12 +138,9 @@ namespace Kosmograph.Desktop.Graph
 
         #region Node Viewer Visuals
 
-        private Func<double> pathStrokeThicknessFunc { get; }
+        private double PathStrokeThickness => this.PathStrokeThicknessFunc is null ? this.Node.Attr.LineWidth : this.PathStrokeThicknessFunc();
 
-        private double PathStrokeThickness
-        {
-            get { return this.pathStrokeThicknessFunc is null ? Node.Attr.LineWidth : this.pathStrokeThicknessFunc(); }
-        }
+        public Func<double> PathStrokeThicknessFunc { set; private get; }
 
         /// <summary>
         /// The label text of the node visulizes the <see cref="Microsoft.Msagl.Drawing.Label"/> of <see cref="Node"/>.
