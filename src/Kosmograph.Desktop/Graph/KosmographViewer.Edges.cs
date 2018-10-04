@@ -9,31 +9,10 @@ namespace Kosmograph.Desktop.Graph
 {
     public partial class KosmographViewer
     {
-        private IEnumerable<KosmographViewerEdge> CreateViewerEdges()
+        private void CreateViewerEdges()
         {
             foreach (var edge in this.drawingGraph.Edges)
-                yield return this.CreateViewerEdge(edge, lgSettings: null);
-        }
-
-        private IEnumerable<KosmographViewerEdge> GetOrCreateEdgeViewers()
-        {
-            foreach (var edge in this.drawingGraph.Edges)
-                yield return this.GetViewerEdge(edge);
-        }
-
-        private KosmographViewerEdge GetOrCreateEdgeViewer(DrawingEdge drawingEdge, LgLayoutSettings lgSettings)
-        {
-            lock (this.syncRoot)
-            {
-                return this.GetViewerEdge(drawingEdge) ?? this.CreateViewerEdge(drawingEdge, lgSettings);
-            }
-        }
-
-        private KosmographViewerEdge GetViewerEdge(DrawingEdge drawingEdge)
-        {
-            if (this.drawingObjectsToIViewerObjects.TryGetValue(drawingEdge, out var existingEdgeViewer))
-                return (KosmographViewerEdge)existingEdgeViewer;
-            else return null;
+                this.CreateViewerEdge(edge, lgSettings: null);
         }
 
         private KosmographViewerEdge CreateViewerEdge(DrawingEdge drawingEdge, LgLayoutSettings lgSettings)
@@ -51,6 +30,19 @@ namespace Kosmograph.Desktop.Graph
             this.drawingObjectsToIViewerObjects[drawingEdge] = edgeViewer;
 
             return edgeViewer;
+        }
+
+        private IEnumerable<KosmographViewerEdge> GetViewerEdges()
+        {
+            foreach (var edge in this.drawingGraph.Edges)
+                yield return this.GetViewerEdge(edge);
+        }
+
+        private KosmographViewerEdge GetViewerEdge(DrawingEdge drawingEdge)
+        {
+            if (this.drawingObjectsToIViewerObjects.TryGetValue(drawingEdge, out var existingEdgeViewer))
+                return (KosmographViewerEdge)existingEdgeViewer;
+            else return null;
         }
 
         private int ZIndexOfEdge(DrawingEdge edge)

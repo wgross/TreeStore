@@ -14,38 +14,10 @@ namespace Kosmograph.Desktop.Graph
 
         private double GetBorderPathThickness() => DesiredPathThicknessInInches * DpiX;
 
-        
-
-        private IEnumerable<KosmographViewerNode> CreateViewerNodes()
+        private void CreateViewerNodes()
         {
             foreach (var node in this.Graph.Nodes.Concat(this.Graph.RootSubgraph.AllSubgraphsDepthFirstExcludingSelf()))
-            {
-                yield return this.CreateViewerNode(node);
-            }
-        }
-
-        private IEnumerable<KosmographViewerNode> GetOrCreateViewerNodes()
-        {
-            foreach (var node in this.Graph.Nodes.Concat(this.Graph.RootSubgraph.AllSubgraphsDepthFirstExcludingSelf()))
-            {
-                yield return this.GetViewerNode(node);
-            }
-        }
-
-        private KosmographViewerNode GetOrCreateViewerNode(DrawingNode drawingNode)
-        {
-            // this moethod looks like weird twin of IVIewer.CreateIViewerNode...
-            lock (this.syncRoot)
-            {
-                return this.GetViewerNode(drawingNode) ?? this.CreateViewerNode(drawingNode);
-            }
-        }
-
-        private KosmographViewerNode GetViewerNode(DrawingNode drawingNode)
-        {
-            if (this.drawingObjectsToIViewerObjects.TryGetValue(drawingNode, out var existingViewerNode))
-                return (KosmographViewerNode)existingViewerNode;
-            return null;
+                this.CreateViewerNode(node);
         }
 
         private KosmographViewerNode CreateViewerNode(DrawingNode drawingNode)
@@ -55,10 +27,24 @@ namespace Kosmograph.Desktop.Graph
                 funcFromDrawingEdgeToVEdge: e => (KosmographViewerEdge)drawingObjectsToIViewerObjects[e],
                 pathStrokeThicknessFunc: () => GetBorderPathThickness() * drawingNode.Attr.LineWidth);
 
-            // remember the created KosmographViewerNode.
             this.drawingObjectsToIViewerObjects[drawingNode] = viewerNode;
 
             return viewerNode;
+        }
+
+        private IEnumerable<KosmographViewerNode> GetViewerNodes()
+        {
+            foreach (var node in this.Graph.Nodes.Concat(this.Graph.RootSubgraph.AllSubgraphsDepthFirstExcludingSelf()))
+            {
+                yield return this.GetViewerNode(node);
+            }
+        }
+
+        private KosmographViewerNode GetViewerNode(DrawingNode drawingNode)
+        {
+            if (this.drawingObjectsToIViewerObjects.TryGetValue(drawingNode, out var existingViewerNode))
+                return (KosmographViewerNode)existingViewerNode;
+            return null;
         }
 
         private TextBlock CreateAndRegisterFrameworkElementOfDrawingNode(DrawingNode drawingNode)

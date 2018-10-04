@@ -49,8 +49,8 @@ namespace Kosmograph.Desktop.Graph
                 // subgraphs aren't used yet
                 // this.PrepareVisualsFromDrawingObjects(this.Graph);
 
-                var nodes = this.CreateViewerNodes().ToArray();
-                var edges = this.CreateViewerEdges().ToArray();
+                this.CreateViewerNodes();
+                this.CreateViewerEdges();
 
                 // obsolete for nodes and edges.
                 // subgraphs aren't used yet

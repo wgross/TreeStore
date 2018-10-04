@@ -70,8 +70,8 @@ namespace Kosmograph.Desktop.Graph
         private void PushDataFromLayoutGraphToFrameworkElements()
         {
             this.DrawGraphBackground();
-            this.GraphCanvasAddChildren(this.GetOrCreateViewerNodes().SelectMany(n => { n.Invalidate(); return n.FrameworkElements; }));
-            this.GraphCanvasAddChildren(this.GetOrCreateEdgeViewers().SelectMany(e => 
+            this.GraphCanvasAddChildren(this.GetViewerNodes().SelectMany(n => { n.Invalidate(); return n.FrameworkElements; }));
+            this.GraphCanvasAddChildren(this.GetViewerEdges().SelectMany(e => 
             {
                 Panel.SetZIndex(e.EdgeLabelViewer.EdgeLabelVisual, this.ZIndexOfEdge(e.Edge));
                 e.Invalidate();

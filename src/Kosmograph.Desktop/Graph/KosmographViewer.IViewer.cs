@@ -46,7 +46,7 @@ namespace Kosmograph.Desktop.Graph
 
             drawingNode.GeometryNode = new LayoutNode(bc, drawingNode) { Center = center };
 
-            var vNode = this.GetOrCreateViewerNode(drawingNode);
+            var vNode = this.CreateViewerNode(drawingNode);
 
             this.Graph.AddNode(drawingNode);
             this.Graph.GeometryGraph.Nodes.Add(drawingNode.GeometryNode);

@@ -20,7 +20,7 @@ namespace Kosmograph.Desktop.Graph
 {
     public static class VisualsFactory
     {
-        #region A nodes label is visualized by a TextBlock instance
+        #region Microsoft.Msagl.Drawing.Label -> System.Windows.Controls.TextBlock (edge/node label)
 
         /// <summary>
         /// Create a <see cref="TextBlock"/> from a MSAGL <see cref="Microsoft.Msagl.Drawing.Label"/>.
@@ -80,9 +80,9 @@ namespace Kosmograph.Desktop.Graph
             return textBlock;
         }
 
-        #endregion A nodes label is visualized by a TextBlock instance
+        #endregion Microsoft.Msagl.Drawing.Label -> System.Windows.Controls.TextBlock (edge/node label)
 
-        #region Draw an boundary line/shape.
+        #region Microsoft.Msagl.Drawing.Node -> System.Windows.Shapes.Path (node boundary)
 
         public static Path CreateNodeBoundary(DrawingNode drawingNode)
         {
@@ -207,9 +207,9 @@ namespace Kosmograph.Desktop.Graph
             return new EllipseGeometry(box.Center.ToWpf(), box.Width / 2, box.Height / 2);
         }
 
-        #endregion Draw an boundary line/shape.
+        #endregion Microsoft.Msagl.Drawing.Node -> System.Windows.Shapes.Path (node boundary)
 
-        #region Draw an edge path from a MSAGL Geometry Curve
+        #region Microsoft.Msagl.Core.Geometry.Curves.ICurve -> System.Windows.Media.Geometry (edge path)
 
         static public Geometry CreateEdgePath(ICurve curve)
         {
@@ -333,9 +333,9 @@ namespace Kosmograph.Desktop.Graph
             return ellipse.OrientedCounterclockwise() ? sweepAngle : -sweepAngle;
         }
 
-        #endregion Draw an edge path from a MSAGL Geometry Curve
+        #endregion Microsoft.Msagl.Core.Geometry.Curves.ICurve -> System.Windows.Media.Geometry (edge path)
 
-        #region Draw an edge arrow
+        #region Microsoft.Msagl.Core.Layout.EdgeGeometry -> System.Windows.Media.Geometry (edge arrows)
 
         public static Geometry CreateEdgeSourceArrow(EdgeGeometry edgeGeometry, double pathStrokeThickness)
         {
@@ -408,9 +408,9 @@ namespace Kosmograph.Desktop.Graph
             context.LineTo((start - s).ToWpf(), true, true);
         }
 
-        #endregion Draw an edge arrow
+        #endregion Microsoft.Msagl.Core.Layout.EdgeGeometry -> System.Windows.Media.Geometry (edge arrows)
 
-        #region Draw an edge rail
+        #region Microsoft.Msagl.Core.Layout.Rail -> System.Windows.Shapes.Path (edge rail)
 
         public static Path CreateEdgeRail(Rail rail, byte edgeTransparency, double pathStrokeThickness)
         {
@@ -459,6 +459,6 @@ namespace Kosmograph.Desktop.Graph
             return path;
         }
 
-        #endregion Draw an edge rail
+        #endregion Microsoft.Msagl.Core.Layout.Rail -> System.Windows.Shapes.Path (edge rail)
     }
 }
