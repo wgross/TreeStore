@@ -183,7 +183,8 @@ namespace Kosmograph.Desktop.Graph
 
         public (TextBlock, Path) SetupNodeVisuals(TextBlock nodeLabel)
         {
-            nodeLabel.Tag = this;
+            nodeLabel.Tag = this; // Tag is used by graph viewers hit test
+
             this.Node.GeometryNode.BoundaryCurve = this.GetNodeBoundaryCurve(nodeLabel);
             return (nodeLabel, new Path { Tag = this });
         }

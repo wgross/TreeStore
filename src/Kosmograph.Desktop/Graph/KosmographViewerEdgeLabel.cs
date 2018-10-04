@@ -59,6 +59,8 @@ namespace Kosmograph.Desktop.Graph
 
         private (TextBlock labelVisual, Line attachmentLine) SetupVisuals(TextBlock edgeLabelVisual)
         {
+            edgeLabelVisual.Tag = this;  // Tag is used by graph viewers hit test
+
             this.EdgeLabel.Width = edgeLabelVisual.DesiredSize.Width;
             this.EdgeLabel.Height = edgeLabelVisual.DesiredSize.Height;
             var attachmentLine = new Line

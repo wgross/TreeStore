@@ -17,19 +17,24 @@ namespace Kosmograph.Desktop.Graph
 
         private KosmographViewerEdge CreateViewerEdge(DrawingEdge drawingEdge, LgLayoutSettings lgSettings)
         {
+            KosmographViewerEdge edgeViewer = null;
+
+            if (lgSettings is null)
+            {
+                edgeViewer = new KosmographViewerEdge(drawingEdge, new KosmographViewerEdgeLabel(drawingEdge.Label, VisualsFactory.CreateLabel(drawingEdge.Label)))
+                {
+                    PathStrokeThicknessFunc = () => GetBorderPathThickness() * drawingEdge.Attr.LineWidth
+                };
+            }
             if (lgSettings != null)
-                return CreateEdgeForLgCase(lgSettings, drawingEdge);
+            {
+                edgeViewer = new KosmographViewerEdge(drawingEdge, lgSettings)
+                {
+                    PathStrokeThicknessFunc = () => GetBorderPathThickness() * drawingEdge.Attr.LineWidth
+                };
+            }
 
-            // fetches the textBlock 'Fill' method
-            var labelTextBlock = VisualsFactory.CreateLabel(drawingEdge.Label);
-            var viewerEdgeLabel = new KosmographViewerEdgeLabel(drawingEdge.Label, labelTextBlock);
-            labelTextBlock.Tag = viewerEdgeLabel;
-
-            var edgeViewer = new KosmographViewerEdge(drawingEdge, viewerEdgeLabel);
-
-            this.drawingObjectsToIViewerObjects[drawingEdge] = edgeViewer;
-
-            return edgeViewer;
+            return (KosmographViewerEdge)(this.drawingObjectsToIViewerObjects[drawingEdge] = edgeViewer);
         }
 
         private IEnumerable<KosmographViewerEdge> GetViewerEdges()
@@ -53,14 +58,6 @@ namespace Kosmograph.Desktop.Graph
             return Math.Max(source.ZIndex, target.ZIndex) + 1;
         }
 
-        private KosmographViewerEdge CreateEdgeForLgCase(LgLayoutSettings lgSettings, DrawingEdge edge)
-        {
-            return (KosmographViewerEdge)(drawingObjectsToIViewerObjects[edge] = new KosmographViewerEdge(edge, lgSettings)
-            {
-                PathStrokeThicknessFunc = () => GetBorderPathThickness() * edge.Attr.LineWidth
-            });
-        }
-
         public void UpdateEdge(RelationshipViewModel relationship)
         {
             var drawingNodeSource = this.Graph.FindNode(relationship.From.Model.Id.ToString());
@@ -79,15 +76,6 @@ namespace Kosmograph.Desktop.Graph
 
             if (this.drawingObjectsToIViewerObjects.TryGetValue(drawingEdge, out var edgeViewer))
                 this.Invalidate(edgeViewer);
-
-            // remasure the node
-            //var tb = new TextBlock { Text = node.Name };
-            //tb.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-
-            //drawingEdge.BoundingBox = new GeometryRectangle(0, 0, tb.DesiredSize.Width, tb.DesiredSize.Height)
-            //{
-            //    Center = drawingEdge.GeometryNode.BoundingBox.Center
-            //};
         }
     }
 }
