@@ -669,7 +669,7 @@ namespace Kosmograph.Desktop.Graph
                 var dedge = vedge.Edge;
                 drawingGraph.RemoveEdge(dedge);
                 drawingGraph.GeometryGraph.Edges.Remove(dedge.GeometryEdge);
-                drawingObjectsToFrameworkElements.Remove(dedge);
+                //obsolete//drawingObjectsToFrameworkElements.Remove(dedge);
                 drawingObjectsToIViewerObjects.Remove(dedge);
 
                 vedge.RemoveItselfFromCanvas(GraphCanvas);
@@ -683,7 +683,7 @@ namespace Kosmograph.Desktop.Graph
                 RemoveEdges(node.Node.OutEdges);
                 RemoveEdges(node.Node.InEdges);
                 RemoveEdges(node.Node.SelfEdges);
-                drawingObjectsToFrameworkElements.Remove(node.Node);
+                //obsolete//drawingObjectsToFrameworkElements.Remove(node.Node);
                 drawingObjectsToIViewerObjects.Remove(node.Node);
                 var vnode = (KosmographViewerNode)node;
                 vnode.DetachFromCanvas(GraphCanvas);

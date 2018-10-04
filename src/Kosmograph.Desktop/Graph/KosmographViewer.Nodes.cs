@@ -47,11 +47,6 @@ namespace Kosmograph.Desktop.Graph
             return null;
         }
 
-        private TextBlock CreateAndRegisterFrameworkElementOfDrawingNode(DrawingNode drawingNode)
-        {
-            return this.drawingObjectsToFrameworkElements[drawingNode] = VisualsFactory.CreateLabel(drawingNode.Label);
-        }
-
         #region Update a node
 
         public void UpdateNode(EntityViewModel node)
@@ -106,7 +101,6 @@ namespace Kosmograph.Desktop.Graph
             if (this.drawingObjectsToIViewerObjects.TryGetValue(drawingNode, out var viewerNode))
                 this.GraphCanvasRemoveChildren(((KosmographViewerNode)viewerNode).FrameworkElements);
             this.drawingObjectsToIViewerObjects.Remove(drawingNode);
-            this.drawingObjectsToFrameworkElements.Remove(drawingNode);
 
             // removes the nodes edges
             foreach (var drawingEdge in drawingNode.Edges)
@@ -115,7 +109,6 @@ namespace Kosmograph.Desktop.Graph
                 {
                     this.GraphCanvasRemoveChildren(((KosmographViewerEdge)viewerEdge).FrameworkElements);
                     this.drawingObjectsToIViewerObjects.Remove(drawingEdge);
-                    this.drawingObjectsToFrameworkElements.Remove(drawingEdge);
                 }
             }
 

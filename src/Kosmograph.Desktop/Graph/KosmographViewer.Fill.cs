@@ -4,7 +4,6 @@ using Microsoft.Msagl.Core.Geometry.Curves;
 using Microsoft.Msagl.Core.Layout;
 using Microsoft.Msagl.Drawing;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -17,8 +16,6 @@ namespace Kosmograph.Desktop.Graph
 {
     public partial class KosmographViewer
     {
-        private readonly Dictionary<DrawingObject, TextBlock> drawingObjectsToFrameworkElements = new Dictionary<DrawingObject, TextBlock>();
-
         #region Fill the viewer with labels for edges and nodes
 
         private void FillKosmographViewer()
@@ -78,12 +75,13 @@ namespace Kosmograph.Desktop.Graph
         {
             this.GraphCanvasClearChildren();
             this.drawingObjectsToIViewerObjects.Clear();
-            this.drawingObjectsToFrameworkElements.Clear();
         }
 
         #endregion Fill the viewer with labels for edges and nodes
 
         #region OBSOLETE: Prepare measured labels for all nodes, edges and subgraphs
+
+        //obsolete//private readonly Dictionary<DrawingObject, TextBlock> drawingObjectsToFrameworkElements = new Dictionary<DrawingObject, TextBlock>();
 
         private void PrepareVisualsFromDrawingObjects(DrawingGraph graph)
         {
@@ -102,7 +100,7 @@ namespace Kosmograph.Desktop.Graph
         {
             textBlock = VisualsFactory.CreateLabel(drawingEdge.Label);
 
-            this.drawingObjectsToFrameworkElements[drawingEdge] = textBlock;
+            //obsolete//this.drawingObjectsToFrameworkElements[drawingEdge] = textBlock;
 
             textBlock.Tag = new KosmographViewerEdgeLabel(drawingEdge.Label, textBlock);
         }
@@ -111,7 +109,7 @@ namespace Kosmograph.Desktop.Graph
         {
             textBlock = VisualsFactory.CreateLabel(drawingNode.Label);
 
-            this.drawingObjectsToFrameworkElements[drawingNode] = textBlock;
+            //obsolete//this.drawingObjectsToFrameworkElements[drawingNode] = textBlock;
         }
 
         #endregion OBSOLETE: Prepare measured labels for all nodes, edges and subgraphs
@@ -130,7 +128,7 @@ namespace Kosmograph.Desktop.Graph
         {
             foreach (var drawingNode in drawingGraph.Nodes.Where(n => n.GeometryNode != null))
             {
-                drawingNode.GeometryNode.BoundaryCurve = this.GetNodeBoundaryCurve(drawingNode, this.drawingObjectsToFrameworkElements[drawingNode]);
+                //drawingNode.GeometryNode.BoundaryCurve = this.GetNodeBoundaryCurve(drawingNode, /*obsolete*/ this.drawingObjectsToFrameworkElements[drawingNode]);
             }
         }
 
@@ -181,24 +179,24 @@ namespace Kosmograph.Desktop.Graph
 
         private void AssignLabelWidthHeight(Microsoft.Msagl.Core.Layout.ILabeledObject labeledGeomObj, DrawingObject drawingObj)
         {
-            if (drawingObjectsToFrameworkElements.TryGetValue(drawingObj, out var fe))
-            {
-                labeledGeomObj.Label.Width = fe.Width;
-                labeledGeomObj.Label.Height = fe.Height;
-            }
+            //if (/*obsolete*/drawingObjectsToFrameworkElements.TryGetValue(drawingObj, out var fe))
+            //{
+            //    labeledGeomObj.Label.Width = fe.Width;
+            //    labeledGeomObj.Label.Height = fe.Height;
+            //}
         }
 
         private ICurve GetClusterCollapsedBoundary(Subgraph subgraph)
         {
-            double width, height;
+            double width = 0, height = 0;
 
-            TextBlock fe;
-            if (drawingObjectsToFrameworkElements.TryGetValue(subgraph, out fe))
-            {
-                width = fe.Width + 2 * subgraph.Attr.LabelMargin + subgraph.DiameterOfOpenCollapseButton;
-                height = Math.Max(fe.Height + 2 * subgraph.Attr.LabelMargin, subgraph.DiameterOfOpenCollapseButton);
-            }
-            else return GetApproximateCollapsedBoundary(subgraph);
+            //TextBlock fe;
+            //if (/*obsolete*/drawingObjectsToFrameworkElements.TryGetValue(subgraph, out fe))
+            //{
+            //    width = fe.Width + 2 * subgraph.Attr.LabelMargin + subgraph.DiameterOfOpenCollapseButton;
+            //    height = Math.Max(fe.Height + 2 * subgraph.Attr.LabelMargin, subgraph.DiameterOfOpenCollapseButton);
+            //}
+            //else return GetApproximateCollapsedBoundary(subgraph);
 
             if (width < drawingGraph.Attr.MinNodeWidth)
                 width = drawingGraph.Attr.MinNodeWidth;
