@@ -83,8 +83,11 @@ namespace Kosmograph.Desktop.Graph
             drawingNode.Attr.YRadius = 0;
             drawingNode.Label.Text = node.Name;
 
-            var viewerNode = this.CreateIViewerNode(drawingNode);
-            this.RunLayoutInUIThread();
+            var viewerNode = (KosmographViewerNode)this.CreateIViewerNode(drawingNode);
+
+            this.GraphCanvasAddChildren(viewerNode.FrameworkElements);
+            viewerNode.Invalidate();
+            //adds all nodes again->refactor//this.RunLayoutInUIThread();
         }
 
         #endregion Add Node
