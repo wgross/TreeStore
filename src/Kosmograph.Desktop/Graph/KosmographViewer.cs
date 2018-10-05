@@ -652,12 +652,8 @@ namespace Kosmograph.Desktop.Graph
 
         public IViewerObject AddNode(Microsoft.Msagl.Drawing.Node drawingNode)
         {
-            // this should call AddNode(IViewerNode node, bool registerForUndo)
-            // but does the view node has a geometry node already?
-            this.Graph.AddNode(drawingNode);
             var vNode = this.CreateViewerNode(drawingNode);
-            this.LayoutEditor.AttachLayoutChangeEvent(vNode);
-            this.LayoutEditor.CleanObstacles();
+            this.AddNode(vNode, registerForUndo: false);
             return vNode;
         }
 
