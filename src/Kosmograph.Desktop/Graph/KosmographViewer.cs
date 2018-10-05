@@ -642,22 +642,22 @@ namespace Kosmograph.Desktop.Graph
 
         public void AddNode(IViewerNode node, bool registerForUndo)
         {
-            if (drawingGraph == null)
-                throw new InvalidOperationException(); // adding a node when the graph does not exist
             var vNode = (KosmographViewerNode)node;
-            drawingGraph.AddNode(vNode.Node);
-            drawingGraph.GeometryGraph.Nodes.Add(vNode.Node.GeometryNode);
-            layoutEditor.AttachLayoutChangeEvent(vNode);
-            GraphCanvas.Children.Add(vNode.NodeLabel);
-            layoutEditor.CleanObstacles();
+            this.Graph.AddNode(vNode.Node);
+            this.Graph.GeometryGraph.Nodes.Add(vNode.Node.GeometryNode);
+            this.GraphCanvasAddChildren(vNode.FrameworkElements);
+            this.LayoutEditor.AttachLayoutChangeEvent(vNode);
+            this.LayoutEditor.CleanObstacles();
         }
 
         public IViewerObject AddNode(Microsoft.Msagl.Drawing.Node drawingNode)
         {
-            Graph.AddNode(drawingNode);
+            // this should call AddNode(IViewerNode node, bool registerForUndo)
+            // but does the view node has a geometry node already?
+            this.Graph.AddNode(drawingNode);
             var vNode = this.CreateViewerNode(drawingNode);
-            LayoutEditor.AttachLayoutChangeEvent(vNode);
-            LayoutEditor.CleanObstacles();
+            this.LayoutEditor.AttachLayoutChangeEvent(vNode);
+            this.LayoutEditor.CleanObstacles();
             return vNode;
         }
 

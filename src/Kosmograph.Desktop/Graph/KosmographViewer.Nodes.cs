@@ -1,9 +1,12 @@
 ﻿using Kosmograph.Desktop.ViewModel;
+using Microsoft.Msagl.Drawing;
+using Microsoft.Msagl.Miscellaneous.LayoutEditing;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using DrawingNode = Microsoft.Msagl.Drawing.Node;
+using GeometryPoint = Microsoft.Msagl.Core.Geometry.Point;
 using GeometryRectangle = Microsoft.Msagl.Core.Geometry.Rectangle;
 
 namespace Kosmograph.Desktop.Graph
@@ -14,6 +17,8 @@ namespace Kosmograph.Desktop.Graph
 
         private double GetBorderPathThickness() => DesiredPathThicknessInInches * DpiX;
 
+        #region Create of viewer nodes during fill phase
+
         private void CreateViewerNodes()
         {
             foreach (var node in this.Graph.Nodes.Concat(this.Graph.RootSubgraph.AllSubgraphsDepthFirstExcludingSelf()))
@@ -22,6 +27,15 @@ namespace Kosmograph.Desktop.Graph
 
         private KosmographViewerNode CreateViewerNode(DrawingNode drawingNode)
         {
+            if (drawingNode.GeometryNode is null)
+            {
+                // make sure the drawning node has a gemoetry node.
+                // this is true in the inietial 'fill' phase bit if the node is added later
+                // the DrawingNode is not yet completed
+                GeometryGraphCreator.CreateGeometryNode(this.Graph, this.GeometryGraph, drawingNode, ConnectionToGraph.Connected);
+                this.Graph.GeometryGraph.Nodes.Add(drawingNode.GeometryNode);
+            }
+
             var viewerNode = new KosmographViewerNode(drawingNode, VisualsFactory.CreateLabel(drawingNode.Label), funcFromDrawingEdgeToVEdge: e => (KosmographViewerEdge)drawingObjectsToIViewerObjects[e])
             {
                 PathStrokeThicknessFunc = () => GetBorderPathThickness() * drawingNode.Attr.LineWidth
@@ -47,7 +61,68 @@ namespace Kosmograph.Desktop.Graph
             return null;
         }
 
-        #region Update a node
+        #endregion Create of viewer nodes during fill phase
+
+        #region Create (add) viewer nodes to an already displayed graph
+
+        public void AddNode(EntityViewModel node)
+        {
+            var drawingNode = this.Graph.AddNode(node.Model.Id.ToString());
+            drawingNode.Label.Text = node.Name;
+            // lateron the view model might define graphical attributes itself
+            drawingNode.Attr.LineWidth = 1;
+            drawingNode.Attr.XRadius = 0;
+            drawingNode.Attr.YRadius = 0;
+
+            this.AddViewerNode(drawingNode);
+
+            //adds all nodes again->refactor//this.RunLayoutInUIThread();
+        }
+
+        private KosmographViewerNode AddViewerNode(DrawingNode drawingNode) //dont know how to place it better//, GeometryPoint center, object visualElement)
+        {
+            //var visualFrameworkElement = (visualElement as TextBlock) ?? VisualsFactory.CreateLabel(drawingNode.Label);
+
+            //var bc = NodeBoundaryCurves.GetNodeBoundaryCurve(drawingNode, visualFrameworkElement.Width + (2 * drawingNode.Attr.LabelMargin), visualFrameworkElement.Height + (2 * drawingNode.Attr.LabelMargin));
+
+            var viewerNode = this.CreateViewerNode(drawingNode);
+
+            this.LayoutEditor.AttachLayoutChangeEvent(viewerNode);
+
+            this.GraphCanvasAddChildren(viewerNode.FrameworkElements);
+
+            this.MakeRoomForNewNode(drawingNode);
+
+            return viewerNode;
+        }
+
+        private void MakeRoomForNewNode(DrawingNode drawingNode)
+        {
+            var incrementalDragger =
+                new IncrementalDragger(new[] { drawingNode.GeometryNode }, this.Graph.GeometryGraph, this.Graph.LayoutAlgorithmSettings);
+
+            incrementalDragger.Drag(new GeometryPoint());
+
+            foreach (var n in incrementalDragger.ChangedGraph.Nodes)
+            {
+                var dn = (DrawingNode)n.UserData;
+                var vn = drawingObjectsToIViewerObjects[dn] as KosmographViewerNode;
+                if (vn != null)
+                    vn.Invalidate();
+            }
+
+            foreach (var n in incrementalDragger.ChangedGraph.Edges)
+            {
+                var dn = (Microsoft.Msagl.Drawing.Edge)n.UserData;
+                var ve = drawingObjectsToIViewerObjects[dn] as KosmographViewerEdge;
+                if (ve != null)
+                    ve.Invalidate();
+            }
+        }
+
+        #endregion Create (add) viewer nodes to an already displayed graph
+
+        #region Update a viewer node with modified data
 
         public void UpdateNode(EntityViewModel node)
         {
@@ -71,26 +146,7 @@ namespace Kosmograph.Desktop.Graph
                 this.Invalidate(nodeViewer);
         }
 
-        #endregion Update a node
-
-        #region Add Node
-
-        public void CreateNode(EntityViewModel node)
-        {
-            var drawingNode = this.Graph.AddNode(node.Model.Id.ToString());
-            drawingNode.Attr.LineWidth = 1;
-            drawingNode.Attr.XRadius = 0;
-            drawingNode.Attr.YRadius = 0;
-            drawingNode.Label.Text = node.Name;
-
-            var viewerNode = (KosmographViewerNode)this.CreateIViewerNode(drawingNode);
-
-            this.GraphCanvasAddChildren(viewerNode.FrameworkElements);
-            viewerNode.Invalidate();
-            //adds all nodes again->refactor//this.RunLayoutInUIThread();
-        }
-
-        #endregion Add Node
+        #endregion Update a viewer node with modified data
 
         #region Remove a Node
 

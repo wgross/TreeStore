@@ -32,7 +32,7 @@ namespace Kosmograph.Desktop.Graph
             switch (e.Action)
             {
                 case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
-                    this.MsaglGraphViewer.CreateNode(e.NewItems.OfType<EntityViewModel>().Single());
+                    this.MsaglGraphViewer.AddNode(e.NewItems.OfType<EntityViewModel>().Single());
                     break;
 
                 case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
