@@ -81,10 +81,6 @@ namespace Kosmograph.Desktop.Graph
 
         private KosmographViewerNode AddViewerNode(DrawingNode drawingNode) //dont know how to place it better//, GeometryPoint center, object visualElement)
         {
-            //var visualFrameworkElement = (visualElement as TextBlock) ?? VisualsFactory.CreateLabel(drawingNode.Label);
-
-            //var bc = NodeBoundaryCurves.GetNodeBoundaryCurve(drawingNode, visualFrameworkElement.Width + (2 * drawingNode.Attr.LabelMargin), visualFrameworkElement.Height + (2 * drawingNode.Attr.LabelMargin));
-
             var viewerNode = this.CreateViewerNode(drawingNode);
 
             this.LayoutEditor.AttachLayoutChangeEvent(viewerNode);
