@@ -89,13 +89,13 @@ namespace Kosmograph.Desktop.EditModel
 
         #region INotifyDataErrorInfo
 
-        public bool HasErrors => throw new NotImplementedException();
+        public bool HasErrors => false;
 
         public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
 
         public IEnumerable GetErrors(string propertyName)
         {
-            throw new NotImplementedException();
+            return Enumerable.Empty<string>();
         }
 
         #endregion INotifyDataErrorInfo

@@ -10,7 +10,7 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="./CommonResources.xaml"/>
+                <ResourceDictionary Source="./CommonResources.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <Style x:Key="facetPropertiesListBoxStyle" TargetType="{x:Type ListBox}">
                 <Setter Property="ItemTemplate">
@@ -20,7 +20,16 @@
                             LastChildFill="True">
                                 <Label DockPanel.Dock="Left"
                                    Content="Name" />
-                                <TextBox Text="{Binding Name}" />
+                                <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}">
+                                    <Validation.ErrorTemplate>
+                                        <ControlTemplate>
+                                            <StackPanel>
+                                                <AdornedElementPlaceholder x:Name="textBox" />
+                                                <TextBlock Text="{Binding [0].ErrorContent}" Foreground="Red" />
+                                            </StackPanel>
+                                        </ControlTemplate>
+                                    </Validation.ErrorTemplate>
+                                </TextBox>
                             </DockPanel>
                         </DataTemplate>
                     </Setter.Value>
@@ -56,9 +65,9 @@
                 Text="Properties"
                 Foreground="Gray"
                 FontWeight="Bold" />
-            <Button DockPanel.Dock="Right" 
+            <Button DockPanel.Dock="Right"
                     Style="{StaticResource addButtonInHeaderStyle}"
-                    Command="{Binding CreatePropertyCommand}"/>
+                    Command="{Binding CreatePropertyCommand}" />
         </DockPanel>
         <ListBox
             Style="{StaticResource facetPropertiesListBoxStyle}"
