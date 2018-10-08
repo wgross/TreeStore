@@ -25,6 +25,9 @@ namespace Kosmograph.Model
 
         public void AddProperty(FacetProperty property)
         {
+            if (this.Properties.Any(p => p.Name.Equals(property.Name)))
+                throw new InvalidOperationException($"duplicate property name: {property.Name}");
+
             this.Properties = this.Properties.Union(property.Yield()).ToList();
         }
 
