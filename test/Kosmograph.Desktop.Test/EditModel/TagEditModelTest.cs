@@ -197,6 +197,56 @@ namespace Kosmograph.Desktop.Test.EditModel
         }
 
         [Fact]
+        public void TagEditModel_forbids_commit_missing_property_name()
+        {
+            // ARRANGE
+
+            var model = new Tag("tag", new Facet("facet"));
+            var viewModel = new TagViewModel(model);
+
+            Tag reverted = null;
+            var revertCB = new Action<Tag>(t => reverted = t);
+
+            var editModel = new TagEditModel(viewModel, delegate { }, revertCB);
+
+            editModel.CreatePropertyCommand.Execute(null);
+            editModel.Properties.Single().Name = string.Empty;
+
+            // ACT
+
+            var result = editModel.CommitCommand.CanExecute(null);
+
+            // ASSERT
+
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void TagEditModel_forbids_commit_duplicate_property_name()
+        {
+            // ARRANGE
+
+            var model = new Tag("tag", new Facet("facet", new FacetProperty("p")));
+            var viewModel = new TagViewModel(model);
+
+            Tag reverted = null;
+            var revertCB = new Action<Tag>(t => reverted = t);
+
+            var editModel = new TagEditModel(viewModel, delegate { }, revertCB);
+
+            editModel.CreatePropertyCommand.Execute(null);
+            editModel.Properties.ElementAt(1).Name = "p";
+
+            // ACT
+
+            var result = editModel.CommitCommand.CanExecute(null);
+
+            // ASSERT
+
+            Assert.False(result);
+        }
+
+        [Fact]
         public void TagEditModel_delays_remove_property_at_ViewModel()
         {
             // ARRANGE

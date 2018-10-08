@@ -27,7 +27,7 @@ namespace Kosmograph.Desktop.EditModel.Base
         public string Name
         {
             get => this.name ?? this.ViewModel.Name;
-            set => this.Set(nameof(Name), ref this.name, value);
+            set => this.Set(nameof(Name), ref this.name, value.Trim());
         }
 
         private string name;

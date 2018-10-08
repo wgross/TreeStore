@@ -43,7 +43,6 @@ namespace Kosmograph.Desktop.Test.ViewModel
             Assert.Equal("changed", tag.Name);
             Assert.Single(tag.Facet.Properties);
             Assert.Equal("p2", tag.Facet.Properties.Single().Name);
-
         }
     }
 }

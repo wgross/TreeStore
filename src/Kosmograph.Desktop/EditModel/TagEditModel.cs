@@ -60,6 +60,15 @@ namespace Kosmograph.Desktop.EditModel
             this.committed(this.ViewModel.Model);
         }
 
+        protected override bool CanCommit()
+        {
+            if (this.Properties.Any(p => string.IsNullOrEmpty(p.Name)))
+                return false; // no empty names
+            if (this.Properties.Count() != this.Properties.Select(p => p.Name).Distinct().Count())
+                return false;
+            return base.CanCommit();
+        }
+
         public override void Rollback()
         {
             this.Properties =
