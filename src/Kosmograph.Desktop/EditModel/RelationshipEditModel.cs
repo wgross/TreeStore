@@ -123,5 +123,13 @@ namespace Kosmograph.Desktop.EditModel
         }
 
         #endregion Implement Commit
+
+        #region Implement Validate
+
+        protected override void Validate()
+        {
+        }
+
+        #endregion Implement Validate
     }
 }

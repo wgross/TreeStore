@@ -3,12 +3,14 @@ using Kosmograph.Desktop.EditModel.Base;
 using Kosmograph.Desktop.ViewModel;
 using Kosmograph.Model;
 using System;
+using System.Collections;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
 
 namespace Kosmograph.Desktop.EditModel
 {
-    public class TagEditModel : NamedEditModelBase<TagViewModel, Tag>
+    public class TagEditModel : NamedEditModelBase<TagViewModel, Tag>, INotifyDataErrorInfo
     {
         private readonly Action<Tag> committed;
         private readonly Action<Tag> rolledback;
@@ -17,7 +19,7 @@ namespace Kosmograph.Desktop.EditModel
             : base(tag)
         {
             this.Properties =
-                new CommitableObservableCollection<FacetPropertyEditModel>(tag.Properties.Select(p => new FacetPropertyEditModel(p)));
+                new CommitableObservableCollection<FacetPropertyEditModel>(tag.Properties.Select(p => new FacetPropertyEditModel(this, p)));
 
             this.CreatePropertyCommand = new RelayCommand(this.CreatePropertyExecuted);
             this.RemovePropertyCommand = new RelayCommand<FacetPropertyEditModel>(this.RemovePropertyExecuted);
@@ -36,7 +38,7 @@ namespace Kosmograph.Desktop.EditModel
 
         private void CreatePropertyExecuted()
         {
-            this.Properties.Add(new FacetPropertyEditModel(new FacetPropertyViewModel(new FacetProperty("new property"))));
+            this.Properties.Add(new FacetPropertyEditModel(this, new FacetPropertyViewModel(new FacetProperty("new property"))));
         }
 
         public ICommand CreatePropertyCommand { get; }
@@ -72,9 +74,30 @@ namespace Kosmograph.Desktop.EditModel
         public override void Rollback()
         {
             this.Properties =
-                new CommitableObservableCollection<FacetPropertyEditModel>(this.ViewModel.Properties.Select(p => new FacetPropertyEditModel(p)));
+                new CommitableObservableCollection<FacetPropertyEditModel>(this.ViewModel.Properties.Select(p => new FacetPropertyEditModel(this, p)));
             base.Rollback();
             this.rolledback(this.ViewModel.Model);
         }
+
+        #region Implement Validate
+
+        protected override void Validate()
+        {
+        }
+
+        #endregion Implement Validate
+
+        #region INotifyDataErrorInfo
+
+        public bool HasErrors => throw new NotImplementedException();
+
+        public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
+
+        public IEnumerable GetErrors(string propertyName)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion INotifyDataErrorInfo
     }
 }

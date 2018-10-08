@@ -1,6 +1,8 @@
 ﻿using Kosmograph.Desktop.EditModel;
 using Kosmograph.Desktop.Test.ViewModel;
 using Kosmograph.Model;
+using System.ComponentModel;
+using System.Linq;
 using Xunit;
 
 namespace Kosmograph.Desktop.Test.EditModel
@@ -13,12 +15,12 @@ namespace Kosmograph.Desktop.Test.EditModel
         {
             // ARRANGE
 
-            var model = new FacetProperty("p");
+            var model = new Tag("", new Facet("", new FacetProperty("p")));
             var viewModel = model.ToViewModel();
 
             // ACT
 
-            var result = new FacetPropertyEditModel(viewModel);
+            var result = new TagEditModel(viewModel).Properties.Single();
 
             // ASSERT
 
@@ -30,13 +32,13 @@ namespace Kosmograph.Desktop.Test.EditModel
         {
             // ARRANGE
 
-            var model = new FacetProperty("p");
+            var model = new Tag("", new Facet("", new FacetProperty("p")));
             var viewModel = model.ToViewModel();
-            var editModel = new FacetPropertyEditModel(viewModel);
+            var editModel = new TagEditModel(viewModel);
 
             // ACT
 
-            editModel.Name = "changed";
+            editModel.Properties.Single().Name = "changed";
 
             // ASSERT
 
@@ -49,13 +51,13 @@ namespace Kosmograph.Desktop.Test.EditModel
         {
             // ARRANGE
 
-            var model = new FacetProperty("p");
+            var model = new Tag("", new Facet("", new FacetProperty("p")));
             var viewModel = model.ToViewModel();
-            var editModel = new FacetPropertyEditModel(viewModel);
+            var editModel = new TagEditModel(viewModel);
 
             // ACT
 
-            editModel.Name = " changed \t";
+            editModel.Properties.Single().Name = " changed \t";
 
             // ASSERT
 
@@ -63,19 +65,69 @@ namespace Kosmograph.Desktop.Test.EditModel
         }
 
         [Fact]
+        public void FacetPropertyEditModel_rejects_duplicate_name()
+        {
+            // ARRANGE
+
+            var model = new Tag("", new Facet("", new FacetProperty("p"), new FacetProperty("q")));
+            var viewModel = model.ToViewModel();
+            var editModel = new TagEditModel(viewModel);
+
+            DataErrorsChangedEventArgs args = null;
+            void changed(object sender, DataErrorsChangedEventArgs args_) { args = args_; }
+
+            editModel.Properties.ElementAt(1).ErrorsChanged += changed;
+
+            // ACT
+
+            editModel.Properties.ElementAt(1).Name = editModel.Properties.ElementAt(0).Name;
+
+            // ASSERT
+
+            Assert.True(editModel.Properties.ElementAt(1).HasErrors);
+            Assert.Equal("Property name must be unique", editModel.Properties.ElementAt(1).GetErrors(nameof(FacetPropertyEditModel.Name)).Cast<string>().Single());
+            Assert.Equal(nameof(FacetPropertyEditModel.Name), args.PropertyName);
+        }
+
+        [Fact]
+        public void FacetPropertyEditModel_rejects_empty_name()
+        {
+            // ARRANGE
+
+            var model = new Tag("", new Facet("", new FacetProperty("p"), new FacetProperty("q")));
+            var viewModel = model.ToViewModel();
+            var editModel = new TagEditModel(viewModel);
+
+            DataErrorsChangedEventArgs args = null;
+            void changed(object sender, DataErrorsChangedEventArgs args_) { args = args_; }
+
+            editModel.Properties.ElementAt(1).ErrorsChanged += changed;
+
+            // ACT
+
+            editModel.Properties.ElementAt(1).Name = "";
+
+            // ASSERT
+
+            Assert.True(editModel.Properties.ElementAt(1).HasErrors);
+            Assert.Equal("Property name must not be empty", editModel.Properties.ElementAt(1).GetErrors(nameof(FacetPropertyEditModel.Name)).Cast<string>().Single());
+            Assert.Equal(nameof(FacetPropertyEditModel.Name), args.PropertyName);
+        }
+
+        [Fact]
         public void FacetPropertyEditModel_commits_changes_to_ViewModel()
         {
             // ARRANGE
 
-            var model = new FacetProperty("p");
+            var model = new Tag("", new Facet("", new FacetProperty("p")));
             var viewModel = model.ToViewModel();
-            var editModel = new FacetPropertyEditModel(viewModel);
+            var editModel = new TagEditModel(viewModel);
 
-            editModel.Name = "changed";
+            editModel.Properties.Single().Name = "changed";
 
             // ACT
 
-            editModel.CommitCommand.Execute(null);
+            editModel.Properties.Single().CommitCommand.Execute(null);
 
             // ASSERT
 
@@ -89,15 +141,16 @@ namespace Kosmograph.Desktop.Test.EditModel
         {
             // ARRANGE
 
-            var model = new FacetProperty("p");
+            var model = new Tag("", new Facet("", new FacetProperty("p")));
             var viewModel = model.ToViewModel();
-            var editModel = new FacetPropertyEditModel(viewModel);
-            editModel.Name = "changed";
+            var editModel = new TagEditModel(viewModel);
+
+            editModel.Properties.Single().Name = "changed";
 
             // ACT
 
-            editModel.RollbackCommand.Execute(null);
-            editModel.CommitCommand.Execute(null);
+            editModel.Properties.Single().RollbackCommand.Execute(null);
+            editModel.Properties.Single().CommitCommand.Execute(null);
 
             // ASSERT
 

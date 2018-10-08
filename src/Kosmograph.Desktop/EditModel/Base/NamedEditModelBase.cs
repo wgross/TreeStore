@@ -1,9 +1,10 @@
 ﻿using Kosmograph.Desktop.ViewModel.Base;
 using Kosmograph.Model.Base;
+using System.Runtime.CompilerServices;
 
 namespace Kosmograph.Desktop.EditModel.Base
 {
-    public class NamedEditModelBase<VM, M> : EditModelBase
+    public abstract class NamedEditModelBase<VM, M> : EditModelBase
             where M : NamedItemBase
             where VM : NamedViewModelBase<M>
     {
@@ -31,5 +32,13 @@ namespace Kosmograph.Desktop.EditModel.Base
         }
 
         private string name;
+
+        public override void RaisePropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            this.Validate();
+            base.RaisePropertyChanged(propertyName);
+        }
+
+        protected abstract void Validate();
     }
 }
