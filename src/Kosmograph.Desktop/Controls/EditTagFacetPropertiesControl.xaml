@@ -19,14 +19,21 @@
                             <DockPanel
                             LastChildFill="True">
                                 <Label DockPanel.Dock="Left"
-                                   Content="Name" />
-                                <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}">
+                                       Content="Name" />
+                                <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
+                                         ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Text}">
                                     <Validation.ErrorTemplate>
                                         <ControlTemplate>
-                                            <StackPanel>
-                                                <AdornedElementPlaceholder x:Name="textBox" />
-                                                <TextBlock Text="{Binding [0].ErrorContent}" Foreground="Red" />
-                                            </StackPanel>
+                                            <Grid>
+                                                <Border BorderBrush="Red" BorderThickness="2"/>
+                                                    <AdornedElementPlaceholder x:Name="textBox" />
+                                                    <TextBlock Text="{Binding [0].ErrorContent}" 
+                                                               Foreground="Red" 
+                                                               HorizontalAlignment="Right" 
+                                                               VerticalAlignment="Center"
+                                                               Background="White"
+                                                               Margin="0,0,3,0"/>
+                                            </Grid>
                                         </ControlTemplate>
                                     </Validation.ErrorTemplate>
                                 </TextBox>
@@ -38,6 +45,17 @@
                     <Setter.Value>
                         <Style TargetType="{x:Type ListBoxItem}">
                             <Setter Property="Padding" Value="1" />
+                            <!--<Setter Property="Validation.ErrorTemplate">
+                                <Setter.Value>
+                                    <ControlTemplate>
+                                        <Grid Background="{x:Null}" ToolTip="{Binding Path=ErrorContent}">
+                                            <Border BorderBrush="Red"  BorderThickness="2">
+                                                <AdornedElementPlaceholder />
+                                            </Border>
+                                        </Grid>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>-->
                         </Style>
                     </Setter.Value>
                 </Setter>
