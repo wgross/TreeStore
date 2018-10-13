@@ -1,14 +1,28 @@
 ﻿using Kosmograph.Desktop.EditModel;
 using Kosmograph.Desktop.ViewModel;
 using Kosmograph.Model;
+using Moq;
 using System;
 using System.Linq;
 using Xunit;
 
 namespace Kosmograph.Desktop.Test.EditModel
 {
-    public class TagEditModelTest
+    public class TagEditModelTest : IDisposable
     {
+        private readonly MockRepository mocks = new MockRepository(MockBehavior.Strict);
+        private readonly Mock<ITagEditCallback> tagEditCallback;
+
+        public TagEditModelTest()
+        {
+            this.tagEditCallback = this.mocks.Create<ITagEditCallback>();
+        }
+
+        public void Dispose()
+        {
+            this.mocks.VerifyAll();
+        }
+
         [Fact]
         public void TagEditModel_mirrors_ViewModel()
         {
@@ -16,7 +30,7 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             var model = new Tag("tag", new Facet("facet", new FacetProperty("p")));
             var viewModel = new TagViewModel(model);
-            var editModel = new TagEditModel(viewModel, delegate { }, delegate { });
+            var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
 
             // ASSERT
 
@@ -32,7 +46,7 @@ namespace Kosmograph.Desktop.Test.EditModel
             var p2 = new FacetProperty("p2");
             var model = new Tag("tag", new Facet("facet", new FacetProperty("p")));
             var viewModel = new TagViewModel(model);
-            var editModel = new TagEditModel(viewModel, delegate { }, delegate { });
+            var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
 
             // ACT
 
@@ -54,13 +68,10 @@ namespace Kosmograph.Desktop.Test.EditModel
             var model = new Tag("tag", new Facet("facet", new FacetProperty("p")));
             var viewModel = new TagViewModel(model);
 
-            Tag committed = null;
-            var commitCB = new Action<Tag>(t => committed = t);
+            this.tagEditCallback
+                .Setup(cb => cb.Commit(model));
 
-            Tag reverted = null;
-            var revertCB = new Action<Tag>(t => reverted = t);
-
-            var editModel = new TagEditModel(viewModel, commitCB, revertCB);
+            var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
 
             editModel.Name = "changed";
 
@@ -69,9 +80,6 @@ namespace Kosmograph.Desktop.Test.EditModel
             editModel.CommitCommand.Execute(null);
 
             // ASSERT
-
-            Assert.Equal(model, committed);
-            Assert.Null(reverted);
 
             Assert.Equal("changed", editModel.Name);
             Assert.Equal("changed", viewModel.Name);
@@ -87,10 +95,13 @@ namespace Kosmograph.Desktop.Test.EditModel
             var model = new Tag("tag", new Facet("facet", new FacetProperty("p")));
             var viewModel = new TagViewModel(model);
 
-            Tag reverted = null;
-            var revertCB = new Action<Tag>(t => reverted = t);
+            this.tagEditCallback
+                .Setup(cb => cb.Commit(model));
 
-            var editModel = new TagEditModel(viewModel, delegate { }, revertCB);
+            this.tagEditCallback
+                .Setup(cb => cb.Rollback(model));
+
+            var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
 
             editModel.Name = "changed";
 
@@ -101,9 +112,28 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             // ASSERT
 
-            Assert.Equal(model, reverted);
-
             Assert.Equal("tag", editModel.Name);
+            Assert.Equal("tag", viewModel.Name);
+            Assert.Equal("tag", model.Name);
+        }
+
+        [Fact]
+        public void TagEditModel_forbids_adding_tag_with_duplicate_name()
+        {
+            // ARRANGE
+
+            var p2 = new FacetProperty("p2");
+            var model = new Tag("tag", new Facet("facet", new FacetProperty("p")));
+            var viewModel = new TagViewModel(model);
+            var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
+
+            // ACT
+
+            editModel.Name = "changed";
+
+            // ASSERT
+
+            Assert.Equal("changed", editModel.Name);
             Assert.Equal("tag", viewModel.Name);
             Assert.Equal("tag", model.Name);
         }
@@ -115,7 +145,7 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             var model = new Tag("tag", new Facet("facet", new FacetProperty("p")));
             var viewModel = new TagViewModel(model);
-            var editModel = new TagEditModel(viewModel, delegate { }, delegate { });
+            var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
 
             // ACT
 
@@ -137,13 +167,10 @@ namespace Kosmograph.Desktop.Test.EditModel
             var model = new Tag("tag", new Facet("facet", new FacetProperty("p")));
             var viewModel = new TagViewModel(model);
 
-            Tag committed = null;
-            var commitCB = new Action<Tag>(t => committed = t);
+            this.tagEditCallback
+                .Setup(cb => cb.Commit(model));
 
-            Tag reverted = null;
-            var revertCB = new Action<Tag>(t => reverted = t);
-
-            var editModel = new TagEditModel(viewModel, commitCB, revertCB);
+            var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
 
             editModel.CreatePropertyCommand.Execute(null);
 
@@ -152,9 +179,6 @@ namespace Kosmograph.Desktop.Test.EditModel
             editModel.CommitCommand.Execute(null);
 
             // ASSERT
-
-            Assert.Equal(model, committed);
-            Assert.Null(reverted);
 
             Assert.Equal(2, editModel.Properties.Count());
             Assert.Equal(2, viewModel.Properties.Count());
@@ -172,10 +196,13 @@ namespace Kosmograph.Desktop.Test.EditModel
             var model = new Tag("tag", new Facet("facet", new FacetProperty("p")));
             var viewModel = new TagViewModel(model);
 
-            Tag reverted = null;
-            var revertCB = new Action<Tag>(t => reverted = t);
+            this.tagEditCallback
+                .Setup(cb => cb.Rollback(model));
 
-            var editModel = new TagEditModel(viewModel, delegate { }, revertCB);
+            this.tagEditCallback
+                .Setup(cb => cb.Commit(model));
+
+            var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
 
             editModel.CreatePropertyCommand.Execute(null);
 
@@ -185,8 +212,6 @@ namespace Kosmograph.Desktop.Test.EditModel
             editModel.CommitCommand.Execute(null);
 
             // ASSERT
-
-            Assert.Equal(model, reverted);
 
             Assert.Equal("tag", editModel.Name);
             Assert.Equal("tag", viewModel.Name);
@@ -204,10 +229,7 @@ namespace Kosmograph.Desktop.Test.EditModel
             var model = new Tag("tag", new Facet("facet"));
             var viewModel = new TagViewModel(model);
 
-            Tag reverted = null;
-            var revertCB = new Action<Tag>(t => reverted = t);
-
-            var editModel = new TagEditModel(viewModel, delegate { }, revertCB);
+            var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
 
             editModel.CreatePropertyCommand.Execute(null);
             editModel.Properties.Single().Name = string.Empty;
@@ -229,10 +251,7 @@ namespace Kosmograph.Desktop.Test.EditModel
             var model = new Tag("tag", new Facet("facet", new FacetProperty("p")));
             var viewModel = new TagViewModel(model);
 
-            Tag reverted = null;
-            var revertCB = new Action<Tag>(t => reverted = t);
-
-            var editModel = new TagEditModel(viewModel, delegate { }, revertCB);
+            var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
 
             editModel.CreatePropertyCommand.Execute(null);
             editModel.Properties.ElementAt(1).Name = "p";
@@ -253,7 +272,7 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             var model = new Tag("tag", new Facet("facet", new FacetProperty("p")));
             var viewModel = new TagViewModel(model);
-            var editModel = new TagEditModel(viewModel, delegate { }, delegate { });
+            var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
 
             // ACT
 
@@ -274,13 +293,10 @@ namespace Kosmograph.Desktop.Test.EditModel
             var model = new Tag("tag", new Facet("facet", new FacetProperty("p")));
             var viewModel = new TagViewModel(model);
 
-            Tag committed = null;
-            var commitCB = new Action<Tag>(t => committed = t);
+            this.tagEditCallback
+               .Setup(cb => cb.Commit(model));
 
-            Tag reverted = null;
-            var revertCB = new Action<Tag>(t => reverted = t);
-
-            var editModel = new TagEditModel(viewModel, commitCB, revertCB);
+            var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
 
             editModel.RemovePropertyCommand.Execute(editModel.Properties.Single());
 
@@ -289,9 +305,6 @@ namespace Kosmograph.Desktop.Test.EditModel
             editModel.CommitCommand.Execute(null);
 
             // ASSERT
-
-            Assert.Equal(model, committed);
-            Assert.Null(reverted);
 
             Assert.Empty(editModel.Properties);
             Assert.Empty(viewModel.Properties);
@@ -306,10 +319,13 @@ namespace Kosmograph.Desktop.Test.EditModel
             var model = new Tag("tag", new Facet("facet", new FacetProperty("p")));
             var viewModel = new TagViewModel(model);
 
-            Tag reverted = null;
-            var revertCB = new Action<Tag>(t => reverted = t);
+            this.tagEditCallback
+               .Setup(cb => cb.Commit(model));
 
-            var editModel = new TagEditModel(viewModel, delegate { }, revertCB);
+            this.tagEditCallback
+               .Setup(cb => cb.Rollback(model));
+
+            var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
 
             editModel.CreatePropertyCommand.Execute(null);
 
@@ -319,8 +335,6 @@ namespace Kosmograph.Desktop.Test.EditModel
             editModel.CommitCommand.Execute(null);
 
             // ASSERT
-
-            Assert.Equal(model, reverted);
 
             Assert.Single(editModel.Properties);
             Assert.Single(viewModel.Properties);

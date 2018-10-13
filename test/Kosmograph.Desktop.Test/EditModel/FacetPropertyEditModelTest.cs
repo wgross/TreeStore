@@ -1,6 +1,8 @@
 ﻿using Kosmograph.Desktop.EditModel;
 using Kosmograph.Desktop.Test.ViewModel;
 using Kosmograph.Model;
+using Moq;
+using System;
 using System.ComponentModel;
 using System.Linq;
 using Xunit;
@@ -8,8 +10,21 @@ using Xunit;
 namespace Kosmograph.Desktop.Test.EditModel
 
 {
-    public class FacetPropertyEditModelTest
+    public class FacetPropertyEditModelTest : IDisposable
     {
+        private readonly MockRepository mocks = new MockRepository(MockBehavior.Strict);
+        private readonly Mock<ITagEditCallback> tagEditCallback;
+
+        public FacetPropertyEditModelTest()
+        {
+            this.tagEditCallback = this.mocks.Create<ITagEditCallback>();
+        }
+
+        public void Dispose()
+        {
+            this.mocks.VerifyAll();
+        }
+
         [Fact]
         public void FacetPropertyEditModel_mirrors_ViewModel()
         {
@@ -20,7 +35,7 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             // ACT
 
-            var result = new TagEditModel(viewModel).Properties.Single();
+            var result = new TagEditModel(viewModel, this.tagEditCallback.Object).Properties.Single();
 
             // ASSERT
 
@@ -34,7 +49,7 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             var model = new Tag("", new Facet("", new FacetProperty("p")));
             var viewModel = model.ToViewModel();
-            var editModel = new TagEditModel(viewModel);
+            var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
 
             // ACT
 
@@ -42,8 +57,9 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             // ASSERT
 
-            Assert.Equal("changed", editModel.Name);
-            Assert.Equal("p", viewModel.Name);
+            Assert.Equal("changed", editModel.Properties.Single().Name);
+            Assert.Equal("p", viewModel.Properties.Single().Name);
+            Assert.Equal("p", model.Facet.Properties.Single().Name);
         }
 
         [Fact]
@@ -53,7 +69,7 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             var model = new Tag("", new Facet("", new FacetProperty("p")));
             var viewModel = model.ToViewModel();
-            var editModel = new TagEditModel(viewModel);
+            var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
 
             // ACT
 
@@ -61,7 +77,7 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             // ASSERT
 
-            Assert.Equal("changed", editModel.Name);
+            Assert.Equal("changed", editModel.Properties.Single().Name);
         }
 
         [Fact]
@@ -71,7 +87,7 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             var model = new Tag("", new Facet("", new FacetProperty("p"), new FacetProperty("q")));
             var viewModel = model.ToViewModel();
-            var editModel = new TagEditModel(viewModel);
+            var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
 
             DataErrorsChangedEventArgs args = null;
             void changed(object sender, DataErrorsChangedEventArgs args_) { args = args_; }
@@ -96,7 +112,7 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             var model = new Tag("", new Facet("", new FacetProperty("p"), new FacetProperty("q")));
             var viewModel = model.ToViewModel();
-            var editModel = new TagEditModel(viewModel);
+            var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
 
             DataErrorsChangedEventArgs args = null;
             void changed(object sender, DataErrorsChangedEventArgs args_) { args = args_; }
@@ -121,7 +137,7 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             var model = new Tag("", new Facet("", new FacetProperty("p")));
             var viewModel = model.ToViewModel();
-            var editModel = new TagEditModel(viewModel);
+            var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
 
             editModel.Properties.Single().Name = "changed";
 
@@ -131,9 +147,9 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             // ASSERT
 
-            Assert.Equal("changed", editModel.Name);
-            Assert.Equal("changed", viewModel.Name);
-            Assert.Equal("changed", model.Name);
+            Assert.Equal("changed", editModel.Properties.Single().Name);
+            Assert.Equal("changed", viewModel.Properties.Single().Name);
+            Assert.Equal("changed", model.Facet.Properties.Single().Name);
         }
 
         [Fact]
@@ -143,7 +159,7 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             var model = new Tag("", new Facet("", new FacetProperty("p")));
             var viewModel = model.ToViewModel();
-            var editModel = new TagEditModel(viewModel);
+            var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
 
             editModel.Properties.Single().Name = "changed";
 
@@ -154,9 +170,9 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             // ASSERT
 
-            Assert.Equal("p", editModel.Name);
-            Assert.Equal("p", viewModel.Name);
-            Assert.Equal("p", model.Name);
+            Assert.Equal("p", editModel.Properties.Single().Name);
+            Assert.Equal("p", viewModel.Properties.Single().Name);
+            Assert.Equal("p", model.Facet.Properties.Single().Name);
         }
     }
 }

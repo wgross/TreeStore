@@ -12,20 +12,18 @@ namespace Kosmograph.Desktop.EditModel
 {
     public class TagEditModel : NamedEditModelBase<TagViewModel, Tag>, INotifyDataErrorInfo
     {
-        private readonly Action<Tag> committed;
-        private readonly Action<Tag> rolledback;
+        private readonly ITagEditCallback editCallback;
 
-        public TagEditModel(TagViewModel tag, Action<Tag> committed = null, Action<Tag> rolledback = null)
-            : base(tag)
+        public TagEditModel(TagViewModel viewModel, ITagEditCallback editCallback)
+            : base(viewModel)
         {
+            this.editCallback = editCallback;
+
             this.Properties =
-                new CommitableObservableCollection<FacetPropertyEditModel>(tag.Properties.Select(p => new FacetPropertyEditModel(this, p)));
+                new CommitableObservableCollection<FacetPropertyEditModel>(viewModel.Properties.Select(p => new FacetPropertyEditModel(this, p)));
 
             this.CreatePropertyCommand = new RelayCommand(this.CreatePropertyExecuted);
             this.RemovePropertyCommand = new RelayCommand<FacetPropertyEditModel>(this.RemovePropertyExecuted);
-
-            this.committed = committed ?? delegate { };
-            this.rolledback = rolledback ?? delegate { };
         }
 
         #region Facet has observable collection of facet properties
@@ -59,7 +57,7 @@ namespace Kosmograph.Desktop.EditModel
                 onRemove: p => this.ViewModel.Properties.Remove(p.ViewModel));
             this.Properties.ForEach(p => p.Commit());
             base.Commit();
-            this.committed(this.ViewModel.Model);
+            this.editCallback.Commit(this.ViewModel.Model);
         }
 
         protected override bool CanCommit()
@@ -76,7 +74,7 @@ namespace Kosmograph.Desktop.EditModel
             this.Properties =
                 new CommitableObservableCollection<FacetPropertyEditModel>(this.ViewModel.Properties.Select(p => new FacetPropertyEditModel(this, p)));
             base.Rollback();
-            this.rolledback(this.ViewModel.Model);
+            this.editCallback.Rollback(this.ViewModel.Model);
         }
 
         #region Implement Validate

@@ -1,6 +1,7 @@
 ﻿using Kosmograph.Desktop.EditModel;
 using Kosmograph.Desktop.ViewModel;
 using Kosmograph.Model;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,7 +15,7 @@ namespace Kosmograph.Desktop.Test.EditModel
         public static IEnumerable<object[]> GetTestedInstances()
         {
             var tag = new TagEditModel(
-                new TagViewModel(new Tag("tag", new Facet("facet", new FacetProperty("p")))), delegate { });
+                new TagViewModel(new Tag("tag", new Facet("facet", new FacetProperty("p")))), Mock.Of<ITagEditCallback>());
 
             yield return new object[] { (Action<string>)(s => tag.Name = s), tag };
             yield return new object[] { (Action<string>)(s => tag.Properties.Single().Name = s), tag.Properties.Single() };
@@ -28,11 +29,11 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             INotifyPropertyChanged instance = null;
             PropertyChangedEventArgs args = null;
-            editor.PropertyChanged += (i, e) => {
+            editor.PropertyChanged += (i, e) =>
+            {
                 instance = i as INotifyPropertyChanged;
                 args = e;
             };
-
 
             // ACT
 

@@ -119,6 +119,7 @@
     </Compile>
     <Compile Include="EditModel\DeleteEntityWithRelationshipsEditModel.cs" />
     <Compile Include="EditModel\EditModelCommitted.cs" />
+    <Compile Include="EditModel\ITagEditCallback.cs" />
     <Compile Include="Editor\EditorCommands.cs" />
     <Compile Include="Editor\EditorControl.xaml.cs">
       <DependentUpon>EditorControl.xaml</DependentUpon>
@@ -149,7 +150,7 @@
     <Compile Include="Graph\Wpf2MsaglConverters.cs" />
     <Compile Include="KosmographCommands.cs" />
     <Compile Include="NullToVisiblityConverter.cs" />
-    <Compile Include="ViewModel\AssigendFacetPropertyViewModel.cs" />
+    <Compile Include="ViewModel\AssignedFacetPropertyViewModel.cs" />
     <Compile Include="EditModel\AssignedTagEditModel.cs" />
     <Compile Include="EditModel\Base\EditModelBase.cs" />
     <Compile Include="EditModel\AssignedFacetPropertyEditModel.cs" />
@@ -167,8 +168,9 @@
     <Compile Include="ViewModel\KosmographViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\Base\NamedViewModelBase.cs" />
-    <Compile Include="ViewModel\RepositoryViewModel.cs" />
+    <Compile Include="ViewModel\Base\RepositoryViewModel.cs" />
     <Compile Include="ViewModel\RelationshipViewModel.cs" />
+    <Compile Include="ViewModel\TagRepositoryViewModel.cs" />
     <Compile Include="ViewModel\TagViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Page Include="Controls\CommonResources.xaml">
