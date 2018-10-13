@@ -55,20 +55,19 @@ namespace Kosmograph.Desktop.EditModel
             this.Properties.Commit(
                 onAdd: p => this.ViewModel.Properties.Add(p.ViewModel),
                 onRemove: p => this.ViewModel.Properties.Remove(p.ViewModel));
-            this.Properties.ForEach(p => p.Commit());
+            this.Properties.ForEach(p => p.CommitCommand.Execute(null));
             base.Commit();
             this.editCallback.Commit(this.ViewModel.Model);
         }
 
         protected override bool CanCommit()
         {
-            if (this.Properties.Any(p => string.IsNullOrEmpty(p.Name)))
-                return false; // no empty names
-            if (this.Properties.Count() != this.Properties.Select(p => p.Name).Distinct().Count())
-                return false;
             if (this.HasErrors)
                 return false;
-            return base.CanCommit() && this.editCallback.CanCommit(this);
+            if (base.CanCommit())
+                if (this.Properties.All(p => p.CommitCommand.CanExecute(null)))
+                    return this.editCallback.CanCommit(this);
+            return false;
         }
 
         public override void Rollback()
