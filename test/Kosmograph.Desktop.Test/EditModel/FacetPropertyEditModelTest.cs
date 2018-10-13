@@ -81,7 +81,7 @@ namespace Kosmograph.Desktop.Test.EditModel
         }
 
         [Fact]
-        public void FacetPropertyEditModel_rejects_duplicate_name()
+        public void FacetPropertyEditModel_invalidates_duplicate_name()
         {
             // ARRANGE
 
@@ -106,7 +106,7 @@ namespace Kosmograph.Desktop.Test.EditModel
         }
 
         [Fact]
-        public void FacetPropertyEditModel_rejects_empty_name()
+        public void FacetPropertyEditModel_invalidates_empty_name()
         {
             // ARRANGE
 

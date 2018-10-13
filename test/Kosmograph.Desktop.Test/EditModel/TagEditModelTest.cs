@@ -3,6 +3,7 @@ using Kosmograph.Desktop.ViewModel;
 using Kosmograph.Model;
 using Moq;
 using System;
+using System.ComponentModel;
 using System.Linq;
 using Xunit;
 
@@ -73,6 +74,10 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
 
+            this.tagEditCallback
+                .Setup(cb => cb.CanCommit(editModel))
+                .Returns(true);
+
             editModel.Name = "changed";
 
             // ACT
@@ -102,6 +107,10 @@ namespace Kosmograph.Desktop.Test.EditModel
                 .Setup(cb => cb.Rollback(model));
 
             var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
+
+            this.tagEditCallback
+                .Setup(cb => cb.CanCommit(editModel))
+                .Returns(true);
 
             editModel.Name = "changed";
 
@@ -151,6 +160,10 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
 
+            this.tagEditCallback
+                .Setup(cb => cb.CanCommit(editModel))
+                .Returns(true);
+
             editModel.CreatePropertyCommand.Execute(null);
 
             // ACT
@@ -183,6 +196,10 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
 
+            this.tagEditCallback
+                .Setup(cb => cb.CanCommit(editModel))
+                .Returns(true);
+
             editModel.CreatePropertyCommand.Execute(null);
 
             // ACT
@@ -201,7 +218,34 @@ namespace Kosmograph.Desktop.Test.EditModel
         }
 
         [Fact]
-        public void TagEditModel_forbids_commit_missing_property_name()
+        public void TagEditModel_invalidates_empty_tag_name()
+        {
+            // ARRANGE
+
+            var model = new Tag("tag", new Facet("facet"));
+            var viewModel = new TagViewModel(model);
+            var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
+
+            DataErrorsChangedEventArgs args = null;
+            void changed(object sender, DataErrorsChangedEventArgs args_) { args = args_; }
+
+            editModel.ErrorsChanged += changed;
+
+            // ACT
+
+            editModel.Name = string.Empty;
+            var result = editModel.CommitCommand.CanExecute(null);
+
+            // ASSERT
+
+            Assert.False(result);
+            Assert.True(editModel.HasErrors);
+            Assert.Equal("Tag name must not be empty", editModel.GetErrors(nameof(TagEditModel.Name)).Cast<string>().Single());
+            Assert.Equal(nameof(TagEditModel.Name), args.PropertyName);
+        }
+
+        [Fact]
+        public void TagEditModel_invalidates_empty_property_name()
         {
             // ARRANGE
 
@@ -211,10 +255,10 @@ namespace Kosmograph.Desktop.Test.EditModel
             var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
 
             editModel.CreatePropertyCommand.Execute(null);
-            editModel.Properties.Single().Name = string.Empty;
 
             // ACT
 
+            editModel.Properties.Single().Name = string.Empty;
             var result = editModel.CommitCommand.CanExecute(null);
 
             // ASSERT
@@ -223,7 +267,7 @@ namespace Kosmograph.Desktop.Test.EditModel
         }
 
         [Fact]
-        public void TagEditModel_forbids_commit_duplicate_property_name()
+        public void TagEditModel_invalidates_duplicate_property_name()
         {
             // ARRANGE
 
@@ -277,6 +321,10 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
 
+            this.tagEditCallback
+                .Setup(cb => cb.CanCommit(editModel))
+                .Returns(true);
+
             editModel.RemovePropertyCommand.Execute(editModel.Properties.Single());
 
             // ACT
@@ -305,6 +353,10 @@ namespace Kosmograph.Desktop.Test.EditModel
                .Setup(cb => cb.Rollback(model));
 
             var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
+
+            this.tagEditCallback
+                .Setup(cb => cb.CanCommit(editModel))
+                .Returns(true);
 
             editModel.CreatePropertyCommand.Execute(null);
 

@@ -66,6 +66,8 @@ namespace Kosmograph.Desktop.EditModel
                 return false; // no empty names
             if (this.Properties.Count() != this.Properties.Select(p => p.Name).Distinct().Count())
                 return false;
+            if (this.HasErrors)
+                return false;
             return base.CanCommit() && this.editCallback.CanCommit(this);
         }
 
@@ -79,20 +81,37 @@ namespace Kosmograph.Desktop.EditModel
 
         #region Implement Validate
 
+        private string nameError;
+
         protected override void Validate()
         {
+            if (string.IsNullOrEmpty(this.Name))
+            {
+                this.nameError = "Tag name must not be empty";
+            }
+            else
+            {
+                this.nameError = null;
+            }
+            if (!string.IsNullOrEmpty(this.nameError))
+                this.ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(nameof(this.Name)));
         }
 
         #endregion Implement Validate
 
         #region INotifyDataErrorInfo
 
-        public bool HasErrors => false;
+        public bool HasErrors => !string.IsNullOrEmpty(this.nameError);
 
         public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
 
         public IEnumerable GetErrors(string propertyName)
         {
+            if (nameof(Name).Equals(propertyName))
+            {
+                if (!string.IsNullOrEmpty(this.nameError))
+                    return this.nameError.Yield();
+            }
             return Enumerable.Empty<string>();
         }
 
