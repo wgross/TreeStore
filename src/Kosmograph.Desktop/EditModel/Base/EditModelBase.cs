@@ -16,10 +16,10 @@ namespace Kosmograph.Desktop.EditModel.Base
 
         protected virtual bool CanCommit() => true;
 
-        public abstract void Commit();
+        protected abstract void Commit();
 
         public ICommand RollbackCommand { get; }
 
-        public abstract void Rollback();
+        protected abstract void Rollback();
     }
 }

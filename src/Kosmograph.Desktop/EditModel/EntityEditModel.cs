@@ -63,10 +63,10 @@ namespace Kosmograph.Desktop.EditModel
 
         #region Commit changes to Model
 
-        public override void Commit()
+        protected override void Commit()
         {
             this.Tags.Commit(onAdd: this.CommitAddedTag, onRemove: this.CommitRemovedTag);
-            this.Tags.ForEach(t => t.Properties.ForEach(p => p.Commit()));
+            this.Tags.ForEach(t => t.Properties.ForEach(p => p.CommitCommand.Execute(null)));
             base.Commit();
             this.committed(this.ViewModel.Model);
             this.MessengerInstance.Send(new EditModelCommitted(viewModel: this.ViewModel));
@@ -87,10 +87,10 @@ namespace Kosmograph.Desktop.EditModel
 
         #region Rollback changes
 
-        public override void Rollback()
+        protected override void Rollback()
         {
             this.Tags.Rollback();
-            this.Tags.ForEach(t => t.Properties.ForEach(p => p.Rollback()));
+            this.Tags.ForEach(t => t.Properties.ForEach(p => p.RollbackCommand.Execute(null)));
             base.Rollback();
             this.rolledback(this.ViewModel.Model);
         }

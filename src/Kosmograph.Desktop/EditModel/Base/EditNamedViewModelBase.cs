@@ -12,12 +12,12 @@ namespace Kosmograph.Desktop.EditModel.Base
             this.Model = edited;
         }
 
-        public override void Commit()
+        protected override void Commit()
         {
             this.Model.Name = this.Name;
         }
 
-        public override void Rollback()
+        protected override void Rollback()
         {
             this.Name = this.Model.Name;
         }

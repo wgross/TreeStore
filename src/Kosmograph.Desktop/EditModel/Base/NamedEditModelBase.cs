@@ -15,12 +15,12 @@ namespace Kosmograph.Desktop.EditModel.Base
             this.ViewModel = edited;
         }
 
-        public override void Commit()
+        protected override void Commit()
         {
             this.ViewModel.Name = this.Name;
         }
 
-        public override void Rollback()
+        protected override void Rollback()
         {
             this.Name = this.ViewModel.Name;
         }

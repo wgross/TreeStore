@@ -122,9 +122,11 @@ namespace Kosmograph.Desktop.Test.EditModel
             // ACT
 
             editModel.Properties.ElementAt(1).Name = "";
+            var result = editModel.Properties.ElementAt(1).CommitCommand.CanExecute(null);
 
             // ASSERT
 
+            Assert.False(result);
             Assert.True(editModel.Properties.ElementAt(1).HasErrors);
             Assert.Equal("Property name must not be empty", editModel.Properties.ElementAt(1).GetErrors(nameof(FacetPropertyEditModel.Name)).Cast<string>().Single());
             Assert.Equal(nameof(FacetPropertyEditModel.Name), args.PropertyName);

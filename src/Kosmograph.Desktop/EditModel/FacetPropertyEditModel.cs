@@ -59,5 +59,10 @@ namespace Kosmograph.Desktop.EditModel
         private string nameError;
 
         #endregion Implement Validate
+
+        protected override bool CanCommit()
+        {
+            return !this.HasErrors && base.CanCommit();
+        }
     }
 }

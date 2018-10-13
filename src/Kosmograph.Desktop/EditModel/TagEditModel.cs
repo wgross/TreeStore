@@ -50,7 +50,7 @@ namespace Kosmograph.Desktop.EditModel
 
         #endregion Commands
 
-        public override void Commit()
+        protected override void Commit()
         {
             this.Properties.Commit(
                 onAdd: p => this.ViewModel.Properties.Add(p.ViewModel),
@@ -70,7 +70,7 @@ namespace Kosmograph.Desktop.EditModel
             return false;
         }
 
-        public override void Rollback()
+        protected override void Rollback()
         {
             this.Properties =
                 new CommitableObservableCollection<FacetPropertyEditModel>(this.ViewModel.Properties.Select(p => new FacetPropertyEditModel(this, p)));

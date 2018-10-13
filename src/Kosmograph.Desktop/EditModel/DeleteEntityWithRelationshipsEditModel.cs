@@ -26,12 +26,12 @@ namespace Kosmograph.Desktop.EditModel
 
         public ObservableCollection<RelationshipViewModel> Relationships { get; set; }
 
-        public override void Commit()
+        protected override void Commit()
         {
             this.committed(this.Entity, this.Relationships);
         }
 
-        public override void Rollback()
+        protected override void Rollback()
         {
             this.rollback(this.Entity, this.Relationships);
         }

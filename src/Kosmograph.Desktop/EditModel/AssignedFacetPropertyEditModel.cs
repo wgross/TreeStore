@@ -20,12 +20,12 @@ namespace Kosmograph.Desktop.EditModel
 
         private object value = null;
 
-        override public void Commit()
+        override protected void Commit()
         {
             this.ViewModel.Value = this.Value;
         }
 
-        override public void Rollback()
+        override protected void Rollback()
         {
             this.value = null;
         }
