@@ -118,27 +118,6 @@ namespace Kosmograph.Desktop.Test.EditModel
         }
 
         [Fact]
-        public void TagEditModel_forbids_adding_tag_with_duplicate_name()
-        {
-            // ARRANGE
-
-            var p2 = new FacetProperty("p2");
-            var model = new Tag("tag", new Facet("facet", new FacetProperty("p")));
-            var viewModel = new TagViewModel(model);
-            var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
-
-            // ACT
-
-            editModel.Name = "changed";
-
-            // ASSERT
-
-            Assert.Equal("changed", editModel.Name);
-            Assert.Equal("tag", viewModel.Name);
-            Assert.Equal("tag", model.Name);
-        }
-
-        [Fact]
         public void TagEditModel_delays_add_property_at_ViewModel()
         {
             // ARRANGE

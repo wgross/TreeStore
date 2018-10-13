@@ -96,12 +96,12 @@ namespace Kosmograph.Desktop.ViewModel
             }
         }
 
+        public VM FindByName(string name) => this.locals.Values.FirstOrDefault(vm => vm.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+
         public VM GetViewModel(M model) => this.locals.TryGetValue(model.Id, out var viewModel) ? viewModel : throw new InvalidOperationException("model unknown");
 
         public VM CreateViewModel(M model) => this.newViewModel(model);
     }
-
-    
 
     public class EntityRepositoryViewModel : RepositoryViewModel<EntityViewModel, Entity>
     {

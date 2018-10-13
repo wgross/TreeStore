@@ -22,7 +22,10 @@ namespace Kosmograph.Desktop.ViewModel
 
             public bool CanCommit(TagEditModel tag)
             {
-                throw new System.NotImplementedException();
+                if (this.viewModel.FindByName(tag.Name) is null)
+                    return true;
+
+                return false;
             }
 
             public void Commit(Tag tag)
@@ -35,7 +38,7 @@ namespace Kosmograph.Desktop.ViewModel
                 this.viewModel.OnRollback(tag);
             }
         }
-
+        
         public TagRepositoryViewModel(ITagRepository repository)
             : base(repository, m => new TagViewModel(m))
         {

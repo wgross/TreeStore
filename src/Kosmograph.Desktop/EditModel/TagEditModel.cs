@@ -66,7 +66,7 @@ namespace Kosmograph.Desktop.EditModel
                 return false; // no empty names
             if (this.Properties.Count() != this.Properties.Select(p => p.Name).Distinct().Count())
                 return false;
-            return base.CanCommit();
+            return base.CanCommit() && this.editCallback.CanCommit(this);
         }
 
         public override void Rollback()
