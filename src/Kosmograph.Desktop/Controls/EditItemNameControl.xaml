@@ -6,17 +6,46 @@
              xmlns:local="clr-namespace:Kosmograph.Desktop.Controls"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <DockPanel
-            LastChildFill="True">
-            <Label
-                DockPanel.Dock="Left"
-                Content="Name"
-                Width="50"/>
-            <TextBox 
-                Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
-                VerticalAlignment="Center" 
-                Margin="0,0,5,0"/>
-        </DockPanel>
-    </Grid>
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="./CommonResources.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <!--
+            The text box for name editing shoul be a little bit bigger
+            similar to the size of the list box items.
+            -->
+            <Style x:Key="nameEditTextBox" TargetType="{x:Type TextBox}">
+                <Setter Property="MinHeight" Value="24" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="Margin" Value="0,0,5,0" />
+                <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=Text}" />
+                <Setter Property="Validation.ErrorTemplate">
+                    <Setter.Value>
+                        <ControlTemplate>
+                            <Grid>
+                                <Border BorderBrush="Red" BorderThickness="2" />
+                                <AdornedElementPlaceholder x:Name="textBox" />
+                                <TextBlock Text="{Binding [0].ErrorContent}"
+                                       Foreground="Red"
+                                       HorizontalAlignment="Right"
+                                       VerticalAlignment="Center"
+                                       Background="White"
+                                       Margin="0,0,3,0" />
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <DockPanel
+        LastChildFill="True">
+        <Label
+            DockPanel.Dock="Left"
+            Content="Name"
+            Width="50" />
+        <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
+                 Style="{StaticResource nameEditTextBox}" />
+    </DockPanel>
 </UserControl>
