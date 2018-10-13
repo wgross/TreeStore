@@ -3,9 +3,9 @@ using System.Linq;
 
 namespace Kosmograph.Model.Base
 {
-    public abstract class TaggedItemBase : NamedItemBase
+    public abstract class TaggedBase : NamedBase
     {
-        public TaggedItemBase(string name, Tag[] tags)
+        public TaggedBase(string name, Tag[] tags)
             : base(name)
         {
             this.Tags = tags.ToList();

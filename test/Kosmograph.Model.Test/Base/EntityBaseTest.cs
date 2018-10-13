@@ -31,7 +31,7 @@ namespace Kosmograph.Model.Test
 
         [Theory]
         [MemberData(nameof(GetEntityBaseInstancesForEquality))]
-        public void EntityBases_are_equal_if_Id_are_equal_and_Type(NamedItemBase refEntity, NamedItemBase sameId, NamedItemBase differentId, NamedItemBase differentType)
+        public void EntityBases_are_equal_if_Id_are_equal_and_Type(NamedBase refEntity, NamedBase sameId, NamedBase differentId, NamedBase differentType)
         {
             // ACT & ASSERT
 
@@ -47,7 +47,7 @@ namespace Kosmograph.Model.Test
 
         [Theory]
         [MemberData(nameof(GetEntityBaseInstancesForInitzialization))]
-        public void EntityBases_have_empty_name(NamedItemBase entityBase)
+        public void EntityBases_have_empty_name(NamedBase entityBase)
         {
             // ACT
 

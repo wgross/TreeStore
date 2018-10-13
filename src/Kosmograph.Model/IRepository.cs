@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Kosmograph.Model
 {
-    public interface IRepository<T> where T : NamedItemBase
+    public interface IRepository<T> where T : NamedBase
     {
         T FindById(Guid id);
 

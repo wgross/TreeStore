@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 namespace Kosmograph.Desktop.EditModel.Base
 {
     public abstract class NamedEditModelBase<VM, M> : EditModelBase
-            where M : NamedItemBase
+            where M : NamedBase
             where VM : NamedViewModelBase<M>
     {
         public VM ViewModel { get; private set; }

@@ -4,7 +4,7 @@ using Kosmograph.Model.Base;
 namespace Kosmograph.Desktop.ViewModel.Base
 {
     public abstract class NamedViewModelBase<T> : ViewModelBase
-        where T : NamedItemBase
+        where T : NamedBase
     {
         public NamedViewModelBase(T model)
         {

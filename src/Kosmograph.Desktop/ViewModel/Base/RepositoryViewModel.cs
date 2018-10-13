@@ -14,7 +14,7 @@ using System.Windows.Input;
 namespace Kosmograph.Desktop.ViewModel
 {
     public class RepositoryViewModel<VM, M> : ObservableCollection<VM>
-        where M : NamedItemBase
+        where M : NamedBase
         where VM : NamedViewModelBase<M>
     {
         public class Deleted<M>

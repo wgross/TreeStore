@@ -3,7 +3,7 @@
 namespace Kosmograph.Desktop.EditModel.Base
 {
     public class EditNamedViewModelBase<T> : EditModelBase
-            where T : NamedItemBase
+            where T : NamedBase
     {
         public T Model { get; private set; }
 
