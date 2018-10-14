@@ -44,5 +44,23 @@ namespace Kosmograph.Desktop.Test.ViewModel
             Assert.Single(tag.Facet.Properties);
             Assert.Equal("p2", tag.Facet.Properties.Single().Name);
         }
+
+        [Fact]
+        public void TagViewModel_sets_Facet_name_equal_to_Tag_name()
+        {
+            // ARRANGE
+
+            var tag = new Tag("tag", new Facet("facet", new FacetProperty("p")));
+            var viewTag = new TagViewModel(tag);
+
+            // ACT
+
+            viewTag.Name = "changed";
+
+            // ASSERT
+
+            Assert.Equal("changed", tag.Name);
+            Assert.Equal("changed", tag.Facet.Name);
+        }
     }
 }

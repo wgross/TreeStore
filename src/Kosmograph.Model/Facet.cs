@@ -21,7 +21,7 @@ namespace Kosmograph.Model
 
         #endregion Construction and initialization of this instance
 
-        public List<FacetProperty> Properties { get; set; } = new List<FacetProperty>();
+        public ICollection<FacetProperty> Properties { get; set; } = new List<FacetProperty>();
 
         public void AddProperty(FacetProperty property)
         {

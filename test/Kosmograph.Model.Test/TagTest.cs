@@ -5,15 +5,15 @@ namespace Kosmograph.Model.Test
     public class TagTest
     {
         [Fact]
-        public void Tag_contains_facet_with_empty_name()
+        public void Tag_contains_facet_with_same_name()
         {
             // ACT
 
-            var result = new Tag();
+            var result = new Tag("tag");
 
             // ASSERT
 
-            Assert.Empty(result.Facet.Name);
+            Assert.Equal("tag", result.Facet.Name);
         }
     }
 }

@@ -20,8 +20,9 @@ namespace Kosmograph.Desktop.ViewModel.Base
             {
                 if (this.Model.Name.Equals(value))
                     return;
+                var old = this.Name;
                 this.Model.Name = value;
-                this.RaisePropertyChanged(nameof(Name));
+                this.RaisePropertyChanged(nameof(Name), old, value);
             }
         }
     }
