@@ -80,27 +80,45 @@ namespace Kosmograph.Desktop.EditModel
 
         #region Implement Validate
 
-        private string nameError;
+        public string RepositoryValidationError { get; private set; }
+
+        public string NameError { get; private set; }
 
         protected override void Validate()
         {
-            if (string.IsNullOrEmpty(this.Name))
+            this.HasErrors = false;
+            this.RepositoryValidationError = this.editCallback.Validate(this);
+
+            // validate the repo data
+            if (string.IsNullOrEmpty(this.RepositoryValidationError))
             {
-                this.nameError = "Tag name must not be empty";
+                this.HasErrors = this.HasErrors || false;
             }
             else
             {
-                this.nameError = null;
+                this.HasErrors = this.HasErrors || true;
+                this.ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(nameof(this.RepositoryValidationError)));
             }
-            if (!string.IsNullOrEmpty(this.nameError))
+
+            // validate the local data
+            if (string.IsNullOrEmpty(this.Name))
+            {
+                this.HasErrors = this.HasErrors || true;
+                this.NameError = "Tag name must not be empty";
                 this.ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(nameof(this.Name)));
+            }
+            else
+            {
+                this.HasErrors = this.HasErrors || false;
+                this.NameError = null;
+            }
         }
 
         #endregion Implement Validate
 
         #region INotifyDataErrorInfo
 
-        public bool HasErrors => !string.IsNullOrEmpty(this.nameError);
+        public bool HasErrors { get; private set; }
 
         public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
 
@@ -108,8 +126,12 @@ namespace Kosmograph.Desktop.EditModel
         {
             if (nameof(Name).Equals(propertyName))
             {
-                if (!string.IsNullOrEmpty(this.nameError))
-                    return this.nameError.Yield();
+                //if (!string.IsNullOrEmpty(this.NameError))
+                return this.NameError.Yield();
+            }
+            if (nameof(RepositoryValidationError).Equals(propertyName))
+            {
+                return this.RepositoryValidationError.Yield();
             }
             return Enumerable.Empty<string>();
         }

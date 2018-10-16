@@ -20,12 +20,11 @@ namespace Kosmograph.Desktop.ViewModel
                 this.onCommit = onCommit;
             }
 
+            public bool HasError { get; private set; }
+
             public bool CanCommit(TagEditModel tag)
             {
-                if (this.viewModel.FindByName(tag.Name) is null)
-                    return true;
-
-                return false;
+                return !this.HasError;
             }
 
             public void Commit(Tag tag)
@@ -37,8 +36,22 @@ namespace Kosmograph.Desktop.ViewModel
             {
                 this.viewModel.OnRollback(tag);
             }
+
+            public string Validate(TagEditModel tag)
+            {
+                if (this.viewModel.FindByName(tag.Name) is null)
+                {
+                    this.HasError = false;
+                    return null;
+                }
+                else
+                {
+                    this.HasError = true;
+                    return "Tag name must be unique";
+                }
+            }
         }
-        
+
         public TagRepositoryViewModel(ITagRepository repository)
             : base(repository, m => new TagViewModel(m))
         {
