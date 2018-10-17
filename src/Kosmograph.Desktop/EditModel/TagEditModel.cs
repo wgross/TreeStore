@@ -99,11 +99,6 @@ namespace Kosmograph.Desktop.EditModel
                 this.NameError = "Tag name must not be empty";
                 this.ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(nameof(this.Name)));
             }
-            else
-            {
-                this.HasErrors = this.HasErrors || false;
-                this.NameError = null;
-            }
         }
 
         #endregion Implement Validate

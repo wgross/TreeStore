@@ -39,7 +39,8 @@ namespace Kosmograph.Desktop.ViewModel
 
             public string Validate(TagEditModel tag)
             {
-                if (this.viewModel.FindByName(tag.Name) is null)
+                var possibleDuplicate = this.viewModel.FindByName(tag.Name);
+                if (possibleDuplicate is null || possibleDuplicate.Model.Equals(tag.ViewModel.Model)) 
                 {
                     this.HasError = false;
                     return null;

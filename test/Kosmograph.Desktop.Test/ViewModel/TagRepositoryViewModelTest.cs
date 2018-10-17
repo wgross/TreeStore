@@ -85,7 +85,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
         }
 
         [Fact]
-        public void TagRepositoryViewModel_invalidates_editing_duplicate_tag_name()
+        public void TagRepositoryViewModel_invalidates_editing_duplicate_tag_name_with_different_id()
         {
             // ARRANGE
 
@@ -115,6 +115,37 @@ namespace Kosmograph.Desktop.Test.ViewModel
             Assert.Equal("Tag name must be unique", result);
             Assert.Equal("Tag name must be unique", this.viewModel.Edited.GetErrors(nameof(TagEditModel.Name)).Cast<string>().Single());
             Assert.Equal(nameof(TagEditModel.Name), args.PropertyName);
+        }
+
+        [Fact]
+        public void TagRepositoryViewModel_validates_editing_duplicate_tag_name_with_same_id()
+        {
+            // ARRANGE
+
+            this.model
+                .Setup(m => m.FindAll())
+                .Returns(new[] { new Tag("t") });
+
+            this.viewModel.FillAll();
+
+            // create new tag
+            this.viewModel.EditCommand.Execute(this.viewModel.Single());
+
+            DataErrorsChangedEventArgs args = null;
+            void changed(object sender, DataErrorsChangedEventArgs args_) { args = args_; }
+
+            this.viewModel.Edited.ErrorsChanged += changed;
+
+            // ACT
+
+            this.viewModel.Edited.Name = "T";
+            var result = this.viewModel.Edited.NameError;
+
+            // ASSERT
+            // commit can be executed
+
+            Assert.True(this.viewModel.EditCommand.CanExecute(null));
+            Assert.False(this.viewModel.Edited.HasErrors);
         }
 
         [Fact]
