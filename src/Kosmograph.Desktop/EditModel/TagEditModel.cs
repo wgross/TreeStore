@@ -80,30 +80,22 @@ namespace Kosmograph.Desktop.EditModel
 
         #region Implement Validate
 
-        public string RepositoryValidationError { get; private set; }
-
-        public string NameError { get; private set; }
-
         protected override void Validate()
         {
             this.HasErrors = false;
-            this.RepositoryValidationError = this.editCallback.Validate(this);
+            this.NameError = this.editCallback.Validate(this);
 
             // validate the repo data
-            if (string.IsNullOrEmpty(this.RepositoryValidationError))
-            {
-                this.HasErrors = this.HasErrors || false;
-            }
-            else
+            if (!string.IsNullOrEmpty(this.NameError))
             {
                 this.HasErrors = this.HasErrors || true;
-                this.ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(nameof(this.RepositoryValidationError)));
+                this.ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(nameof(this.Name)));
             }
 
             // validate the local data
             if (string.IsNullOrEmpty(this.Name))
             {
-                this.HasErrors = this.HasErrors || true;
+                this.HasErrors = true;
                 this.NameError = "Tag name must not be empty";
                 this.ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(nameof(this.Name)));
             }
@@ -128,10 +120,6 @@ namespace Kosmograph.Desktop.EditModel
             {
                 //if (!string.IsNullOrEmpty(this.NameError))
                 return this.NameError.Yield();
-            }
-            if (nameof(RepositoryValidationError).Equals(propertyName))
-            {
-                return this.RepositoryValidationError.Yield();
             }
             return Enumerable.Empty<string>();
         }

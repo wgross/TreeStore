@@ -1,6 +1,5 @@
 ﻿using Kosmograph.Desktop.ViewModel.Base;
 using Kosmograph.Model.Base;
-using System.Runtime.CompilerServices;
 
 namespace Kosmograph.Desktop.EditModel.Base
 {
@@ -28,16 +27,22 @@ namespace Kosmograph.Desktop.EditModel.Base
         public string Name
         {
             get => this.name ?? this.ViewModel.Name;
-            set => this.Set(nameof(Name), ref this.name, value.Trim());
+            set
+            {
+                if (this.Set(nameof(Name), ref this.name, value?.Trim()))
+                    this.Validate();
+            }
         }
 
         private string name;
 
-        public override void RaisePropertyChanged([CallerMemberName] string propertyName = null)
+        public string NameError
         {
-            this.Validate();
-            base.RaisePropertyChanged(propertyName);
+            get => this.nameError;
+            protected set => this.Set(nameof(NameError), ref this.nameError, value?.Trim());
         }
+
+        private string nameError;
 
         protected abstract void Validate();
     }

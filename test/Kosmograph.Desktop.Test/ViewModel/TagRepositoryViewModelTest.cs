@@ -106,15 +106,15 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // ACT
 
             this.viewModel.Edited.Name = "T";
-            var result = this.viewModel.Edited.RepositoryValidationError;
+            var result = this.viewModel.Edited.NameError;
 
             // ASSERT
             // commit cant be executed
 
             Assert.True(this.viewModel.Edited.HasErrors);
             Assert.Equal("Tag name must be unique", result);
-            Assert.Equal("Tag name must be unique", this.viewModel.Edited.GetErrors(nameof(TagEditModel.RepositoryValidationError)).Cast<string>().Single());
-            Assert.Equal(nameof(TagEditModel.RepositoryValidationError), args.PropertyName);
+            Assert.Equal("Tag name must be unique", this.viewModel.Edited.GetErrors(nameof(TagEditModel.Name)).Cast<string>().Single());
+            Assert.Equal(nameof(TagEditModel.Name), args.PropertyName);
         }
 
         [Fact]

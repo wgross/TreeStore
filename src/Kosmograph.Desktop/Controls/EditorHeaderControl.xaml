@@ -6,9 +6,12 @@
              xmlns:local="clr-namespace:Kosmograph.Desktop.Controls"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
-    <TextBlock
-        Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Path=Text}"
-        Foreground="Gray"
-        FontWeight="Bold" />
-    
+    <StackPanel  Orientation="Vertical">
+        <TextBlock
+            Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Path=Text, ValidatesOnNotifyDataErrors=True}"
+            Foreground="Gray"
+            FontWeight="Bold">
+             
+        </TextBlock>
+    </StackPanel>
 </UserControl>
