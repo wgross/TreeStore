@@ -45,17 +45,6 @@
                     <Setter.Value>
                         <Style TargetType="{x:Type ListBoxItem}">
                             <Setter Property="Padding" Value="1" />
-                            <!--<Setter Property="Validation.ErrorTemplate">
-                                <Setter.Value>
-                                    <ControlTemplate>
-                                        <Grid Background="{x:Null}" ToolTip="{Binding Path=ErrorContent}">
-                                            <Border BorderBrush="Red"  BorderThickness="2">
-                                                <AdornedElementPlaceholder />
-                                            </Border>
-                                        </Grid>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>-->
                         </Style>
                     </Setter.Value>
                 </Setter>

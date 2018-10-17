@@ -20,7 +20,7 @@
                 <Setter Property="VerticalAlignment" Value="Center" />
                 <Setter Property="Margin" Value="0,0,5,0" />
                 <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=Text}" />
-                <Setter Property="Validation.ErrorTemplate">
+                <!--<Setter Property="Validation.ErrorTemplate">
                     <Setter.Value>
                         <ControlTemplate>
                             <Grid>
@@ -35,7 +35,7 @@
                             </Grid>
                         </ControlTemplate>
                     </Setter.Value>
-                </Setter>
+                </Setter>-->
             </Style>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -46,18 +46,18 @@
             Content="Name"
             Width="50" />
         <TextBlock DockPanel.Dock="Bottom"
-            Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Path=ErrorText}"
+            Text="{Binding NameError, UpdateSourceTrigger=PropertyChanged, Mode=OneWay, ValidatesOnNotifyDataErrors=True}"
             Foreground="Red"/>
         <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
                  Style="{StaticResource nameEditTextBox}">
-            <Validation.ErrorTemplate>
+            <!--<Validation.ErrorTemplate>
                 <ControlTemplate>
                     <Grid>
                         <Border BorderBrush="Red" BorderThickness="2" />
                         <AdornedElementPlaceholder />
                     </Grid>
                 </ControlTemplate>
-            </Validation.ErrorTemplate>
+            </Validation.ErrorTemplate>-->
         </TextBox>
     </DockPanel>
 </UserControl>
