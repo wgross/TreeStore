@@ -16,28 +16,7 @@
                 <Setter Property="ItemTemplate">
                     <Setter.Value>
                         <DataTemplate DataType="{x:Type kem:FacetPropertyEditModel}">
-                            <DockPanel
-                            LastChildFill="True">
-                                <Label DockPanel.Dock="Left"
-                                       Content="Name" />
-                                <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
-                                         ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Text}">
-                                    <Validation.ErrorTemplate>
-                                        <ControlTemplate>
-                                            <Grid>
-                                                <Border BorderBrush="Red" BorderThickness="2"/>
-                                                    <AdornedElementPlaceholder x:Name="textBox" />
-                                                    <TextBlock Text="{Binding [0].ErrorContent}" 
-                                                               Foreground="Red" 
-                                                               HorizontalAlignment="Right" 
-                                                               VerticalAlignment="Center"
-                                                               Background="White"
-                                                               Margin="0,0,3,0"/>
-                                            </Grid>
-                                        </ControlTemplate>
-                                    </Validation.ErrorTemplate>
-                                </TextBox>
-                            </DockPanel>
+                            <local:EditItemNameControl/>
                         </DataTemplate>
                     </Setter.Value>
                 </Setter>

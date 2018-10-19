@@ -20,7 +20,7 @@ namespace Kosmograph.Desktop.EditModel
 
         #region INotifyDataErrorInfo members
 
-        public bool HasErrors => !string.IsNullOrEmpty(this.nameError);
+        public bool HasErrors => !string.IsNullOrEmpty(this.NameError);
 
         public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
 
@@ -28,8 +28,7 @@ namespace Kosmograph.Desktop.EditModel
         {
             if (nameof(Name).Equals(propertyName))
             {
-                if (!string.IsNullOrEmpty(this.nameError))
-                    return this.nameError.Yield();
+                return this.NameError.Yield();
             }
             return Enumerable.Empty<string>();
         }
@@ -42,22 +41,20 @@ namespace Kosmograph.Desktop.EditModel
         {
             if (string.IsNullOrEmpty(this.Name))
             {
-                this.nameError = "Property name must not be empty";
+                this.NameError = "Property name must not be empty";
             }
             else if (this.Tag.Properties.Where(p => p.Name.Equals(this.Name)).Count() > 1)
             {
-                this.nameError = "Property name must be unique";
+                this.NameError = "Property name must be unique";
             }
             else
             {
-                this.nameError = null;
+                this.NameError = null;
             }
-            if (!string.IsNullOrEmpty(this.nameError))
+            if (!string.IsNullOrEmpty(this.NameError))
                 this.ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(nameof(this.Name)));
         }
-
-        private string nameError;
-
+        
         #endregion Implement Validate
 
         protected override bool CanCommit()
