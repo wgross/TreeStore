@@ -2,15 +2,13 @@
 using Kosmograph.Desktop.EditModel.Base;
 using Kosmograph.Desktop.ViewModel;
 using Kosmograph.Model;
-using System;
 using System.Collections;
-using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
 
 namespace Kosmograph.Desktop.EditModel
 {
-    public class TagEditModel : NamedEditModelBase<TagViewModel, Tag>, INotifyDataErrorInfo
+    public class TagEditModel : NamedEditModelBase<TagViewModel, Tag>
     {
         private readonly ITagEditCallback editCallback;
 
@@ -89,7 +87,7 @@ namespace Kosmograph.Desktop.EditModel
             if (!string.IsNullOrEmpty(this.NameError))
             {
                 this.HasErrors = this.HasErrors || true;
-                this.ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(nameof(this.Name)));
+                this.RaiseErrorsChanged(nameof(this.Name));
             }
 
             // validate the local data
@@ -97,19 +95,13 @@ namespace Kosmograph.Desktop.EditModel
             {
                 this.HasErrors = true;
                 this.NameError = "Tag name must not be empty";
-                this.ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(nameof(this.Name)));
+                this.RaiseErrorsChanged(nameof(this.Name));
             }
         }
 
         #endregion Implement Validate
 
-        #region INotifyDataErrorInfo
-
-        public bool HasErrors { get; private set; }
-
-        public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
-
-        public IEnumerable GetErrors(string propertyName)
+        override public IEnumerable GetErrors(string propertyName)
         {
             if (nameof(Name).Equals(propertyName))
             {
@@ -118,7 +110,5 @@ namespace Kosmograph.Desktop.EditModel
             }
             return Enumerable.Empty<string>();
         }
-
-        #endregion INotifyDataErrorInfo
     }
 }

@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Kosmograph.Desktop.Test.EditModel
 {
-    public class EditNamedViewModelTest
+    public class NamedEditModelTest
     {
         public static IEnumerable<object[]> GetTestedInstances()
         {

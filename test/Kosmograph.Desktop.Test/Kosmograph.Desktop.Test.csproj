@@ -113,7 +113,7 @@
     <Compile Include="ViewModel\AssignedFacetPropertyViewModelTest.cs" />
     <Compile Include="EditModel\EntityEditModelTest.cs" />
     <Compile Include="EditModel\FacetPropertyEditModelTest.cs" />
-    <Compile Include="EditModel\EditFacetViewModelTest.cs" />
+    <Compile Include="EditModel\FacetEditModelTest.cs" />
     <Compile Include="EditModel\EditNamedViewModelTest.cs" />
     <Compile Include="EditModel\TagEditModelTest.cs" />
     <Compile Include="ViewModel\AssignedTagViewModelTest.cs" />

@@ -1,9 +1,12 @@
 ﻿using Kosmograph.Desktop.ViewModel.Base;
 using Kosmograph.Model.Base;
+using System;
+using System.Collections;
+using System.ComponentModel;
 
 namespace Kosmograph.Desktop.EditModel.Base
 {
-    public abstract class NamedEditModelBase<VM, M> : EditModelBase
+    public abstract class NamedEditModelBase<VM, M> : EditModelBase, INotifyDataErrorInfo
             where M : NamedBase
             where VM : NamedViewModelBase<M>
     {
@@ -45,5 +48,18 @@ namespace Kosmograph.Desktop.EditModel.Base
         private string nameError;
 
         protected abstract void Validate();
+
+        #region INotifyDataErrorInfo Members
+
+        public bool HasErrors { get; protected set; }
+
+        protected void RaiseErrorsChanged(string name) => this.ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(nameof(this.Name)));
+
+        public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
+
+        public abstract IEnumerable GetErrors(string propertyName);
+
+        #endregion INotifyDataErrorInfo Members
+
     }
 }

@@ -3,12 +3,13 @@ using Kosmograph.Desktop.EditModel.Base;
 using Kosmograph.Desktop.ViewModel;
 using Kosmograph.Model;
 using System;
+using System.Collections;
 using System.Linq;
 using System.Windows.Input;
 
 namespace Kosmograph.Desktop.EditModel
 {
-    public class EntityEditModel : NamedEditModelBase<EntityViewModel, Entity>
+    public sealed class EntityEditModel : NamedEditModelBase<EntityViewModel, Entity>
     {
         private readonly Action<Entity> committed;
         private readonly Action<Entity> rolledback;
@@ -72,6 +73,8 @@ namespace Kosmograph.Desktop.EditModel
             this.MessengerInstance.Send(new EditModelCommitted(viewModel: this.ViewModel));
         }
 
+        protected override bool CanCommit() => !this.HasErrors;
+
         private void CommitRemovedTag(AssignedTagEditModel tag)
         {
             this.ViewModel.Tags.Remove(tag.ViewModel);
@@ -101,6 +104,26 @@ namespace Kosmograph.Desktop.EditModel
 
         protected override void Validate()
         {
+            this.HasErrors = false;
+
+            if (string.IsNullOrEmpty(this.Name))
+            {
+                this.NameError = "Name must not be empty";
+                this.HasErrors = true;
+            }
+            else this.NameError = null;
+
+            if (!string.IsNullOrEmpty(this.NameError))
+                this.RaiseErrorsChanged(nameof(this.Name));
+        }
+
+        public override IEnumerable GetErrors(string propertyName)
+        {
+            if (!string.IsNullOrEmpty(this.NameError))
+            {
+                return this.NameError.Yield();
+            }
+            return Enumerable.Empty<string>();
         }
 
         #endregion Implement Validate
