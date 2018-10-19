@@ -46,7 +46,7 @@
             Content="Name"
             Width="50" />
         <TextBlock DockPanel.Dock="Bottom"
-            Text="{Binding NameError, UpdateSourceTrigger=PropertyChanged, Mode=OneWay, ValidatesOnNotifyDataErrors=True}"
+            Text="{Binding NameError, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}"
             Foreground="Red"/>
         <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
                  Style="{StaticResource nameEditTextBox}">

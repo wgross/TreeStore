@@ -29,8 +29,7 @@
         <Grid Grid.Column="0"
               Margin="5,0,5,0">
             <kdc:ShowTagsControl/>
-            <kde:EditorControl
-                DataContext="{Binding Tags.Edited, Mode=OneWay}" />
+            <kde:EditorControl DataContext="{Binding Tags.Edited, Mode=OneWay}" />
         </Grid>
 
         <!--
@@ -47,8 +46,7 @@
         <Grid Grid.Column="1"
             Margin="5,0,5,0">
             <kdc:ShowEntitiesControl/>
-            <kde:EditorControl
-                DataContext="{Binding Entities.Edited, Mode=OneWay}" />
+            <kde:EditorControl DataContext="{Binding Entities.Edited, Mode=OneWay}" />
         </Grid>
 
         <!--
@@ -64,9 +62,8 @@
         -->
         <Grid Grid.Column="2"
               Margin="5,0,5,0">
-            <kdc:ShowRelationshipsControl Panel.ZIndex="0" />
-            <kde:EditorControl
-                DataContext="{Binding Relationships.Edited, Mode=OneWay}" />
+            <kdc:ShowRelationshipsControl/>
+            <kde:EditorControl DataContext="{Binding Relationships.Edited, Mode=OneWay}" />
         </Grid>
     </Grid>
 </Window>
