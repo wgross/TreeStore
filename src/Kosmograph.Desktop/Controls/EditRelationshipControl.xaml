@@ -9,10 +9,17 @@
              AllowDrop="True"
              Drop="editEntityControl_Drop"
              Background="White">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="./CommonResources.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
     <StackPanel>
         <local:EditorHeaderControl 
             Text="{Binding Name, StringFormat={}Edit {0}}" />
-        <local:EditItemNameControl/>
+        <local:EditItemNameControl Style="{StaticResource editItemNameConrolInEditor}" />
         <local:EditRelatedEntitiesControl/>
         <local:EditAssignedTagsControl/>
     </StackPanel>

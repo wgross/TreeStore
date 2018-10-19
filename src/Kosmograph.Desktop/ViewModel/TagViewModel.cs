@@ -39,7 +39,7 @@ namespace Kosmograph.Desktop.ViewModel
         {
             if (nameof(this.Name).Equals(propertyName))
                 this.Model.Facet.Name = this.Name;
-            // contunue raising the after the facet is synced
+            // continue raising the after the facet is synced
             base.RaisePropertyChanged(propertyName, oldValue, newValue, broadcast);
         }
     }

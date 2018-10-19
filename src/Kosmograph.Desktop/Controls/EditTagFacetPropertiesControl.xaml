@@ -23,7 +23,7 @@
                 <Setter Property="ItemContainerStyle">
                     <Setter.Value>
                         <Style TargetType="{x:Type ListBoxItem}">
-                            <Setter Property="Padding" Value="1" />
+                            <Setter Property="Padding" Value="0" />
                         </Style>
                     </Setter.Value>
                 </Setter>
