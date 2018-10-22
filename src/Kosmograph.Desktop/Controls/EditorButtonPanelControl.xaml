@@ -11,12 +11,20 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="./CommonResources.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-        
+
             <Style x:Key="editorCommitButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource editButtonStyle}">
                 <Setter Property="MinWidth" Value="50"/>
                 <Setter Property="Margin" Value="5,0,0,0"/>
                 <Setter Property="Content" Value="apply"/>
                 <Setter Property="IsDefault" Value="True"/>
+                <Style.Triggers>
+                    <Trigger Property="IsEnabled" Value="False">
+                        <Setter Property="Background" Value="LightGray"/>
+                    </Trigger>
+                    <Trigger Property="IsEnabled" Value="True">
+                        <Setter Property="Background" Value="LightGreen"/>
+                    </Trigger>
+                </Style.Triggers>
             </Style>
 
             <Style x:Key="editorRollbackButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource negativeEditButtonStyle}">
@@ -31,10 +39,10 @@
         LastChildFill="False"
         Margin="0,0,0,5">
         <Button DockPanel.Dock="Right"
-                    Style="{StaticResource editorCommitButtonStyle}"
-                    Command="{Binding CommitCommand}"/>
+                Style="{StaticResource editorCommitButtonStyle}"
+                Command="{Binding CommitCommand}"/>
         <Button DockPanel.Dock="Right"
-                    Style="{StaticResource editorRollbackButtonStyle}"
-                    Command="{Binding RollbackCommand}" />
+                Style="{StaticResource editorRollbackButtonStyle}"
+                Command="{Binding RollbackCommand}" />
     </DockPanel>
 </UserControl>

@@ -115,6 +115,9 @@ namespace Kosmograph.Desktop.EditModel
 
             if (!string.IsNullOrEmpty(this.NameError))
                 this.RaiseErrorsChanged(nameof(this.Name));
+
+            // this has side effect to the editor
+            this.CommitCommand.RaiseCanExecuteChanged();
         }
 
         public override IEnumerable GetErrors(string propertyName)

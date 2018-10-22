@@ -15,7 +15,7 @@
         <Setter Property="Background" Value="#FFFBB0B0"/>
     </Style>
 
-    
+
     <Path x:Key="plusPath"
         Width="10"
         Height="10"

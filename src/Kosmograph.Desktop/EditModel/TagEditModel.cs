@@ -97,6 +97,9 @@ namespace Kosmograph.Desktop.EditModel
                 this.NameError = "Tag name must not be empty";
                 this.RaiseErrorsChanged(nameof(this.Name));
             }
+
+            // this has side effect to the editor
+            this.CommitCommand.RaiseCanExecuteChanged();
         }
 
         #endregion Implement Validate
