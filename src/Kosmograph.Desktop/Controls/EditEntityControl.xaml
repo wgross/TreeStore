@@ -17,8 +17,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <StackPanel>
-        <local:EditorHeaderControl
-            Text="{Binding Name, StringFormat={}Edit {0}}" />
+        <local:EditorHeaderControl Text="{Binding Name, StringFormat={}Edit {0}}" />
         <local:EditItemNameControl Style="{StaticResource editItemNameConrolInEditor}" />
         <local:EditAssignedTagsControl />
     </StackPanel>
