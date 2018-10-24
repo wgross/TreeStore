@@ -3,7 +3,6 @@ using Kosmograph.Desktop.EditModel.Base;
 using Kosmograph.Desktop.ViewModel;
 using Kosmograph.Model;
 using System;
-using System.Collections;
 using System.Linq;
 using System.Windows.Input;
 
@@ -113,20 +112,8 @@ namespace Kosmograph.Desktop.EditModel
             }
             else this.NameError = null;
 
-            if (!string.IsNullOrEmpty(this.NameError))
-                this.RaiseErrorsChanged(nameof(this.Name));
-
             // this has side effect to the editor
             this.CommitCommand.RaiseCanExecuteChanged();
-        }
-
-        public override IEnumerable GetErrors(string propertyName)
-        {
-            if (!string.IsNullOrEmpty(this.NameError))
-            {
-                return this.NameError.Yield();
-            }
-            return Enumerable.Empty<string>();
         }
 
         #endregion Implement Validate

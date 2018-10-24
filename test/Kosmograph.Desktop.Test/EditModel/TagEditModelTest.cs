@@ -3,7 +3,6 @@ using Kosmograph.Desktop.ViewModel;
 using Kosmograph.Model;
 using Moq;
 using System;
-using System.ComponentModel;
 using System.Linq;
 using Xunit;
 
@@ -246,11 +245,6 @@ namespace Kosmograph.Desktop.Test.EditModel
                 .Setup(cb => cb.Validate(editModel))
                 .Returns((string)null);
 
-            DataErrorsChangedEventArgs args = null;
-            void changed(object sender, DataErrorsChangedEventArgs args_) { args = args_; }
-
-            editModel.ErrorsChanged += changed;
-
             // ACT
 
             editModel.Name = string.Empty;
@@ -260,8 +254,7 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             Assert.False(result);
             Assert.True(editModel.HasErrors);
-            Assert.Equal("Tag name must not be empty", editModel.GetErrors(nameof(TagEditModel.Name)).Cast<string>().Single());
-            Assert.Equal(nameof(TagEditModel.Name), args.PropertyName);
+            Assert.Equal("Tag name must not be empty", editModel.NameError); ;
         }
 
         [Fact]

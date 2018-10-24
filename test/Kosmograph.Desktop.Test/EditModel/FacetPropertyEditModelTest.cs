@@ -3,7 +3,6 @@ using Kosmograph.Desktop.Test.ViewModel;
 using Kosmograph.Model;
 using Moq;
 using System;
-using System.ComponentModel;
 using System.Linq;
 using Xunit;
 
@@ -89,11 +88,6 @@ namespace Kosmograph.Desktop.Test.EditModel
             var viewModel = model.ToViewModel();
             var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
 
-            DataErrorsChangedEventArgs args = null;
-            void changed(object sender, DataErrorsChangedEventArgs args_) { args = args_; }
-
-            editModel.Properties.ElementAt(1).ErrorsChanged += changed;
-
             // ACT
 
             editModel.Properties.ElementAt(1).Name = editModel.Properties.ElementAt(0).Name;
@@ -101,8 +95,7 @@ namespace Kosmograph.Desktop.Test.EditModel
             // ASSERT
 
             Assert.True(editModel.Properties.ElementAt(1).HasErrors);
-            Assert.Equal("Property name must be unique", editModel.Properties.ElementAt(1).GetErrors(nameof(FacetPropertyEditModel.Name)).Cast<string>().Single());
-            Assert.Equal(nameof(FacetPropertyEditModel.Name), args.PropertyName);
+            Assert.Equal("Property name must be unique", editModel.Properties.ElementAt(1).NameError);
         }
 
         [Fact]
@@ -114,11 +107,6 @@ namespace Kosmograph.Desktop.Test.EditModel
             var viewModel = model.ToViewModel();
             var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
 
-            DataErrorsChangedEventArgs args = null;
-            void changed(object sender, DataErrorsChangedEventArgs args_) { args = args_; }
-
-            editModel.Properties.ElementAt(1).ErrorsChanged += changed;
-
             // ACT
 
             editModel.Properties.ElementAt(1).Name = "";
@@ -128,8 +116,7 @@ namespace Kosmograph.Desktop.Test.EditModel
 
             Assert.False(result);
             Assert.True(editModel.Properties.ElementAt(1).HasErrors);
-            Assert.Equal("Property name must not be empty", editModel.Properties.ElementAt(1).GetErrors(nameof(FacetPropertyEditModel.Name)).Cast<string>().Single());
-            Assert.Equal(nameof(FacetPropertyEditModel.Name), args.PropertyName);
+            Assert.Equal("Property name must not be empty", editModel.Properties.ElementAt(1).NameError);
         }
 
         [Fact]

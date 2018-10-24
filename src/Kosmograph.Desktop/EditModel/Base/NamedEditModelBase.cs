@@ -1,8 +1,5 @@
 ﻿using Kosmograph.Desktop.ViewModel.Base;
 using Kosmograph.Model.Base;
-using System;
-using System.Collections;
-using System.ComponentModel;
 
 namespace Kosmograph.Desktop.EditModel.Base
 {
@@ -47,18 +44,12 @@ namespace Kosmograph.Desktop.EditModel.Base
 
         private string nameError;
 
-        protected abstract void Validate();
+        #region Validate data and indicate error
 
-        #region INotifyDataErrorInfo Members
+        protected abstract void Validate();
 
         public bool HasErrors { get; protected set; }
 
-        protected void RaiseErrorsChanged(string name) => this.ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(nameof(this.Name)));
-
-        public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
-
-        public abstract IEnumerable GetErrors(string propertyName);
-
-        #endregion INotifyDataErrorInfo Members
+        #endregion Validate data and indicate error
     }
 }

@@ -1,7 +1,6 @@
 ﻿using Kosmograph.Desktop.EditModel.Base;
 using Kosmograph.Desktop.ViewModel;
 using Kosmograph.Model;
-using System.Collections;
 using System.Linq;
 
 namespace Kosmograph.Desktop.EditModel
@@ -35,8 +34,6 @@ namespace Kosmograph.Desktop.EditModel
             {
                 this.NameError = null;
             }
-            if (!string.IsNullOrEmpty(this.NameError))
-                this.RaiseErrorsChanged(nameof(this.Name));
         }
 
         #endregion Implement Validate
@@ -44,15 +41,6 @@ namespace Kosmograph.Desktop.EditModel
         protected override bool CanCommit()
         {
             return !this.HasErrors && base.CanCommit();
-        }
-
-        public override IEnumerable GetErrors(string propertyName)
-        {
-            if (nameof(Name).Equals(propertyName))
-            {
-                return this.NameError.Yield();
-            }
-            return Enumerable.Empty<string>();
         }
     }
 }

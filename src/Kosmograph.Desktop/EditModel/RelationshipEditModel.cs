@@ -3,7 +3,6 @@ using Kosmograph.Desktop.EditModel.Base;
 using Kosmograph.Desktop.ViewModel;
 using Kosmograph.Model;
 using System;
-using System.Collections;
 using System.Linq;
 using System.Windows.Input;
 
@@ -132,7 +131,5 @@ namespace Kosmograph.Desktop.EditModel
         }
 
         #endregion Implement Validate
-
-        public override IEnumerable GetErrors(string propertyName) => Enumerable.Empty<string>();
     }
 }

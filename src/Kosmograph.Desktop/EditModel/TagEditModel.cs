@@ -87,7 +87,6 @@ namespace Kosmograph.Desktop.EditModel
             if (!string.IsNullOrEmpty(this.NameError))
             {
                 this.HasErrors = this.HasErrors || true;
-                this.RaiseErrorsChanged(nameof(this.Name));
             }
 
             // validate the local data
@@ -95,7 +94,6 @@ namespace Kosmograph.Desktop.EditModel
             {
                 this.HasErrors = true;
                 this.NameError = "Tag name must not be empty";
-                this.RaiseErrorsChanged(nameof(this.Name));
             }
 
             // this has side effect to the editor
@@ -103,15 +101,5 @@ namespace Kosmograph.Desktop.EditModel
         }
 
         #endregion Implement Validate
-
-        override public IEnumerable GetErrors(string propertyName)
-        {
-            if (nameof(Name).Equals(propertyName))
-            {
-                //if (!string.IsNullOrEmpty(this.NameError))
-                return this.NameError.Yield();
-            }
-            return Enumerable.Empty<string>();
-        }
     }
 }
