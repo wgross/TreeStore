@@ -6,7 +6,7 @@ using System.ComponentModel;
 
 namespace Kosmograph.Desktop.EditModel.Base
 {
-    public abstract class NamedEditModelBase<VM, M> : EditModelBase, INotifyDataErrorInfo
+    public abstract class NamedEditModelBase<VM, M> : EditModelBase
             where M : NamedBase
             where VM : NamedViewModelBase<M>
     {
@@ -60,6 +60,5 @@ namespace Kosmograph.Desktop.EditModel.Base
         public abstract IEnumerable GetErrors(string propertyName);
 
         #endregion INotifyDataErrorInfo Members
-
     }
 }
