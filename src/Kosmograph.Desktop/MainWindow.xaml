@@ -46,7 +46,7 @@
         <Grid Grid.Column="1"
             Margin="5,0,5,0">
             <kdc:ShowEntitiesControl/>
-            <kde:EditorControl DataContext="{Binding Entities.Edited, ValidatesOnNotifyDataErrors=False, ValidatesOnDataErrors=False, Mode=OneWay}" />
+            <kde:EditorControl DataContext="{Binding Entities.Edited, Mode=OneWay}" />
         </Grid>
 
         <!--

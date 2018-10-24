@@ -47,7 +47,7 @@
                    Text="{Binding NameError, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}"
                    Style="{StaticResource nameErrorTextBox}" />
 
-        <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
+        <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
                  Style="{StaticResource nameEditTextBox}">
         </TextBox>
     </DockPanel>

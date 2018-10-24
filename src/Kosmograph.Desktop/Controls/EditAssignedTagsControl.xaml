@@ -36,7 +36,7 @@
 
                     <ItemsControl
                         DockPanel.Dock="Top"
-                        ItemsSource="{Binding Properties, ValidatesOnNotifyDataErrors=False, ValidatesOnDataErrors=False}">
+                        ItemsSource="{Binding Properties}">
                     </ItemsControl>
                 </StackPanel>
             </DataTemplate>
@@ -60,7 +60,7 @@
 
             <CollectionViewSource
                     x:Key="tagsCollectionViewSource"
-                    Source="{Binding Tags, ValidatesOnNotifyDataErrors=False, ValidatesOnDataErrors=False}">
+                    Source="{Binding Tags}">
                 <CollectionViewSource.SortDescriptions>
                     <scm:SortDescription PropertyName="ViewModel.Tag.Name" />
                 </CollectionViewSource.SortDescriptions>
