@@ -88,5 +88,10 @@ namespace Kosmograph.Desktop
                 }
             }
         }
+
+        private void NewGraph_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            this.CreateNewModel();
+        }
     }
 }
