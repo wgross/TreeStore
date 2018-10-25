@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Kosmograph.Model
 {
-    public class Facet : NamedItemBase
+    public class Facet : NamedBase
     {
         #region Construction and initialization of this instance
 
@@ -21,10 +21,13 @@ namespace Kosmograph.Model
 
         #endregion Construction and initialization of this instance
 
-        public List<FacetProperty> Properties { get; set; } = new List<FacetProperty>();
+        public ICollection<FacetProperty> Properties { get; set; } = new List<FacetProperty>();
 
         public void AddProperty(FacetProperty property)
         {
+            if (this.Properties.Any(p => p.Name.Equals(property.Name)))
+                throw new InvalidOperationException($"duplicate property name: {property.Name}");
+
             this.Properties = this.Properties.Union(property.Yield()).ToList();
         }
 

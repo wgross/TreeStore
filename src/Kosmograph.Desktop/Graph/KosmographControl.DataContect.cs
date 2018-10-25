@@ -32,7 +32,7 @@ namespace Kosmograph.Desktop.Graph
             switch (e.Action)
             {
                 case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
-                    this.MsaglGraphViewer.CreateNode(e.NewItems.OfType<EntityViewModel>().Single());
+                    this.MsaglGraphViewer.AddNode(e.NewItems.OfType<EntityViewModel>().Single());
                     break;
 
                 case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
@@ -50,8 +50,11 @@ namespace Kosmograph.Desktop.Graph
             var (isEntity, entity) = notification.TryGetViewModel<EntityViewModel>();
             if (isEntity)
                 this.MsaglGraphViewer.UpdateNode(entity);
+            var (isRelationship, relationship) = notification.TryGetViewModel<RelationshipViewModel>();
+            if(isRelationship)
+                this.MsaglGraphViewer.UpdateEdge(relationship);
         }
-
+        
         private void AddKosmographNodesAndEdges(KosmographViewModel viewModel)
         {
             var graph = new Microsoft.Msagl.Drawing.Graph();

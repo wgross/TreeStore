@@ -3,8 +3,8 @@ using Kosmograph.Model.Base;
 
 namespace Kosmograph.Desktop.EditModel.Base
 {
-    public class NamedEditModelBase<VM, M> : EditModelBase
-            where M : NamedItemBase
+    public abstract class NamedEditModelBase<VM, M> : EditModelBase
+            where M : NamedBase
             where VM : NamedViewModelBase<M>
     {
         public VM ViewModel { get; private set; }
@@ -14,12 +14,12 @@ namespace Kosmograph.Desktop.EditModel.Base
             this.ViewModel = edited;
         }
 
-        public override void Commit()
+        protected override void Commit()
         {
             this.ViewModel.Name = this.Name;
         }
 
-        public override void Rollback()
+        protected override void Rollback()
         {
             this.Name = this.ViewModel.Name;
         }
@@ -27,9 +27,29 @@ namespace Kosmograph.Desktop.EditModel.Base
         public string Name
         {
             get => this.name ?? this.ViewModel.Name;
-            set => this.Set(nameof(Name), ref this.name, value);
+            set
+            {
+                if (this.Set(nameof(Name), ref this.name, value?.Trim()))
+                    this.Validate();
+            }
         }
 
         private string name;
+
+        public string NameError
+        {
+            get => this.nameError;
+            protected set => this.Set(nameof(NameError), ref this.nameError, value?.Trim());
+        }
+
+        private string nameError;
+
+        #region Validate data and indicate error
+
+        protected abstract void Validate();
+
+        public bool HasErrors { get; protected set; }
+
+        #endregion Validate data and indicate error
     }
 }

@@ -6,10 +6,16 @@
              xmlns:local="clr-namespace:Kosmograph.Desktop.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="./CommonResources.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
     <StackPanel>
-        <local:EditorHeaderControl 
-            Text="{Binding Name, StringFormat={}Edit {0}}" />
-        <local:EditItemNameControl/>
+        <local:EditorHeaderControl Text="{Binding Name, Mode=OneWay, StringFormat={}Edit {0}}" />
+        <local:EditItemNameControl Style="{StaticResource editItemNameConrolInEditor}" />
         <local:EditTagFacetPropertiesControl />
     </StackPanel>
 </UserControl>

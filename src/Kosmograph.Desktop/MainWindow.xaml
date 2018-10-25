@@ -16,57 +16,63 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
+    <Window.CommandBindings>
+        <CommandBinding Command="New" Executed="NewGraph_Executed"/>
+    </Window.CommandBindings>
+    <DockPanel LastChildFill="true">
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="Graph">
+                <MenuItem Header="_New Graph" Command="New"/>
+            </MenuItem>
+        </Menu>
+        <Grid Name="rootPanel">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition MinWidth="150" />
+                <ColumnDefinition MinWidth="150" />
+                <ColumnDefinition MinWidth="150" />
+            </Grid.ColumnDefinitions>
+            <!--
+            Tags in the left column
+            -->
+            <Grid Grid.Column="0"
+                  Margin="5,0,5,0">
+                <kdc:ShowTagsControl/>
+                <kde:EditorControl DataContext="{Binding Tags.Edited, Mode=OneWay}" />
+            </Grid>
 
-    <Grid Name="rootPanel">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition MinWidth="150" />
-            <ColumnDefinition MinWidth="150" />
-            <ColumnDefinition MinWidth="150" />
-        </Grid.ColumnDefinitions>
-        <!--
-        Tags in the left column
-        -->
-        <Grid Grid.Column="0"
-              Margin="5,0,5,0">
-            <kdc:ShowTagsControl/>
-            <kde:EditorControl
-                DataContext="{Binding Tags.Edited, Mode=OneWay}" />
+            <!--
+            Splitter between entities and tags
+            -->
+            <GridSplitter Grid.Column="0"
+                IsTabStop="False"
+                Width="2"
+                Foreground="DarkGray" />
+
+            <!--
+            Entities in the middle column
+            -->
+            <Grid Grid.Column="1"
+                Margin="5,0,5,0">
+                <kdc:ShowEntitiesControl/>
+                <kde:EditorControl DataContext="{Binding Entities.Edited, Mode=OneWay}" />
+            </Grid>
+
+            <!--
+            Splitter between entities and tags
+            -->
+            <GridSplitter Grid.Column="1"
+                IsTabStop="False"
+                Width="2"
+                Foreground="DarkGray" />
+
+            <!--
+            Relationships in the middle column
+            -->
+            <Grid Grid.Column="2"
+                  Margin="5,0,5,0">
+                <kdc:ShowRelationshipsControl/>
+                <kde:EditorControl DataContext="{Binding Relationships.Edited, Mode=OneWay}" />
+            </Grid>
         </Grid>
-
-        <!--
-        Splitter between entities and tags
-        -->
-        <GridSplitter Grid.Column="0"
-            IsTabStop="False"
-            Width="2"
-            Foreground="DarkGray" />
-
-        <!--
-        Entities in the middle column
-        -->
-        <Grid Grid.Column="1"
-            Margin="5,0,5,0">
-            <kdc:ShowEntitiesControl/>
-            <kde:EditorControl
-                DataContext="{Binding Entities.Edited, Mode=OneWay}" />
-        </Grid>
-
-        <!--
-        Splitter between entities and tags
-        -->
-        <GridSplitter Grid.Column="1"
-            IsTabStop="False"
-            Width="2"
-            Foreground="DarkGray" />
-
-        <!--
-        Relationships in the middle column
-        -->
-        <Grid Grid.Column="2"
-              Margin="5,0,5,0">
-            <kdc:ShowRelationshipsControl Panel.ZIndex="0" />
-            <kde:EditorControl
-                DataContext="{Binding Relationships.Edited, Mode=OneWay}" />
-        </Grid>
-    </Grid>
+    </DockPanel>
 </Window>

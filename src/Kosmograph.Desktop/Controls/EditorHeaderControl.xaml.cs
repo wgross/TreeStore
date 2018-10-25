@@ -6,6 +6,7 @@ namespace Kosmograph.Desktop.Controls
     public partial class EditorHeaderControl : UserControl
     {
         public static readonly DependencyProperty TextProperty;
+        
 
         static EditorHeaderControl()
         {
@@ -22,5 +23,7 @@ namespace Kosmograph.Desktop.Controls
             get => (string)this.GetValue(TextProperty);
             set => this.SetValue(TextProperty, value);
         }
+
+      
     }
 }

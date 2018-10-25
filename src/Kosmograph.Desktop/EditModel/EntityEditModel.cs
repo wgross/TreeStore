@@ -8,7 +8,7 @@ using System.Windows.Input;
 
 namespace Kosmograph.Desktop.EditModel
 {
-    public class EntityEditModel : NamedEditModelBase<EntityViewModel, Entity>
+    public sealed class EntityEditModel : NamedEditModelBase<EntityViewModel, Entity>
     {
         private readonly Action<Entity> committed;
         private readonly Action<Entity> rolledback;
@@ -63,14 +63,16 @@ namespace Kosmograph.Desktop.EditModel
 
         #region Commit changes to Model
 
-        public override void Commit()
+        protected override void Commit()
         {
             this.Tags.Commit(onAdd: this.CommitAddedTag, onRemove: this.CommitRemovedTag);
-            this.Tags.ForEach(t => t.Properties.ForEach(p => p.Commit()));
+            this.Tags.ForEach(t => t.Properties.ForEach(p => p.CommitCommand.Execute(null)));
             base.Commit();
             this.committed(this.ViewModel.Model);
             this.MessengerInstance.Send(new EditModelCommitted(viewModel: this.ViewModel));
         }
+
+        protected override bool CanCommit() => !this.HasErrors;
 
         private void CommitRemovedTag(AssignedTagEditModel tag)
         {
@@ -87,14 +89,33 @@ namespace Kosmograph.Desktop.EditModel
 
         #region Rollback changes
 
-        public override void Rollback()
+        protected override void Rollback()
         {
             this.Tags.Rollback();
-            this.Tags.ForEach(t => t.Properties.ForEach(p => p.Rollback()));
+            this.Tags.ForEach(t => t.Properties.ForEach(p => p.RollbackCommand.Execute(null)));
             base.Rollback();
             this.rolledback(this.ViewModel.Model);
         }
 
         #endregion Rollback changes
+
+        #region Implement Validate
+
+        protected override void Validate()
+        {
+            this.HasErrors = false;
+
+            if (string.IsNullOrEmpty(this.Name))
+            {
+                this.NameError = "Name must not be empty";
+                this.HasErrors = true;
+            }
+            else this.NameError = null;
+
+            // this has side effect to the editor
+            this.CommitCommand.RaiseCanExecuteChanged();
+        }
+
+        #endregion Implement Validate
     }
 }

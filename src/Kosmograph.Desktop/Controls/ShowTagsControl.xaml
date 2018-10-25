@@ -25,11 +25,9 @@
         <Style TargetType="{x:Type UserControl}">
             <!--
             Control is hidden.
-            If no entity is edited it is shown
+            If no tag is edited it is shown
             -->
-            <Setter
-                    Property="Visibility"
-                    Value="Hidden" />
+            <Setter Property="Visibility" Value="Hidden" />
             <Style.Triggers>
                 <DataTrigger Binding="{Binding Tags.Edited}" Value="{x:Null}">
                     <Setter Property="Visibility" Value="Visible" />

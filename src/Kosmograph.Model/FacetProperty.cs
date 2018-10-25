@@ -2,7 +2,7 @@
 
 namespace Kosmograph.Model
 {
-    public class FacetProperty : NamedItemBase
+    public class FacetProperty : NamedBase
     {
         #region Construction and initialization of this instance
 

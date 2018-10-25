@@ -1,7 +1,5 @@
-﻿using GalaSoft.MvvmLight;
-using Kosmograph.Desktop.EditModel.Base;
+﻿using Kosmograph.Desktop.EditModel.Base;
 using Kosmograph.Desktop.ViewModel;
-using Kosmograph.Model;
 using System.Linq;
 
 namespace Kosmograph.Desktop.EditModel
@@ -19,14 +17,14 @@ namespace Kosmograph.Desktop.EditModel
 
         public CommitableObservableCollection<AssignedFacetPropertyEditModel> Properties { get; }
 
-        public override void Commit()
+        protected override void Commit()
         {
-            this.Properties.ForEach(p => p.Commit());
+            this.Properties.ForEach(p => p.CommitCommand.Execute(null));
         }
 
-        public override void Rollback()
+        protected override void Rollback()
         {
-            this.Properties.ForEach(p => p.Rollback());
+            this.Properties.ForEach(p => p.RollbackCommand.Execute(null));
         }
     }
 }

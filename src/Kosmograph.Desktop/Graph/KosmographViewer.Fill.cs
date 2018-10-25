@@ -1,20 +1,21 @@
-﻿using Kosmograph.Desktop.ViewModel;
-using Microsoft.Msagl.Core;
+﻿using Microsoft.Msagl.Core;
+using Microsoft.Msagl.Core.Geometry;
+using Microsoft.Msagl.Core.Geometry.Curves;
+using Microsoft.Msagl.Core.Layout;
 using Microsoft.Msagl.Drawing;
-using Microsoft.Msagl.WpfGraphControl;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using GeometryRectangle = Microsoft.Msagl.Core.Geometry.Rectangle;
+using DrawingEdge = Microsoft.Msagl.Drawing.Edge;
+using DrawingGraph = Microsoft.Msagl.Drawing.Graph;
+using DrawingLabel = Microsoft.Msagl.Drawing.Label;
+using DrawingNode = Microsoft.Msagl.Drawing.Node;
 
 namespace Kosmograph.Desktop.Graph
 {
     public partial class KosmographViewer
     {
-        private readonly Dictionary<DrawingObject, FrameworkElement> drawingObjectsToFrameworkElements = new Dictionary<DrawingObject, FrameworkElement>();
-
         #region Fill the viewer with labels for edges and nodes
 
         private void FillKosmographViewer()
@@ -39,16 +40,18 @@ namespace Kosmograph.Desktop.Graph
                 this.GraphCanvasHide();
                 this.ClearKosmographViewerImpl();
 
-                // fill the map
-                //   frameworkElementsToDrawingObjects
-                // with WPF drawable ibjewt representing the texts shown in on teh canvas.
-                this.FillFrameworkElementsFromDrawingObjects();
+                this.Graph.CreateGeometryGraph();
 
-                if (this.NeedToCalculateLayout)
-                {
-                    this.Graph.CreateGeometryGraph(); // forcing the layout recalculation
-                    this.GraphCanvas.InvokeInUiThread(this.InitializeGeometryGraph);
-                }
+                // obsolete for nodes and edges.
+                // subgraphs aren't used yet
+                // this.PrepareVisualsFromDrawingObjects(this.Graph);
+
+                this.CreateViewerNodes();
+                this.CreateViewerEdges();
+
+                // obsolete for nodes and edges.
+                // subgraphs aren't used yet
+                // this.InitializeGeometryGraphFromVisuals(this.Graph);
 
                 this.geometryGraphUnderLayout = this.GeometryGraph;
                 if (this.RunLayoutAsync)
@@ -62,65 +65,6 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        // The graph items are inspected and for all graph object labels a mapping of
-        // DrawingObject -> FrameworkElements is created.
-        // The resulting TextBlocks are measured and have attributes set as defined by the
-        // MSAGL Label.
-
-        private void FillFrameworkElementsFromDrawingObjects()
-        {
-            foreach (var drawingEdge in this.Graph.Edges)
-                this.FillFrameworkElementsWithEdgeLabels(drawingEdge, out var _);
-
-            foreach (var drawingNode in this.Graph.Nodes)
-                this.FillFrameworkElementsWithNodeLabels(drawingNode, out var _);
-
-            if (drawingGraph.RootSubgraph != null)
-                foreach (var subgraph in this.Graph.RootSubgraph.AllSubgraphsWidthFirstExcludingSelf())
-                    this.FillFrameworkElementsWithNodeLabels(subgraph, out var _);
-        }
-
-        private void FillFrameworkElementsWithEdgeLabels(Edge drawingEdge, out FrameworkElement fe)
-        {
-            fe = null;
-
-            var textBlock = this.GraphCanvas
-                .InvokeInUiThread(() => CreateTextBlockFromDrawingObjectLabel(drawingEdge.Label));
-
-            if (textBlock is null)
-                return;
-
-            this.drawingObjectsToFrameworkElements[drawingEdge] = textBlock;
-
-            var localEdge = drawingEdge;
-            this.GraphCanvas.InvokeInUiThread(() => textBlock.Tag = new VLabel(localEdge, textBlock));
-
-            fe = textBlock;
-        }
-
-        private void FillFrameworkElementsWithNodeLabels(Node drawingNode, out FrameworkElement fe)
-        {
-            fe = null;
-
-            var textBlock = this.GraphCanvas
-                .InvokeInUiThread(() => CreateTextBlockFromDrawingObjectLabel(drawingNode.Label));
-
-            if (textBlock is null)
-                return;
-
-            this.drawingObjectsToFrameworkElements[drawingNode] = textBlock;
-            fe = textBlock;
-        }
-
-        public TextBlock CreateTextBlockFromDrawingObjectLabel(Microsoft.Msagl.Drawing.Label drawingLabel)
-        {
-            return VisualsFactory.CreateLabel(drawingLabel);
-        }
-
-        #endregion Fill the viewer with labels for edges and nodes
-
-        #region Clear all nodes and edges from the viewer
-
         private void ClearKosmographViewer()
         {
             lock (this.syncRoot)
@@ -131,11 +75,163 @@ namespace Kosmograph.Desktop.Graph
         {
             this.GraphCanvasClearChildren();
             this.drawingObjectsToIViewerObjects.Clear();
-            this.drawingObjectsToFrameworkElements.Clear();
         }
 
-        #endregion Clear all nodes and edges from the viewer
+        #endregion Fill the viewer with labels for edges and nodes
 
-       
+        #region OBSOLETE: Prepare measured labels for all nodes, edges and subgraphs
+
+        //obsolete//private readonly Dictionary<DrawingObject, TextBlock> drawingObjectsToFrameworkElements = new Dictionary<DrawingObject, TextBlock>();
+
+        private void PrepareVisualsFromDrawingObjects(DrawingGraph graph)
+        {
+            //foreach (var drawingEdge in graph.Edges)
+            //    this.PrepareEdgeLabels(drawingEdge, out var _);
+
+            //foreach (var drawingNode in graph.Nodes)
+            //    this.PrepareNodeLabels(drawingNode, out var _);
+
+            if (drawingGraph.RootSubgraph != null)
+                foreach (var subgraph in graph.RootSubgraph.AllSubgraphsWidthFirstExcludingSelf())
+                    this.PrepareNodeLabels(subgraph, out var _);
+        }
+
+        private void PrepareEdgeLabels(DrawingEdge drawingEdge, out TextBlock textBlock)
+        {
+            textBlock = VisualsFactory.CreateLabel(drawingEdge.Label);
+
+            //obsolete//this.drawingObjectsToFrameworkElements[drawingEdge] = textBlock;
+
+            textBlock.Tag = new KosmographViewerEdgeLabel(drawingEdge.Label, textBlock);
+        }
+
+        private void PrepareNodeLabels(DrawingNode drawingNode, out TextBlock textBlock)
+        {
+            textBlock = VisualsFactory.CreateLabel(drawingNode.Label);
+
+            //obsolete//this.drawingObjectsToFrameworkElements[drawingNode] = textBlock;
+        }
+
+        #endregion OBSOLETE: Prepare measured labels for all nodes, edges and subgraphs
+
+        #region OBSOLETE: Initialize geometry nodes from measured visuals (Labels)
+
+        private void InitializeGeometryGraphFromMeasuredVisuals(DrawingGraph drawingGraph)
+        {
+            // OBSOLETE: is done in the ctor of the viewers
+            // this.InitializeGeometryGraphNodes(drawingGraph);
+            // this.InitializeGeometryGraphEdges(drawingGraph);
+            this.InitializeGeometryGraphSubGraphs(drawingGraph);
+        }
+
+        private void InitializeGeometryGraphNodes(DrawingGraph drawingGraph)
+        {
+            foreach (var drawingNode in drawingGraph.Nodes.Where(n => n.GeometryNode != null))
+            {
+                //drawingNode.GeometryNode.BoundaryCurve = this.GetNodeBoundaryCurve(drawingNode, /*obsolete*/ this.drawingObjectsToFrameworkElements[drawingNode]);
+            }
+        }
+
+        private void InitializeGeometryGraphSubGraphs(DrawingGraph geometryGraph)
+        {
+            foreach (Cluster cluster in geometryGraph.GeometryGraph.RootCluster.AllClustersWideFirstExcludingSelf())
+            {
+                var subgraph = (Subgraph)cluster.UserData;
+
+                cluster.BoundaryCurve = this.GetClusterCollapsedBoundary(subgraph);
+
+                if (cluster.RectangularBoundary == null)
+                    cluster.RectangularBoundary = new RectangularClusterBoundary();
+
+                cluster.RectangularBoundary.TopMargin = subgraph.DiameterOfOpenCollapseButton + 0.5 + subgraph.Attr.LineWidth / 2;
+                //AssignLabelWidthHeight(msaglNode, msaglNode.UserData as DrawingObject);
+            }
+        }
+
+        private void InitializeGeometryGraphEdges(DrawingGraph geometryGraph)
+        {
+            foreach (var drawingEdge in geometryGraph.Edges.Where(e => e.GeometryEdge != null))
+            {
+                AssignLabelWidthHeight(drawingEdge.GeometryEdge, drawingEdge);
+            }
+        }
+
+        private ICurve GetNodeBoundaryCurve(DrawingNode node, FrameworkElement frameworkElement)
+        {
+            if (frameworkElement is null)
+                throw new InvalidOperationException($"node({node}) not prepared");
+
+            double width, height;
+
+            // a Frameworkelement was prerpared beforehand.
+            width = frameworkElement.Width + 2 * node.Attr.LabelMargin;
+            height = frameworkElement.Height + 2 * node.Attr.LabelMargin;
+
+            // the calculated width must not be smaller the minimal size.
+
+            if (width < drawingGraph.Attr.MinNodeWidth)
+                width = drawingGraph.Attr.MinNodeWidth;
+            if (height < drawingGraph.Attr.MinNodeHeight)
+                height = drawingGraph.Attr.MinNodeHeight;
+
+            return NodeBoundaryCurves.GetNodeBoundaryCurve(node, width, height);
+        }
+
+        private void AssignLabelWidthHeight(Microsoft.Msagl.Core.Layout.ILabeledObject labeledGeomObj, DrawingObject drawingObj)
+        {
+            //if (/*obsolete*/drawingObjectsToFrameworkElements.TryGetValue(drawingObj, out var fe))
+            //{
+            //    labeledGeomObj.Label.Width = fe.Width;
+            //    labeledGeomObj.Label.Height = fe.Height;
+            //}
+        }
+
+        private ICurve GetClusterCollapsedBoundary(Subgraph subgraph)
+        {
+            double width = 0, height = 0;
+
+            //TextBlock fe;
+            //if (/*obsolete*/drawingObjectsToFrameworkElements.TryGetValue(subgraph, out fe))
+            //{
+            //    width = fe.Width + 2 * subgraph.Attr.LabelMargin + subgraph.DiameterOfOpenCollapseButton;
+            //    height = Math.Max(fe.Height + 2 * subgraph.Attr.LabelMargin, subgraph.DiameterOfOpenCollapseButton);
+            //}
+            //else return GetApproximateCollapsedBoundary(subgraph);
+
+            if (width < drawingGraph.Attr.MinNodeWidth)
+                width = drawingGraph.Attr.MinNodeWidth;
+            if (height < drawingGraph.Attr.MinNodeHeight)
+                height = drawingGraph.Attr.MinNodeHeight;
+            return NodeBoundaryCurves.GetNodeBoundaryCurve(subgraph, width, height);
+        }
+
+        private ICurve GetApproximateCollapsedBoundary(Subgraph subgraph)
+        {
+            if (textBoxForApproxNodeBoundaries == null)
+                SetUpTextBoxForApproxNodeBoundaries();
+
+            double width, height;
+            if (String.IsNullOrEmpty(subgraph.LabelText))
+                height = width = subgraph.DiameterOfOpenCollapseButton;
+            else
+            {
+                double a = ((double)subgraph.LabelText.Length) / textBoxForApproxNodeBoundaries.Text.Length *
+                           subgraph.Label.FontSize / DrawingLabel.DefaultFontSize;
+                width = textBoxForApproxNodeBoundaries.Width * a + subgraph.DiameterOfOpenCollapseButton;
+                height =
+                    Math.Max(
+                        textBoxForApproxNodeBoundaries.Height * subgraph.Label.FontSize / DrawingLabel.DefaultFontSize,
+                        subgraph.DiameterOfOpenCollapseButton);
+            }
+
+            if (width < drawingGraph.Attr.MinNodeWidth)
+                width = drawingGraph.Attr.MinNodeWidth;
+            if (height < drawingGraph.Attr.MinNodeHeight)
+                height = drawingGraph.Attr.MinNodeHeight;
+
+            return NodeBoundaryCurves.GetNodeBoundaryCurve(subgraph, width, height);
+        }
+
+        #endregion OBSOLETE: Initialize geometry nodes from measured visuals (Labels)
     }
 }

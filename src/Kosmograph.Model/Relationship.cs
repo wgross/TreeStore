@@ -2,7 +2,7 @@
 
 namespace Kosmograph.Model
 {
-    public class Relationship : TaggedItemBase
+    public class Relationship : TaggedBase
     {
         public Relationship(string name, Entity from, Entity to, params Tag[] tags)
             : base(name, tags)

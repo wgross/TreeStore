@@ -14,7 +14,7 @@ using System.Windows.Input;
 namespace Kosmograph.Desktop.ViewModel
 {
     public class RepositoryViewModel<VM, M> : ObservableCollection<VM>
-        where M : NamedItemBase
+        where M : NamedBase
         where VM : NamedViewModelBase<M>
     {
         public class Deleted<M>
@@ -96,69 +96,11 @@ namespace Kosmograph.Desktop.ViewModel
             }
         }
 
+        public VM FindByName(string name) => this.locals.Values.FirstOrDefault(vm => vm.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+
         public VM GetViewModel(M model) => this.locals.TryGetValue(model.Id, out var viewModel) ? viewModel : throw new InvalidOperationException("model unknown");
 
         public VM CreateViewModel(M model) => this.newViewModel(model);
-    }
-
-    public class TagRepositoryViewModel : RepositoryViewModel<TagViewModel, Tag>
-    {
-        public TagRepositoryViewModel(ITagRepository repository)
-            : base(repository, m => new TagViewModel(m))
-        {
-            this.CreateCommand = new RelayCommand(this.CreateExecuted);
-            this.EditCommand = new RelayCommand<TagViewModel>(this.EditExecuted);
-        }
-
-        #region Create Tag
-
-        public ICommand CreateCommand { get; set; }
-
-        private void CreateExecuted()
-        {
-            this.Edited = new TagEditModel(new TagViewModel(new Tag("new tag", new Facet())), this.OnCreateCommitted, this.OnRollback);
-        }
-
-        public TagEditModel Edited
-        {
-            get => this.edited;
-            private set
-            {
-                this.edited = value;
-                this.OnPropertyChanged(new PropertyChangedEventArgs(nameof(Edited)));
-            }
-        }
-
-        private TagEditModel edited;
-
-        private void OnRollback(Tag obj)
-        {
-            this.Edited = null;
-        }
-
-        private void OnCreateCommitted(Tag entity)
-        {
-            this.Add(CreateViewModel(entity));
-            this.Edited = null;
-        }
-
-        #endregion Create Tag
-
-        #region Edit Tag
-
-        public ICommand EditCommand { get; }
-
-        private void EditExecuted(TagViewModel tag)
-        {
-            this.Edited = new TagEditModel(tag, this.OnEditCommitted, this.OnRollback);
-        }
-
-        private void OnEditCommitted(Tag obj)
-        {
-            this.Edited = null;
-        }
-
-        #endregion Edit Tag
     }
 
     public class EntityRepositoryViewModel : RepositoryViewModel<EntityViewModel, Entity>

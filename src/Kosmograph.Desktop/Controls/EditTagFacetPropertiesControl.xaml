@@ -10,36 +10,31 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="./CommonResources.xaml"/>
+                <ResourceDictionary Source="./CommonResources.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <Style x:Key="facetPropertiesListBoxStyle" TargetType="{x:Type ListBox}">
                 <Setter Property="ItemTemplate">
                     <Setter.Value>
                         <DataTemplate DataType="{x:Type kem:FacetPropertyEditModel}">
-                            <DockPanel
-                            LastChildFill="True">
-                                <Label DockPanel.Dock="Left"
-                                   Content="Name" />
-                                <TextBox Text="{Binding Name}" />
-                            </DockPanel>
+                            <local:EditItemNameControl/>
                         </DataTemplate>
                     </Setter.Value>
                 </Setter>
                 <Setter Property="ItemContainerStyle">
                     <Setter.Value>
                         <Style TargetType="{x:Type ListBoxItem}">
-                            <Setter Property="Padding" Value="1" />
+                            <Setter Property="Padding" Value="0" />
                         </Style>
                     </Setter.Value>
                 </Setter>
                 <!-- Show the listBox without a border -->
                 <Setter
-                Property="BorderThickness"
-                Value="0" />
+                    Property="BorderThickness"
+                    Value="0" />
                 <!-- Stretch the list box item to the complete width of te ListBox -->
                 <Setter
-               Property="HorizontalContentAlignment"
-               Value="Stretch" />
+                   Property="HorizontalContentAlignment"
+                   Value="Stretch" />
                 <!-- Move input focus to the ListBox under the mouse cursor -->
                 <Style.Triggers>
                     <Trigger Property="IsMouseOver" Value="True">
@@ -56,9 +51,9 @@
                 Text="Properties"
                 Foreground="Gray"
                 FontWeight="Bold" />
-            <Button DockPanel.Dock="Right" 
+            <Button DockPanel.Dock="Right"
                     Style="{StaticResource addButtonInHeaderStyle}"
-                    Command="{Binding CreatePropertyCommand}"/>
+                    Command="{Binding CreatePropertyCommand}" />
         </DockPanel>
         <ListBox
             Style="{StaticResource facetPropertiesListBoxStyle}"

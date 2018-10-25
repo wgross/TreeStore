@@ -15,7 +15,7 @@
         <Setter Property="Background" Value="#FFFBB0B0"/>
     </Style>
 
-    
+
     <Path x:Key="plusPath"
         Width="10"
         Height="10"
@@ -45,5 +45,13 @@
     <Style x:Key="modelItemListBoxStyle" TargetType="{x:Type ListBox}">
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+    <Style x:Key="editItemNameConrolInEditor" TargetType="{x:Type local:EditItemNameControl}">
+        <!--
+        the name editor muist be set to the rght a biot because the propearty listboxes(-Items)
+        have margin/padding 
+        -->
+        <Setter Property="Margin" Value="4"/>
     </Style>
 </ResourceDictionary>

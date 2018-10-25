@@ -1,22 +1,40 @@
 ﻿using Kosmograph.Desktop.EditModel;
+using Kosmograph.Desktop.Test.ViewModel;
 using Kosmograph.Model;
+using Moq;
+using System;
+using System.Linq;
 using Xunit;
 
-namespace Kosmograph.Desktop.Test.ViewModel
+namespace Kosmograph.Desktop.Test.EditModel
+
 {
-    public class FacetPropertyEditModelTest
+    public class FacetPropertyEditModelTest : IDisposable
     {
+        private readonly MockRepository mocks = new MockRepository(MockBehavior.Strict);
+        private readonly Mock<ITagEditCallback> tagEditCallback;
+
+        public FacetPropertyEditModelTest()
+        {
+            this.tagEditCallback = this.mocks.Create<ITagEditCallback>();
+        }
+
+        public void Dispose()
+        {
+            this.mocks.VerifyAll();
+        }
+
         [Fact]
         public void FacetPropertyEditModel_mirrors_ViewModel()
         {
             // ARRANGE
 
-            var model = new FacetProperty("p");
+            var model = new Tag("", new Facet("", new FacetProperty("p")));
             var viewModel = model.ToViewModel();
 
             // ACT
 
-            var result = new FacetPropertyEditModel(viewModel);
+            var result = new TagEditModel(viewModel, this.tagEditCallback.Object).Properties.Single();
 
             // ASSERT
 
@@ -28,17 +46,77 @@ namespace Kosmograph.Desktop.Test.ViewModel
         {
             // ARRANGE
 
-            var model = new FacetProperty("p");
+            var model = new Tag("", new Facet("", new FacetProperty("p")));
             var viewModel = model.ToViewModel();
-            var editModel = new FacetPropertyEditModel(viewModel);
+            var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
 
             // ACT
 
-            editModel.Name = "changed";
+            editModel.Properties.Single().Name = "changed";
 
             // ASSERT
 
-            Assert.Equal("p", viewModel.Name);
+            Assert.Equal("changed", editModel.Properties.Single().Name);
+            Assert.Equal("p", viewModel.Properties.Single().Name);
+            Assert.Equal("p", model.Facet.Properties.Single().Name);
+        }
+
+        [Fact]
+        public void FacetPropertyEditModel_trims_property_name()
+        {
+            // ARRANGE
+
+            var model = new Tag("", new Facet("", new FacetProperty("p")));
+            var viewModel = model.ToViewModel();
+            var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
+
+            // ACT
+
+            editModel.Properties.Single().Name = " changed \t";
+
+            // ASSERT
+
+            Assert.Equal("changed", editModel.Properties.Single().Name);
+        }
+
+        [Fact]
+        public void FacetPropertyEditModel_invalidates_duplicate_name()
+        {
+            // ARRANGE
+
+            var model = new Tag("", new Facet("", new FacetProperty("p"), new FacetProperty("q")));
+            var viewModel = model.ToViewModel();
+            var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
+
+            // ACT
+
+            editModel.Properties.ElementAt(1).Name = editModel.Properties.ElementAt(0).Name;
+
+            // ASSERT
+
+            Assert.True(editModel.Properties.ElementAt(1).HasErrors);
+            Assert.Equal("Property name must be unique", editModel.Properties.ElementAt(1).NameError);
+        }
+
+        [Fact]
+        public void FacetPropertyEditModel_invalidates_empty_name()
+        {
+            // ARRANGE
+
+            var model = new Tag("", new Facet("", new FacetProperty("p"), new FacetProperty("q")));
+            var viewModel = model.ToViewModel();
+            var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
+
+            // ACT
+
+            editModel.Properties.ElementAt(1).Name = "";
+            var result = editModel.Properties.ElementAt(1).CommitCommand.CanExecute(null);
+
+            // ASSERT
+
+            Assert.False(result);
+            Assert.True(editModel.Properties.ElementAt(1).HasErrors);
+            Assert.Equal("Property name must not be empty", editModel.Properties.ElementAt(1).NameError);
         }
 
         [Fact]
@@ -46,21 +124,21 @@ namespace Kosmograph.Desktop.Test.ViewModel
         {
             // ARRANGE
 
-            var model = new FacetProperty("p");
+            var model = new Tag("", new Facet("", new FacetProperty("p")));
             var viewModel = model.ToViewModel();
-            var editModel = new FacetPropertyEditModel(viewModel);
+            var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
 
-            editModel.Name = "changed";
+            editModel.Properties.Single().Name = "changed";
 
             // ACT
 
-            editModel.CommitCommand.Execute(null);
+            editModel.Properties.Single().CommitCommand.Execute(null);
 
             // ASSERT
 
-            Assert.Equal("changed", editModel.Name);
-            Assert.Equal("changed", viewModel.Name);
-            Assert.Equal("changed", model.Name);
+            Assert.Equal("changed", editModel.Properties.Single().Name);
+            Assert.Equal("changed", viewModel.Properties.Single().Name);
+            Assert.Equal("changed", model.Facet.Properties.Single().Name);
         }
 
         [Fact]
@@ -68,21 +146,22 @@ namespace Kosmograph.Desktop.Test.ViewModel
         {
             // ARRANGE
 
-            var model = new FacetProperty("p");
+            var model = new Tag("", new Facet("", new FacetProperty("p")));
             var viewModel = model.ToViewModel();
-            var editModel = new FacetPropertyEditModel(viewModel);
-            editModel.Name = "changed";
+            var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
+
+            editModel.Properties.Single().Name = "changed";
 
             // ACT
 
-            editModel.RollbackCommand.Execute(null);
-            editModel.CommitCommand.Execute(null);
+            editModel.Properties.Single().RollbackCommand.Execute(null);
+            editModel.Properties.Single().CommitCommand.Execute(null);
 
             // ASSERT
 
-            Assert.Equal("p", editModel.Name);
-            Assert.Equal("p", viewModel.Name);
-            Assert.Equal("p", model.Name);
+            Assert.Equal("p", editModel.Properties.Single().Name);
+            Assert.Equal("p", viewModel.Properties.Single().Name);
+            Assert.Equal("p", model.Facet.Properties.Single().Name);
         }
     }
 }

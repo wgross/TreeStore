@@ -89,12 +89,12 @@ namespace Kosmograph.Desktop.EditModel
 
         #region Implement Commit
 
-        public override void Commit()
+        protected override void Commit()
         {
             this.ViewModel.From = this.From;
             this.ViewModel.To = this.To;
             this.Tags.Commit(onAdd: this.CommitAddedTag, onRemove: this.CommitRemovedTag);
-            this.Tags.ForEach(t => t.Commit());
+            this.Tags.ForEach(t => t.CommitCommand.Execute(null));
             base.Commit();
             this.onRelationshipCommitted(this.ViewModel.Model);
             this.MessengerInstance.Send(new EditModelCommitted(viewModel: this.ViewModel));
@@ -112,16 +112,24 @@ namespace Kosmograph.Desktop.EditModel
             this.ViewModel.Tags.Add(tag.ViewModel);
         }
 
-        public override void Rollback()
+        protected override void Rollback()
         {
             this.From = this.ViewModel.From;
             this.To = this.ViewModel.To;
             this.Tags.Rollback();
-            this.Tags.ForEach(t => t.Properties.ForEach(p => p.Rollback()));
+            this.Tags.ForEach(t => t.Properties.ForEach(p => p.RollbackCommand.Execute(null)));
             base.Rollback();
             this.onRelationshipRollback(this.ViewModel.Model);
         }
 
         #endregion Implement Commit
+
+        #region Implement Validate
+
+        protected override void Validate()
+        {
+        }
+
+        #endregion Implement Validate
     }
 }

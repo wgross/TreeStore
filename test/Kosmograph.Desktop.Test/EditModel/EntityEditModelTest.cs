@@ -193,6 +193,29 @@ namespace Kosmograph.Desktop.Test.EditModel
         }
 
         [Fact]
+        public void EntityEditModel_invalidates_empty_name()
+        {
+            // ARRANGE
+
+            var tagViewModel = new TagViewModel(new Tag("t2"));
+
+            var model = new Entity("entity");
+            var viewModel = new EntityViewModel(model);
+            var editModel = new EntityEditModel(viewModel, delegate { }, delegate { });
+
+            // ACT
+
+            editModel.Name = string.Empty;
+            var result = editModel.CommitCommand.CanExecute(null);
+
+            // ASSERT
+
+            Assert.False(result);
+            Assert.True(editModel.HasErrors);
+            Assert.Equal("Name must not be empty", editModel.NameError);
+        }
+
+        [Fact]
         public void EntityEditModel_commits_adding_tag_at_ViewModel()
         {
             // ARRANGE

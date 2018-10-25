@@ -27,7 +27,6 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-using Microsoft.Msagl.Core.Geometry;
 using Microsoft.Msagl.Core.Geometry.Curves;
 using Microsoft.Msagl.Core.Layout;
 using Microsoft.Msagl.Drawing;
@@ -37,7 +36,6 @@ using Microsoft.Msagl.WpfGraphControl;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -51,7 +49,6 @@ using Ellipse = System.Windows.Shapes.Ellipse;
 using Label = Microsoft.Msagl.Drawing.Label;
 using LineSegment = Microsoft.Msagl.Core.Geometry.Curves.LineSegment;
 using ModifierKeys = Microsoft.Msagl.Drawing.ModifierKeys;
-using Node = Microsoft.Msagl.Core.Layout.Node;
 using Point = Microsoft.Msagl.Core.Geometry.Point;
 using Rectangle = Microsoft.Msagl.Core.Geometry.Rectangle;
 using Size = System.Windows.Size;
@@ -131,7 +128,7 @@ namespace Kosmograph.Desktop.Graph
 
         private void ClickCounterElapsed(object sender, EventArgs e)
         {
-            var vedge = this.clickCounter.ClickedObject as VEdge;
+            var vedge = this.clickCounter.ClickedObject as KosmographViewerEdge;
             if (vedge != null)
             {
                 if (this.clickCounter.UpCount == this.clickCounter.DownCount && this.clickCounter.UpCount == 1)
@@ -150,7 +147,7 @@ namespace Kosmograph.Desktop.Graph
             canvasBackgroundRect.Height = parent.ActualHeight;
         }
 
-        private void HandleClickForEdge(VEdge vEdge)
+        private void HandleClickForEdge(KosmographViewerEdge vEdge)
         {
             //todo : add a hook
             var lgSettings = Graph.LayoutAlgorithmSettings as LgLayoutSettings;
@@ -178,12 +175,12 @@ namespace Kosmograph.Desktop.Graph
             if (vNode != null) ret = (FrameworkElement)(vNode.NodeLabel) ?? (FrameworkElement)(vNode.NodeBoundaryPath);
             else
             {
-                var vLabel = viewerObject as VLabel;
-                if (vLabel != null) ret = vLabel.FrameworkElement;
+                var vLabel = viewerObject as KosmographViewerEdgeLabel;
+                if (vLabel != null) ret = vLabel.EdgeLabelVisual;
                 else
                 {
-                    var vEdge = viewerObject as VEdge;
-                    if (vEdge != null) ret = vEdge.CurvePath;
+                    var vEdge = viewerObject as KosmographViewerEdge;
+                    if (vEdge != null) ret = vEdge.EdgePath;
                     else
                     {
                         throw new InvalidOperationException(
@@ -313,13 +310,6 @@ namespace Kosmograph.Desktop.Graph
             return obj as IViewerObject;
         }
 
-        public void Invalidate()
-        {
-            //todo: is it right to do nothing
-        }
-
-        public event EventHandler GraphChanged;
-
         public ModifierKeys ModifierKeys
         {
             get
@@ -361,10 +351,10 @@ namespace Kosmograph.Desktop.Graph
                 foreach (var viewerObject in drawingObjectsToIViewerObjects.Values)
                 {
                     yield return viewerObject;
-                    var edge = viewerObject as VEdge;
+                    var edge = viewerObject as KosmographViewerEdge;
                     if (edge != null)
-                        if (edge.VLabel != null)
-                            yield return edge.VLabel;
+                        if (edge.EdgeLabelViewer != null)
+                            yield return edge.EdgeLabelViewer;
                 }
             }
         }
@@ -468,108 +458,6 @@ namespace Kosmograph.Desktop.Graph
         private readonly ClickCounter clickCounter;
         public string MsaglFileToSave;
 
-        /*
-                void SubscribeToChangeVisualsEvents() {
-                    //            foreach(var cluster in drawingGraph.RootSubgraph.AllSubgraphsDepthFirstExcludingSelf())
-                    //                cluster.Attr.VisualsChanged += AttrVisualsChanged;
-                    foreach (var edge in drawingGraph.Edges) {
-                        DrawingEdge edge1 = edge;
-                        edge.Attr.VisualsChanged += (a, b) => AttrVisualsChangedForEdge(edge1);
-                    }
-
-                    foreach (var node in drawingGraph.Nodes) {
-                        Drawing.Node node1 = node;
-                        node.Attr.VisualsChanged += (a, b) => AttrVisualsChangedForNode(node1);
-                    }
-                }
-        */
-
-        /*
-                void AttrVisualsChangedForNode(Drawing.Node node) {
-                    IViewerObject viewerObject;
-                    if (drawingObjectsToIViewerObjects.TryGetValue(node, out viewerObject)) {
-                        var vNode = (VNode) viewerObject;
-                        if (vNode != null)
-                            vNode.Invalidate();
-                    }
-                }
-        */
-
-        //        void SetupTimerOnViewChangeEvent(object sender, EventArgs e) {
-        //            SetupRoutingTimer();
-        //        }
-
-        /*
-                void TestCorrectness(GeometryGraph oGraph, Set<Drawing.Node> oDrawingNodes, Set<DrawingEdge> oDrawgingEdges) {
-                    if (Entities.Count() != oGraph.Nodes.Count + oGraph.Edges.Count) {
-                        foreach (var newDrawingNode in oDrawingNodes) {
-                            if (!drawingObjectsToIViewerObjects.ContainsKey(newDrawingNode))
-                                Console.WriteLine();
-                        }
-                        foreach (var drawingEdge in oDrawgingEdges) {
-                            if (!drawingObjectsToIViewerObjects.ContainsKey(drawingEdge))
-                                Console.WriteLine();
-                        }
-                        foreach (var viewerObject in Entities) {
-                            if (viewerObject is VEdge) {
-                                Debug.Assert(oDrawgingEdges.Contains(viewerObject.DrawingObject));
-                            } else {
-                                if (viewerObject is VNode) {
-                                    Debug.Assert(oDrawingNodes.Contains(viewerObject.DrawingObject));
-                                } else {
-                                    Debug.Fail("expecting a node or an edge");
-                                }
-                            }
-                        }
-                    }
-                }
-        */
-
-        /*
-                void StartLayoutCalculationInThread() {
-                    PushGeometryIntoLayoutGraph();
-                    graphCanvas.RaiseEvent(new RoutedEventArgs(LayoutStartEvent));
-
-                    layoutThread =
-                        new Thread(
-                            () =>
-                            LayoutHelpers.CalculateLayout(geometryGraphUnderLayout, graph.LayoutAlgorithmSettings));
-
-                    layoutThread.Start();
-
-                    //the timer monitors the thread and then pushes the data from layout graph to the framework
-                    layoutThreadCheckingTimer.IsEnabled = true;
-                    layoutThreadCheckingTimer.Tick += LayoutThreadCheckingTimerTick;
-                    layoutThreadCheckingTimer.Interval = new TimeSpan((long) 10e6);
-                    layoutThreadCheckingTimer.Start();
-                }
-        */
-
-        /*
-                void LayoutThreadCheckingTimerTick(object sender, EventArgs e) {
-                    if (layoutThread.IsAlive)
-                        return;
-
-                    if (Monitor.TryEnter(layoutThreadCheckingTimer)) {
-                        if (layoutThreadCheckingTimer.IsEnabled == false)
-                            return; //somehow it is called on more time after stopping and disabling
-                        layoutThreadCheckingTimer.Stop();
-                        layoutThreadCheckingTimer.IsEnabled = false;
-
-                        TransferLayoutDataToWpf();
-
-                        graphCanvas.RaiseEvent(new RoutedEventArgs(LayoutEndEvent));
-                        if (LayoutComplete != null)
-                            LayoutComplete(this, new EventArgs());
-                    }
-                }
-        */
-
-        //        void TransferLayoutDataToWpf() {
-        //            PushDataFromLayoutGraphToFrameworkElements();
-        //            graphCanvas.Visibility = Visibility.Visible;
-        //            SetInitialTransform();
-        //        }
         /// <summary>
         /// zooms to the default view
         /// </summary>
@@ -700,261 +588,7 @@ namespace Kosmograph.Desktop.Graph
             return scale < 0.000001 || scale > 100000.0; //todo: remove hardcoded values
         }
 
-        private void CreateEdges()
-        {
-            foreach (var edge in drawingGraph.Edges)
-                CreateEdge(edge, null);
-        }
-
-        private VEdge CreateEdge(DrawingEdge edge, LgLayoutSettings lgSettings)
-        {
-            lock (this.syncRoot)
-            {
-                if (drawingObjectsToIViewerObjects.ContainsKey(edge))
-                    return (VEdge)drawingObjectsToIViewerObjects[edge];
-                if (lgSettings != null)
-                    return CreateEdgeForLgCase(lgSettings, edge);
-
-                FrameworkElement labelTextBox;
-                drawingObjectsToFrameworkElements.TryGetValue(edge, out labelTextBox);
-                var vEdge = new VEdge(edge, labelTextBox);
-
-                var zIndex = ZIndexOfEdge(edge);
-                drawingObjectsToIViewerObjects[edge] = vEdge;
-
-                if (edge.Label != null)
-                    SetVEdgeLabel(edge, vEdge, zIndex);
-
-                Panel.SetZIndex(vEdge.CurvePath, zIndex);
-                GraphCanvas.Children.Add(vEdge.CurvePath);
-                SetVEdgeArrowheads(vEdge, zIndex);
-
-                return vEdge;
-            }
-        }
-
-        private int ZIndexOfEdge(DrawingEdge edge)
-        {
-            var source = (KosmographViewerNode)drawingObjectsToIViewerObjects[edge.SourceNode];
-            var target = (KosmographViewerNode)drawingObjectsToIViewerObjects[edge.TargetNode];
-
-            var zIndex = Math.Max(source.ZIndex, target.ZIndex) + 1;
-            return zIndex;
-        }
-
-        private VEdge CreateEdgeForLgCase(LgLayoutSettings lgSettings, DrawingEdge edge)
-        {
-            return (VEdge)(drawingObjectsToIViewerObjects[edge] = new VEdge(edge, lgSettings)
-            {
-                PathStrokeThicknessFunc = () => GetBorderPathThickness() * edge.Attr.LineWidth
-            });
-        }
-
-        private void SetVEdgeLabel(DrawingEdge edge, VEdge vEdge, int zIndex)
-        {
-            FrameworkElement frameworkElementForEdgeLabel;
-            if (!drawingObjectsToFrameworkElements.TryGetValue(edge, out frameworkElementForEdgeLabel))
-            {
-                this.FillFrameworkElementsWithEdgeLabels(edge, out frameworkElementForEdgeLabel);
-                frameworkElementForEdgeLabel.Tag = new VLabel(edge, frameworkElementForEdgeLabel);
-            }
-
-            vEdge.VLabel = (VLabel)frameworkElementForEdgeLabel.Tag;
-            if (frameworkElementForEdgeLabel.Parent == null)
-            {
-                GraphCanvas.Children.Add(frameworkElementForEdgeLabel);
-                Panel.SetZIndex(frameworkElementForEdgeLabel, zIndex);
-            }
-        }
-
-        private void SetVEdgeArrowheads(VEdge vEdge, int zIndex)
-        {
-            if (vEdge.SourceArrowHeadPath != null)
-            {
-                Panel.SetZIndex(vEdge.SourceArrowHeadPath, zIndex);
-                GraphCanvas.Children.Add(vEdge.SourceArrowHeadPath);
-            }
-            if (vEdge.TargetArrowHeadPath != null)
-            {
-                Panel.SetZIndex(vEdge.TargetArrowHeadPath, zIndex);
-                GraphCanvas.Children.Add(vEdge.TargetArrowHeadPath);
-            }
-        }
-
-        /// <summary>
-        /// INsitilaizes some of the gemotry nodes/edges with values depending of the
-        /// prepared Framework Elements
-        /// </summary>
-        private void InitializeGeometryGraph()
-        {
-            this.InitializeGeometryGraphNodes(this.GeometryGraph);
-            this.InitializeGeometryGraphSubGraphs(this.GeometryGraph);
-            this.InitializeGemoetrtyGraphEdges(this.GeometryGraph);
-        }
-
-        private void InitializeGeometryGraphNodes(GeometryGraph geometryGraph)
-        {
-            foreach (Node layoutNode in geometryGraph.Nodes)
-            {
-                var closure_layoutNode = layoutNode;
-                this.GraphCanvas.InvokeInUiThread(() =>
-                {
-                    // the layout node is initialized with a boundray curve.
-                    closure_layoutNode.BoundaryCurve = this.GetNodeBoundaryCurve((Microsoft.Msagl.Drawing.Node)closure_layoutNode.UserData);
-                });
-            }
-        }
-
-        private void InitializeGeometryGraphSubGraphs(GeometryGraph geometryGraph)
-        {
-            foreach (Cluster cluster in geometryGraph.RootCluster.AllClustersWideFirstExcludingSelf())
-            {
-                var closure_cluster = cluster;
-                this.GraphCanvas.InvokeInUiThread(() => closure_cluster.BoundaryCurve =
-                    this.GetClusterCollapsedBoundary((Subgraph)closure_cluster.UserData));
-
-                var subgraph = (Subgraph)cluster.UserData;
-
-                if (cluster.RectangularBoundary == null)
-                    cluster.RectangularBoundary = new RectangularClusterBoundary();
-
-                cluster.RectangularBoundary.TopMargin = subgraph.DiameterOfOpenCollapseButton + 0.5 + subgraph.Attr.LineWidth / 2;
-                //AssignLabelWidthHeight(msaglNode, msaglNode.UserData as DrawingObject);
-            }
-        }
-
-        private void InitializeGemoetrtyGraphEdges(GeometryGraph geometryGraph)
-        {
-            foreach (var layoutEdge in geometryGraph.Edges)
-            {
-                var drawingEdge = (DrawingEdge)layoutEdge.UserData;
-                AssignLabelWidthHeight(layoutEdge, drawingEdge);
-            }
-        }
-
-        private ICurve GetClusterCollapsedBoundary(Subgraph subgraph)
-        {
-            double width, height;
-
-            FrameworkElement fe;
-            if (drawingObjectsToFrameworkElements.TryGetValue(subgraph, out fe))
-            {
-                width = fe.Width + 2 * subgraph.Attr.LabelMargin + subgraph.DiameterOfOpenCollapseButton;
-                height = Math.Max(fe.Height + 2 * subgraph.Attr.LabelMargin, subgraph.DiameterOfOpenCollapseButton);
-            }
-            else return GetApproximateCollapsedBoundary(subgraph);
-
-            if (width < drawingGraph.Attr.MinNodeWidth)
-                width = drawingGraph.Attr.MinNodeWidth;
-            if (height < drawingGraph.Attr.MinNodeHeight)
-                height = drawingGraph.Attr.MinNodeHeight;
-            return NodeBoundaryCurves.GetNodeBoundaryCurve(subgraph, width, height);
-        }
-
-        private ICurve GetApproximateCollapsedBoundary(Subgraph subgraph)
-        {
-            if (textBoxForApproxNodeBoundaries == null)
-                SetUpTextBoxForApproxNodeBoundaries();
-
-            double width, height;
-            if (String.IsNullOrEmpty(subgraph.LabelText))
-                height = width = subgraph.DiameterOfOpenCollapseButton;
-            else
-            {
-                double a = ((double)subgraph.LabelText.Length) / textBoxForApproxNodeBoundaries.Text.Length *
-                           subgraph.Label.FontSize / Label.DefaultFontSize;
-                width = textBoxForApproxNodeBoundaries.Width * a + subgraph.DiameterOfOpenCollapseButton;
-                height =
-                    Math.Max(
-                        textBoxForApproxNodeBoundaries.Height * subgraph.Label.FontSize / Label.DefaultFontSize,
-                        subgraph.DiameterOfOpenCollapseButton);
-            }
-
-            if (width < drawingGraph.Attr.MinNodeWidth)
-                width = drawingGraph.Attr.MinNodeWidth;
-            if (height < drawingGraph.Attr.MinNodeHeight)
-                height = drawingGraph.Attr.MinNodeHeight;
-
-            return NodeBoundaryCurves.GetNodeBoundaryCurve(subgraph, width, height);
-        }
-
-        private void AssignLabelWidthHeight(Microsoft.Msagl.Core.Layout.ILabeledObject labeledGeomObj, DrawingObject drawingObj)
-        {
-            if (drawingObjectsToFrameworkElements.ContainsKey(drawingObj))
-            {
-                FrameworkElement fe = drawingObjectsToFrameworkElements[drawingObj];
-                labeledGeomObj.Label.Width = fe.Width;
-                labeledGeomObj.Label.Height = fe.Height;
-            }
-        }
-
-        private ICurve GetNodeBoundaryCurve(Microsoft.Msagl.Drawing.Node node)
-        {
-            double width, height;
-
-            FrameworkElement frameworkElement;
-            if (this.drawingObjectsToFrameworkElements.TryGetValue(node, out frameworkElement))
-            {
-                Debug.Assert(frameworkElement.CheckAccess());
-
-                // a Frameworkelement was prerpared beforehand.
-                width = frameworkElement.Width + 2 * node.Attr.LabelMargin;
-                height = frameworkElement.Height + 2 * node.Attr.LabelMargin;
-            }
-            else return GetNodeBoundaryCurveByMeasuringText(node);
-
-            // the calculated width must not be smaller the minimal size.
-
-            if (width < drawingGraph.Attr.MinNodeWidth)
-                width = drawingGraph.Attr.MinNodeWidth;
-            if (height < drawingGraph.Attr.MinNodeHeight)
-                height = drawingGraph.Attr.MinNodeHeight;
-
-            return NodeBoundaryCurves.GetNodeBoundaryCurve(node, width, height);
-        }
-
         private TextBlock textBoxForApproxNodeBoundaries;
-
-        public static Size MeasureText(string text,
-        FontFamily family, double size)
-        {
-            FormattedText formattedText = new FormattedText(
-                text,
-                System.Globalization.CultureInfo.CurrentCulture,
-                FlowDirection.LeftToRight,
-                new Typeface(family, new System.Windows.FontStyle(), FontWeights.Regular, FontStretches.Normal),
-                size,
-                Brushes.Black,
-                null);
-
-            return new Size(formattedText.Width, formattedText.Height);
-        }
-
-        private ICurve GetNodeBoundaryCurveByMeasuringText(Microsoft.Msagl.Drawing.Node node)
-        {
-            double width, height;
-            if (String.IsNullOrEmpty(node.LabelText))
-            {
-                width = 10;
-                height = 10;
-            }
-            else
-            {
-                var size = MeasureText(node.LabelText, new FontFamily(node.Label.FontName), node.Label.FontSize);
-                width = size.Width;
-                height = size.Height;
-            }
-
-            width += 2 * node.Attr.LabelMargin;
-            height += 2 * node.Attr.LabelMargin;
-
-            if (width < drawingGraph.Attr.MinNodeWidth)
-                width = drawingGraph.Attr.MinNodeWidth;
-            if (height < drawingGraph.Attr.MinNodeHeight)
-                height = drawingGraph.Attr.MinNodeHeight;
-
-            return NodeBoundaryCurves.GetNodeBoundaryCurve(node, width, height);
-        }
 
         private void SetUpTextBoxForApproxNodeBoundaries()
         {
@@ -1003,27 +637,23 @@ namespace Kosmograph.Desktop.Graph
 
         public IViewerEdge CreateEdgeWithGivenGeometry(DrawingEdge drawingEdge)
         {
-            return CreateEdge(drawingEdge, drawingGraph.LayoutAlgorithmSettings as LgLayoutSettings);
+            return this.CreateViewerEdge(drawingEdge, drawingGraph.LayoutAlgorithmSettings as LgLayoutSettings);
         }
 
         public void AddNode(IViewerNode node, bool registerForUndo)
         {
-            if (drawingGraph == null)
-                throw new InvalidOperationException(); // adding a node when the graph does not exist
             var vNode = (KosmographViewerNode)node;
-            drawingGraph.AddNode(vNode.Node);
-            drawingGraph.GeometryGraph.Nodes.Add(vNode.Node.GeometryNode);
-            layoutEditor.AttachLayoutChangeEvent(vNode);
-            GraphCanvas.Children.Add(vNode.NodeLabel);
-            layoutEditor.CleanObstacles();
+            this.Graph.AddNode(vNode.Node);
+            this.Graph.GeometryGraph.Nodes.Add(vNode.Node.GeometryNode);
+            this.GraphCanvasAddChildren(vNode.FrameworkElements);
+            this.LayoutEditor.AttachLayoutChangeEvent(vNode);
+            this.LayoutEditor.CleanObstacles();
         }
 
         public IViewerObject AddNode(Microsoft.Msagl.Drawing.Node drawingNode)
         {
-            Graph.AddNode(drawingNode);
-            var vNode = GetOrCreateViewerNode(drawingNode);
-            LayoutEditor.AttachLayoutChangeEvent(vNode);
-            LayoutEditor.CleanObstacles();
+            var vNode = this.CreateViewerNode(drawingNode);
+            this.AddNode(vNode, registerForUndo: false);
             return vNode;
         }
 
@@ -1031,11 +661,11 @@ namespace Kosmograph.Desktop.Graph
         {
             lock (this.syncRoot)
             {
-                var vedge = (VEdge)edge;
+                var vedge = (KosmographViewerEdge)edge;
                 var dedge = vedge.Edge;
                 drawingGraph.RemoveEdge(dedge);
                 drawingGraph.GeometryGraph.Edges.Remove(dedge.GeometryEdge);
-                drawingObjectsToFrameworkElements.Remove(dedge);
+                //obsolete//drawingObjectsToFrameworkElements.Remove(dedge);
                 drawingObjectsToIViewerObjects.Remove(dedge);
 
                 vedge.RemoveItselfFromCanvas(GraphCanvas);
@@ -1049,7 +679,7 @@ namespace Kosmograph.Desktop.Graph
                 RemoveEdges(node.Node.OutEdges);
                 RemoveEdges(node.Node.InEdges);
                 RemoveEdges(node.Node.SelfEdges);
-                drawingObjectsToFrameworkElements.Remove(node.Node);
+                //obsolete//drawingObjectsToFrameworkElements.Remove(node.Node);
                 drawingObjectsToIViewerObjects.Remove(node.Node);
                 var vnode = (KosmographViewerNode)node;
                 vnode.DetachFromCanvas(GraphCanvas);
@@ -1065,7 +695,7 @@ namespace Kosmograph.Desktop.Graph
         {
             foreach (var de in drawingEdges.ToArray())
             {
-                var vedge = (VEdge)drawingObjectsToIViewerObjects[de];
+                var vedge = (KosmographViewerEdge)drawingObjectsToIViewerObjects[de];
                 RemoveEdge(vedge, false);
             }
         }
@@ -1075,7 +705,9 @@ namespace Kosmograph.Desktop.Graph
             var geomEdge = GeometryGraphCreator.CreateGeometryEdgeFromDrawingEdge(drawingEdge);
             var geomGraph = drawingGraph.GeometryGraph;
             LayoutHelpers.RouteAndLabelEdges(geomGraph, drawingGraph.LayoutAlgorithmSettings, new[] { geomEdge });
-            return CreateEdge(drawingEdge, drawingGraph.LayoutAlgorithmSettings as LgLayoutSettings);
+
+            // ??? was gt or create before
+            return this.CreateViewerEdge(drawingEdge, drawingGraph.LayoutAlgorithmSettings as LgLayoutSettings);
         }
 
         public IViewerGraph ViewerGraph { get; set; }
@@ -1148,9 +780,8 @@ namespace Kosmograph.Desktop.Graph
                 };
                 GraphCanvas.Children.Add(_targetArrowheadPathForRubberEdge);
             }
-            _rubberEdgePath.Data = VEdge.GetICurveWpfGeometry(edgeGeometry.Curve);
-            _targetArrowheadPathForRubberEdge.Data = VEdge.DefiningTargetArrowHead(edgeGeometry,
-                                                                                  edgeGeometry.LineWidth);
+            _rubberEdgePath.Data = VisualsFactory.CreateEdgePath(edgeGeometry.Curve);
+            _targetArrowheadPathForRubberEdge.Data = VisualsFactory.CreateEdgeTargetArrow(edgeGeometry, edgeGeometry.LineWidth);
         }
 
         public void StopDrawingRubberEdge()
@@ -1211,8 +842,7 @@ namespace Kosmograph.Desktop.Graph
                 //                };
                 //                graphCanvas.Children.Add(targetArrowheadPathForRubberLine);
             }
-            _rubberLinePath.Data =
-                VEdge.GetICurveWpfGeometry(new LineSegment(_sourcePortLocationForEdgeRouting, rubberEnd));
+            _rubberLinePath.Data = VisualsFactory.CreateEdgePath(new LineSegment(_sourcePortLocationForEdgeRouting, rubberEnd));
         }
 
         public void StartDrawingRubberLine(Point startingPoint)

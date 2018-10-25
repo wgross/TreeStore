@@ -13,7 +13,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="./CommonResources.xaml" />
             </ResourceDictionary.MergedDictionaries>
-
+        
             <DataTemplate DataType="{x:Type kem:AssignedTagEditModel}">
                 <StackPanel Orientation="Vertical">
                     <!--

@@ -83,6 +83,84 @@ namespace Kosmograph.Desktop.Test.ViewModel
         }
 
         [Fact]
+        public void TagRepositoryViewModel_invalidates_editing_duplicate_tag_name_with_different_id()
+        {
+            // ARRANGE
+
+            this.model
+                .Setup(m => m.FindAll())
+                .Returns(new[] { new Tag("t") });
+
+            this.viewModel.FillAll();
+
+            // create new tag
+            this.viewModel.CreateCommand.Execute(null);
+
+            // ACT
+
+            this.viewModel.Edited.Name = "T";
+            var result = this.viewModel.Edited.NameError;
+
+            // ASSERT
+            // commit cant be executed
+
+            Assert.True(this.viewModel.Edited.HasErrors);
+            Assert.Equal("Tag name must be unique", result);
+        }
+
+        [Fact]
+        public void TagRepositoryViewModel_validates_editing_duplicate_tag_name_with_same_id()
+        {
+            // ARRANGE
+
+            this.model
+                .Setup(m => m.FindAll())
+                .Returns(new[] { new Tag("t") });
+
+            this.viewModel.FillAll();
+
+            // create new tag
+            this.viewModel.EditCommand.Execute(this.viewModel.Single());
+
+            // ACT
+
+            this.viewModel.Edited.Name = "T";
+            var result = this.viewModel.Edited.NameError;
+
+            // ASSERT
+            // commit can be executed
+
+            Assert.Null(result);
+            Assert.True(this.viewModel.EditCommand.CanExecute(null));
+            Assert.False(this.viewModel.Edited.HasErrors);
+        }
+
+        [Fact]
+        public void TagRepositoryViewModel_forbids_adding_tag_with_duplicate_name()
+        {
+            // ARRANGE
+
+            this.model
+                .Setup(m => m.FindAll())
+                .Returns(new[] { new Tag("t") });
+
+            this.viewModel.FillAll();
+
+            // create new tag
+            this.viewModel.CreateCommand.Execute(null);
+
+            // ACT
+
+            this.viewModel.Edited.Name = "T";
+            var result = this.viewModel.Edited.CommitCommand.CanExecute(null);
+
+            // ASSERT
+            // commit cant be executed
+
+            Assert.False(result);
+        }
+
+        [Fact]
         public void TagRepositoryViewModel_reverts_created_Tag_at_Model()
         {
             // ARRANGE

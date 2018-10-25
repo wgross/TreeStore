@@ -2,7 +2,7 @@
 using Kosmograph.Desktop.EditModel.Base;
 using Kosmograph.Desktop.ViewModel;
 using Kosmograph.Model;
-using System;
+using System.Collections;
 using System.Linq;
 using System.Windows.Input;
 
@@ -10,20 +10,18 @@ namespace Kosmograph.Desktop.EditModel
 {
     public class TagEditModel : NamedEditModelBase<TagViewModel, Tag>
     {
-        private readonly Action<Tag> committed;
-        private readonly Action<Tag> rolledback;
+        private readonly ITagEditCallback editCallback;
 
-        public TagEditModel(TagViewModel tag, Action<Tag> committed = null, Action<Tag> rolledback = null)
-            : base(tag)
+        public TagEditModel(TagViewModel viewModel, ITagEditCallback editCallback)
+            : base(viewModel)
         {
+            this.editCallback = editCallback;
+
             this.Properties =
-                new CommitableObservableCollection<FacetPropertyEditModel>(tag.Properties.Select(p => new FacetPropertyEditModel(p)));
+                new CommitableObservableCollection<FacetPropertyEditModel>(viewModel.Properties.Select(p => new FacetPropertyEditModel(this, p)));
 
             this.CreatePropertyCommand = new RelayCommand(this.CreatePropertyExecuted);
             this.RemovePropertyCommand = new RelayCommand<FacetPropertyEditModel>(this.RemovePropertyExecuted);
-
-            this.committed = committed ?? delegate { };
-            this.rolledback = rolledback ?? delegate { };
         }
 
         #region Facet has observable collection of facet properties
@@ -36,7 +34,7 @@ namespace Kosmograph.Desktop.EditModel
 
         private void CreatePropertyExecuted()
         {
-            this.Properties.Add(new FacetPropertyEditModel(new FacetPropertyViewModel(new FacetProperty("new property"))));
+            this.Properties.Add(new FacetPropertyEditModel(this, new FacetPropertyViewModel(new FacetProperty("new property"))));
         }
 
         public ICommand CreatePropertyCommand { get; }
@@ -50,22 +48,58 @@ namespace Kosmograph.Desktop.EditModel
 
         #endregion Commands
 
-        public override void Commit()
+        protected override void Commit()
         {
             this.Properties.Commit(
                 onAdd: p => this.ViewModel.Properties.Add(p.ViewModel),
                 onRemove: p => this.ViewModel.Properties.Remove(p.ViewModel));
-            this.Properties.ForEach(p => p.Commit());
+            this.Properties.ForEach(p => p.CommitCommand.Execute(null));
             base.Commit();
-            this.committed(this.ViewModel.Model);
+            this.editCallback.Commit(this.ViewModel.Model);
         }
 
-        public override void Rollback()
+        protected override bool CanCommit()
+        {
+            if (this.HasErrors)
+                return false;
+            if (base.CanCommit())
+                if (this.Properties.All(p => p.CommitCommand.CanExecute(null)))
+                    return this.editCallback.CanCommit(this);
+            return false;
+        }
+
+        protected override void Rollback()
         {
             this.Properties =
-                new CommitableObservableCollection<FacetPropertyEditModel>(this.ViewModel.Properties.Select(p => new FacetPropertyEditModel(p)));
+                new CommitableObservableCollection<FacetPropertyEditModel>(this.ViewModel.Properties.Select(p => new FacetPropertyEditModel(this, p)));
             base.Rollback();
-            this.rolledback(this.ViewModel.Model);
+            this.editCallback.Rollback(this.ViewModel.Model);
         }
+
+        #region Implement Validate
+
+        protected override void Validate()
+        {
+            this.HasErrors = false;
+            this.NameError = this.editCallback.Validate(this);
+
+            // validate the repo data
+            if (!string.IsNullOrEmpty(this.NameError))
+            {
+                this.HasErrors = this.HasErrors || true;
+            }
+
+            // validate the local data
+            if (string.IsNullOrEmpty(this.Name))
+            {
+                this.HasErrors = true;
+                this.NameError = "Tag name must not be empty";
+            }
+
+            // this has side effect to the editor
+            this.CommitCommand.RaiseCanExecuteChanged();
+        }
+
+        #endregion Implement Validate
     }
 }
