@@ -63,8 +63,9 @@ namespace Kosmograph.Desktop
             }
             set
             {
-                value.PropertyChanged += this.Value_PropertyChanged;
+                this.ViewModel?.Dispose();                
                 this.DataContext = value;
+                this.ViewModel.PropertyChanged += this.Value_PropertyChanged;
             }
         }
 
@@ -108,6 +109,19 @@ namespace Kosmograph.Desktop
             //    if(dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             //        ;
             //}
+        }
+
+        private void OpenGraph_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            var openFileDialog = new OpenFileDialog();
+            openFileDialog.Title = "Choose a Kosmograph file to open...";
+            openFileDialog.DefaultExt = "kg";
+            openFileDialog.CheckFileExists = true;
+            if (!(openFileDialog.ShowDialog() ?? false))
+                return;
+
+            this.ViewModel = new KosmographViewModel(new KosmographModel(new KosmographLiteDbPersistence(File.Open(openFileDialog.FileName,FileMode.Open))));
+            this.ViewModel.FillAll();
         }
     }
 }

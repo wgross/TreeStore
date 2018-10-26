@@ -18,11 +18,13 @@
     </Window.Resources>
     <Window.CommandBindings>
         <CommandBinding Command="New" Executed="NewGraph_Executed"/>
+        <CommandBinding Command="Open" Executed="OpenGraph_Executed"/>
     </Window.CommandBindings>
     <DockPanel LastChildFill="true">
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="Graph">
                 <MenuItem Header="_New Graph" Command="New"/>
+                <MenuItem Header="_Open Graph" Command="Open"/>
             </MenuItem>
         </Menu>
         <Grid Name="rootPanel">

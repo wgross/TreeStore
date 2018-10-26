@@ -458,5 +458,18 @@ namespace Kosmograph.Desktop.Test.ViewModel
 
             Assert.Null(this.viewModel.DeletingEntity);
         }
+
+        [Fact]
+        public void KosmographViewModel_disposes_model_on_disposing()
+        {
+            // ARRANGE
+
+            this.persistence
+                .Setup(p => p.Dispose());
+
+            // ACT
+
+            this.viewModel.Dispose();
+       }
     }
 }

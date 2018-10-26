@@ -31,5 +31,10 @@ namespace Kosmograph.LiteDb
         public IEntityRepository Entities => new EntityRepository(db);
 
         public IRelationshipRepository Relationships => new RelationshipRepository(db);
+
+        public void Dispose()
+        {
+            this.db.Dispose();
+        }
     }
 }

@@ -1,6 +1,8 @@
-﻿namespace Kosmograph.Model
+﻿using System;
+
+namespace Kosmograph.Model
 {
-    public class KosmographModel
+    public class KosmographModel : IDisposable
     {
         private IKosmographPersistence persistence;
 
@@ -16,5 +18,10 @@
         public IRelationshipRepository Relationships => this.persistence.Relationships;
 
         public Category RootCategory() => this.persistence.Categories.Root();
+
+        public void Dispose()
+        {
+            this.persistence.Dispose();
+        }
     }
 }
