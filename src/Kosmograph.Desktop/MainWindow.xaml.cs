@@ -3,6 +3,8 @@ using Kosmograph.Desktop.Graph;
 using Kosmograph.Desktop.ViewModel;
 using Kosmograph.LiteDb;
 using Kosmograph.Model;
+using Microsoft.Win32;
+using System.IO;
 using System.Windows;
 using System.Windows.Input;
 
@@ -91,7 +93,21 @@ namespace Kosmograph.Desktop
 
         private void NewGraph_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            this.CreateNewModel();
+            var openFileDialog = new OpenFileDialog();
+            openFileDialog.Title = "Choose a directory and file name to create new graph...";
+            openFileDialog.DefaultExt = "kg";
+            openFileDialog.CheckFileExists = false;
+            if (!(openFileDialog.ShowDialog() ?? false))
+                return;
+
+            this.ViewModel = new KosmographViewModel(new KosmographModel(new KosmographLiteDbPersistence(File.Create(openFileDialog.FileName))));
+            this.ViewModel.FillAll();
+
+            //using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
+            //{
+            //    if(dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            //        ;
+            //}
         }
     }
 }

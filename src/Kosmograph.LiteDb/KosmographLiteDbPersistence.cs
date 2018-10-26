@@ -9,7 +9,12 @@ namespace Kosmograph.LiteDb
         private readonly LiteRepository db;
 
         public KosmographLiteDbPersistence()
-            : this(new LiteRepository(new MemoryStream()))
+            : this(new MemoryStream())
+        {
+        }
+
+        public KosmographLiteDbPersistence(Stream storageStream)
+           : this(new LiteRepository(storageStream))
         {
         }
 
