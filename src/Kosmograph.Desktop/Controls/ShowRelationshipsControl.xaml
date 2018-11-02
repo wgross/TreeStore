@@ -24,7 +24,7 @@
     <UserControl.Style>
         <Style TargetType="{x:Type UserControl}">
             <!--
-            Control is hidden while an Entitiy is edited.
+            Control is hidden while a relationship is edited.
             -->
             <Setter
                     Property="Visibility"

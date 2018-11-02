@@ -1,9 +1,10 @@
 ﻿using Moq;
+using System;
 using Xunit;
 
 namespace Kosmograph.Model.Test
 {
-    public class KosmographModelTest
+    public class KosmographModelTest : IDisposable
     {
         private readonly MockRepository mocks;
         private readonly Mock<IKosmographPersistence> persistence;
@@ -18,6 +19,11 @@ namespace Kosmograph.Model.Test
             this.categoryRepository = this.mocks.Create<ICategoryRepository>();
             this.tagRepository = this.mocks.Create<ITagRepository>();
             this.model = new KosmographModel(this.persistence.Object);
+        }
+
+        public void Dispose()
+        {
+            this.mocks.VerifyAll();
         }
 
         [Fact]
@@ -58,6 +64,19 @@ namespace Kosmograph.Model.Test
             // ASSERT
 
             Assert.Same(result, this.tagRepository.Object);
+        }
+
+        [Fact]
+        public void KosmographModel_disposes_persistence_on_model_disposing()
+        {
+            // ARRANGE
+
+            this.persistence
+                .Setup(p => p.Dispose());
+
+            // ACT
+
+            this.model.Dispose();
         }
     }
 }

@@ -1,6 +1,8 @@
-﻿namespace Kosmograph.Model
+﻿using System;
+
+namespace Kosmograph.Model
 {
-    public interface IKosmographPersistence
+    public interface IKosmographPersistence : IDisposable
     {
         ITagRepository Tags { get; }
 

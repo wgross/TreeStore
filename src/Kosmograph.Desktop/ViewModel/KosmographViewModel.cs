@@ -9,7 +9,7 @@ using System.Windows.Input;
 
 namespace Kosmograph.Desktop.ViewModel
 {
-    public class KosmographViewModel : ViewModelBase
+    public class KosmographViewModel : ViewModelBase, IDisposable
     {
         private KosmographModel model;
 
@@ -95,6 +95,11 @@ namespace Kosmograph.Desktop.ViewModel
         }
 
         private DeleteEntityWithRelationshipsEditModel deletingEntity;
+
+        public void Dispose()
+        {
+            this.model.Dispose();   
+        }
 
         #endregion Delete Entity with Relastionships
     }
