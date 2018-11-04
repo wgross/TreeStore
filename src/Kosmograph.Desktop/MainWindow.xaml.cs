@@ -30,7 +30,7 @@ namespace Kosmograph.Desktop
                     if (Application.Current != null)
                         Application.Current.Shutdown();
             }
-            var wnd = new GraphWindow
+            var wnd = new KosmographViewerWindow
             {
                 DataContext = this.DataContext
             };
