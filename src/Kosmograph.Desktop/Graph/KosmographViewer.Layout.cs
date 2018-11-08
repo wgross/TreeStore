@@ -24,8 +24,6 @@ namespace Kosmograph.Desktop.Graph
 
         public event EventHandler LayoutComplete;
 
-        public CancelToken CancelToken { get; set; }
-
         public bool RunLayoutAsync { get; set; }
 
         public bool NeedToCalculateLayout
@@ -36,20 +34,15 @@ namespace Kosmograph.Desktop.Graph
 
         private GeometryGraph geometryGraphUnderLayout;
 
+        #region Layout the graph for the first time
+
         private void LayoutGraph(GeometryGraph geometryGraph)
         {
             if (this.NeedToCalculateLayout)
             {
                 try
                 {
-                    LayoutHelpers.CalculateLayout(geometryGraph, this.Graph.LayoutAlgorithmSettings, this.CancelToken);
-
-                    //if (MsaglFileToSave != null)
-                    //{
-                    //    drawingGraph.Write(MsaglFileToSave);
-                    //    Console.WriteLine("saved into {0}", MsaglFileToSave);
-                    //    Environment.Exit(0);
-                    //}
+                    this.LayoutGraph();
                 }
                 catch (OperationCanceledException)
                 {
@@ -63,7 +56,6 @@ namespace Kosmograph.Desktop.Graph
             this.GraphCanvasShow();
             this.PushDataFromLayoutGraphToFrameworkElements();
             this.backgroundWorker = null; //this will signal that we are not under layout anymore
-            this.GraphChanged.Invoke(this, null);
             this.SetInitialTransform();
         }
 
@@ -71,7 +63,7 @@ namespace Kosmograph.Desktop.Graph
         {
             this.DrawGraphBackground();
             this.GraphCanvasAddChildren(this.GetViewerNodes().SelectMany(n => { n.Invalidate(); return n.FrameworkElements; }));
-            this.GraphCanvasAddChildren(this.GetViewerEdges().SelectMany(e => 
+            this.GraphCanvasAddChildren(this.GetViewerEdges().SelectMany(e =>
             {
                 Panel.SetZIndex(e.EdgeLabelViewer.EdgeLabelVisual, this.ZIndexOfEdge(e.Edge));
                 e.Invalidate();
@@ -79,19 +71,63 @@ namespace Kosmograph.Desktop.Graph
             }));
         }
 
-        private void RunLayoutInUIThread()
+        private void InitializeGraphLayout()
         {
-            this.LayoutGraph(this.geometryGraphUnderLayout);
-            this.PostLayoutStep();
+            try
+            {
+                this.LayoutGraph();
+                this.PostLayoutStep();
+                this.GraphChanged?.Invoke(this, null);
+            }
+            catch (OperationCanceledException)
+            {
+            }
             this.LayoutComplete?.Invoke(null, null);
         }
+
+        #endregion Layout the graph for the first time
+
+        #region Update the layout of an already displayed Graph
+
+        public void UpdateGraphLayout()
+        {
+            try
+            {
+                this.LayoutGraph();
+
+                foreach (var n in this.GetViewerNodes())
+                    n.Invalidate();
+
+                foreach (var e in this.GetViewerEdges())
+                {
+                    Panel.SetZIndex(e.EdgeLabelViewer.EdgeLabelVisual, this.ZIndexOfEdge(e.Edge));
+                    e.Invalidate();
+                }
+
+                this.GraphChanged?.Invoke(this, null);
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            this.LayoutComplete?.Invoke(null, null);
+        }
+
+        #endregion Update the layout of an already displayed Graph
+
+        #region Common Layout helpers
+
+        private CancelToken LayoutCancelToken { get; set; }
+
+        private void LayoutGraph() => LayoutHelpers.CalculateLayout(this.Graph.GeometryGraph, this.Graph.LayoutAlgorithmSettings, this.LayoutCancelToken);
+
+        #endregion Common Layout helpers
 
         private bool UnderLayout
         {
             get { return backgroundWorker != null; }
         }
 
-        private void SetUpBackgrounWorkerAndRunAsync()
+        private void InitializeGraphLayoutInBackground()
         {
             this.backgroundWorker = new BackgroundWorker();
             this.backgroundWorker.DoWork += (a, b) => this.LayoutGraph(this.geometryGraphUnderLayout);
@@ -102,7 +138,7 @@ namespace Kosmograph.Desktop.Graph
                     MessageBox.Show(args.Error.ToString());
                     this.ClearKosmographViewer();
                 }
-                else if (CancelToken.Canceled)
+                else if (LayoutCancelToken.Canceled)
                 {
                     this.ClearKosmographViewer();
                 }
@@ -119,7 +155,7 @@ namespace Kosmograph.Desktop.Graph
 
         #region Draw the background of the Canvas and the Graph
 
-        public void DrawGraphBackground()
+        private void DrawGraphBackground()
         {
             // at the very back (Z order -2) is a transparent background.
             this.canvasBackgroundRect = this.CreateCanvasBackgroundRect();

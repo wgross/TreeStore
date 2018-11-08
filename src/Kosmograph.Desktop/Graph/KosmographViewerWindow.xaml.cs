@@ -21,7 +21,7 @@ namespace Kosmograph.Desktop.Graph
 
         private void Layout_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            return;
+            this.viewerControl.Layout();
         }
     }
 }

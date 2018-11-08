@@ -32,7 +32,7 @@ namespace Kosmograph.Desktop.Graph
             {
                 // i feel like this should be moved to th elayout8ng in bg of fg....
                 this.LayoutStarted?.Invoke(null, null);
-                this.CancelToken = new CancelToken();
+                this.LayoutCancelToken = new CancelToken();
 
                 if (this.Graph is null)
                     return;
@@ -55,9 +55,9 @@ namespace Kosmograph.Desktop.Graph
 
                 this.geometryGraphUnderLayout = this.GeometryGraph;
                 if (this.RunLayoutAsync)
-                    this.SetUpBackgrounWorkerAndRunAsync();
+                    this.InitializeGraphLayoutInBackground();
                 else
-                    this.RunLayoutInUIThread();
+                    this.InitializeGraphLayout();
             }
             catch (Exception e)
             {

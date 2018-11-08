@@ -14,6 +14,6 @@
             <Button Command="local:KosmographViewerWindow.Layout"
                     Content="{Binding RelativeSource={RelativeSource Self}, Path=Command.Text}"/>
         </StackPanel>
-        <local:KosmographControl/>
+        <local:KosmographControl x:Name="viewerControl"/>
     </DockPanel>
 </Window>

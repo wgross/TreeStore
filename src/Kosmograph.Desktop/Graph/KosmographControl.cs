@@ -55,5 +55,7 @@ namespace Kosmograph.Desktop.Graph
         {
             this.AddKosmographNodesAndEdges((KosmographViewModel)this.DataContext);
         }
+
+        public void Layout() => this.MsaglGraphViewer.UpdateGraphLayout();
     }
 }
