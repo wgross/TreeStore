@@ -75,31 +75,7 @@ namespace Kosmograph.Desktop.Graph
 
         public DrawingObject DrawingObject => this.Node;
 
-        private bool markedForDragging;
-
-        /// <summary>
-        /// Implements a property of an interface IEditViewer
-        /// </summary>
-        public bool MarkedForDragging
-        {
-            get => this.markedForDragging;
-            set
-            {
-                this.markedForDragging = value;
-                if (value)
-                {
-                    MarkedForDraggingEvent?.Invoke(this, null);
-                }
-                else
-                {
-                    UnmarkedForDraggingEvent?.Invoke(this, null);
-                }
-            }
-        }
-
-        public event EventHandler MarkedForDraggingEvent;
-
-        public event EventHandler UnmarkedForDraggingEvent;
+        
 
         #endregion IViewerObject Members
 

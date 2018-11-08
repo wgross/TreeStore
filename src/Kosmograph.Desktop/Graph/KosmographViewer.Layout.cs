@@ -96,11 +96,17 @@ namespace Kosmograph.Desktop.Graph
                 this.LayoutGraph();
 
                 foreach (var n in this.GetViewerNodes())
+                {
                     n.Invalidate();
+                }
 
                 foreach (var e in this.GetViewerEdges())
                 {
                     Panel.SetZIndex(e.EdgeLabelViewer.EdgeLabelVisual, this.ZIndexOfEdge(e.Edge));
+                    // The dragh mark of am edge viewer label is active as long the label
+                    // is removed from its original place. A re-layout has to clean this up
+                    // to remove the dashed line form the label.
+                    e.EdgeLabelViewer.MarkedForDragging = false;
                     e.Invalidate();
                 }
 

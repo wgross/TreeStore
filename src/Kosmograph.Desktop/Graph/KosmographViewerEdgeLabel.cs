@@ -1,7 +1,6 @@
 using Kosmograph.Desktop.Graph.Base;
 using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.WpfGraphControl;
-using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,12 +23,6 @@ namespace Kosmograph.Desktop.Graph
         #region IViewerObject members
 
         public DrawingObject DrawingObject => this.EdgeLabel;
-
-        public bool MarkedForDragging { get; set; }
-
-        public event EventHandler MarkedForDraggingEvent;
-
-        public event EventHandler UnmarkedForDraggingEvent;
 
         #endregion IViewerObject members
 
