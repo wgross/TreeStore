@@ -28,11 +28,10 @@ namespace Kosmograph.Model.Base
             if (object.ReferenceEquals(this, obj))
                 return true;
 
-            var objAsEntityBase = obj as NamedBase;
-            if (objAsEntityBase is null)
-                return false;
+            if(obj is NamedBase nb)
+                return (this.GetType(), this.Id).Equals((obj.GetType(), nb.Id));
 
-            return (this.GetType(), this.Id).Equals((obj.GetType(), objAsEntityBase.Id));
+            return false;            
         }
 
         public override int GetHashCode() => (this.GetType(), this.Id).GetHashCode();
