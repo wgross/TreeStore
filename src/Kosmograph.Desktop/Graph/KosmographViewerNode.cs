@@ -19,6 +19,8 @@ namespace Kosmograph.Desktop.Graph
 {
     public class KosmographViewerNode : KosmographViewerItemBase, IViewerNode, IInvalidatable
     {
+        #region Viewer node is associated to a DrawingNode from MSAGL graph
+
         public DrawingNode Node
         {
             get { return _node; }
@@ -33,11 +35,10 @@ namespace Kosmograph.Desktop.Graph
 
         private DrawingNode _node;
 
-        private readonly Func<Edge, KosmographViewerEdge> funcFromDrawingEdgeToVEdge;
-
-        private readonly Brush _collapseSymbolPathInactive = Brushes.Silver;
+        #endregion Viewer node is associated to a DrawingNode from MSAGL graph
 
         public int ZIndex
+
         {
             get
             {
@@ -58,24 +59,32 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        public KosmographViewerNode(DrawingNode node, TextBlock nodeLabelFrameworkElement, Func<Edge, KosmographViewerEdge> funcFromDrawingEdgeToVEdge)
+        private readonly Func<Edge, KosmographViewerEdge> funcFromDrawingEdgeToVEdge;
+
+        private readonly Brush _collapseSymbolPathInactive = Brushes.Silver;
+
+        #region Creation and Initialization of this instance
+
+        public KosmographViewerNode(DrawingNode node, TextBlock nodeLabelTextBlock, Func<Edge, KosmographViewerEdge> funcFromDrawingEdgeToVEdge)
         {
             this.funcFromDrawingEdgeToVEdge = funcFromDrawingEdgeToVEdge;
 
             this.Node = node;
+            this.NodeLabel = nodeLabelTextBlock;
+            this.NodeBoundaryPath = new Path { Tag = this };
+            this.UpdateNodeVisuals();
 
-            (this.NodeLabel, this.NodeBoundaryPath) = this.SetupNodeVisuals(nodeLabelFrameworkElement);
             this.SetupSubgraphDrawing();
 
             this.Node.Attr.VisualsChanged += (a, b) => this.Invalidate();
             this.Node.IsVisibleChanged += this.UpdateVisibility;
         }
 
+        #endregion Creation and Initialization of this instance
+
         #region IViewerObject Members
 
         public DrawingObject DrawingObject => this.Node;
-
-        
 
         #endregion IViewerObject Members
 
@@ -153,17 +162,14 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        public (TextBlock, Path) SetupNodeVisuals(TextBlock nodeLabel)
-        {
-            nodeLabel.Tag = this; // Tag is used by graph viewers hit test
-
-            this.Node.GeometryNode.BoundaryCurve = this.GetNodeBoundaryCurve(nodeLabel);
-            return (nodeLabel, new Path { Tag = this });
-        }
-
-        private void UpdateNodeVisuals()
+        public void UpdateNodeVisuals()
         {
             this.UpdateVisibility(this.Node);
+
+            // recreation of the gemotry graph erases the boundary curve.
+            // ist has to be recalculated from the nodes label.
+            if (this.Node.GeometryNode.BoundaryCurve is null)
+                this.Node.GeometryNode.BoundaryCurve = this.GetNodeBoundaryCurve(this.NodeLabel);
 
             if (this.Node.IsVisible)
             {

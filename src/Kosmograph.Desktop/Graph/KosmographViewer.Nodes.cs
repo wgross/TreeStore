@@ -1,12 +1,10 @@
 ﻿using Kosmograph.Desktop.ViewModel;
 using Microsoft.Msagl.Drawing;
-using Microsoft.Msagl.Miscellaneous.LayoutEditing;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using DrawingNode = Microsoft.Msagl.Drawing.Node;
-using GeometryPoint = Microsoft.Msagl.Core.Geometry.Point;
 using GeometryRectangle = Microsoft.Msagl.Core.Geometry.Rectangle;
 
 namespace Kosmograph.Desktop.Graph
@@ -29,8 +27,8 @@ namespace Kosmograph.Desktop.Graph
         {
             if (drawingNode.GeometryNode is null)
             {
-                // make sure the drawning node has a gemoetry node.
-                // this is true in the inietial 'fill' phase bit if the node is added later
+                // make sure the drawning node has a geometry node.
+                // this is true in the initial 'fill' phase bit if the node is added later
                 // the DrawingNode is not yet completed
                 GeometryGraphCreator.CreateGeometryNode(this.Graph, this.GeometryGraph, drawingNode, ConnectionToGraph.Connected);
                 this.Graph.GeometryGraph.Nodes.Add(drawingNode.GeometryNode);
@@ -75,8 +73,7 @@ namespace Kosmograph.Desktop.Graph
             drawingNode.Attr.YRadius = 0;
 
             this.AddViewerNode(drawingNode);
-
-            //adds all nodes again->refactor//this.RunLayoutInUIThread();
+            this.UpdateGraphLayoutInBackground();
         }
 
         private KosmographViewerNode AddViewerNode(DrawingNode drawingNode) //dont know how to place it better//, GeometryPoint center, object visualElement)
@@ -87,34 +84,34 @@ namespace Kosmograph.Desktop.Graph
 
             this.GraphCanvasAddChildren(viewerNode.FrameworkElements);
 
-            this.MakeRoomForNewNode(drawingNode);
+            //this.MakeRoomForNewNode(drawingNode);
 
             return viewerNode;
         }
 
-        private void MakeRoomForNewNode(DrawingNode drawingNode)
-        {
-            var incrementalDragger =
-                new IncrementalDragger(new[] { drawingNode.GeometryNode }, this.Graph.GeometryGraph, this.Graph.LayoutAlgorithmSettings);
+        //private void MakeRoomForNewNode(DrawingNode drawingNode)
+        //{
+        //    var incrementalDragger =
+        //        new IncrementalDragger(new[] { drawingNode.GeometryNode }, this.Graph.GeometryGraph, this.Graph.LayoutAlgorithmSettings);
 
-            incrementalDragger.Drag(new GeometryPoint());
+        //    incrementalDragger.Drag(new GeometryPoint());
 
-            foreach (var n in incrementalDragger.ChangedGraph.Nodes)
-            {
-                var dn = (DrawingNode)n.UserData;
-                var vn = drawingObjectsToIViewerObjects[dn] as KosmographViewerNode;
-                if (vn != null)
-                    vn.Invalidate();
-            }
+        //    foreach (var n in incrementalDragger.ChangedGraph.Nodes)
+        //    {
+        //        var dn = (DrawingNode)n.UserData;
+        //        var vn = drawingObjectsToIViewerObjects[dn] as KosmographViewerNode;
+        //        if (vn != null)
+        //            vn.Invalidate();
+        //    }
 
-            foreach (var n in incrementalDragger.ChangedGraph.Edges)
-            {
-                var dn = (Microsoft.Msagl.Drawing.Edge)n.UserData;
-                var ve = drawingObjectsToIViewerObjects[dn] as KosmographViewerEdge;
-                if (ve != null)
-                    ve.Invalidate();
-            }
-        }
+        //    foreach (var n in incrementalDragger.ChangedGraph.Edges)
+        //    {
+        //        var dn = (Microsoft.Msagl.Drawing.Edge)n.UserData;
+        //        var ve = drawingObjectsToIViewerObjects[dn] as KosmographViewerEdge;
+        //        if (ve != null)
+        //            ve.Invalidate();
+        //    }
+        //}
 
         #endregion Create (add) viewer nodes to an already displayed graph
 
@@ -133,10 +130,10 @@ namespace Kosmograph.Desktop.Graph
             var tb = new TextBlock { Text = node.Name };
             tb.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
 
-            drawingNode.GeometryNode.BoundingBox = new GeometryRectangle(0, 0, tb.DesiredSize.Width, tb.DesiredSize.Height)
-            {
-                Center = drawingNode.GeometryNode.BoundingBox.Center
-            };
+            //drawingNode.GeometryNode.BoundingBox = new GeometryRectangle(0, 0, tb.DesiredSize.Width, tb.DesiredSize.Height)
+            //{
+            //    Center = drawingNode.GeometryNode.BoundingBox.Center
+            //};
 
             if (this.drawingObjectsToIViewerObjects.TryGetValue(drawingNode, out var nodeViewer))
                 this.Invalidate(nodeViewer);
@@ -170,6 +167,7 @@ namespace Kosmograph.Desktop.Graph
             // remove the node from te underlying MSAGL graph.
             // this will incliude the edges
             this.Graph.RemoveNode(drawingNode);
+            this.UpdateGraphLayoutInBackground();
         }
 
         #endregion Remove a Node

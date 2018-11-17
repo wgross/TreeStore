@@ -5,6 +5,7 @@ using Microsoft.Msagl.Miscellaneous;
 using System;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Shapes;
@@ -53,7 +54,6 @@ namespace Kosmograph.Desktop.Graph
 
         private void PostLayoutStep()
         {
-            this.GraphCanvasShow();
             this.PushDataFromLayoutGraphToFrameworkElements();
             this.backgroundWorker = null; //this will signal that we are not under layout anymore
             this.SetInitialTransform();
@@ -73,14 +73,20 @@ namespace Kosmograph.Desktop.Graph
 
         private void InitializeGraphLayout()
         {
+            
             try
             {
+                this.GraphCanvasHide();
                 this.LayoutGraph();
                 this.PostLayoutStep();
                 this.GraphChanged?.Invoke(this, null);
             }
             catch (OperationCanceledException)
             {
+            }
+            finally
+            {
+                this.GraphCanvasShow();
             }
             this.LayoutComplete?.Invoke(null, null);
         }
@@ -93,29 +99,58 @@ namespace Kosmograph.Desktop.Graph
         {
             try
             {
+                
+                this.CreateGeometryGraph();
                 this.LayoutGraph();
-
-                foreach (var n in this.GetViewerNodes())
-                {
-                    n.Invalidate();
-                }
-
-                foreach (var e in this.GetViewerEdges())
-                {
-                    Panel.SetZIndex(e.EdgeLabelViewer.EdgeLabelVisual, this.ZIndexOfEdge(e.Edge));
-                    // The dragh mark of am edge viewer label is active as long the label
-                    // is removed from its original place. A re-layout has to clean this up
-                    // to remove the dashed line form the label.
-                    e.EdgeLabelViewer.MarkedForDragging = false;
-                    e.Invalidate();
-                }
-
-                this.GraphChanged?.Invoke(this, null);
+                this.GraphCanvas.InvokeInUiThread(this.UpdateViewerObjects);
             }
             catch (OperationCanceledException)
             {
             }
             this.LayoutComplete?.Invoke(null, null);
+        }
+
+        private void CreateGeometryGraph()
+        {
+            this.Graph.CreateGeometryGraph();
+            foreach (var viewerNode in this.GetViewerNodes())
+                viewerNode.UpdateNodeVisuals();
+
+        }
+
+        public void UpdateGraphLayoutInBackground()
+        {
+            this.LayoutGraphAsync().ContinueWith(t =>
+            {
+                if (t.IsCompleted)
+                {
+                    this.GraphCanvas.InvokeInUiThread(this.UpdateViewerObjects);
+                }
+            });
+        }
+
+        private void UpdateViewerObjects()
+        {
+            // just run everything in the the UI dispatcher.
+            // The invlaidates only have to check for an UI affinity instead
+            // of waiting to be scheduled.
+
+            foreach (var n in this.GetViewerNodes())
+            {
+                n.Invalidate();
+            }
+
+            foreach (var e in this.GetViewerEdges())
+            {
+                Panel.SetZIndex(e.EdgeLabelViewer.EdgeLabelVisual, this.ZIndexOfEdge(e.Edge));
+                // The drag mark of an edge viewer label is active as long the label
+                // is moved away from its original place. A re-layout has to clean this up
+                // to remove the dashed line form the label.
+                e.EdgeLabelViewer.MarkedForDragging = false;
+                e.Invalidate();
+            }
+
+            this.GraphChanged?.Invoke(this, null);
         }
 
         #endregion Update the layout of an already displayed Graph
@@ -125,6 +160,8 @@ namespace Kosmograph.Desktop.Graph
         private CancelToken LayoutCancelToken { get; set; }
 
         private void LayoutGraph() => LayoutHelpers.CalculateLayout(this.Graph.GeometryGraph, this.Graph.LayoutAlgorithmSettings, this.LayoutCancelToken);
+
+        private Task LayoutGraphAsync() => Task.Factory.StartNew(this.LayoutGraph);
 
         #endregion Common Layout helpers
 
@@ -150,7 +187,11 @@ namespace Kosmograph.Desktop.Graph
                 }
                 else
                 {
-                    this.GraphCanvas.InvokeInUiThread(this.PostLayoutStep);
+                    this.GraphCanvas.InvokeInUiThread(() =>
+                    {
+                        this.GraphCanvasShow();
+                        this.PostLayoutStep();
+                    });
                 }
                 this.backgroundWorker = null; //this will signal that we are not under layout anymore
 

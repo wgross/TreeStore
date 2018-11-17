@@ -42,16 +42,8 @@ namespace Kosmograph.Desktop.Graph
 
                 this.Graph.CreateGeometryGraph();
 
-                // obsolete for nodes and edges.
-                // subgraphs aren't used yet
-                // this.PrepareVisualsFromDrawingObjects(this.Graph);
-
                 this.CreateViewerNodes();
                 this.CreateViewerEdges();
-
-                // obsolete for nodes and edges.
-                // subgraphs aren't used yet
-                // this.InitializeGeometryGraphFromVisuals(this.Graph);
 
                 this.geometryGraphUnderLayout = this.GeometryGraph;
                 if (this.RunLayoutAsync)
