@@ -1,5 +1,6 @@
 ﻿using Microsoft.Msagl.Core.Geometry.Curves;
 using Microsoft.Msagl.Core.Layout;
+using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.Layout.LargeGraphLayout;
 using System;
 using System.Diagnostics;
@@ -20,6 +21,10 @@ namespace Kosmograph.Desktop.Graph
 {
     public static class VisualsFactory
     {
+        private static double AddNodeMargin(double length, DrawingNode drawingNode) => length + 2 * drawingNode.Attr.LabelMargin;
+
+        private static double SubtractNodeMargin(double length, DrawingNode drawingNode) => length - 2 * drawingNode.Attr.LabelMargin;
+
         #region Microsoft.Msagl.Drawing.Label -> System.Windows.Controls.TextBlock (edge/node label)
 
         /// <summary>
@@ -28,14 +33,21 @@ namespace Kosmograph.Desktop.Graph
         /// </summary>
         /// <param name="drawingLabel"></param>
         /// <returns></returns>
-        public static TextBlock CreateLabel(DrawingLabel drawingLabel)
+        public static TextBlock CreateNodeViewerVisual(DrawingLabel drawingLabel)
         {
-            return new TextBlock
+            var nodeLabelVisual = new TextBlock
             {
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
             }
-            .UpdateFrom(drawingLabel, measure: true);
+            .UpdateFrom(drawingLabel);
+
+            // in case of creations a measurement of the label is done.
+            nodeLabelVisual.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
+            nodeLabelVisual.Width = nodeLabelVisual.DesiredSize.Width;
+            nodeLabelVisual.Height = nodeLabelVisual.DesiredSize.Height;
+
+            return nodeLabelVisual;
         }
 
         /// <summary>
@@ -43,14 +55,16 @@ namespace Kosmograph.Desktop.Graph
         /// Width an height of the box are iverwritten be the nodes Width and Height.
         /// </summary>
         /// <returns></returns>
-        public static TextBlock UpdateFrom(this TextBlock textBlock, DrawingNode drawingNode)
+        public static TextBlock UpdateNodeViewerVisual(this TextBlock textBlock, DrawingNode drawingNode)
         {
             Debug.Assert(textBlock.Dispatcher.CheckAccess());
 
-            var tmp = textBlock.UpdateFrom(drawingNode.Label, measure: false);
-            tmp.Width = drawingNode.Width;
-            tmp.Height = drawingNode.Height;
-            tmp.Margin = new Thickness(drawingNode.Attr.LabelMargin);
+            // margin could be included in the calcuilatin of the boundary curve instead.
+            // maybe this very place of code would be cleaner then.
+            textBlock.Margin = new Thickness(drawingNode.Attr.LabelMargin);
+            textBlock.UpdateFrom(drawingNode.Label);
+            textBlock.Width = SubtractNodeMargin(drawingNode.Width, drawingNode);
+            textBlock.Height = SubtractNodeMargin(drawingNode.Height, drawingNode);
 
             return textBlock;
         }
@@ -60,7 +74,7 @@ namespace Kosmograph.Desktop.Graph
         /// the box will be remeasured.
         /// </summary>
         /// <returns></returns>
-        public static TextBlock UpdateFrom(this TextBlock textBlock, DrawingLabel drawingLabel, bool measure)
+        public static TextBlock UpdateFrom(this TextBlock textBlock, DrawingLabel drawingLabel, bool measure = false)
         {
             Debug.Assert(textBlock.Dispatcher.CheckAccess());
 
@@ -84,13 +98,18 @@ namespace Kosmograph.Desktop.Graph
 
         #region Microsoft.Msagl.Drawing.Node -> System.Windows.Shapes.Path (node boundary)
 
-        public static Path CreateNodeBoundary(DrawingNode drawingNode)
+        public static Path UpdateNodeViewerVisual(this Path nodeBoundary, double nodeLabelWidth, double nodeLabelHeight, DrawingNode drawingNode)
         {
-            return new Path().Update(drawingNode);
-        }
+            if (drawingNode.GeometryNode.BoundaryCurve is null)
+            {
+                // the boundary curve is recalculated from the size of the
+                // nodes label visual.
 
-        public static Path Update(this Path nodeBoundary, DrawingNode drawingNode)
-        {
+                var width = AddNodeMargin(nodeLabelWidth, drawingNode);
+                var height = AddNodeMargin(nodeLabelHeight, drawingNode);
+                drawingNode.GeometryNode.BoundaryCurve = NodeBoundaryCurves.GetNodeBoundaryCurve(drawingNode, width, height);
+            }
+
             switch (drawingNode.Attr.Shape)
             {
                 case DrawingShape.Box:
@@ -111,6 +130,7 @@ namespace Kosmograph.Desktop.Graph
                     break;
             }
 
+            nodeBoundary.StrokeThickness = drawingNode.Attr.LineWidth;
             nodeBoundary.Stroke = drawingNode.Attr.Color.ToWpf();
             nodeBoundary.Fill = drawingNode.Attr.FillColor.ToWpf();
             return nodeBoundary;

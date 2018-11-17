@@ -1,4 +1,4 @@
-﻿<Window x:Class="Kosmograph.Desktop.Graph.GraphWindow"
+﻿<Window x:Class="Kosmograph.Desktop.Graph.KosmographViewerWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6,9 +6,14 @@
         xmlns:local="clr-namespace:Kosmograph.Desktop.Graph"
         mc:Ignorable="d"
         Title="GraphWindow" Height="450" Width="800">
-    <Grid 
+    <DockPanel LastChildFill="True" 
         Name="graphPanel"
         ClipToBounds="True">
-        <local:KosmographControl/>
-    </Grid>
+        <StackPanel DockPanel.Dock="Top"
+            Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Command="local:KosmographViewerWindow.Layout"
+                    Content="{Binding RelativeSource={RelativeSource Self}, Path=Command.Text}"/>
+        </StackPanel>
+        <local:KosmographControl x:Name="viewerControl"/>
+    </DockPanel>
 </Window>

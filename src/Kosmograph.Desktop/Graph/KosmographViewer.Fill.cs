@@ -32,7 +32,7 @@ namespace Kosmograph.Desktop.Graph
             {
                 // i feel like this should be moved to th elayout8ng in bg of fg....
                 this.LayoutStarted?.Invoke(null, null);
-                this.CancelToken = new CancelToken();
+                this.LayoutCancelToken = new CancelToken();
 
                 if (this.Graph is null)
                     return;
@@ -42,22 +42,14 @@ namespace Kosmograph.Desktop.Graph
 
                 this.Graph.CreateGeometryGraph();
 
-                // obsolete for nodes and edges.
-                // subgraphs aren't used yet
-                // this.PrepareVisualsFromDrawingObjects(this.Graph);
-
                 this.CreateViewerNodes();
                 this.CreateViewerEdges();
 
-                // obsolete for nodes and edges.
-                // subgraphs aren't used yet
-                // this.InitializeGeometryGraphFromVisuals(this.Graph);
-
                 this.geometryGraphUnderLayout = this.GeometryGraph;
                 if (this.RunLayoutAsync)
-                    this.SetUpBackgrounWorkerAndRunAsync();
+                    this.InitializeGraphLayoutInBackground();
                 else
-                    this.RunLayoutInUIThread();
+                    this.InitializeGraphLayout();
             }
             catch (Exception e)
             {
@@ -98,7 +90,7 @@ namespace Kosmograph.Desktop.Graph
 
         private void PrepareEdgeLabels(DrawingEdge drawingEdge, out TextBlock textBlock)
         {
-            textBlock = VisualsFactory.CreateLabel(drawingEdge.Label);
+            textBlock = VisualsFactory.CreateNodeViewerVisual(drawingEdge.Label);
 
             //obsolete//this.drawingObjectsToFrameworkElements[drawingEdge] = textBlock;
 
@@ -107,7 +99,7 @@ namespace Kosmograph.Desktop.Graph
 
         private void PrepareNodeLabels(DrawingNode drawingNode, out TextBlock textBlock)
         {
-            textBlock = VisualsFactory.CreateLabel(drawingNode.Label);
+            textBlock = VisualsFactory.CreateNodeViewerVisual(drawingNode.Label);
 
             //obsolete//this.drawingObjectsToFrameworkElements[drawingNode] = textBlock;
         }

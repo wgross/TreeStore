@@ -21,7 +21,7 @@ namespace Kosmograph.Desktop.Graph
 
             if (lgSettings is null)
             {
-                edgeViewer = new KosmographViewerEdge(drawingEdge, new KosmographViewerEdgeLabel(drawingEdge.Label, VisualsFactory.CreateLabel(drawingEdge.Label)))
+                edgeViewer = new KosmographViewerEdge(drawingEdge, new KosmographViewerEdgeLabel(drawingEdge.Label, VisualsFactory.CreateNodeViewerVisual(drawingEdge.Label)))
                 {
                     PathStrokeThicknessFunc = () => GetBorderPathThickness() * drawingEdge.Attr.LineWidth
                 };

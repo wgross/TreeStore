@@ -1,5 +1,4 @@
 using Kosmograph.Desktop.Graph.Base;
-using Microsoft.Msagl.Core.Geometry.Curves;
 using Microsoft.Msagl.Core.Layout;
 using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.WpfGraphControl;
@@ -19,6 +18,8 @@ namespace Kosmograph.Desktop.Graph
 {
     public class KosmographViewerNode : KosmographViewerItemBase, IViewerNode, IInvalidatable
     {
+        #region Viewer node is associated to a DrawingNode from MSAGL graph
+
         public DrawingNode Node
         {
             get { return _node; }
@@ -33,11 +34,10 @@ namespace Kosmograph.Desktop.Graph
 
         private DrawingNode _node;
 
-        private readonly Func<Edge, KosmographViewerEdge> funcFromDrawingEdgeToVEdge;
-
-        private readonly Brush _collapseSymbolPathInactive = Brushes.Silver;
+        #endregion Viewer node is associated to a DrawingNode from MSAGL graph
 
         public int ZIndex
+
         {
             get
             {
@@ -58,48 +58,32 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        public KosmographViewerNode(DrawingNode node, TextBlock nodeLabelFrameworkElement, Func<Edge, KosmographViewerEdge> funcFromDrawingEdgeToVEdge)
+        private readonly Func<Edge, KosmographViewerEdge> funcFromDrawingEdgeToVEdge;
+
+        private readonly Brush _collapseSymbolPathInactive = Brushes.Silver;
+
+        #region Creation and Initialization of this instance
+
+        public KosmographViewerNode(DrawingNode node, TextBlock nodeLabelTextBlock, Func<Edge, KosmographViewerEdge> funcFromDrawingEdgeToVEdge)
         {
             this.funcFromDrawingEdgeToVEdge = funcFromDrawingEdgeToVEdge;
 
             this.Node = node;
+            this.NodeLabel = nodeLabelTextBlock;
+            this.NodeBoundaryPath = new Path { Tag = this };
+            this.UpdateNodeViewerVisuals();
 
-            (this.NodeLabel, this.NodeBoundaryPath) = this.SetupNodeVisuals(nodeLabelFrameworkElement);
             this.SetupSubgraphDrawing();
 
             this.Node.Attr.VisualsChanged += (a, b) => this.Invalidate();
             this.Node.IsVisibleChanged += this.UpdateVisibility;
         }
 
+        #endregion Creation and Initialization of this instance
+
         #region IViewerObject Members
 
         public DrawingObject DrawingObject => this.Node;
-
-        private bool markedForDragging;
-
-        /// <summary>
-        /// Implements a property of an interface IEditViewer
-        /// </summary>
-        public bool MarkedForDragging
-        {
-            get => this.markedForDragging;
-            set
-            {
-                this.markedForDragging = value;
-                if (value)
-                {
-                    MarkedForDraggingEvent?.Invoke(this, null);
-                }
-                else
-                {
-                    UnmarkedForDraggingEvent?.Invoke(this, null);
-                }
-            }
-        }
-
-        public event EventHandler MarkedForDraggingEvent;
-
-        public event EventHandler UnmarkedForDraggingEvent;
 
         #endregion IViewerObject Members
 
@@ -125,7 +109,7 @@ namespace Kosmograph.Desktop.Graph
         {
             this.NodeLabel.InvokeInUiThread(() =>
             {
-                this.UpdateNodeVisuals();
+                this.UpdateNodeViewerVisuals();
 
                 if (_subgraph is null)
                     return;
@@ -177,43 +161,24 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        public (TextBlock, Path) SetupNodeVisuals(TextBlock nodeLabel)
-        {
-            nodeLabel.Tag = this; // Tag is used by graph viewers hit test
-
-            this.Node.GeometryNode.BoundaryCurve = this.GetNodeBoundaryCurve(nodeLabel);
-            return (nodeLabel, new Path { Tag = this });
-        }
-
-        private void UpdateNodeVisuals()
+        public void UpdateNodeViewerVisuals()
         {
             this.UpdateVisibility(this.Node);
 
+            // recreation of the gemotry graph erases the boundary curve.
+            // ist has to be recalculated from the nodes label.
+
             if (this.Node.IsVisible)
             {
-                this.NodeLabel.UpdateFrom(this.Node);
-                this.NodeBoundaryPath.Update(this.Node);
+                this.NodeBoundaryPath.UpdateNodeViewerVisual(this.NodeLabel.Width, this.NodeLabel.Height, this.Node);
+                this.NodeLabel.UpdateNodeViewerVisual(this.Node);
+                this.NodeBoundaryPath.UpdateNodeViewerVisual(this.NodeLabel.Width, this.NodeLabel.Height, this.Node);
                 this.NodeBoundaryPath.StrokeThickness = this.PathStrokeThickness;
 
                 Wpf2MsaglConverters.PositionFrameworkElement(this.NodeLabel, this.Node.GeometryNode.Center, 1);
                 Panel.SetZIndex(this.NodeBoundaryPath, this.ZIndex);
                 Panel.SetZIndex(this.NodeLabel, this.ZIndex + 1);
             }
-        }
-
-        private ICurve GetNodeBoundaryCurve(TextBlock nodeLabel)
-        {
-            var width = nodeLabel.Width + 2 * this.Node.Attr.LabelMargin;
-            var height = nodeLabel.Height + 2 * this.Node.Attr.LabelMargin;
-
-            // the calculated width must not be smaller the minimal size.
-
-            //if (width < drawingGraph.Attr.MinNodeWidth)
-            //    width = drawingGraph.Attr.MinNodeWidth;
-            //if (height < drawingGraph.Attr.MinNodeHeight)
-            //    height = drawingGraph.Attr.MinNodeHeight;
-
-            return NodeBoundaryCurves.GetNodeBoundaryCurve(this.Node, width, height);
         }
 
         #endregion Node Viewer Visuals

@@ -133,8 +133,8 @@
     <Compile Include="Graph\KosmographControl.DataContect.cs" />
     <Compile Include="Graph\KosmographControl.Mouse.cs" />
     <Compile Include="Graph\KosmographViewer.cs" />
-    <Compile Include="Graph\GraphWindow.xaml.cs">
-      <DependentUpon>GraphWindow.xaml</DependentUpon>
+    <Compile Include="Graph\KosmographViewerWindow.xaml.cs">
+      <DependentUpon>KosmographViewerWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Graph\KosmographControl.cs" />
     <Compile Include="Graph\KosmographViewer.Geometry.cs" />
@@ -237,7 +237,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Graph\GraphWindow.xaml">
+    <Page Include="Graph\KosmographViewerWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

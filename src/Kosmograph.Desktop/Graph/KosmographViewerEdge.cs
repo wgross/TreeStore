@@ -45,6 +45,8 @@ namespace Kosmograph.Desktop.Graph
 {
     public class KosmographViewerEdge : KosmographViewerItemBase, IViewerEdge, IInvalidatable
     {
+        #region Construction and initialization of this instance
+
         public KosmographViewerEdge(DrawingEdge edge, KosmographViewerEdgeLabel edgeLabelViewer)
         {
             this.Edge = edge;
@@ -61,11 +63,17 @@ namespace Kosmograph.Desktop.Graph
             Edge = edge;
         }
 
+        #endregion Construction and initialization of this instance
+
+        #region An edge shows an additional edge label viewer
+
         public KosmographViewerEdgeLabel EdgeLabelViewer { get; }
 
         public TextBlock EdgeLabel => this.EdgeLabelViewer?.EdgeLabelVisual;
 
-        #region Viewer Edge Visuals
+        #endregion An edge shows an additional edge label viewer
+
+        #region An edge is displayed using multiple visual elements
 
         public Path EdgePath { get; }
 
@@ -136,7 +144,7 @@ namespace Kosmograph.Desktop.Graph
             else this.TargetArrowHeadPath.Visibility = Visibility.Hidden;
         }
 
-        #endregion Viewer Edge Visuals
+        #endregion An edge is displayed using multiple visual elements
 
         private double PathStrokeThickness => this.PathStrokeThicknessFunc is null ? this.Edge.Attr.LineWidth : this.PathStrokeThicknessFunc();
 
@@ -145,12 +153,6 @@ namespace Kosmograph.Desktop.Graph
         #region IViewerObject Members
 
         public DrawingObject DrawingObject => this.Edge;
-
-        public bool MarkedForDragging { get; set; }
-
-        public event EventHandler MarkedForDraggingEvent;
-
-        public event EventHandler UnmarkedForDraggingEvent;
 
         #endregion IViewerObject Members
 
@@ -228,14 +230,13 @@ namespace Kosmograph.Desktop.Graph
             return Edge.ToString();
         }
 
-        public static double _dashSize = 0.05; //inches
+        #region Length of Dashes releative to the viewer DPI
 
-        public double DashSize()
-        {
-            var w = PathStrokeThickness;
-            var dashSizeInPoints = _dashSize * KosmographViewer.DpiXStatic;
-            return dashSizeInPoints / w;
-        }
+        private static double EdgeDashSize = 0.05; //inches
+
+        private double DashSize() => (KosmographViewerEdge.EdgeDashSize * KosmographViewer.DpiXStatic) / this.PathStrokeThickness;
+
+        #endregion Length of Dashes releative to the viewer DPI
 
         public void RemoveItselfFromCanvas(Canvas graphCanvas)
         {

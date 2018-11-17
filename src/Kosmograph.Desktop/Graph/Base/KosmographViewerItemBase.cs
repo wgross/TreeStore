@@ -1,4 +1,5 @@
 ﻿using Microsoft.Msagl.Drawing;
+using System;
 using System.Collections.Generic;
 using System.Windows;
 
@@ -18,5 +19,32 @@ namespace Kosmograph.Desktop.Graph.Base
                 frameworkElement.Visibility = drawingObject.IsVisible ? Visibility.Visible : Visibility.Hidden;
             }
         }
+
+        #region A viewer element can participate in a dragging action on the canvas
+
+        private bool markedForDragging;
+
+        public bool MarkedForDragging
+        {
+            get => this.markedForDragging;
+            set
+            {
+                this.markedForDragging = value;
+                if (value)
+                {
+                    this.MarkedForDraggingEvent?.Invoke(this, null);
+                }
+                else
+                {
+                    this.UnmarkedForDraggingEvent?.Invoke(this, null);
+                }
+            }
+        }
+
+        public event EventHandler MarkedForDraggingEvent;
+
+        public event EventHandler UnmarkedForDraggingEvent;
+
+        #endregion A viewer element can participate in a dragging action on the canvas
     }
 }
