@@ -114,7 +114,7 @@ namespace Kosmograph.Desktop.Graph
         {
             this.Graph.CreateGeometryGraph();
             foreach (var viewerNode in this.GetViewerNodes())
-                viewerNode.UpdateNodeVisuals();
+                viewerNode.UpdateNodeViewerVisuals();
 
         }
 

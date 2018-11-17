@@ -1,5 +1,4 @@
 using Kosmograph.Desktop.Graph.Base;
-using Microsoft.Msagl.Core.Geometry.Curves;
 using Microsoft.Msagl.Core.Layout;
 using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.WpfGraphControl;
@@ -72,7 +71,7 @@ namespace Kosmograph.Desktop.Graph
             this.Node = node;
             this.NodeLabel = nodeLabelTextBlock;
             this.NodeBoundaryPath = new Path { Tag = this };
-            this.UpdateNodeVisuals();
+            this.UpdateNodeViewerVisuals();
 
             this.SetupSubgraphDrawing();
 
@@ -110,7 +109,7 @@ namespace Kosmograph.Desktop.Graph
         {
             this.NodeLabel.InvokeInUiThread(() =>
             {
-                this.UpdateNodeVisuals();
+                this.UpdateNodeViewerVisuals();
 
                 if (_subgraph is null)
                     return;
@@ -162,40 +161,23 @@ namespace Kosmograph.Desktop.Graph
             }
         }
 
-        public void UpdateNodeVisuals()
+        public void UpdateNodeViewerVisuals()
         {
             this.UpdateVisibility(this.Node);
 
             // recreation of the gemotry graph erases the boundary curve.
             // ist has to be recalculated from the nodes label.
-            if (this.Node.GeometryNode.BoundaryCurve is null)
-                this.Node.GeometryNode.BoundaryCurve = this.GetNodeBoundaryCurve(this.NodeLabel);
 
             if (this.Node.IsVisible)
             {
-                this.NodeLabel.UpdateFrom(this.Node);
-                this.NodeBoundaryPath.Update(this.Node);
+                this.NodeLabel.UpdateNodeViewerVisual(this.Node);
+                this.NodeBoundaryPath.UpdateNodeViewerVisual(this.NodeLabel.Width, this.NodeLabel.Height, this.Node);
                 this.NodeBoundaryPath.StrokeThickness = this.PathStrokeThickness;
 
                 Wpf2MsaglConverters.PositionFrameworkElement(this.NodeLabel, this.Node.GeometryNode.Center, 1);
                 Panel.SetZIndex(this.NodeBoundaryPath, this.ZIndex);
                 Panel.SetZIndex(this.NodeLabel, this.ZIndex + 1);
             }
-        }
-
-        private ICurve GetNodeBoundaryCurve(TextBlock nodeLabel)
-        {
-            var width = nodeLabel.Width + 2 * this.Node.Attr.LabelMargin;
-            var height = nodeLabel.Height + 2 * this.Node.Attr.LabelMargin;
-
-            // the calculated width must not be smaller the minimal size.
-
-            //if (width < drawingGraph.Attr.MinNodeWidth)
-            //    width = drawingGraph.Attr.MinNodeWidth;
-            //if (height < drawingGraph.Attr.MinNodeHeight)
-            //    height = drawingGraph.Attr.MinNodeHeight;
-
-            return NodeBoundaryCurves.GetNodeBoundaryCurve(this.Node, width, height);
         }
 
         #endregion Node Viewer Visuals
