@@ -170,6 +170,7 @@ namespace Kosmograph.Desktop.Graph
 
             if (this.Node.IsVisible)
             {
+                this.NodeBoundaryPath.UpdateNodeViewerVisual(this.NodeLabel.Width, this.NodeLabel.Height, this.Node);
                 this.NodeLabel.UpdateNodeViewerVisual(this.Node);
                 this.NodeBoundaryPath.UpdateNodeViewerVisual(this.NodeLabel.Width, this.NodeLabel.Height, this.Node);
                 this.NodeBoundaryPath.StrokeThickness = this.PathStrokeThickness;

@@ -90,7 +90,7 @@ namespace Kosmograph.Desktop.Graph
 
         private void PrepareEdgeLabels(DrawingEdge drawingEdge, out TextBlock textBlock)
         {
-            textBlock = VisualsFactory.CreateLabel(drawingEdge.Label);
+            textBlock = VisualsFactory.CreateNodeViewerVisual(drawingEdge.Label);
 
             //obsolete//this.drawingObjectsToFrameworkElements[drawingEdge] = textBlock;
 
@@ -99,7 +99,7 @@ namespace Kosmograph.Desktop.Graph
 
         private void PrepareNodeLabels(DrawingNode drawingNode, out TextBlock textBlock)
         {
-            textBlock = VisualsFactory.CreateLabel(drawingNode.Label);
+            textBlock = VisualsFactory.CreateNodeViewerVisual(drawingNode.Label);
 
             //obsolete//this.drawingObjectsToFrameworkElements[drawingNode] = textBlock;
         }

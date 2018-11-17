@@ -73,7 +73,6 @@ namespace Kosmograph.Desktop.Graph
 
         private void InitializeGraphLayout()
         {
-            
             try
             {
                 this.GraphCanvasHide();
@@ -99,7 +98,6 @@ namespace Kosmograph.Desktop.Graph
         {
             try
             {
-                
                 this.CreateGeometryGraph();
                 this.LayoutGraph();
                 this.GraphCanvas.InvokeInUiThread(this.UpdateViewerObjects);
@@ -115,7 +113,6 @@ namespace Kosmograph.Desktop.Graph
             this.Graph.CreateGeometryGraph();
             foreach (var viewerNode in this.GetViewerNodes())
                 viewerNode.UpdateNodeViewerVisuals();
-
         }
 
         public void UpdateGraphLayoutInBackground()

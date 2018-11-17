@@ -21,6 +21,10 @@ namespace Kosmograph.Desktop.Graph
 {
     public static class VisualsFactory
     {
+        private static double AddNodeMargin(double length, DrawingNode drawingNode) => length + 2 * drawingNode.Attr.LabelMargin;
+
+        private static double SubtractNodeMargin(double length, DrawingNode drawingNode) => length - 2 * drawingNode.Attr.LabelMargin;
+
         #region Microsoft.Msagl.Drawing.Label -> System.Windows.Controls.TextBlock (edge/node label)
 
         /// <summary>
@@ -29,14 +33,21 @@ namespace Kosmograph.Desktop.Graph
         /// </summary>
         /// <param name="drawingLabel"></param>
         /// <returns></returns>
-        public static TextBlock CreateLabel(DrawingLabel drawingLabel)
+        public static TextBlock CreateNodeViewerVisual(DrawingLabel drawingLabel)
         {
-            return new TextBlock
+            var nodeLabelVisual = new TextBlock
             {
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
             }
-            .UpdateFrom(drawingLabel, measure: true);
+            .UpdateFrom(drawingLabel);
+
+            // in case of creations a measurement of the label is done.
+            nodeLabelVisual.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
+            nodeLabelVisual.Width = nodeLabelVisual.DesiredSize.Width;
+            nodeLabelVisual.Height = nodeLabelVisual.DesiredSize.Height;
+
+            return nodeLabelVisual;
         }
 
         /// <summary>
@@ -48,10 +59,12 @@ namespace Kosmograph.Desktop.Graph
         {
             Debug.Assert(textBlock.Dispatcher.CheckAccess());
 
-            // margisn could be included in the calcuilatin of the boundary curve instead.
+            // margin could be included in the calcuilatin of the boundary curve instead.
             // maybe this very place of code would be cleaner then.
             textBlock.Margin = new Thickness(drawingNode.Attr.LabelMargin);
-            textBlock.UpdateFrom(drawingNode.Label, measure: false);
+            textBlock.UpdateFrom(drawingNode.Label);
+            textBlock.Width = SubtractNodeMargin(drawingNode.Width, drawingNode);
+            textBlock.Height = SubtractNodeMargin(drawingNode.Height, drawingNode);
 
             return textBlock;
         }
@@ -61,7 +74,7 @@ namespace Kosmograph.Desktop.Graph
         /// the box will be remeasured.
         /// </summary>
         /// <returns></returns>
-        public static TextBlock UpdateFrom(this TextBlock textBlock, DrawingLabel drawingLabel, bool measure)
+        public static TextBlock UpdateFrom(this TextBlock textBlock, DrawingLabel drawingLabel, bool measure = false)
         {
             Debug.Assert(textBlock.Dispatcher.CheckAccess());
 
@@ -92,8 +105,8 @@ namespace Kosmograph.Desktop.Graph
                 // the boundary curve is recalculated from the size of the
                 // nodes label visual.
 
-                var width = nodeLabelWidth + 2 * drawingNode.Attr.LabelMargin;
-                var height = nodeLabelHeight + 2 * drawingNode.Attr.LabelMargin;
+                var width = AddNodeMargin(nodeLabelWidth, drawingNode);
+                var height = AddNodeMargin(nodeLabelHeight, drawingNode);
                 drawingNode.GeometryNode.BoundaryCurve = NodeBoundaryCurves.GetNodeBoundaryCurve(drawingNode, width, height);
             }
 
