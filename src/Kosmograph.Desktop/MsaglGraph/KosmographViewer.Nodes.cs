@@ -7,7 +7,7 @@ using System.Windows.Controls;
 using DrawingNode = Microsoft.Msagl.Drawing.Node;
 using GeometryRectangle = Microsoft.Msagl.Core.Geometry.Rectangle;
 
-namespace Kosmograph.Desktop.Graph
+namespace Kosmograph.Desktop.MsaglGraph
 {
     public partial class KosmographViewer
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Threading;
 
-namespace Kosmograph.Desktop.Graph
+namespace Kosmograph.Desktop.MsaglGraph
 {
     public static class DispatcherObjectExtensions
     {

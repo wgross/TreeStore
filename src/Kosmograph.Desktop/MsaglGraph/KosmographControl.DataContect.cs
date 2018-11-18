@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 
-namespace Kosmograph.Desktop.Graph
+namespace Kosmograph.Desktop.MsaglGraph
 {
     public partial class KosmographControl
     {

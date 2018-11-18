@@ -5,7 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 
-namespace Kosmograph.Desktop.Graph
+namespace Kosmograph.Desktop.MsaglGraph
 {
     public partial class KosmographViewer
     {

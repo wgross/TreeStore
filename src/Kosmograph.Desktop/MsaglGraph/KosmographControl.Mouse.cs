@@ -1,4 +1,4 @@
-﻿namespace Kosmograph.Desktop.Graph
+﻿namespace Kosmograph.Desktop.MsaglGraph
 {
     public partial class KosmographControl
     {

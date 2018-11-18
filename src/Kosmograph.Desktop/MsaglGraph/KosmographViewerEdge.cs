@@ -27,7 +27,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-using Kosmograph.Desktop.Graph.Base;
+using Kosmograph.Desktop.MsaglGraph.Base;
 using Microsoft.Msagl.Core.Layout;
 using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.Layout.LargeGraphLayout;
@@ -41,7 +41,7 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using DrawingEdge = Microsoft.Msagl.Drawing.Edge;
 
-namespace Kosmograph.Desktop.Graph
+namespace Kosmograph.Desktop.MsaglGraph
 {
     public class KosmographViewerEdge : KosmographViewerItemBase, IViewerEdge, IInvalidatable
     {

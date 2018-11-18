@@ -17,7 +17,7 @@ using GeometryPoint = Microsoft.Msagl.Core.Geometry.Point;
 using GeometryPolyline = Microsoft.Msagl.Core.Geometry.Curves.Polyline;
 using GeometryRectangle = Microsoft.Msagl.Core.Geometry.Rectangle;
 
-namespace Kosmograph.Desktop.Graph
+namespace Kosmograph.Desktop.MsaglGraph
 {
     public static class VisualsFactory
     {

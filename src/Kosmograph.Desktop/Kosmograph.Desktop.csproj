@@ -124,30 +124,30 @@
     <Compile Include="Editor\EditorControl.xaml.cs">
       <DependentUpon>EditorControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Graph\Base\KosmographViewerItemBase.cs" />
-    <Compile Include="Graph\ClickCounter.cs" />
-    <Compile Include="Graph\DispatcherObjectExtensions.cs" />
-    <Compile Include="Graph\GvMouseEventArgs.cs" />
-    <Compile Include="Graph\KosmographViewer.Edges.cs" />
-    <Compile Include="Graph\KosmographViewer.Nodes.cs" />
-    <Compile Include="Graph\KosmographControl.DataContect.cs" />
-    <Compile Include="Graph\KosmographControl.Mouse.cs" />
-    <Compile Include="Graph\KosmographViewer.cs" />
-    <Compile Include="Graph\KosmographViewerWindow.xaml.cs">
+    <Compile Include="MsaglGraph\Base\KosmographViewerItemBase.cs" />
+    <Compile Include="MsaglGraph\ClickCounter.cs" />
+    <Compile Include="MsaglGraph\DispatcherObjectExtensions.cs" />
+    <Compile Include="MsaglGraph\GvMouseEventArgs.cs" />
+    <Compile Include="MsaglGraph\KosmographViewer.Edges.cs" />
+    <Compile Include="MsaglGraph\KosmographViewer.Nodes.cs" />
+    <Compile Include="MsaglGraph\KosmographControl.DataContect.cs" />
+    <Compile Include="MsaglGraph\KosmographControl.Mouse.cs" />
+    <Compile Include="MsaglGraph\KosmographViewer.cs" />
+    <Compile Include="MsaglGraph\KosmographViewerWindow.xaml.cs">
       <DependentUpon>KosmographViewerWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Graph\KosmographControl.cs" />
-    <Compile Include="Graph\KosmographViewer.Geometry.cs" />
-    <Compile Include="Graph\KosmographViewer.Fill.cs" />
-    <Compile Include="Graph\KosmographViewer.GraphCanvas.cs" />
-    <Compile Include="Graph\KosmographViewer.Mouse.cs" />
-    <Compile Include="Graph\KosmographViewer.IViewer.cs" />
-    <Compile Include="Graph\KosmographViewer.Layout.cs" />
-    <Compile Include="Graph\KosmographViewerNode.cs" />
-    <Compile Include="Graph\KosmographViewerEdge.cs" />
-    <Compile Include="Graph\VisualsFactory.cs" />
-    <Compile Include="Graph\KosmographViewerEdgeLabel.cs" />
-    <Compile Include="Graph\Wpf2MsaglConverters.cs" />
+    <Compile Include="MsaglGraph\KosmographControl.cs" />
+    <Compile Include="MsaglGraph\KosmographViewer.Geometry.cs" />
+    <Compile Include="MsaglGraph\KosmographViewer.Fill.cs" />
+    <Compile Include="MsaglGraph\KosmographViewer.GraphCanvas.cs" />
+    <Compile Include="MsaglGraph\KosmographViewer.Mouse.cs" />
+    <Compile Include="MsaglGraph\KosmographViewer.IViewer.cs" />
+    <Compile Include="MsaglGraph\KosmographViewer.Layout.cs" />
+    <Compile Include="MsaglGraph\KosmographViewerNode.cs" />
+    <Compile Include="MsaglGraph\KosmographViewerEdge.cs" />
+    <Compile Include="MsaglGraph\VisualsFactory.cs" />
+    <Compile Include="MsaglGraph\KosmographViewerEdgeLabel.cs" />
+    <Compile Include="MsaglGraph\Wpf2MsaglConverters.cs" />
     <Compile Include="KosmographCommands.cs" />
     <Compile Include="NullToVisiblityConverter.cs" />
     <Compile Include="ViewModel\AssignedFacetPropertyViewModel.cs" />
@@ -237,7 +237,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Graph\KosmographViewerWindow.xaml">
+    <Page Include="MsaglGraph\KosmographViewerWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

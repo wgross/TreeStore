@@ -1,4 +1,4 @@
-using Kosmograph.Desktop.Graph.Base;
+using Kosmograph.Desktop.MsaglGraph.Base;
 using Microsoft.Msagl.Core.Layout;
 using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.WpfGraphControl;
@@ -14,7 +14,7 @@ using DrawingNode = Microsoft.Msagl.Drawing.Node;
 using Edge = Microsoft.Msagl.Drawing.Edge;
 using Point = Microsoft.Msagl.Core.Geometry.Point;
 
-namespace Kosmograph.Desktop.Graph
+namespace Kosmograph.Desktop.MsaglGraph
 {
     public class KosmographViewerNode : KosmographViewerItemBase, IViewerNode, IInvalidatable
     {

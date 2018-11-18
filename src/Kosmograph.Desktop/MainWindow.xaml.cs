@@ -1,5 +1,5 @@
 ﻿using Kosmograph.Desktop.Dialogs;
-using Kosmograph.Desktop.Graph;
+using Kosmograph.Desktop.MsaglGraph;
 using Kosmograph.Desktop.ViewModel;
 using Kosmograph.LiteDb;
 using Kosmograph.Model;

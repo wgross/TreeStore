@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 
-namespace Kosmograph.Desktop.Graph.Base
+namespace Kosmograph.Desktop.MsaglGraph.Base
 {
     public abstract class KosmographViewerItemBase
     {
