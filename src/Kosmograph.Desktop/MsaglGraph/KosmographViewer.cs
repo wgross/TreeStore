@@ -54,7 +54,7 @@ using Rectangle = Microsoft.Msagl.Core.Geometry.Rectangle;
 using Size = System.Windows.Size;
 using WpfPoint = System.Windows.Point;
 
-namespace Kosmograph.Desktop.Graph
+namespace Kosmograph.Desktop.MsaglGraph
 {
     public partial class KosmographViewer : IViewer
     {

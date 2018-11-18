@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using DrawingNode = Microsoft.Msagl.Drawing.Node;
 using GeometryPoint = Microsoft.Msagl.Core.Geometry.Point;
 
-namespace Kosmograph.Desktop.Graph
+namespace Kosmograph.Desktop.MsaglGraph
 {
     public partial class KosmographViewer : IViewer
     {

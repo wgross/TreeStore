@@ -1,4 +1,4 @@
-using Kosmograph.Desktop.Graph.Base;
+using Kosmograph.Desktop.MsaglGraph.Base;
 using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.WpfGraphControl;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using DrawingLabel = Microsoft.Msagl.Drawing.Label;
 
-namespace Kosmograph.Desktop.Graph
+namespace Kosmograph.Desktop.MsaglGraph
 {
     public class KosmographViewerEdgeLabel : KosmographViewerItemBase, IViewerObject, IInvalidatable
     {

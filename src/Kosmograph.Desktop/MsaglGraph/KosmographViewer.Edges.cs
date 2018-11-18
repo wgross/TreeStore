@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DrawingEdge = Microsoft.Msagl.Drawing.Edge;
 
-namespace Kosmograph.Desktop.Graph
+namespace Kosmograph.Desktop.MsaglGraph
 {
     public partial class KosmographViewer
     {

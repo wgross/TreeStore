@@ -31,7 +31,7 @@ using Microsoft.Msagl.Drawing;
 using System.Windows;
 using System.Windows.Input;
 
-namespace Kosmograph.Desktop.Graph
+namespace Kosmograph.Desktop.MsaglGraph
 {
     public class GvMouseEventArgs : MsaglMouseEventArgs
     {

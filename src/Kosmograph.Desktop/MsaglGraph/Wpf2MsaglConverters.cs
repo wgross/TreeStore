@@ -1,7 +1,7 @@
 ﻿using DrawingColor = Microsoft.Msagl.Drawing.Color;
 using GeometryPoint = Microsoft.Msagl.Core.Geometry.Point;
 
-namespace Kosmograph.Desktop.Graph
+namespace Kosmograph.Desktop.MsaglGraph
 {
     public static class Wpf2MsaglConverters
     {

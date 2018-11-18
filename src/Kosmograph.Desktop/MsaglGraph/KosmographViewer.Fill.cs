@@ -12,7 +12,7 @@ using DrawingGraph = Microsoft.Msagl.Drawing.Graph;
 using DrawingLabel = Microsoft.Msagl.Drawing.Label;
 using DrawingNode = Microsoft.Msagl.Drawing.Node;
 
-namespace Kosmograph.Desktop.Graph
+namespace Kosmograph.Desktop.MsaglGraph
 {
     public partial class KosmographViewer
     {
