@@ -30,11 +30,14 @@ namespace Kosmograph.Desktop
                     if (Application.Current != null)
                         Application.Current.Shutdown();
             }
-            var wnd = new KosmographViewerWindow
+            var msaglViewer = new KosmographViewerWindow
             {
-                DataContext = this.DataContext
+                DataContext = this.DataContext,
+                Owner = this,
+                Top = this.Top,
+                Left = this.Left+this.Width+1,
             };
-            wnd.Show();
+            msaglViewer.Show();
         }
 
         private void CreateNewModel()
