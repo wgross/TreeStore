@@ -50,6 +50,18 @@
     <Reference Include="LiteDB, Version=4.1.4.0, Culture=neutral, PublicKeyToken=4ee40123013c9f27, processorArchitecture=MSIL">
       <HintPath>..\packages\LiteDB.4.1.4\lib\net40\LiteDB.dll</HintPath>
     </Reference>
+    <Reference Include="QuickGraph, Version=3.6.61114.0, Culture=neutral, PublicKeyToken=f3fb40175eec2af3, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\QuickGraphPCL.3.6.61114.2\lib\net40-client\QuickGraph.dll</HintPath>
+    </Reference>
+    <Reference Include="QuickGraph.Data, Version=3.6.61114.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\QuickGraphPCL.3.6.61114.2\lib\net40-client\QuickGraph.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="QuickGraph.Graphviz, Version=3.6.61114.0, Culture=neutral, PublicKeyToken=f3fb40175eec2af3, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\QuickGraphPCL.3.6.61114.2\lib\net40-client\QuickGraph.Graphviz.dll</HintPath>
+    </Reference>
+    <Reference Include="QuickGraph.Serialization, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\QuickGraphPCL.3.6.61114.2\lib\net40-client\QuickGraph.Serialization.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -124,6 +136,14 @@
     <Compile Include="Editor\EditorControl.xaml.cs">
       <DependentUpon>EditorControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="GraphXViewer\GraphXViewerWindow.xaml.cs">
+      <DependentUpon>GraphXViewerWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="GraphXViewer\Model\KosmographVisualEdge.cs" />
+    <Compile Include="GraphXViewer\Model\KosmographVisualGraph.cs" />
+    <Compile Include="GraphXViewer\Model\KosmographVisualGraphLogic.cs" />
+    <Compile Include="GraphXViewer\Model\KosmographVisualVertex.cs" />
+    <Compile Include="GraphXViewer\Model\KosmographVisualModel.cs" />
     <Compile Include="MsaglGraph\Base\KosmographViewerItemBase.cs" />
     <Compile Include="MsaglGraph\ClickCounter.cs" />
     <Compile Include="MsaglGraph\DispatcherObjectExtensions.cs" />
@@ -237,6 +257,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="GraphXViewer\GraphXViewerWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MsaglGraph\KosmographViewerWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -297,6 +321,18 @@
     <ProjectReference Include="..\..\..\github\automatic-graph-layout\GraphLayout\MSAGL\Msagl.csproj">
       <Project>{415d3e3f-7105-46c1-84d2-7ecb34213d92}</Project>
       <Name>Msagl</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\github\GraphX\GraphX.Controls\GraphX.WPF.Controls.csproj">
+      <Project>{d2e33fee-6689-4bb4-a95c-1b5c327a1e8f}</Project>
+      <Name>GraphX.WPF.Controls</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\github\GraphX\GraphX.PCL.Common\GraphX.PCL.Common.csproj">
+      <Project>{3644d44b-dec0-4b65-bba0-c68e34821aae}</Project>
+      <Name>GraphX.PCL.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\github\GraphX\GraphX.PCL.Logic\GraphX.PCL.Logic.csproj">
+      <Project>{a30d218b-aaa4-483a-99f7-eaeb1b8b4610}</Project>
+      <Name>GraphX.PCL.Logic</Name>
     </ProjectReference>
     <ProjectReference Include="..\Kosmograph.LiteDb\Kosmograph.LiteDb.csproj">
       <Project>{28a8b0b7-a988-4f74-9091-5dad0cb14d59}</Project>

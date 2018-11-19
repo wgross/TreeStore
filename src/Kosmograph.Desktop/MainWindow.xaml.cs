@@ -1,4 +1,5 @@
 ﻿using Kosmograph.Desktop.Dialogs;
+using Kosmograph.Desktop.GraphXViewer;
 using Kosmograph.Desktop.MsaglGraph;
 using Kosmograph.Desktop.ViewModel;
 using Kosmograph.LiteDb;
@@ -30,14 +31,24 @@ namespace Kosmograph.Desktop
                     if (Application.Current != null)
                         Application.Current.Shutdown();
             }
-            var msaglViewer = new KosmographViewerWindow
+
+            new KosmographViewerWindow
             {
                 DataContext = this.DataContext,
                 Owner = this,
                 Top = this.Top,
-                Left = this.Left+this.Width+1,
-            };
-            msaglViewer.Show();
+                Left = this.Left + this.Width,
+            }.Show();
+
+            new GraphXViewerWindow
+            {
+                DataContext = this.DataContext,
+                Owner = this,
+                Left = this.Left,
+                Top = this.Top + this.Height,
+                Width = this.Width,
+                Height = this.Height
+            }.Show();
         }
 
         private void CreateNewModel()
@@ -66,7 +77,7 @@ namespace Kosmograph.Desktop
             }
             set
             {
-                this.ViewModel?.Dispose();                
+                this.ViewModel?.Dispose();
                 this.DataContext = value;
                 this.ViewModel.PropertyChanged += this.Value_PropertyChanged;
             }
@@ -123,7 +134,7 @@ namespace Kosmograph.Desktop
             if (!(openFileDialog.ShowDialog() ?? false))
                 return;
 
-            this.ViewModel = new KosmographViewModel(new KosmographModel(new KosmographLiteDbPersistence(File.Open(openFileDialog.FileName,FileMode.Open))));
+            this.ViewModel = new KosmographViewModel(new KosmographModel(new KosmographLiteDbPersistence(File.Open(openFileDialog.FileName, FileMode.Open))));
             this.ViewModel.FillAll();
         }
     }
