@@ -8,10 +8,16 @@
         xmlns:local="clr-namespace:Kosmograph.Desktop.GraphXViewer"
         mc:Ignorable="d"
         Title="GraphX Viewer" Height="450" Width="800">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="./GraphXViewerResoures.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
     <Grid>
         <controls:ZoomControl x:Name="zoomctrl">
-            <model:KosmographVisualArea x:Name="Area"/>
+            <model:KosmographVisualArea x:Name="graphArea" />
         </controls:ZoomControl>
-
     </Grid>
 </Window>

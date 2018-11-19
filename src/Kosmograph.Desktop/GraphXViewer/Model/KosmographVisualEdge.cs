@@ -12,5 +12,9 @@ namespace Kosmograph.Desktop.GraphXViewer.Model
         public KosmographVisualEdge(KosmographVisualVertex source, KosmographVisualVertex target, double weight = 1)
             : base(source, target, weight)
         {}
+
+        public string Label { get; set; }
+
+        public override string ToString() => this.Label;
     }
 }
