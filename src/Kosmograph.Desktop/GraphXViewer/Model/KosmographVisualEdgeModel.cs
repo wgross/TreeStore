@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Kosmograph.Desktop.GraphXViewer.Model
 {
-    public sealed class KosmographVisualEdge : EdgeBase<KosmographVisualVertex>
+    public sealed class KosmographVisualEdgeModel : EdgeBase<KosmographVisualVertexModel>
     {
-        public KosmographVisualEdge(KosmographVisualVertex source, KosmographVisualVertex target, double weight = 1)
+        public KosmographVisualEdgeModel(KosmographVisualVertexModel source, KosmographVisualVertexModel target, double weight = 1)
             : base(source, target, weight)
         {}
 

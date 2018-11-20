@@ -17,8 +17,11 @@
                             CornerRadius="0"
                             Padding="{TemplateBinding Padding}">
                         <Grid>
+                            <TextBlock Text="{Binding Label}" VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
+                            <!--
                             <ContentPresenter Content="{TemplateBinding Vertex}" />
                             <controls:VertexLabelControl x:Name="PART_vertexLabel" Content="{Binding Label}" />
+                            -->
                         </Grid>
                     </Border>
                 </ControlTemplate>
@@ -84,7 +87,10 @@
 
     <Style TargetType="{x:Type controls:AttachableEdgeLabelControl}">
         <Setter Property="ShowLabel" Value="True"/>
-        <Setter Property="LabelVerticalOffset" Value="10"/>
+        <!--
+        <Setter Property="LabelVerticalOffset" Value="50"/>
+        <Setter Property="LabelHorizontalOffset" Value="50"/>
+        -->
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type controls:AttachableEdgeLabelControl}">

@@ -139,11 +139,12 @@
     <Compile Include="GraphXViewer\GraphXViewerWindow.xaml.cs">
       <DependentUpon>GraphXViewerWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="GraphXViewer\Model\KosmographVisualEdge.cs" />
+    <Compile Include="GraphXViewer\Model\KosmographVisualEdgeModel.cs" />
     <Compile Include="GraphXViewer\Model\KosmographVisualGraph.cs" />
     <Compile Include="GraphXViewer\Model\KosmographVisualGraphLogic.cs" />
-    <Compile Include="GraphXViewer\Model\KosmographVisualVertex.cs" />
-    <Compile Include="GraphXViewer\Model\KosmographVisualModel.cs" />
+    <Compile Include="GraphXViewer\Model\KosmographVisualVertexModel.cs" />
+    <Compile Include="GraphXViewer\Model\KosmographVisualGraphModel.cs" />
+    <Compile Include="IdentityMap.cs" />
     <Compile Include="MsaglGraph\Base\KosmographViewerItemBase.cs" />
     <Compile Include="MsaglGraph\ClickCounter.cs" />
     <Compile Include="MsaglGraph\DispatcherObjectExtensions.cs" />
