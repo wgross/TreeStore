@@ -182,6 +182,7 @@
     <Compile Include="EditModel\EditFacetViewModel.cs" />
     <Compile Include="EditModel\Base\EditNamedViewModelBase.cs" />
     <Compile Include="EditModel\FacetPropertyEditModel.cs" />
+    <Compile Include="ViewModel\EntityRepositoryViewModel.cs" />
     <Compile Include="ViewModel\FacetPropertyViewModel.cs" />
     <Compile Include="EditModel\RelationshipEditModel.cs" />
     <Compile Include="EditModel\TagEditModel.cs" />

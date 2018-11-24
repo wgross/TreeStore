@@ -169,7 +169,7 @@ namespace Kosmograph.Desktop.GraphXViewer
 
         private void Relationships_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            throw new NotImplementedException();
+            
         }
     }
 
