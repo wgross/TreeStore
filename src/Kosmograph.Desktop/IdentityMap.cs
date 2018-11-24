@@ -11,6 +11,17 @@ namespace Kosmograph.Desktop
 
         public bool TryGetTarget(TSource sourceId, out TTarget targetId) => this.source2target.TryGetValue(sourceId, out targetId);
 
+        public bool TryGetTarget<TResult>(TSource source, out TResult target)
+        {
+            if (this.TryGetTarget(source, out var targetAsTTarget))
+            {
+                target = (TResult)(object)targetAsTTarget;
+                return true;
+            }
+            target = default(TResult);
+            return false;
+        }
+
         public bool Remove(TSource sourceId) => this.source2target.Remove(sourceId);
     }
 }

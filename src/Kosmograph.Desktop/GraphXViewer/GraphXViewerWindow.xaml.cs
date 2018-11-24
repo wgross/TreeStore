@@ -39,13 +39,16 @@ namespace Kosmograph.Desktop.GraphXViewer
             var (isEntity, entity) = notification.TryGetViewModel<EntityViewModel>();
             if (isEntity)
             {
-                this.graphArea.LogicCore.Graph.IdentityMap.TryGetTarget(entity.Model.Id, out var visualVertexModel);
+                this.graphArea.LogicCore.Graph.IdentityMap.TryGetTarget<KosmographVisualVertexModel>(entity.Model.Id, out var visualVertexModel);
                 visualVertexModel.Label = entity.Name;
             }
             
-            //var (isRelationship, relationship) = notification.TryGetViewModel<RelationshipViewModel>();
-            //if (isRelationship)
-            //    this.graphArea.UpdateEdge(relationship);
+            var (isRelationship, relationship) = notification.TryGetViewModel<RelationshipViewModel>();
+            if (isRelationship)
+            {
+                this.graphArea.LogicCore.Graph.IdentityMap.TryGetTarget<KosmographVisualEdgeModel>(relationship.Model.Id, out var visualEdgeModel);
+                visualEdgeModel.Label = relationship.Name;
+            }
         }
 
         private void GraphXViewerWindow_Loaded(object sender, RoutedEventArgs e)
@@ -103,6 +106,7 @@ namespace Kosmograph.Desktop.GraphXViewer
             {
                 var visualEdge = new KosmographVisualEdgeModel(vertices[edge.Model.From.Id], vertices[edge.Model.To.Id])
                 {
+                    ModelId = edge.Model.Id,
                     Label = edge.Name
                 };
                 visualModel.AddEdge(visualEdge);
@@ -152,7 +156,7 @@ namespace Kosmograph.Desktop.GraphXViewer
                     break;
 
                 case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
-                    this.graphArea.LogicCore.Graph.IdentityMap.TryGetTarget(e.OldItems.OfType<EntityViewModel>().Single().Model.Id, out var vertexData);
+                    this.graphArea.LogicCore.Graph.IdentityMap.TryGetTarget<KosmographVisualVertexModel>(e.OldItems.OfType<EntityViewModel>().Single().Model.Id, out var vertexData);
                     this.graphArea.RemoveVertexAndEdges(vertexData);
                     this.graphArea.RelayoutGraph(true);
                     break;

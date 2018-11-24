@@ -27,7 +27,5 @@ namespace Kosmograph.Desktop.GraphXViewer.Model
         public Guid ModelId { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
-
-       // public override string ToString() => this.Label;
     }
 }

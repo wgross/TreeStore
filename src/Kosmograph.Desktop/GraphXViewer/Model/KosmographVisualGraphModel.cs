@@ -5,7 +5,7 @@ namespace Kosmograph.Desktop.GraphXViewer.Model
 {
     public class KosmographVisualGraphModel : BidirectionalGraph<KosmographVisualVertexModel, KosmographVisualEdgeModel>
     {
-        public readonly IdentityMap<Guid, KosmographVisualVertexModel> IdentityMap = new IdentityMap<Guid, KosmographVisualVertexModel>();
+        public readonly IdentityMap<Guid, object> IdentityMap = new IdentityMap<Guid, object>();
 
         protected override void OnVertexAdded(KosmographVisualVertexModel args)
         {
@@ -16,6 +16,18 @@ namespace Kosmograph.Desktop.GraphXViewer.Model
         protected override void OnVertexRemoved(KosmographVisualVertexModel args)
         {
             base.OnVertexRemoved(args);
+            this.IdentityMap.Remove(args.ModelId);
+        }
+
+        protected override void OnEdgeAdded(KosmographVisualEdgeModel args)
+        {
+            base.OnEdgeAdded(args);
+            this.IdentityMap.Add(args.ModelId, args);
+        }
+
+        protected override void OnEdgeRemoved(KosmographVisualEdgeModel args)
+        {
+            base.OnEdgeRemoved(args);
             this.IdentityMap.Remove(args.ModelId);
         }
     }

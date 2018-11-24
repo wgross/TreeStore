@@ -1,20 +1,31 @@
 ﻿using GraphX.PCL.Common.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel;
 
 namespace Kosmograph.Desktop.GraphXViewer.Model
 {
-    public sealed class KosmographVisualEdgeModel : EdgeBase<KosmographVisualVertexModel>
+    public sealed class KosmographVisualEdgeModel : EdgeBase<KosmographVisualVertexModel>, INotifyPropertyChanged
     {
         public KosmographVisualEdgeModel(KosmographVisualVertexModel source, KosmographVisualVertexModel target, double weight = 1)
             : base(source, target, weight)
-        {}
+        { }
 
-        public string Label { get; set; }
+        private string label;
 
-        public override string ToString() => this.Label;
+        public string Label
+        {
+            get => this.label;
+            set
+            {
+                if (StringComparer.Ordinal.Equals(this.label, value))
+                    return;
+                this.label = value;
+                this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Label)));
+            }
+        }
+
+        public Guid ModelId { get; set; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

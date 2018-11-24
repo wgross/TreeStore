@@ -2,12 +2,12 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:Kosmograph.Desktop.GraphXViewer"
                     xmlns:controls="http://schemas.panthernet.ru/graphx/">
-    
+
     <Style TargetType="{x:Type controls:VertexControl}">
-        <Setter Property="Background" Value="#FFE3E3E3"/>
-        <Setter Property="BorderThickness" Value="5,3,5,3"/>
-        <Setter Property="Padding" Value="10,5,10,5"/>
-        <Setter Property="BorderBrush" Value="#FF393939"/>
+        <Setter Property="Background" Value="#FFE3E3E3" />
+        <Setter Property="BorderThickness" Value="5,3,5,3" />
+        <Setter Property="Padding" Value="10,5,10,5" />
+        <Setter Property="BorderBrush" Value="#FF393939" />
 
         <Setter Property="Template">
             <Setter.Value>
@@ -34,17 +34,15 @@
                 Value="True" />
 
         <Style.Triggers>
-            
+
             <!-- VERTEX DRAGGING CONTROL -->
-    
+
             <Trigger Property="controls:HighlightBehaviour.Highlighted" Value="True">
-                <Setter Property="BorderBrush" Value="Gold"/>
-                <Setter Property="BorderThickness" Value="3"/>
+                <Setter Property="BorderBrush" Value="Gold" />
+                <Setter Property="BorderThickness" Value="3" />
             </Trigger>
         </Style.Triggers>
-
     </Style>
-
 
     <Style TargetType="{x:Type controls:EdgeControl}">
         <Setter Property="Template">
@@ -53,30 +51,30 @@
                     <Grid>
                         <Path Stroke="{TemplateBinding Foreground}"
                               StrokeThickness="1"
-                              ToolTip="{TemplateBinding ToolTip}" 
-                              x:Name="PART_edgePath"/>
-                        <controls:DefaultEdgePointer NeedRotation="true" x:Name="PART_EdgePointerForTarget" >
-                            <Path Data="M0,0.5 L1,1 1,0" 
-                                  Fill="{TemplateBinding Foreground}" 
-                                  Stretch="Uniform" 
-                                  Width="10" 
-                                  Height="10"/>
+                              ToolTip="{TemplateBinding ToolTip}"
+                              x:Name="PART_edgePath" />
+                        <controls:DefaultEdgePointer NeedRotation="true" x:Name="PART_EdgePointerForTarget">
+                            <Path Data="M0,0.5 L1,1 1,0"
+                                  Fill="{TemplateBinding Foreground}"
+                                  Stretch="Uniform"
+                                  Width="10"
+                                  Height="10" />
                         </controls:DefaultEdgePointer>
 
-                        <Path x:Name="PART_SelfLoopedEdge" 
-                              Width="10" 
-                              Height="10" 
-                              Stretch="Uniform" 
-                              Fill="{TemplateBinding Foreground}" 
-                              Data="F1 M 17.4167,32.25L 32.9107,32.25L 38,18L 43.0893,32.25L 58.5833,32.25L 45.6798,41.4944L 51.4583,56L 38,48.0833L 26.125,56L 30.5979,41.7104L 17.4167,32.25 Z "/>
+                        <Path x:Name="PART_SelfLoopedEdge"
+                              Width="10"
+                              Height="10"
+                              Stretch="Uniform"
+                              Fill="{TemplateBinding Foreground}"
+                              Data="F1 M 17.4167,32.25L 32.9107,32.25L 38,18L 43.0893,32.25L 58.5833,32.25L 45.6798,41.4944L 51.4583,56L 38,48.0833L 26.125,56L 30.5979,41.7104L 17.4167,32.25 Z " />
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
 
         <!-- AVAILABLE CUSTOM PROPERTIES -->
-        <!-- 
-        <Setter Property="DashStyle" Value="Solid"/>
+        <!--
+        <Setter Property="DashStyle" Value="Solid" />
         -->
 
         <Setter Property="Foreground"
@@ -86,25 +84,25 @@
     </Style>
 
     <Style TargetType="{x:Type controls:AttachableEdgeLabelControl}">
-        <Setter Property="ShowLabel" Value="True"/>
+        <Setter Property="ShowLabel" Value="True" />
         <!--
-        <Setter Property="LabelVerticalOffset" Value="50"/>
-        <Setter Property="LabelHorizontalOffset" Value="50"/>
+        <Setter Property="LabelVerticalOffset" Value="50" />
+        <Setter Property="LabelHorizontalOffset" Value="50" />
         -->
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type controls:AttachableEdgeLabelControl}">
                     <Border BorderBrush="Transparent" BorderThickness="0" CornerRadius="1">
                         <Border.Background>
-                            <SolidColorBrush Color="White" Opacity="0.75"/>
+                            <SolidColorBrush Color="White" Opacity="0.75" />
                         </Border.Background>
-                        <ContentPresenter Margin="0" Content="{Binding AttachNode.Edge, UpdateSourceTrigger=PropertyChanged}"/>
+                        <!--<ContentPresenter Margin="0" Content="{Binding AttachNode.Edge.Label}" />-->
+                        <TextBlock Text="{Binding AttachNode.Edge.Label}"
+                                   VerticalAlignment="Center" TextAlignment="Center" HorizontalAlignment="Center" />
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
-        <Setter Property="DisplayForSelfLoopedEdges" Value="False"/>
+        <Setter Property="DisplayForSelfLoopedEdges" Value="False" />
     </Style>
-
-    
 </ResourceDictionary>
