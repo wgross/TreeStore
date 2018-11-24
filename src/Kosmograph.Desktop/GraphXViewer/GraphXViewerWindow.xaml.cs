@@ -42,12 +42,16 @@ namespace Kosmograph.Desktop.GraphXViewer
                 this.graphArea.LogicCore.Graph.IdentityMap.TryGetTarget<KosmographVisualVertexModel>(entity.Model.Id, out var visualVertexModel);
                 visualVertexModel.Label = entity.Name;
             }
-            
+
             var (isRelationship, relationship) = notification.TryGetViewModel<RelationshipViewModel>();
             if (isRelationship)
             {
-                this.graphArea.LogicCore.Graph.IdentityMap.TryGetTarget<KosmographVisualEdgeModel>(relationship.Model.Id, out var visualEdgeModel);
-                visualEdgeModel.Label = relationship.Name;
+                if (this.graphArea.LogicCore.Graph.IdentityMap.TryGetTarget<KosmographVisualVertexModel>(relationship.From.Model.Id, out var visualSourceVertexModel))
+                    if (this.graphArea.LogicCore.Graph.IdentityMap.TryGetTarget<KosmographVisualVertexModel>(relationship.To.Model.Id, out var visualTargetVertexModel))
+                        if (this.graphArea.LogicCore.Graph.TryGetEdge(visualSourceVertexModel, visualTargetVertexModel, out var visualEdgeModel))
+                        {
+                            visualEdgeModel.Label = relationship.Name;
+                        }
             }
         }
 
