@@ -156,24 +156,35 @@ namespace Kosmograph.Desktop.GraphXViewer
 
         private void Relationships_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            // Only adding ai handled here. 
+            // Only adding ai handled here.
             // removelö of edges is trigger by removal of one of the nodes of the edge.
-            if (e.Action == NotifyCollectionChangedAction.Add)
+            switch (e.Action)
             {
-                var relationship = e.NewItems.OfType<RelationshipViewModel>().Single();
-                if (this.TryGetNode(relationship.Model.From.Id, out var fromVertex))
-                    if (this.TryGetNode(relationship.Model.To.Id, out var toVertex))
+                case NotifyCollectionChangedAction.Add:
                     {
-                        var edgeModel = new KosmographVisualEdgeModel(fromVertex, toVertex)
-                        {
-                            ModelId = relationship.Model.Id,
-                            Label = relationship.Name
-                        };
+                        var relationshipToAdd = e.NewItems.OfType<RelationshipViewModel>().Single();
+                        if (this.TryGetNode(relationshipToAdd.Model.From.Id, out var fromVertex))
+                            if (this.TryGetNode(relationshipToAdd.Model.To.Id, out var toVertex))
+                            {
+                                var edgeModel = new KosmographVisualEdgeModel(fromVertex, toVertex)
+                                {
+                                    ModelId = relationshipToAdd.Model.Id,
+                                    Label = relationshipToAdd.Name
+                                };
 
-                        this.graphArea.AddEdgeAndData(edgeModel, new EdgeControl(this.graphArea.VertexList[fromVertex], this.graphArea.VertexList[toVertex], edgeModel), generateLabel: true);
+                                this.graphArea.AddEdgeAndData(edgeModel, new EdgeControl(this.graphArea.VertexList[fromVertex], this.graphArea.VertexList[toVertex], edgeModel), generateLabel: true);
+                            }
+                        break;
+                    }
+
+                case NotifyCollectionChangedAction.Remove:
+                    {
+                        var relationshipToRemove = e.OldItems.OfType<RelationshipViewModel>().Single();
+                        if (this.TryGetEdge(relationshipToRemove, out var edgeToRemove))
+                            this.graphArea.RemoveEdge(edgeToRemove, removeEdgeFromDataGraph: true);
+                        break;
                     }
             }
-            
         }
 
         private void EditModelCommitted(EditModelCommitted notification)
