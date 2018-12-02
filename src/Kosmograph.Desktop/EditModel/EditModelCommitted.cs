@@ -11,8 +11,9 @@
 
         public (bool, T) TryGetViewModel<T>() where T : class
         {
-            var t = this.ViewModel as T;
-            return (t != null, t);
+            if (this.ViewModel is T t)
+                return (true, t);
+            else return (false, null);
         }
     }
 }

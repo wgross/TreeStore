@@ -34,27 +34,6 @@ namespace Kosmograph.Desktop.GraphXViewer
             this.Loaded += this.GraphXViewerWindow_Loaded;
         }
 
-        private void EditModelCommitted(EditModelCommitted notification)
-        {
-            var (isEntity, entity) = notification.TryGetViewModel<EntityViewModel>();
-            if (isEntity)
-            {
-                this.graphArea.LogicCore.Graph.IdentityMap.TryGetTarget<KosmographVisualVertexModel>(entity.Model.Id, out var visualVertexModel);
-                visualVertexModel.Label = entity.Name;
-            }
-
-            var (isRelationship, relationship) = notification.TryGetViewModel<RelationshipViewModel>();
-            if (isRelationship)
-            {
-                if (this.graphArea.LogicCore.Graph.IdentityMap.TryGetTarget<KosmographVisualVertexModel>(relationship.From.Model.Id, out var visualSourceVertexModel))
-                    if (this.graphArea.LogicCore.Graph.IdentityMap.TryGetTarget<KosmographVisualVertexModel>(relationship.To.Model.Id, out var visualTargetVertexModel))
-                        if (this.graphArea.LogicCore.Graph.TryGetEdge(visualSourceVertexModel, visualTargetVertexModel, out var visualEdgeModel))
-                        {
-                            visualEdgeModel.Label = relationship.Name;
-                        }
-            }
-        }
-
         private void GraphXViewerWindow_Loaded(object sender, RoutedEventArgs e)
         {
             this.SetupGraphArea();
@@ -67,6 +46,8 @@ namespace Kosmograph.Desktop.GraphXViewer
 
             this.zoomctrl.ZoomToFill();
         }
+
+        #region Setup graph from view model
 
         private void SetupGraphArea()
         {
@@ -108,7 +89,7 @@ namespace Kosmograph.Desktop.GraphXViewer
 
             foreach (var edge in this.ViewModel.Relationships)
             {
-                var visualEdge = new KosmographVisualEdgeModel(vertices[edge.Model.From.Id], vertices[edge.Model.To.Id])
+                var visualEdge = new KosmographVisualEdgeModel(vertices[edge.From.Model.Id], vertices[edge.To.Model.Id])
                 {
                     ModelId = edge.Model.Id,
                     Label = edge.Name
@@ -118,6 +99,12 @@ namespace Kosmograph.Desktop.GraphXViewer
 
             return visualModel;
         }
+
+        private static void AddEdge(KosmographVisualGraphModel visualModel, KosmographVisualVertexModel fromVertex, KosmographVisualVertexModel toVertex, RelationshipViewModel edge)
+        {
+        }
+
+        #endregion Setup graph from view model
 
         public void Dispose()
         {
@@ -169,7 +156,61 @@ namespace Kosmograph.Desktop.GraphXViewer
 
         private void Relationships_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
+            // Only adding ai handled here. 
+            // removelö of edges is trigger by removal of one of the nodes of the edge.
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                var relationship = e.NewItems.OfType<RelationshipViewModel>().Single();
+                if (this.TryGetNode(relationship.Model.From.Id, out var fromVertex))
+                    if (this.TryGetNode(relationship.Model.To.Id, out var toVertex))
+                    {
+                        var edgeModel = new KosmographVisualEdgeModel(fromVertex, toVertex)
+                        {
+                            ModelId = relationship.Model.Id,
+                            Label = relationship.Name
+                        };
+
+                        this.graphArea.AddEdgeAndData(edgeModel, new EdgeControl(this.graphArea.VertexList[fromVertex], this.graphArea.VertexList[toVertex], edgeModel), generateLabel: true);
+                    }
+            }
             
+        }
+
+        private void EditModelCommitted(EditModelCommitted notification)
+        {
+            var (isEntity, entity) = notification.TryGetViewModel<EntityViewModel>();
+            if (isEntity)
+            {
+                this.graphArea.LogicCore.Graph.IdentityMap.TryGetTarget<KosmographVisualVertexModel>(entity.Model.Id, out var visualVertexModel);
+                visualVertexModel.Label = entity.Name;
+            }
+
+            var (isRelationship, relationship) = notification.TryGetViewModel<RelationshipViewModel>();
+            if (isRelationship)
+            {
+                if (this.TryGetEdge(relationship, out var edge))
+                    edge.Label = relationship.Name;
+            }
+        }
+
+        private bool TryGetNode(Guid nodeId, out KosmographVisualVertexModel vertex) => this.graphArea.LogicCore.Graph.IdentityMap.TryGetTarget<KosmographVisualVertexModel>(nodeId, out vertex);
+
+        private (bool, KosmographVisualVertexModel, KosmographVisualVertexModel) TryGetNodes(RelationshipViewModel relationship)
+        {
+            if (this.TryGetNode(relationship.From.Model.Id, out var visualSourceVertexModel))
+                if (this.TryGetNode(relationship.To.Model.Id, out var visualTargetVertexModel))
+                    return (true, visualSourceVertexModel, visualTargetVertexModel);
+            return (false, null, null);
+        }
+
+        private bool TryGetEdge(RelationshipViewModel relationship, out KosmographVisualEdgeModel edge)
+        {
+            var (edgeVerticesFound, fromVertex, toVertex) = TryGetNodes(relationship);
+            if (edgeVerticesFound)
+                if (this.graphArea.LogicCore.Graph.TryGetEdge(fromVertex, toVertex, out edge))
+                    return true;
+            edge = null;
+            return false;
         }
     }
 
