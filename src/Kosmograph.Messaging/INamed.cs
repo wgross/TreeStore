@@ -1,4 +1,4 @@
-﻿namespace Kosmograph.Structure
+﻿namespace Kosmograph.Messaging
 {
     public interface INamed
     {

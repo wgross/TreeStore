@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Kosmograph.Structure
+namespace Kosmograph.Messaging
 {
     public interface IFacetProperty : INamed
     {
