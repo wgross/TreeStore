@@ -2,7 +2,7 @@
 using Kosmograph.Model;
 using Xunit;
 
-namespace Kosmograph.Desktop.Test.ViewModel
+namespace Kosmograph.Desktop.Editor.Test.ViewModel
 {
     public class FacetPropertyViewModelTest
     {

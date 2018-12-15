@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using Xunit;
 
-namespace Kosmograph.Desktop.Test.ViewModel
+namespace Kosmograph.Desktop.Editor.Test.ViewModel
 {
     public class ObservableRepositoryTest : IDisposable
     {

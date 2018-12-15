@@ -103,8 +103,6 @@ namespace Kosmograph.Desktop.ViewModel
         public VM CreateViewModel(M model) => this.newViewModel(model);
     }
 
-    
-
     public class RelationshipRepositoryViewModel : RepositoryViewModel<RelationshipViewModel, Relationship>
     {
         public RelationshipRepositoryViewModel(IRelationshipRepository model, Func<Entity, EntityViewModel> newEntityViewModel, Func<Tag, TagViewModel> newTagViewModel)

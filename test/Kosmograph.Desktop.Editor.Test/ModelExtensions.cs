@@ -1,7 +1,7 @@
 ﻿using Kosmograph.Desktop.ViewModel;
 using Kosmograph.Model;
 
-namespace Kosmograph.Desktop.Test.ViewModel
+namespace Kosmograph.Desktop.Editor.Test
 {
     public static class ModelExtensions
     {

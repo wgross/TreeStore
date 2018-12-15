@@ -8,7 +8,7 @@ using System.ComponentModel;
 using System.Linq;
 using Xunit;
 
-namespace Kosmograph.Desktop.Test.EditModel
+namespace Kosmograph.Desktop.Editor.Test.EditModel
 {
     public class NamedEditModelTest
     {

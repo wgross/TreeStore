@@ -6,7 +6,7 @@ using System;
 using System.Linq;
 using Xunit;
 
-namespace Kosmograph.Desktop.Test.EditModel
+namespace Kosmograph.Desktop.Editor.Test.EditModel
 {
     public class TagEditModelTest : IDisposable
     {
