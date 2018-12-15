@@ -135,9 +135,9 @@
       <Project>{415d3e3f-7105-46c1-84d2-7ecb34213d92}</Project>
       <Name>Msagl</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\Kosmograph.Desktop\Kosmograph.Desktop.csproj">
-      <Project>{b1a2e7ef-0432-4c54-a54e-9923ae3ac4ab}</Project>
-      <Name>Kosmograph.Desktop</Name>
+    <ProjectReference Include="..\..\src\Kosmograph.Desktop.Editor\Kosmograph.Desktop.Editor.csproj">
+      <Project>{153f522f-c029-445d-9174-5045f1c49849}</Project>
+      <Name>Kosmograph.Desktop.Editor</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\Kosmograph.LiteDb\Kosmograph.LiteDb.csproj">
       <Project>{28A8B0B7-A988-4F74-9091-5DAD0CB14D59}</Project>
