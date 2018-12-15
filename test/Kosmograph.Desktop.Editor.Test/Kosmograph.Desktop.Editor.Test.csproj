@@ -108,8 +108,6 @@
     <Compile Include="EditModel\DeleteEntityWithRelationshipsEditModelTest.cs" />
     <Compile Include="EditModel\AssignedTagEditModelTest.cs" />
     <Compile Include="EditModel\AssignedFacetPropertyEditModelTest.cs" />
-    <Compile Include="IdentityMapTest.cs" />
-    <Compile Include="NullToVisiblityConverterTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModel\AssignedFacetPropertyViewModelTest.cs" />
     <Compile Include="EditModel\EntityEditModelTest.cs" />
