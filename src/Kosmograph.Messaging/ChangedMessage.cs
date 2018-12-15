@@ -2,7 +2,6 @@
 {
     public enum ChangeTypeValues
     {
-        Added,
         Removed,
         Modified
     }

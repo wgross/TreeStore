@@ -7,8 +7,6 @@ namespace Kosmograph.Messaging
     {
         private readonly Subject<ChangedMessage<T>> observableSubject = new Subject<ChangedMessage<T>>();
 
-        public void Added(T changed) => Send(ChangeTypeValues.Added, changed);
-
         public void Modified(T changed) => Send(ChangeTypeValues.Modified, changed);
 
         public void Removed(T changed) => this.Send(ChangeTypeValues.Removed, changed);

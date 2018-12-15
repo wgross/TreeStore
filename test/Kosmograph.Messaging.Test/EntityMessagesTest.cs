@@ -15,31 +15,6 @@ namespace Kosmograph.Messaging.Test
         }
 
         [Fact]
-        public void MessageBus_notifies_of_added_entity()
-        {
-            // ARRANGE
-
-            var entity = Mock.Of<IEntity>();
-
-            var entityObserver = this.mocks.Create<IObserver<ChangedMessage<IEntity>>>();
-            ChangedMessage<IEntity> entityChangeMessage = null;
-            entityObserver
-                .Setup(o => o.OnNext(It.IsAny<ChangedMessage<IEntity>>()))
-                .Callback<ChangedMessage<IEntity>>(m => entityChangeMessage = m);
-
-            this.messageBus.Entities.Subscribe(entityObserver.Object);
-
-            // ACT
-
-            this.messageBus.Entities.Added(entity);
-
-            // ASSERT
-
-            Assert.Equal(ChangeTypeValues.Added, entityChangeMessage.ChangeType);
-            Assert.Same(entity, entityChangeMessage.Changed);
-        }
-
-        [Fact]
         public void MessageBus_notifies_of_modified_entity()
         {
             // ARRANGE

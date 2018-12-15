@@ -4,6 +4,8 @@ namespace Kosmograph.Messaging
 {
     public interface IKosmographMessageBus
     {
+        IChangedMessageBus<ITag> Tags { get; }
+
         IChangedMessageBus<IEntity> Entities { get; }
 
         IChangedMessageBus<IRelationship> Relationships { get; }
@@ -11,8 +13,6 @@ namespace Kosmograph.Messaging
 
     public interface IChangedMessageBus<T> : IObservable<ChangedMessage<T>>
     {
-        void Added(T added);
-
         void Modified(T modified);
 
         void Removed(T removed);
