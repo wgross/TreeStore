@@ -1,0 +1,76 @@
+﻿<UserControl x:Class="Kosmograph.Desktop.Controls.ShowRelationshipsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+             xmlns:local="clr-namespace:Kosmograph.Desktop.Controls"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="./CommonResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <CollectionViewSource
+                x:Key="relationshipsCollectionViewSource" 
+                Source="{Binding Relationships}" >
+                <CollectionViewSource.SortDescriptions>
+                    <scm:SortDescription PropertyName="Name" />
+                </CollectionViewSource.SortDescriptions>
+            </CollectionViewSource>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <UserControl.Style>
+        <Style TargetType="{x:Type UserControl}">
+            <!--
+            Control is hidden while a relationship is edited.
+            -->
+            <Setter
+                    Property="Visibility"
+                    Value="Hidden" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Relationships.Edited}" Value="{x:Null}">
+                    <Setter Property="Visibility" Value="Visible" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Style>
+    <DockPanel 
+        LastChildFill="True"
+        Margin="0,0,0,0">
+        <DockPanel DockPanel.Dock="Top"
+            LastChildFill="False">
+            <TextBlock DockPanel.Dock="Left"
+                Text="Relationships"
+                Foreground="Gray"
+                FontWeight="Bold" />
+            <Button DockPanel.Dock="Right" 
+                Style="{StaticResource addButtonInHeaderStyle}"
+                Command="{Binding Relationships.CreateCommand}"/>
+        </DockPanel>
+        <ListBox
+            Name="relationshipsListBox"
+            Panel.ZIndex="0"
+            Style="{StaticResource modelItemListBoxStyle}"
+            ItemsSource="{Binding Source={StaticResource relationshipsCollectionViewSource}}"
+            MouseMove="relationshipsListBox_MouseMove"
+            MouseDoubleClick="relationshipsListBox_MouseDoubleClick">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <TextBlock Text="{Binding Name}" />
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+            <ListBox.InputBindings>
+                <KeyBinding Key="Return"
+                                Command="{Binding Relationships.EditCommand}"
+                                CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
+                <KeyBinding Key="Delete"
+                                Command="{Binding Relationships.DeleteCommand}"
+                                CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
+            </ListBox.InputBindings>
+        </ListBox>
+    </DockPanel>
+</UserControl>
