@@ -1,6 +1,8 @@
 ﻿using Elementary.Compare;
+using Kosmograph.Messaging;
 using Kosmograph.Model;
 using LiteDB;
+using Moq;
 using System.IO;
 using System.Linq;
 using Xunit;
@@ -19,7 +21,7 @@ namespace Kosmograph.LiteDb.Test
         {
             this.liteDb = new LiteRepository(new MemoryStream());
             this.entityRepository = new EntityRepository(this.liteDb);
-            this.tagRepository = new TagRepository(this.liteDb);
+            this.tagRepository = new TagRepository(this.liteDb, Mock.Of<IChangedMessageBus<ITag>>());
             this.categoryRepository = new CategoryRepository(this.liteDb);
             this.entities = this.liteDb.Database.GetCollection("entities");
         }

@@ -12,6 +12,6 @@ namespace Kosmograph.Model
 
         T Upsert(T tag);
 
-        bool Delete(Guid id);
+        bool Delete(T id);
     }
 }

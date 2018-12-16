@@ -3,6 +3,7 @@ using Kosmograph.Desktop.GraphXViewer;
 using Kosmograph.Desktop.MsaglGraph;
 using Kosmograph.Desktop.ViewModel;
 using Kosmograph.LiteDb;
+using Kosmograph.Messaging;
 using Kosmograph.Model;
 using Microsoft.Win32;
 using System.IO;
@@ -53,7 +54,7 @@ namespace Kosmograph.Desktop
 
         private void CreateNewModel()
         {
-            var model = new KosmographModel(new KosmographLiteDbPersistence());
+            var model = new KosmographModel(new KosmographLiteDbPersistence(KosmographMessageBus.Default));
             var tag1 = model.Tags.Upsert(new Tag("tag1", new Facet("facet", new FacetProperty("p1"))));
             var tag2 = model.Tags.Upsert(new Tag("tag2", new Facet("facet", new FacetProperty("p2"))));
             var entity1 = model.Entities.Upsert(new Entity("entity1", tag1));

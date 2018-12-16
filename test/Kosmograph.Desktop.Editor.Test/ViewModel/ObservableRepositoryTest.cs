@@ -54,7 +54,7 @@ namespace Kosmograph.Desktop.Editor.Test.ViewModel
               .Setup(r => r.Upsert(model))
               .Returns(model);
             repository
-                .Setup(r => r.Delete(model.Id))
+                .Setup(r => r.Delete(model))
                 .Returns(true);
 
             var observableRepository = new RepositoryViewModel<TagViewModel, Tag>(repository.Object, m => new TagViewModel(m));

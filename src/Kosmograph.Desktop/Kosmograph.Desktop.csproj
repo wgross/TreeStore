@@ -344,6 +344,10 @@
       <Project>{28a8b0b7-a988-4f74-9091-5dad0cb14d59}</Project>
       <Name>Kosmograph.LiteDb</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Kosmograph.Messaging\Kosmograph.Messaging.csproj">
+      <Project>{b14515a9-3064-419d-9bda-4cb81db82ffd}</Project>
+      <Name>Kosmograph.Messaging</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Kosmograph.Model\Kosmograph.Model.csproj">
       <Project>{89824D16-940A-4B72-9F23-A4F5AB487E8C}</Project>
       <Name>Kosmograph.Model</Name>

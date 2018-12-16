@@ -1,6 +1,8 @@
 ﻿using Elementary.Compare;
+using Kosmograph.Messaging;
 using Kosmograph.Model;
 using LiteDB;
+using Moq;
 using System.IO;
 using System.Linq;
 using Xunit;
@@ -9,7 +11,9 @@ namespace Kosmograph.LiteDb.Test
 {
     public class RelationshipRepositoryTest
     {
+        private readonly MockRepository mocks = new MockRepository(MockBehavior.Strict);
         private readonly LiteRepository liteDb;
+        private readonly Mock<IKosmographMessageBus> messageBus;
         private readonly EntityRepository entityRepository;
         private readonly TagRepository tagRepository;
         private readonly CategoryRepository categoryRepository;
@@ -19,8 +23,9 @@ namespace Kosmograph.LiteDb.Test
         public RelationshipRepositoryTest()
         {
             this.liteDb = new LiteRepository(new MemoryStream());
+            this.messageBus = this.mocks.Create<IKosmographMessageBus>();
             this.entityRepository = new EntityRepository(this.liteDb);
-            this.tagRepository = new TagRepository(this.liteDb);
+            this.tagRepository = new TagRepository(this.liteDb, this.messageBus.Object.Tags);
             this.categoryRepository = new CategoryRepository(this.liteDb);
             this.relationshipRepository = new RelationshipRepository(this.liteDb);
             this.relationships = this.liteDb.Database.GetCollection("relationships");
