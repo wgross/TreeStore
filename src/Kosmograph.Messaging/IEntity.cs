@@ -1,6 +1,6 @@
 ﻿namespace Kosmograph.Messaging
 {
-    public interface IEntity : ITagged, INamed
+    public interface IEntity : INamed, IIdentifiable
     {
     }
 }

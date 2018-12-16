@@ -24,7 +24,7 @@ namespace Kosmograph.LiteDb.Test
         {
             this.liteDb = new LiteRepository(new MemoryStream());
             this.messageBus = this.mocks.Create<IKosmographMessageBus>();
-            this.entityRepository = new EntityRepository(this.liteDb);
+            this.entityRepository = new EntityRepository(this.liteDb, this.messageBus.Object.Entities);
             this.tagRepository = new TagRepository(this.liteDb, this.messageBus.Object.Tags);
             this.categoryRepository = new CategoryRepository(this.liteDb);
             this.relationshipRepository = new RelationshipRepository(this.liteDb);
