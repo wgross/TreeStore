@@ -41,18 +41,21 @@ namespace Kosmograph.LiteDb
             return false;
         }
 
-        public override Relationship FindById(Guid id) => this.Repository
-            .Query<Relationship>(CollectionName)
-            .Include(r => r.Tags)
-            .Include(r => r.From)
-            .Include(r => r.To)
-            .SingleById(id);
+        public override Relationship FindById(Guid id) => this.QueryAndInclude().SingleById(id);
 
-        public override IEnumerable<Relationship> FindAll() => this.Repository
-            .Query<Relationship>(CollectionName)
-            .Include(r => r.Tags)
-            .Include(r => r.From)
-            .Include(r => r.To)
-            .ToEnumerable();
+        public override IEnumerable<Relationship> FindAll() => this.QueryAndInclude().ToEnumerable();
+
+        public IEnumerable<Relationship> FindByEntity(Entity entity) => this.QueryAndInclude(q => q.Where(r => r.From.Id.Equals(entity.Id) || r.To.Id.Equals(entity.Id))).ToEnumerable();
+
+        private LiteQueryable<Relationship> QueryAndInclude(Func<LiteQueryable<Relationship>, LiteQueryable<Relationship>> query = null)
+        {
+            if (query is null)
+                return QueryAndInclude(q => q);
+
+            return query(this.Repository.Query<Relationship>(RelationshipRepository.CollectionName))
+                .Include(r => r.Tags)
+                .Include(r => r.From)
+                .Include(r => r.To);
+        }
     }
 }

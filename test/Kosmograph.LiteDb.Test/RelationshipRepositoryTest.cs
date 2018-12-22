@@ -230,6 +230,30 @@ namespace Kosmograph.LiteDb.Test
         [Fact]
         public void RelationshipRepository_finds_relationship_by_entity()
         {
+            // ARRANGE
+
+            var entity1 = this.entityRepository.Upsert(new Entity());
+            var entity2 = this.entityRepository.Upsert(new Entity());
+            var relationship1 = new Relationship("r", entity1, entity2);
+            var relationship2 = new Relationship("r", entity2, entity1);
+
+            this.eventSource
+                .Setup(s => s.Modified(relationship1));
+
+            this.relationshipRepository.Upsert(relationship1);
+
+            this.eventSource
+                .Setup(s => s.Modified(relationship2));
+
+            this.relationshipRepository.Upsert(relationship2);
+
+            // ACT
+
+            var result = this.relationshipRepository.FindByEntity(entity1).ToArray();
+
+            // ASSERT
+
+            Assert.All(new[] { relationship1, relationship2 }, r => Assert.Contains(r, result));
         }
     }
 }
