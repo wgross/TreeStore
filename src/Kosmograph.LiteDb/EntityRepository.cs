@@ -9,7 +9,7 @@ namespace Kosmograph.LiteDb
     public class EntityRepository : LiteDbRepositoryBase<Entity>, IEntityRepository
     {
         public const string CollectionName = "entities";
-        private readonly IChangedMessageBus<IEntity> eventSoure;
+        private readonly IChangedMessageBus<IEntity> eventSource;
 
         static EntityRepository()
         {
@@ -21,12 +21,12 @@ namespace Kosmograph.LiteDb
 
         public EntityRepository(LiteRepository db, IChangedMessageBus<IEntity> eventSource) : base(db, CollectionName)
         {
-            this.eventSoure = eventSource;
+            this.eventSource = eventSource;
         }
 
         public override Entity Upsert(Entity entity)
         {
-            this.eventSoure.Modified(base.Upsert(entity));
+            this.eventSource.Modified(base.Upsert(entity));
             return entity;
         }
 
@@ -34,7 +34,7 @@ namespace Kosmograph.LiteDb
         {
             if (base.Delete(entity))
             {
-                this.eventSoure.Removed(entity);
+                this.eventSource.Removed(entity);
                 return true;
             }
             return false;

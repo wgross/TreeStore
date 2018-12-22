@@ -33,7 +33,7 @@ namespace Kosmograph.LiteDb
 
         public IEntityRepository Entities => new EntityRepository(db, this.messageBus.Entities);
 
-        public IRelationshipRepository Relationships => new RelationshipRepository(db);
+        public IRelationshipRepository Relationships => new RelationshipRepository(db, this.messageBus.Relationships);
 
         public void Dispose()
         {

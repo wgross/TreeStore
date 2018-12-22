@@ -1,8 +1,9 @@
-﻿using Kosmograph.Model.Base;
+﻿using Kosmograph.Messaging;
+using Kosmograph.Model.Base;
 
 namespace Kosmograph.Model
 {
-    public class Relationship : TaggedBase
+    public class Relationship : TaggedBase, Messaging.IRelationship
     {
         public Relationship(string name, Entity from, Entity to, params Tag[] tags)
             : base(name, tags)
@@ -24,5 +25,9 @@ namespace Kosmograph.Model
         public Entity From { get; set; }
 
         public Entity To { get; set; }
+
+        IEntity IRelationship.From => this.From;
+
+        IEntity IRelationship.To => this.To;
     }
 }

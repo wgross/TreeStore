@@ -36,7 +36,7 @@ namespace Kosmograph.LiteDb.Test
         }
 
         [Fact]
-        public void EntityRepository_writes_entity_to_repository()
+        public void EntityRepository_writes_entity()
         {
             // ARRANGE
 
@@ -58,7 +58,7 @@ namespace Kosmograph.LiteDb.Test
         }
 
         [Fact]
-        public void EntityRepository_reads_entity_from_repository()
+        public void EntityRepository_reads_entity()
         {
             // ARRANGE
 
@@ -81,7 +81,7 @@ namespace Kosmograph.LiteDb.Test
         }
 
         [Fact]
-        public void EntityRepository_writes_entity_with_tag_to_repository()
+        public void EntityRepository_writes_entity_with_tag()
         {
             // ARRANGE
 
@@ -107,7 +107,7 @@ namespace Kosmograph.LiteDb.Test
         }
 
         [Fact]
-        public void EntityRepository_reads_entity_with_tag_from_repository()
+        public void EntityRepository_reads_entity_with_tag()
         {
             // ARRANGE
 
@@ -162,7 +162,7 @@ namespace Kosmograph.LiteDb.Test
         }
 
         [Fact]
-        public void EntityRepository_removes_entity_from_repository()
+        public void EntityRepository_removes_entity()
         {
             // ARRANGE
 
@@ -187,7 +187,7 @@ namespace Kosmograph.LiteDb.Test
         }
 
         [Fact]
-        public void EntityRepository_removing_unknown_entity_from_repository_returns_false()
+        public void EntityRepository_removing_unknown_entity_returns_false()
         {
             // ARRANGE
 
