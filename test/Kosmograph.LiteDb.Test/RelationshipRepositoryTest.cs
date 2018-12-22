@@ -226,5 +226,10 @@ namespace Kosmograph.LiteDb.Test
 
             Assert.False(result);
         }
+
+        [Fact]
+        public void RelationshipRepository_finds_relationship_by_entity()
+        {
+        }
     }
 }

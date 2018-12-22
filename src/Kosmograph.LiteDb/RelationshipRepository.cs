@@ -20,7 +20,7 @@ namespace Kosmograph.LiteDb
                    .DbRef(r => r.To, EntityRepository.CollectionName);
         }
 
-        public RelationshipRepository(LiteRepository db, Messaging.IChangedMessageBus<Messaging.IRelationship> eventSource) : base(db, CollectionName)
+        public RelationshipRepository(LiteRepository repo, Messaging.IChangedMessageBus<Messaging.IRelationship> eventSource) : base(repo, CollectionName)
         {
             this.eventSource = eventSource;
         }
@@ -41,14 +41,14 @@ namespace Kosmograph.LiteDb
             return false;
         }
 
-        public override Relationship FindById(Guid id) => this.repository
+        public override Relationship FindById(Guid id) => this.Repository
             .Query<Relationship>(CollectionName)
             .Include(r => r.Tags)
             .Include(r => r.From)
             .Include(r => r.To)
             .SingleById(id);
 
-        public override IEnumerable<Relationship> FindAll() => this.repository
+        public override IEnumerable<Relationship> FindAll() => this.Repository
             .Query<Relationship>(CollectionName)
             .Include(r => r.Tags)
             .Include(r => r.From)

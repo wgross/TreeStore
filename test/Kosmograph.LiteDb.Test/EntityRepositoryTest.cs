@@ -16,6 +16,7 @@ namespace Kosmograph.LiteDb.Test
         private readonly Mock<IChangedMessageBus<IEntity>> eventSource;
         private readonly EntityRepository entityRepository;
         private readonly TagRepository tagRepository;
+        private readonly RelationshipRepository relationshipRepository;
         private readonly CategoryRepository categoryRepository;
         private readonly LiteCollection<BsonDocument> entities;
         private readonly MockRepository mocks = new MockRepository(MockBehavior.Strict);
@@ -26,6 +27,7 @@ namespace Kosmograph.LiteDb.Test
             this.eventSource = this.mocks.Create<IChangedMessageBus<IEntity>>();
             this.entityRepository = new EntityRepository(this.liteDb, this.eventSource.Object);
             this.tagRepository = new TagRepository(this.liteDb, this.mocks.Create<IChangedMessageBus<ITag>>(MockBehavior.Loose).Object);
+            this.relationshipRepository = new RelationshipRepository(this.liteDb, this.mocks.Create<IChangedMessageBus<IRelationship>>(MockBehavior.Loose).Object);
             this.categoryRepository = new CategoryRepository(this.liteDb);
             this.entities = this.liteDb.Database.GetCollection("entities");
         }
@@ -196,6 +198,35 @@ namespace Kosmograph.LiteDb.Test
             // ACT
 
             var result = this.entityRepository.Delete(entity);
+
+            // ASSERT
+
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void EntityRepository_removing_entity_fails_if_used_in_relationship()
+        {
+            // ARRANGE
+
+            var entity1 = new Entity("entity1");
+            var entity2 = new Entity("entity2");
+
+            this.eventSource
+                .Setup(s => s.Modified(entity1));
+            this.eventSource
+                .Setup(s => s.Modified(entity2));
+
+            this.entityRepository.Upsert(entity1);
+            this.entityRepository.Upsert(entity2);
+
+            var relationship = new Relationship("relationship1", entity1, entity2);
+
+            this.relationshipRepository.Upsert(relationship);
+
+            // ACT
+
+            var result = this.entityRepository.Delete(entity1);
 
             // ASSERT
 
