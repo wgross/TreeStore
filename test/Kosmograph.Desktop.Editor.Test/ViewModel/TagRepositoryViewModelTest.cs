@@ -189,7 +189,7 @@ namespace Kosmograph.Desktop.Editor.Test.ViewModel
                 .Returns(tag.Yield());
 
             this.model
-                .Setup(r => r.Delete(tag.Id))
+                .Setup(r => r.Delete(tag))
                 .Returns(true);
 
             this.viewModel.FillAll();

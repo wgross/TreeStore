@@ -109,7 +109,7 @@ namespace Kosmograph.Desktop.Editor.Test.ViewModel
                 .Returns(entity.Yield());
 
             this.model
-                .Setup(r => r.Delete(entity.Id))
+                .Setup(r => r.Delete(entity))
                 .Returns(true);
 
             this.viewModel.FillAll();

@@ -71,7 +71,7 @@ namespace Kosmograph.Desktop.ViewModel
                     {
                         if (!this.filling)
                         {
-                            if (this.repository.Delete(viewModel.Model.Id))
+                            if (this.repository.Delete(viewModel.Model))
                             {
                                 this.locals.Remove(viewModel.Model.Id);
                             }

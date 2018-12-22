@@ -1,4 +1,5 @@
-﻿using Kosmograph.Model;
+﻿using Kosmograph.Messaging;
+using Kosmograph.Model;
 using LiteDB;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ namespace Kosmograph.LiteDb
     public class RelationshipRepository : LiteDbRepositoryBase<Relationship>, IRelationshipRepository
     {
         public const string CollectionName = "relationships";
+        private readonly IChangedMessageBus<IRelationship> eventSource;
 
         static RelationshipRepository()
         {
@@ -18,22 +20,42 @@ namespace Kosmograph.LiteDb
                    .DbRef(r => r.To, EntityRepository.CollectionName);
         }
 
-        public RelationshipRepository(LiteRepository db) : base(db, CollectionName)
+        public RelationshipRepository(LiteRepository repo, Messaging.IChangedMessageBus<Messaging.IRelationship> eventSource) : base(repo, CollectionName)
         {
+            this.eventSource = eventSource;
         }
 
-        public override Relationship FindById(Guid id) => this.repository
-            .Query<Relationship>(CollectionName)
-            .Include(r => r.Tags)
-            .Include(r => r.From)
-            .Include(r => r.To)
-            .SingleById(id);
+        public override Relationship Upsert(Relationship relationship)
+        {
+            this.eventSource.Modified(base.Upsert(relationship));
+            return relationship;
+        }
 
-        public override IEnumerable<Relationship> FindAll() => this.repository
-            .Query<Relationship>(CollectionName)
-            .Include(r => r.Tags)
-            .Include(r => r.From)
-            .Include(r => r.To)
-            .ToEnumerable();
+        public override bool Delete(Relationship relationship)
+        {
+            if (base.Delete(relationship))
+            {
+                this.eventSource.Removed(relationship);
+                return true;
+            }
+            return false;
+        }
+
+        public override Relationship FindById(Guid id) => this.QueryAndInclude().SingleById(id);
+
+        public override IEnumerable<Relationship> FindAll() => this.QueryAndInclude().ToEnumerable();
+
+        public IEnumerable<Relationship> FindByEntity(Entity entity) => this.QueryAndInclude(q => q.Where(r => r.From.Id.Equals(entity.Id) || r.To.Id.Equals(entity.Id))).ToEnumerable();
+
+        private LiteQueryable<Relationship> QueryAndInclude(Func<LiteQueryable<Relationship>, LiteQueryable<Relationship>> query = null)
+        {
+            if (query is null)
+                return QueryAndInclude(q => q);
+
+            return query(this.Repository.Query<Relationship>(RelationshipRepository.CollectionName))
+                .Include(r => r.Tags)
+                .Include(r => r.From)
+                .Include(r => r.To);
+        }
     }
 }

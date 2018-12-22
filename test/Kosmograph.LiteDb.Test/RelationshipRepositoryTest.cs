@@ -1,15 +1,20 @@
 ﻿using Elementary.Compare;
+using Kosmograph.Messaging;
 using Kosmograph.Model;
 using LiteDB;
+using Moq;
+using System;
 using System.IO;
 using System.Linq;
 using Xunit;
 
 namespace Kosmograph.LiteDb.Test
 {
-    public class RelationshipRepositoryTest
+    public class RelationshipRepositoryTest : IDisposable
     {
+        private readonly MockRepository mocks = new MockRepository(MockBehavior.Strict);
         private readonly LiteRepository liteDb;
+        private readonly Mock<IChangedMessageBus<IRelationship>> eventSource;
         private readonly EntityRepository entityRepository;
         private readonly TagRepository tagRepository;
         private readonly CategoryRepository categoryRepository;
@@ -19,24 +24,34 @@ namespace Kosmograph.LiteDb.Test
         public RelationshipRepositoryTest()
         {
             this.liteDb = new LiteRepository(new MemoryStream());
-            this.entityRepository = new EntityRepository(this.liteDb);
-            this.tagRepository = new TagRepository(this.liteDb);
+            this.eventSource = this.mocks.Create<IChangedMessageBus<IRelationship>>();
+            this.entityRepository = new EntityRepository(this.liteDb, this.mocks.Create<IChangedMessageBus<IEntity>>(MockBehavior.Loose).Object);
+            this.tagRepository = new TagRepository(this.liteDb, this.mocks.Create<IChangedMessageBus<ITag>>(MockBehavior.Loose).Object);
             this.categoryRepository = new CategoryRepository(this.liteDb);
-            this.relationshipRepository = new RelationshipRepository(this.liteDb);
+            this.relationshipRepository = new RelationshipRepository(this.liteDb, this.eventSource.Object);
             this.relationships = this.liteDb.Database.GetCollection("relationships");
         }
 
+        public void Dispose()
+        {
+            this.mocks.VerifyAll();
+        }
+
         [Fact]
-        public void RelationshipRepository_writes_relationship_with_entities_to_collection()
+        public void RelationshipRepository_writes_relationship_with_entities()
         {
             // ARRANGE
 
             var entity1 = this.entityRepository.Upsert(new Entity());
             var entity2 = this.entityRepository.Upsert(new Entity());
+            var relationship = new Relationship("r", entity1, entity2);
+
+            this.eventSource
+                .Setup(s => s.Modified(relationship));
 
             // ACT
 
-            var relationship = this.relationshipRepository.Upsert(new Relationship("r", entity1, entity2));
+            this.relationshipRepository.Upsert(relationship);
 
             // ASSERT
 
@@ -51,13 +66,18 @@ namespace Kosmograph.LiteDb.Test
         }
 
         [Fact]
-        public void RelationshipRepository_reads_relationship_with_entities_from_collection()
+        public void RelationshipRepository_reads_relationship_with_entities()
         {
             // ARRANGE
 
             var entity1 = this.entityRepository.Upsert(new Entity());
             var entity2 = this.entityRepository.Upsert(new Entity());
-            var relationship = this.relationshipRepository.Upsert(new Relationship("r", entity1, entity2));
+            var relationship = new Relationship("r", entity1, entity2);
+
+            this.eventSource
+               .Setup(s => s.Modified(relationship));
+
+            this.relationshipRepository.Upsert(relationship);
 
             // ACT
 
@@ -78,17 +98,21 @@ namespace Kosmograph.LiteDb.Test
         }
 
         [Fact]
-        public void EntityRepository_writes_relationship_with_tag_to_collection()
+        public void RelationshipRepository_writes_relationship_with_tag()
         {
             // ARRANGE
 
             var tag = this.tagRepository.Upsert(new Tag("tag", new Facet("facet", new FacetProperty("prop"))));
             var entity1 = this.entityRepository.Upsert(new Entity());
             var entity2 = this.entityRepository.Upsert(new Entity());
+            var relationship = new Relationship("r", entity1, entity2, tag);
+
+            this.eventSource
+                .Setup(s => s.Modified(relationship));
 
             // ACT
 
-            var relationship = this.relationshipRepository.Upsert(new Relationship("r", entity1, entity2, tag));
+            this.relationshipRepository.Upsert(relationship);
 
             // ASSERT
 
@@ -101,14 +125,19 @@ namespace Kosmograph.LiteDb.Test
         }
 
         [Fact]
-        public void EntityRepository_reads_relationship_with_tag_from_collection()
+        public void RelationshipRepository_reads_relationship_with_tag()
         {
             // ARRANGE
 
             var tag = this.tagRepository.Upsert(new Tag("tag", new Facet("facet", new FacetProperty("prop"))));
             var entity1 = this.entityRepository.Upsert(new Entity());
             var entity2 = this.entityRepository.Upsert(new Entity());
-            var relationship = this.relationshipRepository.Upsert(new Relationship("r", entity1, entity2, tag));
+            var relationship = new Relationship("r", entity1, entity2, tag);
+
+            this.eventSource
+                .Setup(s => s.Modified(relationship));
+
+            this.relationshipRepository.Upsert(relationship);
 
             // ACT
 
@@ -131,11 +160,13 @@ namespace Kosmograph.LiteDb.Test
             var tag = this.tagRepository.Upsert(new Tag("tag", new Facet("facet", new FacetProperty("prop"))));
             var entity1 = this.entityRepository.Upsert(new Entity());
             var entity2 = this.entityRepository.Upsert(new Entity());
-
             var relationship = new Relationship("r", entity1, entity2, tag);
 
             // set facet property value
             relationship.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+
+            this.eventSource
+                .Setup(s => s.Modified(relationship));
 
             this.relationshipRepository.Upsert(relationship);
 
@@ -149,6 +180,80 @@ namespace Kosmograph.LiteDb.Test
 
             Assert.True(comp.AreEqual);
             Assert.Equal(1, result.TryGetFacetProperty(tag.Facet.Properties.Single()).Item2);
+        }
+
+        [Fact]
+        public void RelationshipRepository_removes_relationship()
+        {
+            // ARRANGE
+
+            var entity1 = this.entityRepository.Upsert(new Entity());
+            var entity2 = this.entityRepository.Upsert(new Entity());
+            var relationship = new Relationship("r", entity1, entity2);
+
+            this.eventSource
+                .Setup(s => s.Modified(relationship));
+
+            this.relationshipRepository.Upsert(relationship);
+
+            this.eventSource
+                .Setup(s => s.Removed(relationship));
+
+            // ACT
+
+            var result = this.relationshipRepository.Delete(relationship);
+
+            // ASSERT
+
+            Assert.True(result);
+            Assert.Throws<InvalidOperationException>(() => this.relationshipRepository.FindById(relationship.Id));
+        }
+
+        [Fact]
+        public void RelationshipRepository_removing_unknown_entity_returns_false()
+        {
+            // ARRANGE
+
+            var entity1 = this.entityRepository.Upsert(new Entity());
+            var entity2 = this.entityRepository.Upsert(new Entity());
+            var relationship = new Relationship("r", entity1, entity2);
+
+            // ACT
+
+            var result = this.relationshipRepository.Delete(relationship);
+
+            // ASSERT
+
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void RelationshipRepository_finds_relationship_by_entity()
+        {
+            // ARRANGE
+
+            var entity1 = this.entityRepository.Upsert(new Entity());
+            var entity2 = this.entityRepository.Upsert(new Entity());
+            var relationship1 = new Relationship("r", entity1, entity2);
+            var relationship2 = new Relationship("r", entity2, entity1);
+
+            this.eventSource
+                .Setup(s => s.Modified(relationship1));
+
+            this.relationshipRepository.Upsert(relationship1);
+
+            this.eventSource
+                .Setup(s => s.Modified(relationship2));
+
+            this.relationshipRepository.Upsert(relationship2);
+
+            // ACT
+
+            var result = this.relationshipRepository.FindByEntity(entity1).ToArray();
+
+            // ASSERT
+
+            Assert.All(new[] { relationship1, relationship2 }, r => Assert.Contains(r, result));
         }
     }
 }

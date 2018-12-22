@@ -7,8 +7,9 @@ namespace Kosmograph.LiteDb
 {
     public abstract class LiteDbRepositoryBase<T> where T : NamedBase
     {
-        protected readonly LiteRepository repository;
         private readonly string collectionName;
+
+        protected LiteRepository Repository { get; }
 
         static LiteDbRepositoryBase()
         {
@@ -18,20 +19,20 @@ namespace Kosmograph.LiteDb
 
         public LiteDbRepositoryBase(LiteRepository repository, string collectionName)
         {
-            this.repository = repository;
+            this.Repository = repository;
             this.collectionName = collectionName;
         }
 
         public virtual T Upsert(T entity)
         {
-            this.repository.Upsert(entity, collectionName);
+            this.Repository.Upsert(entity, collectionName);
             return entity;
         }
 
-        public virtual T FindById(Guid id) => this.repository.SingleById<T>(id, collectionName);
+        public virtual T FindById(Guid id) => this.Repository.SingleById<T>(id, collectionName);
 
-        public virtual IEnumerable<T> FindAll() => this.repository.Query<T>(collectionName).ToEnumerable();
+        public virtual IEnumerable<T> FindAll() => this.Repository.Query<T>(collectionName).ToEnumerable();
 
-        public bool Delete(Guid id) => this.repository.Delete<T>(id, collectionName);
+        public virtual bool Delete(T entity) => this.Repository.Delete<T>(entity.Id, collectionName);
     }
 }

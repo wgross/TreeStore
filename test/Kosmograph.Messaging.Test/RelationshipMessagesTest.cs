@@ -15,31 +15,6 @@ namespace Kosmograph.Messaging.Test
         }
 
         [Fact]
-        public void MessageBus_notifies_of_added_relationship()
-        {
-            // ARRANGE
-
-            var relationship = Mock.Of<IRelationship>();
-
-            var relationshipObserver = this.mocks.Create<IObserver<ChangedMessage<IRelationship>>>();
-            ChangedMessage<IRelationship> relationshipChangeMessage = null;
-            relationshipObserver
-                .Setup(o => o.OnNext(It.IsAny<ChangedMessage<IRelationship>>()))
-                .Callback<ChangedMessage<IRelationship>>(m => relationshipChangeMessage = m);
-
-            this.messageBus.Relationships.Subscribe(relationshipObserver.Object);
-
-            // ACT
-
-            this.messageBus.Relationships.Added(relationship);
-
-            // ASSERT
-
-            Assert.Equal(ChangeTypeValues.Added, relationshipChangeMessage.ChangeType);
-            Assert.Same(relationship, relationshipChangeMessage.Changed);
-        }
-
-        [Fact]
         public void MessageBus_notifies_of_modified_relationship()
         {
             // ARRANGE

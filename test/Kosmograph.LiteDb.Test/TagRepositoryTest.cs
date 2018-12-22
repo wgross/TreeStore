@@ -1,23 +1,34 @@
 ﻿using Elementary.Compare;
+using Kosmograph.Messaging;
 using Kosmograph.Model;
 using LiteDB;
+using Moq;
+using System;
 using System.IO;
 using System.Linq;
 using Xunit;
 
 namespace Kosmograph.LiteDb.Test
 {
-    public class TagRepositoryTest
+    public class TagRepositoryTest : IDisposable
     {
         private readonly LiteRepository liteDb;
+        private readonly Mock<IChangedMessageBus<ITag>> eventSource;
         private readonly TagRepository repository;
         private readonly LiteCollection<BsonDocument> tags;
+        private readonly MockRepository mocks = new MockRepository(MockBehavior.Strict);
 
         public TagRepositoryTest()
         {
             this.liteDb = new LiteRepository(new MemoryStream());
-            this.repository = new TagRepository(this.liteDb);
+            this.eventSource = this.mocks.Create<IChangedMessageBus<ITag>>();
+            this.repository = new TagRepository(this.liteDb, this.eventSource.Object);
             this.tags = this.liteDb.Database.GetCollection("tags");
+        }
+
+        public void Dispose()
+        {
+            this.mocks.VerifyAll();
         }
 
         [Fact]
@@ -26,6 +37,9 @@ namespace Kosmograph.LiteDb.Test
             // ARRANGE
 
             var tag = new Tag("tag");
+
+            this.eventSource
+                .Setup(s => s.Modified(tag));
 
             // ACT
 
@@ -46,6 +60,9 @@ namespace Kosmograph.LiteDb.Test
 
             var tag = new Tag("tag", new Facet("facet", new FacetProperty("prop")));
 
+            this.eventSource
+                .Setup(s => s.Modified(tag));
+
             // ACT
 
             this.repository.Upsert(tag);
@@ -65,6 +82,10 @@ namespace Kosmograph.LiteDb.Test
             // ARRANGE
 
             var tag = new Tag("tag", new Facet("facet", new FacetProperty("prop")));
+
+            this.eventSource
+                .Setup(s => s.Modified(tag));
+
             this.repository.Upsert(tag);
 
             // ACT
@@ -85,13 +106,20 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var tag = this.repository.Upsert(new Tag("tag"));
+            var tag = new Tag("tag", new Facet("facet", new FacetProperty("prop")));
+
+            this.eventSource
+                .Setup(s => s.Modified(tag));
+
+            this.repository.Upsert(tag);
 
             // ACT
 
             var result = Assert.Throws<LiteException>(() => this.repository.Upsert(new Tag("TAG")));
 
             // ASSERT
+            // notificatoion was sent only once
+            this.eventSource.Verify(s => s.Modified(It.IsAny<Tag>()), Times.Once());
 
             Assert.Equal("Cannot insert duplicate key in unique index 'Name'. The duplicate value is '\"tag\"'.", result.Message);
             Assert.Single(this.tags.FindAll());
@@ -103,6 +131,10 @@ namespace Kosmograph.LiteDb.Test
             // ARRANGE
 
             var tag = new Tag("tag", new Facet("facet", new FacetProperty("prop")));
+
+            this.eventSource
+                .Setup(s => s.Modified(tag));
+
             this.repository.Upsert(tag);
 
             // ACT
@@ -117,6 +149,47 @@ namespace Kosmograph.LiteDb.Test
 
             Assert.True(tag.NoPropertyHasDefaultValue());
             Assert.False(comp.Different.Any());
+        }
+
+        [Fact]
+        public void TagRepository_removes_tag_from_repository()
+        {
+            // ARRANGE
+
+            var tag = new Tag("tag");
+
+            this.eventSource
+                .Setup(s => s.Modified(tag));
+
+            this.repository.Upsert(tag);
+
+            this.eventSource
+                .Setup(s => s.Removed(tag));
+
+            // ACT
+
+            var result = this.repository.Delete(tag);
+
+            // ASSERT
+
+            Assert.True(result);
+            Assert.Null(this.tags.FindById(tag.Id));
+        }
+
+        [Fact]
+        public void TagRepository_removing_unknown_tag_returns_false()
+        {
+            // ARRANGE
+
+            var tag = new Tag("tag");
+
+            // ACT
+
+            var result = this.repository.Delete(tag);
+
+            // ASSERT
+
+            Assert.False(result);
         }
     }
 }

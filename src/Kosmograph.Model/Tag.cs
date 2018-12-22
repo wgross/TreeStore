@@ -2,7 +2,7 @@
 
 namespace Kosmograph.Model
 {
-    public class Tag : FacetingEntityBase
+    public class Tag : FacetingEntityBase, Messaging.ITag
     {
         public Tag()
             : base(string.Empty, new Facet(string.Empty))
@@ -14,6 +14,6 @@ namespace Kosmograph.Model
 
         public Tag(string name, Facet facet)
             : base(name, facet)
-        {}
+        { }
     }
 }

@@ -130,11 +130,11 @@ namespace Kosmograph.Desktop.Editor.Test.ViewModel
                 .Returns(relationship.Yield());
 
             this.relationshipRepository
-                .Setup(r => r.Delete(relationship.Id))
+                .Setup(r => r.Delete(relationship))
                 .Returns(true);
 
             this.entityRepository
-                .Setup(r => r.Delete(entity1.Id))
+                .Setup(r => r.Delete(entity1))
                 .Returns(true);
 
             this.viewModel.Entities.FillAll();

@@ -11,6 +11,7 @@
     <PackageReference Include="LiteDb" Version="4.1.4" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Kosmograph.Messaging\Kosmograph.Messaging.csproj" />
     <ProjectReference Include="..\Kosmograph.Model\Kosmograph.Model.csproj" />
   </ItemGroup>
 </Project>

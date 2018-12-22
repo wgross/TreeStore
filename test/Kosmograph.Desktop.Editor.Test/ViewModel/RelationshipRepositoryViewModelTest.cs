@@ -131,7 +131,7 @@ namespace Kosmograph.Desktop.Editor.Test.ViewModel
             this.viewModel.FillAll();
 
             this.model
-                .Setup(r => r.Delete(relationship.Id))
+                .Setup(r => r.Delete(relationship))
                 .Returns(true);
 
             // ACT

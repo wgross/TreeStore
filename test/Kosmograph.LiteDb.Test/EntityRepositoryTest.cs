@@ -1,35 +1,51 @@
 ﻿using Elementary.Compare;
+using Kosmograph.Messaging;
 using Kosmograph.Model;
 using LiteDB;
+using Moq;
+using System;
 using System.IO;
 using System.Linq;
 using Xunit;
 
 namespace Kosmograph.LiteDb.Test
 {
-    public class EntityRepositoryTest
+    public class EntityRepositoryTest : IDisposable
     {
         private readonly LiteRepository liteDb;
+        private readonly Mock<IChangedMessageBus<IEntity>> eventSource;
         private readonly EntityRepository entityRepository;
         private readonly TagRepository tagRepository;
+        private readonly RelationshipRepository relationshipRepository;
         private readonly CategoryRepository categoryRepository;
         private readonly LiteCollection<BsonDocument> entities;
+        private readonly MockRepository mocks = new MockRepository(MockBehavior.Strict);
 
         public EntityRepositoryTest()
         {
             this.liteDb = new LiteRepository(new MemoryStream());
-            this.entityRepository = new EntityRepository(this.liteDb);
-            this.tagRepository = new TagRepository(this.liteDb);
+            this.eventSource = this.mocks.Create<IChangedMessageBus<IEntity>>();
+            this.entityRepository = new EntityRepository(this.liteDb, this.eventSource.Object);
+            this.tagRepository = new TagRepository(this.liteDb, this.mocks.Create<IChangedMessageBus<ITag>>(MockBehavior.Loose).Object);
+            this.relationshipRepository = new RelationshipRepository(this.liteDb, this.mocks.Create<IChangedMessageBus<IRelationship>>(MockBehavior.Loose).Object);
             this.categoryRepository = new CategoryRepository(this.liteDb);
             this.entities = this.liteDb.Database.GetCollection("entities");
         }
 
+        public void Dispose()
+        {
+            this.mocks.VerifyAll();
+        }
+
         [Fact]
-        public void EntityRepository_writes_entity_to_collection()
+        public void EntityRepository_writes_entity()
         {
             // ARRANGE
 
             var entity = new Entity("entity");
+
+            this.eventSource
+                .Setup(s => s.Modified(entity));
 
             // ACT
 
@@ -44,11 +60,16 @@ namespace Kosmograph.LiteDb.Test
         }
 
         [Fact]
-        public void EntityRepository_reads_entity_from_collection()
+        public void EntityRepository_reads_entity()
         {
             // ARRANGE
 
-            var entity = this.entityRepository.Upsert(new Entity("entity")); ;
+            var entity = new Entity("entity");
+
+            this.eventSource
+                .Setup(s => s.Modified(entity));
+
+            this.entityRepository.Upsert(entity);
 
             // ACT
 
@@ -62,12 +83,16 @@ namespace Kosmograph.LiteDb.Test
         }
 
         [Fact]
-        public void EntityRepository_writes_entity_with_tag_to_collection()
+        public void EntityRepository_writes_entity_with_tag()
         {
             // ARRANGE
 
             var tag = this.tagRepository.Upsert(new Tag("tag", new Facet("facet", new FacetProperty("prop"))));
+
             var entity = new Entity("entity", tag);
+
+            this.eventSource
+              .Setup(s => s.Modified(entity));
 
             // ACT
 
@@ -84,12 +109,18 @@ namespace Kosmograph.LiteDb.Test
         }
 
         [Fact]
-        public void EntityRepository_reads_entity_with_tag_from_collection()
+        public void EntityRepository_reads_entity_with_tag()
         {
             // ARRANGE
 
             var tag = this.tagRepository.Upsert(new Tag("tag", new Facet("facet", new FacetProperty("prop"))));
-            var entity = this.entityRepository.Upsert(new Entity("entity", tag));
+
+            var entity = new Entity("entity", tag);
+
+            this.eventSource
+                .Setup(s => s.Modified(entity));
+
+            this.entityRepository.Upsert(entity);
 
             // ACT
 
@@ -115,6 +146,9 @@ namespace Kosmograph.LiteDb.Test
             // set facet property value
             entity.SetFacetProperty(entity.Facets().Single().Properties.Single(), 1);
 
+            this.eventSource
+                .Setup(s => s.Modified(entity));
+
             entityRepository.Upsert(entity);
 
             // ACT
@@ -127,6 +161,76 @@ namespace Kosmograph.LiteDb.Test
 
             Assert.True(comp.AreEqual);
             Assert.Equal(1, result.TryGetFacetProperty(result.Facets().Single().Properties.Single()).Item2);
+        }
+
+        [Fact]
+        public void EntityRepository_removes_entity()
+        {
+            // ARRANGE
+
+            var entity = new Entity("entity");
+
+            this.eventSource
+                .Setup(s => s.Modified(entity));
+
+            this.entityRepository.Upsert(entity);
+
+            this.eventSource
+                .Setup(s => s.Removed(entity));
+
+            // ACT
+
+            var result = this.entityRepository.Delete(entity);
+
+            // ASSERT
+
+            Assert.True(result);
+            Assert.Throws<InvalidOperationException>(() => this.entityRepository.FindById(entity.Id));
+        }
+
+        [Fact]
+        public void EntityRepository_removing_unknown_entity_returns_false()
+        {
+            // ARRANGE
+
+            var entity = new Entity("entity");
+
+            // ACT
+
+            var result = this.entityRepository.Delete(entity);
+
+            // ASSERT
+
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void EntityRepository_removing_entity_fails_if_used_in_relationship()
+        {
+            // ARRANGE
+
+            var entity1 = new Entity("entity1");
+            var entity2 = new Entity("entity2");
+
+            this.eventSource
+                .Setup(s => s.Modified(entity1));
+            this.eventSource
+                .Setup(s => s.Modified(entity2));
+
+            this.entityRepository.Upsert(entity1);
+            this.entityRepository.Upsert(entity2);
+
+            var relationship = new Relationship("relationship1", entity1, entity2);
+
+            this.relationshipRepository.Upsert(relationship);
+
+            // ACT
+
+            var result = this.entityRepository.Delete(entity1);
+
+            // ASSERT
+
+            Assert.False(result);
         }
     }
 }

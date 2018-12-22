@@ -1,4 +1,5 @@
-﻿using Kosmograph.Model;
+﻿using Kosmograph.Messaging;
+using Kosmograph.Model;
 using LiteDB;
 using System.IO;
 
@@ -7,10 +8,12 @@ namespace Kosmograph.LiteDb
     public class KosmographLiteDbPersistence : IKosmographPersistence
     {
         private readonly LiteRepository db;
+        private readonly IKosmographMessageBus messageBus;
 
-        public KosmographLiteDbPersistence()
+        public KosmographLiteDbPersistence(IKosmographMessageBus messageBus)
             : this(new MemoryStream())
         {
+            this.messageBus = messageBus;
         }
 
         public KosmographLiteDbPersistence(Stream storageStream)
@@ -24,13 +27,13 @@ namespace Kosmograph.LiteDb
             this.Categories = new CategoryRepository(db);
         }
 
-        public ITagRepository Tags => new TagRepository(db);
+        public ITagRepository Tags => new TagRepository(db, messageBus.Tags);
 
         public ICategoryRepository Categories { get; private set; }
 
-        public IEntityRepository Entities => new EntityRepository(db);
+        public IEntityRepository Entities => new EntityRepository(db, this.messageBus.Entities);
 
-        public IRelationshipRepository Relationships => new RelationshipRepository(db);
+        public IRelationshipRepository Relationships => new RelationshipRepository(db, this.messageBus.Relationships);
 
         public void Dispose()
         {

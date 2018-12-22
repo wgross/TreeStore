@@ -111,7 +111,7 @@ namespace Kosmograph.LiteDb.Test
 
             // ACT
 
-            var result = this.repository.Delete(entity.Id);
+            var result = this.repository.Delete(entity);
 
             // ASSERT
 

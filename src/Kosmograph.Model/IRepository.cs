@@ -10,8 +10,8 @@ namespace Kosmograph.Model
 
         IEnumerable<T> FindAll();
 
-        T Upsert(T tag);
+        T Upsert(T instance);
 
-        bool Delete(Guid id);
+        bool Delete(T instance);
     }
 }

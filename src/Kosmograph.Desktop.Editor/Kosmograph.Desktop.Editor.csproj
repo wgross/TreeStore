@@ -32,8 +32,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CommonServiceLocator, Version=2.0.2.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\CommonServiceLocator.2.0.2\lib\net47\CommonServiceLocator.dll</HintPath>
+    <Reference Include="CommonServiceLocator, Version=2.0.4.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\CommonServiceLocator.2.0.4\lib\net47\CommonServiceLocator.dll</HintPath>
     </Reference>
     <Reference Include="GalaSoft.MvvmLight, Version=5.4.1.0, Culture=neutral, PublicKeyToken=e7570ab207bcb616, processorArchitecture=MSIL">
       <HintPath>..\..\packages\MvvmLightLibs.5.4.1.1\lib\net45\GalaSoft.MvvmLight.dll</HintPath>
@@ -217,6 +217,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="app.config" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -227,6 +228,10 @@
     <ProjectReference Include="..\Kosmograph.LiteDb\Kosmograph.LiteDb.csproj">
       <Project>{28a8b0b7-a988-4f74-9091-5dad0cb14d59}</Project>
       <Name>Kosmograph.LiteDb</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Kosmograph.Messaging\Kosmograph.Messaging.csproj">
+      <Project>{b14515a9-3064-419d-9bda-4cb81db82ffd}</Project>
+      <Name>Kosmograph.Messaging</Name>
     </ProjectReference>
     <ProjectReference Include="..\Kosmograph.Model\Kosmograph.Model.csproj">
       <Project>{89824d16-940a-4b72-9f23-a4f5ab487e8c}</Project>

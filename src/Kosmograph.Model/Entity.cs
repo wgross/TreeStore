@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Kosmograph.Model
 {
-    public class Entity : TaggedBase
+    public sealed class Entity : TaggedBase, Messaging.IEntity
     {
         #region Construction and initialization of this instance
 
