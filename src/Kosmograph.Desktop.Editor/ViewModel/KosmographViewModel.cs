@@ -1,6 +1,7 @@
 ﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using Kosmograph.Desktop.EditModel;
+using Kosmograph.Messaging;
 using Kosmograph.Model;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Windows.Input;
 
 namespace Kosmograph.Desktop.ViewModel
 {
-    public class KosmographViewModel : ViewModelBase, IDisposable
+    public class KosmographViewModel : ViewModelBase, IDisposable, IObserver<ChangedMessage<ITag>>
     {
         private KosmographModel model;
 
@@ -20,6 +21,13 @@ namespace Kosmograph.Desktop.ViewModel
             this.Entities = new EntityRepositoryViewModel(this.model.Entities, this.Tags.GetViewModel);
             this.Relationships = new RelationshipRepositoryViewModel(this.model.Relationships, this.Entities.GetViewModel, this.Tags.GetViewModel);
             this.DeleteEntityCommand = new RelayCommand<EntityViewModel>(this.OnDeletingEntity);
+        }
+
+        public KosmographViewModel(IKosmographMessageBus kosmographMessaging, KosmographModel kosmographModel)
+        {
+            this.kosmographMessaging = kosmographMessaging;
+            this.kosmographMessaging.Tags.Subscribe(this);
+            this.kosmographModel = kosmographModel;
         }
 
         public void FillAll()
@@ -95,12 +103,33 @@ namespace Kosmograph.Desktop.ViewModel
         }
 
         private DeleteEntityWithRelationshipsEditModel deletingEntity;
+        private IKosmographMessageBus kosmographMessaging;
+        private KosmographModel kosmographModel;
 
         public void Dispose()
         {
-            this.model.Dispose();   
+            this.model.Dispose();
         }
 
         #endregion Delete Entity with Relastionships
+
+        #region Observe changes in tags persistence
+
+        public void OnNext(ChangedMessage<ITag> value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnError(Exception error)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnCompleted()
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion Observe changes in tags persistence
     }
 }

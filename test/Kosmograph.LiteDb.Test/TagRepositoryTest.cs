@@ -152,6 +152,18 @@ namespace Kosmograph.LiteDb.Test
         }
 
         [Fact]
+        public void TagRepository_finding_tag_by_id_throws_on_missing_tag()
+        {
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(() => this.repository.FindById(Guid.NewGuid()));
+
+            // ASSERT
+
+            Assert.NotNull(result);
+        }
+
+        [Fact]
         public void TagRepository_removes_tag_from_repository()
         {
             // ARRANGE

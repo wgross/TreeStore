@@ -1,4 +1,5 @@
 ﻿using Kosmograph.Desktop.ViewModel;
+using Kosmograph.Messaging;
 using Kosmograph.Model;
 using Moq;
 using System;
@@ -15,6 +16,8 @@ namespace Kosmograph.Desktop.Editor.Test.ViewModel
         private readonly Mock<ITagRepository> tagRepository;
         private readonly Mock<IEntityRepository> entityRepository;
         private readonly Mock<IRelationshipRepository> relationshipRepository;
+        private readonly KosmographMessageBus messaging = new KosmographMessageBus();
+        private readonly Mock<IChangedMessageBus<ITag>> messagingTags;
         private readonly KosmographViewModel viewModel;
 
         public KosmographViewModelTest()
@@ -32,8 +35,7 @@ namespace Kosmograph.Desktop.Editor.Test.ViewModel
             this.persistence
                 .Setup(p => p.Relationships)
                 .Returns(this.relationshipRepository.Object);
-
-            this.viewModel = new KosmographViewModel(new KosmographModel(this.persistence.Object));
+            this.viewModel = new KosmographViewModel(this.messaging, new KosmographModel(this.persistence.Object));
         }
 
         public void Dispose()
