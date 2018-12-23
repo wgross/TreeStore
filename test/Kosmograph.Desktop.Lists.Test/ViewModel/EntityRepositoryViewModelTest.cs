@@ -1,23 +1,24 @@
-﻿using Kosmograph.Messaging;
+﻿using Kosmograph.Desktop.Lists.ViewModel;
+using Kosmograph.Messaging;
 using Kosmograph.Model;
 using Moq;
 using System;
 using System.Linq;
 using Xunit;
 
-namespace Kosmograph.Desktop.Lists.ViewModel.Test
+namespace Kosmograph.Desktop.Lists.Test.ViewModel
 {
-    public class TagRepositoryViewModelTest : IDisposable
+    public class EntityRepositoryViewModelTest : IDisposable
     {
-        private readonly TagRepositoryViewModel repositoryViewModel;
-        private readonly TagMessageBus messaging = new TagMessageBus();
+        private readonly EntityRepositoryViewModel repositoryViewModel;
+        private readonly EntityMessageBus messaging = new EntityMessageBus();
         private readonly MockRepository mocks = new MockRepository(MockBehavior.Strict);
-        private readonly Mock<ITagRepository> repository;
+        private readonly Mock<IEntityRepository> repository;
 
-        public TagRepositoryViewModelTest()
+        public EntityRepositoryViewModelTest()
         {
-            this.repository = this.mocks.Create<ITagRepository>();
-            this.repositoryViewModel = new TagRepositoryViewModel(this.repository.Object, this.messaging);
+            this.repository = this.mocks.Create<IEntityRepository>();
+            this.repositoryViewModel = new EntityRepositoryViewModel(this.repository.Object, this.messaging);
         }
 
         public void Dispose()
@@ -27,16 +28,18 @@ namespace Kosmograph.Desktop.Lists.ViewModel.Test
 
         public Tag DefaultTag() => new Tag("tag", new Facet("facet", new FacetProperty("p")));
 
+        public Entity DefaultEntity() => new Entity("entity", DefaultTag());
+
         [Fact]
-        public void TagRepositoryViewModel_creates_TagViewModel_from_all_Tags()
+        public void EntityRepositoryViewModel_creates_TagViewModel_from_all_Tags()
         {
             // ARRANGE
 
-            var tag = DefaultTag();
+            var entity = DefaultEntity();
 
             this.repository
                 .Setup(r => r.FindAll())
-                .Returns(tag.Yield());
+                .Returns(entity.Yield());
 
             // ACT
 
@@ -45,23 +48,23 @@ namespace Kosmograph.Desktop.Lists.ViewModel.Test
             // ASSERT
             // repos contains the single tag
 
-            Assert.Equal(tag, this.repositoryViewModel.Single().Model);
+            Assert.Equal(entity, this.repositoryViewModel.Single().Model);
         }
 
         [Fact]
-        public void TagRepositoryViewModel_replaces_TagViewModel_on_updated()
+        public void EntityRepositoryViewModel_replaces_EntityViewModel_on_updated()
         {
             // ARRANGE
 
-            var tag = DefaultTag();
+            var entity = DefaultEntity();
 
             this.repository
                 .Setup(r => r.FindAll())
-                .Returns(tag.Yield());
+                .Returns(entity.Yield());
 
             this.repository
-                .Setup(r => r.FindById(tag.Id))
-                .Returns(tag);
+                .Setup(r => r.FindById(entity.Id))
+                .Returns(entity);
 
             this.repositoryViewModel.FillAll();
             var originalViewModel = this.repositoryViewModel.Single();
@@ -70,36 +73,35 @@ namespace Kosmograph.Desktop.Lists.ViewModel.Test
             this.repositoryViewModel.CollectionChanged += (sender, e) =>
             {
                 Assert.Same(this.repositoryViewModel, sender);
-                Assert.Equal(tag, e.NewItems.OfType<TagViewModel>().Single().Model);
-                Assert.Equal(tag, e.OldItems.OfType<TagViewModel>().Single().Model);
+                Assert.Equal(entity, e.NewItems.OfType<EntityViewModel>().Single().Model);
+                Assert.Equal(entity, e.OldItems.OfType<EntityViewModel>().Single().Model);
                 collectionChanged = true;
             };
 
             // ACT
 
-            this.messaging.Modified(tag);
+            this.messaging.Modified(entity);
 
             // ASSERT
-            // same tag, but new view model instance
 
             Assert.True(collectionChanged);
             Assert.NotSame(originalViewModel, this.repositoryViewModel.Single());
-            Assert.Equal(tag, this.repositoryViewModel.Single().Model);
+            Assert.Equal(entity, this.repositoryViewModel.Single().Model);
         }
 
         [Fact]
-        public void TagRepositoryViewModel_replacing_TagViewModel_on_updated_removes_missing_Tag()
+        public void EntityRepositoryViewModel_replacing_EntityViewModel_on_updated_removes_missing_Tag()
         {
             // ARRANGE
 
-            var tag = DefaultTag();
+            var entity = DefaultEntity();
 
             this.repository
                 .Setup(r => r.FindAll())
-                .Returns(tag.Yield());
+                .Returns(entity.Yield());
 
             this.repository
-                .Setup(r => r.FindById(tag.Id))
+                .Setup(r => r.FindById(entity.Id))
                 .Throws<InvalidOperationException>();
 
             this.repositoryViewModel.FillAll();
@@ -110,31 +112,30 @@ namespace Kosmograph.Desktop.Lists.ViewModel.Test
             {
                 Assert.Same(this.repositoryViewModel, sender);
                 Assert.Null(e.NewItems);
-                Assert.Equal(tag, e.OldItems.OfType<TagViewModel>().Single().Model);
+                Assert.Equal(entity, e.OldItems.OfType<EntityViewModel>().Single().Model);
                 collectionChanged = true;
             };
 
             // ACT
 
-            this.messaging.Modified(tag);
+            this.messaging.Modified(entity);
 
             // ASSERT
-            // tag was removed instead
-
+            
             Assert.True(collectionChanged);
             Assert.False(this.repositoryViewModel.Any());
         }
 
         [Fact]
-        public void TagRepositoryViewModel_removes_TagViewModel_on_removed()
+        public void EntityRepositoryViewModel_removes_EntityViewModel_on_removed()
         {
             // ARRANGE
 
-            var tag = DefaultTag();
+            var entity = DefaultEntity();
 
             this.repository
                 .Setup(r => r.FindAll())
-                .Returns(tag.Yield());
+                .Returns(entity.Yield());
 
             this.repositoryViewModel.FillAll();
             var originalViewModel = this.repositoryViewModel.Single();
@@ -144,50 +145,49 @@ namespace Kosmograph.Desktop.Lists.ViewModel.Test
             {
                 Assert.Same(this.repositoryViewModel, sender);
                 Assert.Null(e.NewItems);
-                Assert.Equal(tag, e.OldItems.OfType<TagViewModel>().Single().Model);
+                Assert.Equal(entity, e.OldItems.OfType<EntityViewModel>().Single().Model);
                 collectionChanged = true;
             };
 
             // ACT
 
-            this.messaging.Removed(tag);
+            this.messaging.Removed(entity);
 
             // ASSERT
-            // same tag, but new view model instance
 
             Assert.True(collectionChanged);
             Assert.False(this.repositoryViewModel.Any());
         }
 
         [Fact]
-        public void TagRepositoryViewModel_adds_TagViewModel_on_updated()
+        public void EntityRepositoryViewModel_adds_EntityViewModel_on_updated()
         {
             // ARRANGE
 
-            var tag = DefaultTag();
+            var entity = DefaultEntity();
 
             this.repository
-                .Setup(r => r.FindById(tag.Id))
-                .Returns(tag);
+                .Setup(r => r.FindById(entity.Id))
+                .Returns(entity);
 
             bool collectionChanged = false;
             this.repositoryViewModel.CollectionChanged += (sender, e) =>
             {
                 Assert.Same(this.repositoryViewModel, sender);
-                Assert.Equal(tag, e.NewItems.OfType<TagViewModel>().Single().Model);
+                Assert.Equal(entity, e.NewItems.OfType<EntityViewModel>().Single().Model);
                 Assert.Null(e.OldItems);
                 collectionChanged = true;
             };
 
             // ACT
 
-            this.messaging.Modified(tag);
+            this.messaging.Modified(entity);
 
             // ASSERT
             // same tag, but new view model instance
 
             Assert.True(collectionChanged);
-            Assert.Equal(tag, this.repositoryViewModel.Single().Model);
+            Assert.Equal(entity, this.repositoryViewModel.Single().Model);
         }
 
         [Fact]
@@ -195,10 +195,10 @@ namespace Kosmograph.Desktop.Lists.ViewModel.Test
         {
             // ARRANGE
 
-            var tag = DefaultTag();
+            var entity = DefaultEntity();
 
             this.repository
-                .Setup(r => r.FindById(tag.Id))
+                .Setup(r => r.FindById(entity.Id))
                 .Throws<InvalidOperationException>();
 
             bool collectionChanged = false;
@@ -209,10 +209,9 @@ namespace Kosmograph.Desktop.Lists.ViewModel.Test
 
             // ACT
 
-            this.messaging.Modified(tag);
+            this.messaging.Modified(entity);
 
             // ASSERT
-            // same tag, but new view model instance
 
             Assert.False(collectionChanged);
             Assert.False(this.repositoryViewModel.Any());

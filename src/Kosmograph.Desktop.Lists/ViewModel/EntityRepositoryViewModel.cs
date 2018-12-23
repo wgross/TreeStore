@@ -6,12 +6,12 @@ using System.Linq;
 
 namespace Kosmograph.Desktop.Lists.ViewModel
 {
-    public class TagRepositoryViewModel : ObservableCollection<TagViewModel>, IObserver<ChangedMessage<ITag>>
+    public class EntityRepositoryViewModel : ObservableCollection<EntityViewModel>, IObserver<ChangedMessage<IEntity>>
     {
-        private readonly ITagRepository repository;
-        private readonly IChangedMessageBus<ITag> messaging;
+        private readonly IEntityRepository repository;
+        private readonly IChangedMessageBus<IEntity> messaging;
 
-        public TagRepositoryViewModel(ITagRepository repository, IChangedMessageBus<ITag> messaging)
+        public EntityRepositoryViewModel(IEntityRepository repository, IChangedMessageBus<IEntity> messaging)
         {
             this.repository = repository;
             this.messaging = messaging;
@@ -20,11 +20,11 @@ namespace Kosmograph.Desktop.Lists.ViewModel
 
         public void FillAll()
         {
-            foreach (var vm in this.repository.FindAll().Select(t => new TagViewModel(t)))
+            foreach (var vm in this.repository.FindAll().Select(t => new EntityViewModel(t)))
                 this.Add(vm);
         }
 
-        #region IObserver<ChangedMessage<ITag>> Members
+        #region IObserver<ChangedMessage<IEntity>>
 
         public void OnCompleted()
         {
@@ -36,8 +36,9 @@ namespace Kosmograph.Desktop.Lists.ViewModel
             throw new NotImplementedException();
         }
 
-        public void OnNext(ChangedMessage<ITag> value)
-        { switch (value.ChangeType)
+        public void OnNext(ChangedMessage<IEntity> value)
+        {
+            switch (value.ChangeType)
             {
                 case ChangeTypeValues.Modified:
                     this.Update(value.Changed.Id);
@@ -47,27 +48,26 @@ namespace Kosmograph.Desktop.Lists.ViewModel
                     this.Remove(value.Changed.Id);
                     break;
             }
-           
         }
 
         private void Remove(Guid id)
         {
-            var existingTag = this.FirstOrDefault(t => t.Model.Id.Equals(id));
-            if (existingTag is null)
+            var existingEntity = this.FirstOrDefault(e => e.Model.Id.Equals(id));
+            if (existingEntity is null)
                 return;
-            this.Remove(existingTag);
+            this.Remove(existingEntity);
         }
 
         private void Update(Guid id)
         {
             try
             {
-                var tag = new TagViewModel(this.repository.FindById(id));
-                var indexOfTag = this.IndexOf(tag);
+                var entity = new EntityViewModel(this.repository.FindById(id));
+                var indexOfTag = this.IndexOf(entity);
                 if (indexOfTag > -1)
-                    this.SetItem(indexOfTag, tag);
+                    this.SetItem(indexOfTag, entity);
                 else
-                    this.Add(tag);
+                    this.Add(entity);
             }
             catch (InvalidOperationException)
             {
@@ -77,6 +77,6 @@ namespace Kosmograph.Desktop.Lists.ViewModel
             }
         }
 
-        #endregion IObserver<ChangedMessage<ITag>> Members
+        #endregion IObserver<ChangedMessage<IEntity>>
     }
 }

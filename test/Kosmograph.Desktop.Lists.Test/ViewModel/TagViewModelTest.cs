@@ -7,12 +7,14 @@ namespace Kosmograph.Desktop.Lists.Test.ViewModel
 {
     public class TagViewModelTest
     {
+        public Tag DefaultTag() => new Tag("tag", new Facet("facet", new FacetProperty("p")));
+
         [Fact]
         public void TagViewModel_mirrors_Tag()
         {
             // ARRANGE
 
-            var tag = new Tag("tag", new Facet("facet", new FacetProperty("p")));
+            var tag = DefaultTag();
 
             // ACT
 
@@ -27,11 +29,11 @@ namespace Kosmograph.Desktop.Lists.Test.ViewModel
         }
 
         [Fact]
-        public void TagViewModel_areEqual_if_Tags_are_equal()
+        public void TagViewModel_are_equal_if_Tags_are_equal()
         {
             // ARRANGE
 
-            var tag = new Tag("tag", new Facet("facet", new FacetProperty("p")));
+            var tag = DefaultTag();
 
             // ASSART
 
