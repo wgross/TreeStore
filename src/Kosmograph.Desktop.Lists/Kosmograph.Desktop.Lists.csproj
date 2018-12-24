@@ -81,10 +81,12 @@
   <ItemGroup>
     <Compile Include="ViewModel\AssignedFacetPropertyViewModel.cs" />
     <Compile Include="ViewModel\AssignedTagViewModel.cs" />
+    <Compile Include="ViewModel\RelationshipRepositoryViewModel.cs" />
     <Compile Include="ViewModel\EntityRepositoryViewModel.cs" />
     <Compile Include="ViewModel\EntityViewModel.cs" />
     <Compile Include="ViewModel\FacetPropertyViewModel.cs" />
     <Compile Include="ViewModel\NamedViewModelBase.cs" />
+    <Compile Include="ViewModel\RelationshipViewModel.cs" />
     <Compile Include="ViewModel\TagRepositoryViewModel.cs" />
     <Compile Include="ViewModel\TagViewModel.cs" />
     <Page Include="UserControl1.xaml">
