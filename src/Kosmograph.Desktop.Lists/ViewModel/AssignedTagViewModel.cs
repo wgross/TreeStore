@@ -8,13 +8,13 @@ namespace Kosmograph.Desktop.Lists.ViewModel
 {
     public class AssignedTagViewModel : ViewModelBase
     {
-        public AssignedTagViewModel(TagViewModel tagViewModel, IDictionary<string, object> values)
+        public AssignedTagViewModel(Tag tag, IDictionary<string, object> values)
         {
-            this.Tag = tagViewModel;
-            this.Properties = new ObservableCollection<AssignedFacetPropertyViewModel>(tagViewModel.Properties.Select(p => new AssignedFacetPropertyViewModel(p, values)));
+            this.Tag = tag;
+            this.Properties = new ObservableCollection<AssignedFacetPropertyViewModel>(tag.Facet.Properties.Select(p => new AssignedFacetPropertyViewModel(p, values)));
         }
 
-        public TagViewModel Tag { get; }
+        public Tag Tag { get; }
 
         public ObservableCollection<AssignedFacetPropertyViewModel> Properties { get; }
     }

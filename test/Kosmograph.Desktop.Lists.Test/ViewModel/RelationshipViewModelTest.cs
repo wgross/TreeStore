@@ -29,11 +29,11 @@ namespace Kosmograph.Desktop.Lists.Test.ViewModel
             Assert.Equal("relationship", result.Name);
             Assert.Equal(model.From, result.From.Model);
             Assert.Equal(model.To, result.To.Model);
-            Assert.Equal(model.Tags.Single(), result.Tags.Single().Tag.Model);
+            Assert.Equal(model.Tags.Single(), result.Tags.Single().Tag);
         }
 
         [Fact]
-        public void RewlationshipViewModel_are_equal_if_Relationship_are_equal()
+        public void RelationshipViewModel_are_equal_if_Relationship_are_equal()
         {
             // ARRANGE
 

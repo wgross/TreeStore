@@ -6,9 +6,9 @@ namespace Kosmograph.Desktop.Lists.ViewModel
 {
     public class EntityViewModel : NamedViewModelBase<Entity>
     {
-        public EntityViewModel(Entity model, params TagViewModel[] tags) : base(model)
+        public EntityViewModel(Entity model) : base(model)
         {
-            this.Tags = new ObservableCollection<AssignedTagViewModel>(this.Model.Tags.Select(t => new AssignedTagViewModel(new TagViewModel(t), model.Values)));
+            this.Tags = new ObservableCollection<AssignedTagViewModel>(this.Model.Tags.Select(t => new AssignedTagViewModel(t, model.Values)));
             // this.Tags.CollectionChanged += this.Tags_CollectionChanged;
         }
 

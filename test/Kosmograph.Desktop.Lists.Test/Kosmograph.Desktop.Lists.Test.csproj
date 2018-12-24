@@ -97,6 +97,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ViewModel\AssignedFacetPropertyViewModelTest.cs" />
+    <Compile Include="ViewModel\AssignedTagViewModelTest.cs" />
+    <Compile Include="ViewModel\FacetPropertyViewModelTest.cs" />
     <Compile Include="ViewModel\RelationshipRepositoryViewModelTest.cs" />
     <Compile Include="ViewModel\EntityRepositoryViewModelTest.cs" />
     <Compile Include="ViewModel\EntityViewModelTest.cs" />

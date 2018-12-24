@@ -11,7 +11,7 @@ namespace Kosmograph.Desktop.Lists.ViewModel
         {
             this.From = new EntityViewModel(this.Model.From);
             this.To = new EntityViewModel(this.Model.To);
-            this.Tags = new ObservableCollection<AssignedTagViewModel>(this.Model.Tags.Select(t => new AssignedTagViewModel(new TagViewModel(t), model.Values)));
+            this.Tags = new ObservableCollection<AssignedTagViewModel>(this.Model.Tags.Select(t => new AssignedTagViewModel(t, model.Values)));
         }
 
         //private void Tags_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
