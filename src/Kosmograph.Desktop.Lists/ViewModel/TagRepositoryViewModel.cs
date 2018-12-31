@@ -1,4 +1,5 @@
-﻿using Kosmograph.Messaging;
+﻿using GalaSoft.MvvmLight.Command;
+using Kosmograph.Messaging;
 using Kosmograph.Model;
 using System;
 using System.Linq;
@@ -8,12 +9,12 @@ namespace Kosmograph.Desktop.Lists.ViewModel
     public class TagRepositoryViewModel : RepositoryViewModelBase<TagViewModel, ITag>
     {
         private readonly ITagRepository repository;
-        private readonly IChangedMessageBus<ITag> messaging;
 
         public TagRepositoryViewModel(ITagRepository repository, IChangedMessageBus<ITag> messaging)
             : base(messaging)
         {
             this.repository = repository;
+            this.DeleteCommand = new RelayCommand<TagViewModel>(this.DeleteCommandExecuted);
         }
 
         public void FillAll()
@@ -22,7 +23,18 @@ namespace Kosmograph.Desktop.Lists.ViewModel
                 this.Add(vm);
         }
 
-        override protected void Remove(Guid id)
+        #region Provide command for the view
+
+        public RelayCommand<TagViewModel> DeleteCommand { get; }
+
+        private void DeleteCommandExecuted(TagViewModel viewModel)
+        {
+            this.repository.Delete(viewModel.Model);
+        }
+
+        #endregion Provide command for the view
+
+        override protected void OnRemoved(Guid id)
         {
             var existingTag = this.FirstOrDefault(t => t.Model.Id.Equals(id));
             if (existingTag is null)
@@ -30,7 +42,7 @@ namespace Kosmograph.Desktop.Lists.ViewModel
             this.Remove(existingTag);
         }
 
-        override protected void Update(Guid id)
+        override protected void OnUpdated(Guid id)
         {
             try
             {
@@ -45,7 +57,7 @@ namespace Kosmograph.Desktop.Lists.ViewModel
             {
                 // throw on missing tag by Litedb -> consider map to KG exception type
                 // remove item from list
-                this.Remove(id);
+                this.OnRemoved(id);
             }
         }
     }

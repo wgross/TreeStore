@@ -32,18 +32,18 @@ namespace Kosmograph.Desktop.Lists.ViewModel
             switch (value.ChangeType)
             {
                 case ChangeTypeValues.Modified:
-                    this.Update(value.Changed.Id);
+                    this.OnUpdated(value.Changed.Id);
                     break;
 
                 case ChangeTypeValues.Removed:
-                    this.Remove(value.Changed.Id);
+                    this.OnRemoved(value.Changed.Id);
                     break;
             }
         }
 
-        protected abstract void Update(Guid id);
+        protected abstract void OnUpdated(Guid id);
 
-        protected abstract void Remove(Guid id);
+        protected abstract void OnRemoved(Guid id);
 
         #endregion IObserver<ChangedMessage<CO>> Members
 

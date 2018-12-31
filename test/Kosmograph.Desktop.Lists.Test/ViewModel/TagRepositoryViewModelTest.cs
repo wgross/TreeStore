@@ -217,5 +217,45 @@ namespace Kosmograph.Desktop.Lists.ViewModel.Test
             Assert.False(collectionChanged);
             Assert.False(this.repositoryViewModel.Any());
         }
+
+        [Fact]
+        public void TagRepositoryViewModel_removes_TagViewModel()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag();
+
+            this.repository
+                .Setup(r => r.FindAll())
+                .Returns(tag.Yield());
+
+            // deleting a tag at the repos raises a changed event
+            this.repository
+                .Setup(r => r.Delete(tag))
+                .Callback(() => this.messaging.Removed(tag))
+                .Returns(true);
+
+            this.repositoryViewModel.FillAll();
+            var originalViewModel = this.repositoryViewModel.Single();
+
+            bool collectionChanged = false;
+            this.repositoryViewModel.CollectionChanged += (sender, e) =>
+            {
+                Assert.Same(this.repositoryViewModel, sender);
+                Assert.Null(e.NewItems);
+                Assert.Equal(tag, e.OldItems.OfType<TagViewModel>().Single().Model);
+                collectionChanged = true;
+            };
+
+            // ACT
+
+            this.repositoryViewModel.DeleteCommand.Execute(this.repositoryViewModel.Single());
+
+            // ASSERT
+            // same tag, but new view model instance
+
+            Assert.True(collectionChanged);
+            Assert.False(this.repositoryViewModel.Any());
+        }
     }
 }

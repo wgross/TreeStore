@@ -90,6 +90,9 @@
     <Compile Include="ViewModel\RepositoryViewModelBase.cs" />
     <Compile Include="ViewModel\TagRepositoryViewModel.cs" />
     <Compile Include="ViewModel\TagViewModel.cs" />
+    <Compile Include="View\TagRepositoryView.xaml.cs">
+      <DependentUpon>TagRepositoryView.xaml</DependentUpon>
+    </Compile>
     <Page Include="UserControl1.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -98,6 +101,14 @@
       <DependentUpon>UserControl1.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="View\CommonResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\TagRepositoryView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -133,8 +144,6 @@
       <Name>Kosmograph.Model</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="View\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -21,7 +21,7 @@ namespace Kosmograph.Desktop.Lists.ViewModel
                 this.Add(vm);
         }
 
-        override protected void Remove(Guid id)
+        override protected void OnRemoved(Guid id)
         {
             var existingRelationship = this.FirstOrDefault(e => e.Model.Id.Equals(id));
             if (existingRelationship is null)
@@ -29,7 +29,7 @@ namespace Kosmograph.Desktop.Lists.ViewModel
             this.Remove(existingRelationship);
         }
 
-        override protected void Update(Guid id)
+        override protected void OnUpdated(Guid id)
         {
             try
             {
@@ -44,7 +44,7 @@ namespace Kosmograph.Desktop.Lists.ViewModel
             {
                 // throw on missing tag by Litedb -> consider map to KG exception type
                 // remove item from list
-                this.Remove(id);
+                this.OnRemoved(id);
             }
         }
     }
