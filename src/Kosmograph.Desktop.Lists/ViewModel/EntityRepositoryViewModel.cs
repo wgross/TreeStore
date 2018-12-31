@@ -1,21 +1,18 @@
 ﻿using Kosmograph.Messaging;
 using Kosmograph.Model;
 using System;
-using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace Kosmograph.Desktop.Lists.ViewModel
 {
-    public class EntityRepositoryViewModel : ObservableCollection<EntityViewModel>, IObserver<ChangedMessage<IEntity>>
+    public class EntityRepositoryViewModel : RepositoryViewModelBase<EntityViewModel, IEntity>
     {
         private readonly IEntityRepository repository;
-        private readonly IChangedMessageBus<IEntity> messaging;
 
         public EntityRepositoryViewModel(IEntityRepository repository, IChangedMessageBus<IEntity> messaging)
+            : base(messaging)
         {
             this.repository = repository;
-            this.messaging = messaging;
-            this.messaging.Subscribe(this);
         }
 
         public void FillAll()
@@ -24,33 +21,7 @@ namespace Kosmograph.Desktop.Lists.ViewModel
                 this.Add(vm);
         }
 
-        #region IObserver<ChangedMessage<IEntity>>
-
-        public void OnCompleted()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void OnError(Exception error)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void OnNext(ChangedMessage<IEntity> value)
-        {
-            switch (value.ChangeType)
-            {
-                case ChangeTypeValues.Modified:
-                    this.Update(value.Changed.Id);
-                    break;
-
-                case ChangeTypeValues.Removed:
-                    this.Remove(value.Changed.Id);
-                    break;
-            }
-        }
-
-        private void Remove(Guid id)
+        override protected void Remove(Guid id)
         {
             var existingEntity = this.FirstOrDefault(e => e.Model.Id.Equals(id));
             if (existingEntity is null)
@@ -58,7 +29,7 @@ namespace Kosmograph.Desktop.Lists.ViewModel
             this.Remove(existingEntity);
         }
 
-        private void Update(Guid id)
+        override protected void Update(Guid id)
         {
             try
             {
@@ -76,7 +47,5 @@ namespace Kosmograph.Desktop.Lists.ViewModel
                 this.Remove(id);
             }
         }
-
-        #endregion IObserver<ChangedMessage<IEntity>>
     }
 }

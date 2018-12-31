@@ -87,6 +87,7 @@
     <Compile Include="ViewModel\FacetPropertyViewModel.cs" />
     <Compile Include="ViewModel\NamedViewModelBase.cs" />
     <Compile Include="ViewModel\RelationshipViewModel.cs" />
+    <Compile Include="ViewModel\RepositoryViewModelBase.cs" />
     <Compile Include="ViewModel\TagRepositoryViewModel.cs" />
     <Compile Include="ViewModel\TagViewModel.cs" />
     <Page Include="UserControl1.xaml">
@@ -131,6 +132,9 @@
       <Project>{89824d16-940a-4b72-9f23-a4f5ab487e8c}</Project>
       <Name>Kosmograph.Model</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="View\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

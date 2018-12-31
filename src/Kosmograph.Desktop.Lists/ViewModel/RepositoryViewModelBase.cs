@@ -1,0 +1,76 @@
+﻿using Kosmograph.Messaging;
+using System;
+using System.Collections.ObjectModel;
+
+namespace Kosmograph.Desktop.Lists.ViewModel
+{
+    public abstract class RepositoryViewModelBase<VM, CO> : ObservableCollection<VM>,
+        IDisposable,
+        IObserver<ChangedMessage<CO>> where CO : IIdentifiable
+    {
+        private IDisposable subscription;
+
+        public RepositoryViewModelBase(IChangedMessageBus<CO> messaging)
+        {
+            this.subscription = messaging.Subscribe(this);
+        }
+
+        #region IObserver<ChangedMessage<CO>> Members
+
+        public void OnCompleted()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnError(Exception error)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnNext(ChangedMessage<CO> value)
+        {
+            switch (value.ChangeType)
+            {
+                case ChangeTypeValues.Modified:
+                    this.Update(value.Changed.Id);
+                    break;
+
+                case ChangeTypeValues.Removed:
+                    this.Remove(value.Changed.Id);
+                    break;
+            }
+        }
+
+        protected abstract void Update(Guid id);
+
+        protected abstract void Remove(Guid id);
+
+        #endregion IObserver<ChangedMessage<CO>> Members
+
+        #region IDisposable Support
+
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    this.Clear();
+                    this.subscription.Dispose();
+                }
+
+                this.subscription = null;
+                this.disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            this.Dispose(true);
+        }
+
+        #endregion IDisposable Support
+    }
+}
