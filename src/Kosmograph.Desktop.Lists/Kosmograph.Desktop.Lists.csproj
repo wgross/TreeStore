@@ -90,8 +90,14 @@
     <Compile Include="ViewModel\RepositoryViewModelBase.cs" />
     <Compile Include="ViewModel\TagRepositoryViewModel.cs" />
     <Compile Include="ViewModel\TagViewModel.cs" />
+    <Compile Include="View\RelationshipRepositoryView.xaml.cs">
+      <DependentUpon>RelationshipRepositoryView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\TagRepositoryView.xaml.cs">
       <DependentUpon>TagRepositoryView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\EntityRepositoryView.xaml.cs">
+      <DependentUpon>EntityRepositoryView.xaml</DependentUpon>
     </Compile>
     <Page Include="UserControl1.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -105,7 +111,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="View\RelationshipRepositoryView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="View\TagRepositoryView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\EntityRepositoryView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

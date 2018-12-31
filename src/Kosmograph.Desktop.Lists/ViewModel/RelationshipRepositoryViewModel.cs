@@ -1,4 +1,5 @@
-﻿using Kosmograph.Messaging;
+﻿using GalaSoft.MvvmLight.Command;
+using Kosmograph.Messaging;
 using Kosmograph.Model;
 using System;
 using System.Linq;
@@ -13,12 +14,20 @@ namespace Kosmograph.Desktop.Lists.ViewModel
             : base(messaging)
         {
             this.repository = repository;
+            this.DeleteCommand = new RelayCommand<RelationshipViewModel>(this.DeleteCommandExecuted);
         }
 
         public void FillAll()
         {
             foreach (var vm in this.repository.FindAll().Select(t => new RelationshipViewModel(t)))
                 this.Add(vm);
+        }
+
+        public RelayCommand<RelationshipViewModel> DeleteCommand { get; }
+
+        private void DeleteCommandExecuted(RelationshipViewModel viewModel)
+        {
+            this.repository.Delete(viewModel.Model);
         }
 
         override protected void OnRemoved(Guid id)

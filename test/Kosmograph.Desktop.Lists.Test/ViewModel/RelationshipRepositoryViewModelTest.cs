@@ -193,7 +193,7 @@ namespace Kosmograph.Desktop.Lists.Test.ViewModel
         }
 
         [Fact]
-        public void TagRepositoryViewModel_adding_TagViewModel_on_updated_ignores_missing_tag()
+        public void RelationshipRepositoryViewModel_adding_TagViewModel_on_updated_ignores_missing_relationship()
         {
             // ARRANGE
 
@@ -216,6 +216,46 @@ namespace Kosmograph.Desktop.Lists.Test.ViewModel
             // ASSERT
 
             Assert.False(collectionChanged);
+            Assert.False(this.repositoryViewModel.Any());
+        }
+
+        [Fact]
+        public void RelationshipRepositoryViewModel_removes_Relationship()
+        {
+            // ARRANGE
+
+            var relationship = DefaultRelationship();
+
+            this.repository
+                .Setup(r => r.FindAll())
+                .Returns(relationship.Yield());
+
+            // deleting a tag at the repos raises a changed event
+            this.repository
+                .Setup(r => r.Delete(relationship))
+                .Callback(() => this.messaging.Removed(relationship))
+                .Returns(true);
+
+            this.repositoryViewModel.FillAll();
+            var originalViewModel = this.repositoryViewModel.Single();
+
+            bool collectionChanged = false;
+            this.repositoryViewModel.CollectionChanged += (sender, e) =>
+            {
+                Assert.Same(this.repositoryViewModel, sender);
+                Assert.Null(e.NewItems);
+                Assert.Equal(relationship, e.OldItems.OfType<RelationshipViewModel>().Single().Model);
+                collectionChanged = true;
+            };
+
+            // ACT
+
+            this.repositoryViewModel.DeleteCommand.Execute(this.repositoryViewModel.Single());
+
+            // ASSERT
+            // same tag, but new view model instance
+
+            Assert.True(collectionChanged);
             Assert.False(this.repositoryViewModel.Any());
         }
     }

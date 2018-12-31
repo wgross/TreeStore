@@ -219,7 +219,7 @@ namespace Kosmograph.Desktop.Lists.ViewModel.Test
         }
 
         [Fact]
-        public void TagRepositoryViewModel_removes_TagViewModel()
+        public void TagRepositoryViewModel_removes_Tag()
         {
             // ARRANGE
 
