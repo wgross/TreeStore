@@ -13,8 +13,8 @@
                 <ResourceDictionary Source="./CommonResources.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <CollectionViewSource
-                x:Key="repositoryCollectionViewSource" 
-                Source="{Binding .}" >
+                x:Key="repositoryCollectionViewSource"
+                Source="{Binding .}">
                 <CollectionViewSource.SortDescriptions>
                     <scm:SortDescription PropertyName="Name" />
                 </CollectionViewSource.SortDescriptions>
@@ -24,10 +24,12 @@
     <!--
     <UserControl.Style>
         <Style TargetType="{x:Type UserControl}">
-            --><!--
+            -->
+    <!--
             Control is hidden.
             If no tag is edited it is shown
-            --><!--
+            -->
+    <!--
             <Setter Property="Visibility" Value="Hidden" />
             <Style.Triggers>
                 <DataTrigger Binding="{Binding Tags.Edited}" Value="{x:Null}">
@@ -37,11 +39,12 @@
         </Style>
     </UserControl.Style>
     -->
-    <!--MouseDoubleClick="repositoryListBox_MouseDoubleClick">-->
     <ListBox
         Name="repositoryListBox"
         Style="{StaticResource modelItemListBoxStyle}"
-        ItemsSource="{Binding Source={StaticResource repositoryCollectionViewSource}}">
+        ItemsSource="{Binding Source={StaticResource repositoryCollectionViewSource}}"
+        KeyUp="repositoryListBox_KeyUp"
+        MouseDoubleClick="repositoryListBox_MouseDoubleClick">
         <ListBox.ItemTemplate>
             <DataTemplate>
                 <Grid MouseMove="repositoryListBoxItem_MouseMove">
@@ -49,13 +52,5 @@
                 </Grid>
             </DataTemplate>
         </ListBox.ItemTemplate>
-        <!--<ListBox.InputBindings>
-            <KeyBinding Key="Return"
-                            Command="{Binding Tags.EditCommand}"
-                            CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
-            <KeyBinding Key="Delete"
-                    Command="{Binding Tags.DeleteCommand}"
-                    CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
-        </ListBox.InputBindings>-->
     </ListBox>
 </UserControl>
