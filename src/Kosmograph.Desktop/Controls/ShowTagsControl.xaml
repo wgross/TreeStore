@@ -5,16 +5,19 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
              xmlns:local="clr-namespace:Kosmograph.Desktop.Controls"
+             xmlns:lists="clr-namespace:Kosmograph.Desktop.Lists.View;assembly=Kosmograph.Desktop.Lists"
              mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="800"
+             lists:TagRepositoryView.EditTag="tagRepositoryView_EditTag">
+
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="./CommonResources.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <CollectionViewSource
-                x:Key="tagsCollectionViewSource" 
-                Source="{Binding Tags}" >
+                x:Key="tagsCollectionViewSource"
+                Source="{Binding Tags}">
                 <CollectionViewSource.SortDescriptions>
                     <scm:SortDescription PropertyName="Name" />
                 </CollectionViewSource.SortDescriptions>
@@ -44,11 +47,16 @@
                 Text="Tags"
                 Foreground="Gray"
                 FontWeight="Bold" />
-            <Button DockPanel.Dock="Right" 
+            <Button DockPanel.Dock="Right"
                     Style="{StaticResource addButtonInHeaderStyle}"
-                    Command="{Binding Tags.CreateCommand}"/>
+                    Command="{Binding Tags.CreateCommand}" />
         </DockPanel>
-        
+        <!--
+        List view to show the tags.
+        Routed events from this view trigger editing creating and deletion of tags.
+        -->
+        <lists:TagRepositoryView Name="tagRepositoryView" DataContext="{Binding Tags2}" />
+        <!--
         <ListBox
             Name="tagListBox"
             Style="{StaticResource modelItemListBoxStyle}"
@@ -70,5 +78,6 @@
                         CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
             </ListBox.InputBindings>
         </ListBox>
+        -->
     </DockPanel>
 </UserControl>

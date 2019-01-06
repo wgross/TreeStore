@@ -65,6 +65,21 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Reactive, Version=4.1.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Reactive.4.1.2\lib\net46\System.Reactive.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Runtime.CompilerServices.Unsafe.4.5.0\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Threading.Tasks.Extensions.4.5.1\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.ValueTuple.4.4.0\lib\net47\System.ValueTuple.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Windows" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\MvvmLightLibs.5.4.1.1\lib\net45\System.Windows.Interactivity.dll</HintPath>
@@ -192,6 +207,7 @@
     <Compile Include="ViewModel\Base\NamedViewModelBase.cs" />
     <Compile Include="ViewModel\Base\RepositoryViewModel.cs" />
     <Compile Include="ViewModel\RelationshipViewModel.cs" />
+    <Compile Include="ViewModel\ShowTagsViewModel.cs" />
     <Compile Include="ViewModel\TagRepositoryViewModel.cs" />
     <Compile Include="ViewModel\TagViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
@@ -339,6 +355,10 @@
     <ProjectReference Include="..\..\..\github\GraphX\GraphX.PCL.Logic\GraphX.PCL.Logic.csproj">
       <Project>{a30d218b-aaa4-483a-99f7-eaeb1b8b4610}</Project>
       <Name>GraphX.PCL.Logic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Kosmograph.Desktop.Lists\Kosmograph.Desktop.Lists.csproj">
+      <Project>{4d13afc3-0622-4572-9353-6cadc689ea2d}</Project>
+      <Name>Kosmograph.Desktop.Lists</Name>
     </ProjectReference>
     <ProjectReference Include="..\Kosmograph.LiteDb\Kosmograph.LiteDb.csproj">
       <Project>{28a8b0b7-a988-4f74-9091-5dad0cb14d59}</Project>

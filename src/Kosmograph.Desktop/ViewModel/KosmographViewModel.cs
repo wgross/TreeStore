@@ -1,6 +1,7 @@
 ﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using Kosmograph.Desktop.EditModel;
+using Kosmograph.Messaging;
 using Kosmograph.Model;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,7 @@ namespace Kosmograph.Desktop.ViewModel
         {
             this.model = kosmographModel;
             this.Tags = new TagRepositoryViewModel(this.model.Tags);
+            this.Tags2 = new Lists.ViewModel.TagRepositoryViewModel(this.model.Tags, KosmographMessageBus.Default.Tags);
             this.Entities = new EntityRepositoryViewModel(this.model.Entities, this.Tags.GetViewModel);
             this.Relationships = new RelationshipRepositoryViewModel(this.model.Relationships, this.Entities.GetViewModel, this.Tags.GetViewModel);
             this.DeleteEntityCommand = new RelayCommand<EntityViewModel>(this.OnDeletingEntity);
@@ -25,6 +27,7 @@ namespace Kosmograph.Desktop.ViewModel
         public void FillAll()
         {
             this.Tags.FillAll();
+            this.Tags2.FillAll();
             this.Entities.FillAll();
             this.Relationships.FillAll();
         }
@@ -32,6 +35,8 @@ namespace Kosmograph.Desktop.ViewModel
         public KosmographModel Model => this.model;
 
         public TagRepositoryViewModel Tags { get; }
+
+        public Kosmograph.Desktop.Lists.ViewModel.TagRepositoryViewModel Tags2 { get; }
 
         public EntityRepositoryViewModel Entities { get; }
 
@@ -98,7 +103,7 @@ namespace Kosmograph.Desktop.ViewModel
 
         public void Dispose()
         {
-            this.model.Dispose();   
+            this.model.Dispose();
         }
 
         #endregion Delete Entity with Relastionships

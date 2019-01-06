@@ -31,7 +31,8 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition MinWidth="150" />
                 <ColumnDefinition MinWidth="150" />
-                <ColumnDefinition MinWidth="150" />
+                <ColumnDefinition MinWidth="150" />        
+
             </Grid.ColumnDefinitions>
             <!--
             Tags in the left column

@@ -17,8 +17,8 @@ namespace Kosmograph.Desktop.Controls
 
         KosmographViewModel ViewModel => this.DataContext as KosmographViewModel;
 
-        private void tagListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e) =>
-            this.ViewModel.Tags.EditCommand.Execute(this.tagListBox.SelectedItem);
+        //private void tagListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e) =>
+        //    this.ViewModel.Tags.EditCommand.Execute(this.tagListBox.SelectedItem);
 
         private void tagListBoxItem_MouseMove(object sender, MouseEventArgs e)
         {
@@ -34,6 +34,11 @@ namespace Kosmograph.Desktop.Controls
 
                 DragDrop.DoDragDrop((DependencyObject)sender, data, DragDropEffects.Link);
             }
+        }
+
+        private void tagRepositoryView_EditTag(object sender, RoutedEventArgs e)
+        {
+            this.ViewModel.Tags.EditCommand.Execute(this.tagRepositoryView.SelectedItem);
         }
     }
 }

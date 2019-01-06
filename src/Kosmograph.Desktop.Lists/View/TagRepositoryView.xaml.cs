@@ -12,9 +12,22 @@ namespace Kosmograph.Desktop.Lists.View
             this.InitializeComponent();
         }
 
-        TagRepositoryViewModel ViewModel => this.DataContext as TagRepositoryViewModel;
+        private TagRepositoryViewModel ViewModel => this.DataContext as TagRepositoryViewModel;
+
+        #region Currently selected tag
+
+        public TagViewModel SelectedItem
+        {
+            get => (TagViewModel)this.GetValue(SelectedItemProperty);
+            set => this.SetValue(SelectedItemProperty, value);
+        }
+
+        public static readonly DependencyProperty SelectedItemProperty = DependencyProperty.Register(nameof(SelectedItem), propertyType: typeof(TagViewModel), ownerType: typeof(TagRepositoryView), typeMetadata: new PropertyMetadata(defaultValue: null));
+
+        #endregion Currently selected tag
 
         //private void tagListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e) =>
+
         //    this.ViewModel.Tags.EditCommand.Execute(this.tagListBox.SelectedItem);
 
         private void repositoryListBoxItem_MouseMove(object sender, MouseEventArgs e)
@@ -64,7 +77,7 @@ namespace Kosmograph.Desktop.Lists.View
 
         #endregion Map mpuse events to routed events
 
-        #region Request the editin of a Tag
+        #region Request editing of a Tag
 
         public static readonly RoutedEvent EditTagEvent = EventManager.RegisterRoutedEvent("EditTag", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(TagRepositoryView));
 
@@ -82,9 +95,9 @@ namespace Kosmograph.Desktop.Lists.View
 
         private void RaiseEditTagEvent() => this.RaiseEvent(new RoutedEventArgs(EditTagEvent));
 
-        #endregion Request the editin of a Tag
+        #endregion Request editing of a Tag
 
-        #region Request the deletion of a Tag
+        #region Request deletion of a Tag
 
         public static readonly RoutedEvent DeleteTagEvent = EventManager.RegisterRoutedEvent("DeleteTag", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(TagRepositoryView));
 
@@ -102,9 +115,9 @@ namespace Kosmograph.Desktop.Lists.View
 
         private void RaiseDeleteTagEvent() => this.RaiseEvent(new RoutedEventArgs(DeleteTagEvent));
 
-        #endregion Request the deletion of a Tag
+        #endregion Request deletion of a Tag
 
-        #region Request the creation of a Tag
+        #region Request creation of a Tag
 
         public static readonly RoutedEvent CreateTagEvent = EventManager.RegisterRoutedEvent("CreateTag", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(TagRepositoryView));
 
@@ -122,6 +135,6 @@ namespace Kosmograph.Desktop.Lists.View
 
         private void RaiseCreateTagEvent() => this.RaiseEvent(new RoutedEventArgs(CreateTagEvent));
 
-        #endregion Request the creation of a Tag
+        #endregion Request creation of a Tag
     }
 }
