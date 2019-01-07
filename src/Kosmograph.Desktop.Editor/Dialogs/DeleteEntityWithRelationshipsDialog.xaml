@@ -1,17 +1,16 @@
-﻿<Window x:Class="Kosmograph.Desktop.Dialogs.DeleteEntityWithRelationshipsDialog"
+﻿<Window x:Class="Kosmograph.Desktop.Editors.View.DeleteEntityWithRelationshipsDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Kosmograph.Desktop.Dialogs"
-        xmlns:kdc="clr-namespace:Kosmograph.Desktop.Controls"
-        xmlns:kvm="clr-namespace:Kosmograph.Desktop.ViewModel"
+        xmlns:local="clr-namespace:Kosmograph.Desktop.Editors.View"
+        xmlns:kvm="clr-namespace:Kosmograph.Desktop.Editors.ViewModel"
         mc:Ignorable="d"
         WindowStartupLocation="CenterOwner"
         Title="Delete Entities with Relationships" Height="250" Width="400">
     <DockPanel Margin="5">
-        <kdc:EditorButtonPanelControl DockPanel.Dock="Bottom"/>
-        <kdc:EditorHeaderControl DockPanel.Dock="Top"
+        <local:EditorButtonPanelControl DockPanel.Dock="Bottom"/>
+        <local:EditorHeaderControl DockPanel.Dock="Top"
             Text="{Binding Entity.Name, StringFormat={}Deleting {0}}"/>
         <TextBlock DockPanel.Dock="Top"
             Margin="0,5,0,0">

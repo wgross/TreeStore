@@ -1,9 +1,8 @@
-﻿using Kosmograph.Desktop.ViewModel;
-using Kosmograph.Model;
+﻿using Kosmograph.Model;
 using System.Linq;
 using Xunit;
 
-namespace Kosmograph.Desktop.Editor.Test.ViewModel
+namespace Kosmograph.Desktop.Editors.ViewModel
 {
     public class TagViewModelTest
     {

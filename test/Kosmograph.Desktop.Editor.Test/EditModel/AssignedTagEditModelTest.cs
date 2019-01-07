@@ -1,12 +1,11 @@
-﻿using Kosmograph.Desktop.EditModel;
-using Kosmograph.Desktop.Editor.Test.ViewModel;
-using Kosmograph.Desktop.ViewModel;
+﻿using Kosmograph.Desktop.Editor.Test;
+using Kosmograph.Desktop.Editors.ViewModel;
 using Kosmograph.Model;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
-namespace Kosmograph.Desktop.Editor.Test.EditModel
+namespace Kosmograph.Desktop.Editors.Test.ViewModel
 {
     public class AssignedTagEditModelTest
     {

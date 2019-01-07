@@ -1,6 +1,6 @@
 ﻿using System.Windows.Input;
 
-namespace Kosmograph.Desktop.Editor
+namespace Kosmograph.Desktop.Editors.View
 {
     public static class EditorCommands
     {

@@ -1,11 +1,10 @@
 ﻿using GalaSoft.MvvmLight.Command;
-using Kosmograph.Desktop.EditModel;
 using Kosmograph.Model;
 using System;
 using System.ComponentModel;
 using System.Windows.Input;
 
-namespace Kosmograph.Desktop.ViewModel
+namespace Kosmograph.Desktop.Editors.ViewModel
 {
     public class TagRepositoryViewModel : RepositoryViewModel<TagViewModel, Tag>
     {
@@ -40,7 +39,7 @@ namespace Kosmograph.Desktop.ViewModel
             public string Validate(TagEditModel tag)
             {
                 var possibleDuplicate = this.viewModel.FindByName(tag.Name);
-                if (possibleDuplicate is null || possibleDuplicate.Model.Equals(tag.ViewModel.Model)) 
+                if (possibleDuplicate is null || possibleDuplicate.Model.Equals(tag.ViewModel.Model))
                 {
                     this.HasError = false;
                     return null;

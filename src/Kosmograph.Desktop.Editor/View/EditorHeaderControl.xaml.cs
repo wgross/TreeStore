@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace Kosmograph.Desktop.Controls
+namespace Kosmograph.Desktop.Editors.View
 {
     public partial class EditorHeaderControl : UserControl
     {

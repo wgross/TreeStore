@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
-namespace Kosmograph.Desktop.ViewModel
+namespace Kosmograph.Desktop.Editors.ViewModel
 {
     public class AssignedTagViewModel : ViewModelBase
     {

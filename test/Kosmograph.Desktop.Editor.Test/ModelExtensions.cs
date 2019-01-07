@@ -1,4 +1,4 @@
-﻿using Kosmograph.Desktop.ViewModel;
+﻿using Kosmograph.Desktop.Editors.ViewModel;
 using Kosmograph.Model;
 
 namespace Kosmograph.Desktop.Editor.Test

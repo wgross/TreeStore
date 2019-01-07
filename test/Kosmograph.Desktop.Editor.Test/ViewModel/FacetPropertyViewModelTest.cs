@@ -1,8 +1,7 @@
-﻿using Kosmograph.Desktop.ViewModel;
-using Kosmograph.Model;
+﻿using Kosmograph.Model;
 using Xunit;
 
-namespace Kosmograph.Desktop.Editor.Test.ViewModel
+namespace Kosmograph.Desktop.Editors.ViewModel
 {
     public class FacetPropertyViewModelTest
     {

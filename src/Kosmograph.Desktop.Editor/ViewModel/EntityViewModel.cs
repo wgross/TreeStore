@@ -1,10 +1,10 @@
-﻿using Kosmograph.Desktop.ViewModel.Base;
+﻿using Kosmograph.Desktop.Editors.ViewModel.Base;
 using Kosmograph.Model;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 
-namespace Kosmograph.Desktop.ViewModel
+namespace Kosmograph.Desktop.Editors.ViewModel
 {
     public class EntityViewModel : NamedViewModelBase<Entity>
     {

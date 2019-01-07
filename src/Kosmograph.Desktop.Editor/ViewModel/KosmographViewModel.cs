@@ -1,6 +1,5 @@
 ﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
-using Kosmograph.Desktop.EditModel;
 using Kosmograph.Messaging;
 using Kosmograph.Model;
 using System;
@@ -8,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
 
-namespace Kosmograph.Desktop.ViewModel
+namespace Kosmograph.Desktop.Editors.ViewModel
 {
     public class KosmographViewModel : ViewModelBase, IDisposable, IObserver<ChangedMessage<ITag>>
     {

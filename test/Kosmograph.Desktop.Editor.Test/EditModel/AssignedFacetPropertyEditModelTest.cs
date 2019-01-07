@@ -1,10 +1,9 @@
-﻿using Kosmograph.Desktop.EditModel;
-using Kosmograph.Desktop.ViewModel;
+﻿using Kosmograph.Desktop.Editors.ViewModel;
 using Kosmograph.Model;
 using System.Collections.Generic;
 using Xunit;
 
-namespace Kosmograph.Desktop.Editor.Test.EditModel
+namespace Kosmograph.Desktop.Editor.Test.ViewModel
 {
     public class AssignedFacetPropertyEditModelTest
     {

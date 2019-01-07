@@ -1,9 +1,9 @@
-﻿using Kosmograph.Desktop.ViewModel;
+﻿using Kosmograph.Desktop.Editor.Test;
 using Kosmograph.Model;
 using System.Linq;
 using Xunit;
 
-namespace Kosmograph.Desktop.Editor.Test.ViewModel
+namespace Kosmograph.Desktop.Editors.ViewModel
 {
     public class RelationshipViewModelTest
     {

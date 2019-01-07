@@ -1,7 +1,7 @@
 ﻿using GalaSoft.MvvmLight;
 using Kosmograph.Model.Base;
 
-namespace Kosmograph.Desktop.ViewModel.Base
+namespace Kosmograph.Desktop.Editors.ViewModel.Base
 {
     public abstract class NamedViewModelBase<T> : ViewModelBase
         where T : NamedBase

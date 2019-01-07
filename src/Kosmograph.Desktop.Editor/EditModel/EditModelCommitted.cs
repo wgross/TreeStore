@@ -1,4 +1,4 @@
-﻿namespace Kosmograph.Desktop.EditModel
+﻿namespace Kosmograph.Desktop.Editors.ViewModel
 {
     public sealed class EditModelCommitted
     {

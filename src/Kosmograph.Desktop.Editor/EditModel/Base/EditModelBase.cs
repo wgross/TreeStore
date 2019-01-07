@@ -2,7 +2,7 @@
 using GalaSoft.MvvmLight.Command;
 using System.Windows.Input;
 
-namespace Kosmograph.Desktop.EditModel.Base
+namespace Kosmograph.Desktop.Editors.ViewModel.Base
 {
     public abstract class EditModelBase : ViewModelBase
     {

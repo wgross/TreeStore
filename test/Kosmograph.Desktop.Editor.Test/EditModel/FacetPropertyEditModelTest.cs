@@ -1,11 +1,11 @@
-﻿using Kosmograph.Desktop.EditModel;
+﻿using Kosmograph.Desktop.Editor.Test;
 using Kosmograph.Model;
 using Moq;
 using System;
 using System.Linq;
 using Xunit;
 
-namespace Kosmograph.Desktop.Editor.Test.EditModel
+namespace Kosmograph.Desktop.Editors.ViewModel
 
 {
     public class FacetPropertyEditModelTest : IDisposable

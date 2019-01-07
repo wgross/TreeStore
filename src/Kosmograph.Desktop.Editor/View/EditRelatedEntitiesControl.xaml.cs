@@ -1,9 +1,8 @@
-﻿using Kosmograph.Desktop.EditModel;
-using Kosmograph.Desktop.ViewModel;
+﻿using Kosmograph.Desktop.Editors.ViewModel;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace Kosmograph.Desktop.Controls
+namespace Kosmograph.Desktop.Editors.View
 {
     public partial class EditRelatedEntitiesControl : UserControl
     {

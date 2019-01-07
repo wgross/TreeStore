@@ -1,9 +1,9 @@
-﻿using Kosmograph.Desktop.ViewModel;
+﻿using Kosmograph.Desktop.Editors.ViewModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace Kosmograph.Desktop.Controls
+namespace Kosmograph.Desktop.Editors.View
 {
     /// <summary>
     /// Interaction logic for ShowTagsControl.xaml

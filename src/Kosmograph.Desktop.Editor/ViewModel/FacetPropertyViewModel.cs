@@ -1,7 +1,7 @@
-﻿using Kosmograph.Desktop.ViewModel.Base;
+﻿using Kosmograph.Desktop.Editors.ViewModel.Base;
 using Kosmograph.Model;
 
-namespace Kosmograph.Desktop.ViewModel
+namespace Kosmograph.Desktop.Editors.ViewModel
 {
     public class FacetPropertyViewModel : NamedViewModelBase<FacetProperty>
     {

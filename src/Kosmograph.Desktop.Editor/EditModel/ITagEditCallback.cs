@@ -1,6 +1,6 @@
 ﻿using Kosmograph.Model;
 
-namespace Kosmograph.Desktop.EditModel
+namespace Kosmograph.Desktop.Editors.ViewModel
 {
     public interface ITagEditCallback
     {

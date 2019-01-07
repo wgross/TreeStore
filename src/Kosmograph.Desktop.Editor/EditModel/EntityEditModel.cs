@@ -1,12 +1,11 @@
 ﻿using GalaSoft.MvvmLight.Command;
-using Kosmograph.Desktop.EditModel.Base;
-using Kosmograph.Desktop.ViewModel;
+using Kosmograph.Desktop.Editors.ViewModel.Base;
 using Kosmograph.Model;
 using System;
 using System.Linq;
 using System.Windows.Input;
 
-namespace Kosmograph.Desktop.EditModel
+namespace Kosmograph.Desktop.Editors.ViewModel
 {
     public sealed class EntityEditModel : NamedEditModelBase<EntityViewModel, Entity>
     {

@@ -1,9 +1,9 @@
-﻿using Kosmograph.Desktop.ViewModel;
+﻿using Kosmograph.Desktop.Editors.ViewModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace Kosmograph.Desktop.Controls
+namespace Kosmograph.Desktop.Editors.View
 {
     public partial class ShowEntitiesControl : UserControl
     {
@@ -14,7 +14,7 @@ namespace Kosmograph.Desktop.Controls
 
         private KosmographViewModel ViewModel => this.DataContext as KosmographViewModel;
 
-        private void entityListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e) 
+        private void entityListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
             => this.ViewModel.Entities.EditCommand.Execute(entityListBox.SelectedItem);
 
         private void entityListBoxItem_MouseMove(object sender, MouseEventArgs e)

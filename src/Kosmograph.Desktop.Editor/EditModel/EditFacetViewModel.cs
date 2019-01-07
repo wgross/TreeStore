@@ -7,7 +7,7 @@
 //using System.Linq;
 //using System.Windows.Input;
 
-//namespace Kosmograph.Desktop.EditModel
+//namespace Kosmograph.Desktop.Editors.ViewModel
 //{
 //    public class EditFacetViewModel : EditNamedViewModelBase<Facet>
 //    {

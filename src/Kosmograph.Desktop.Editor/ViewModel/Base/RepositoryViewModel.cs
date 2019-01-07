@@ -1,6 +1,5 @@
 ﻿using GalaSoft.MvvmLight.Command;
-using Kosmograph.Desktop.EditModel;
-using Kosmograph.Desktop.ViewModel.Base;
+using Kosmograph.Desktop.Editors.ViewModel.Base;
 using Kosmograph.Model;
 using Kosmograph.Model.Base;
 using System;
@@ -11,7 +10,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
 
-namespace Kosmograph.Desktop.ViewModel
+namespace Kosmograph.Desktop.Editors.ViewModel
 {
     public class RepositoryViewModel<VM, M> : ObservableCollection<VM>
         where M : NamedBase

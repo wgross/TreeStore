@@ -1,12 +1,10 @@
-﻿using Kosmograph.Desktop.EditModel;
-using Kosmograph.Desktop.ViewModel;
-using Kosmograph.Model;
+﻿using Kosmograph.Model;
 using Moq;
 using System;
 using System.Linq;
 using Xunit;
 
-namespace Kosmograph.Desktop.Editor.Test.EditModel
+namespace Kosmograph.Desktop.Editors.ViewModel
 {
     public class TagEditModelTest : IDisposable
     {

@@ -1,8 +1,8 @@
-﻿using Kosmograph.Desktop.EditModel.Base;
+﻿using Kosmograph.Desktop.Editors.ViewModel.Base;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace Kosmograph.Desktop.Editor
+namespace Kosmograph.Desktop.Editors.View
 {
     public partial class EditorControl : UserControl
     {

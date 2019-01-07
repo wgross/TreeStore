@@ -1,10 +1,9 @@
-﻿using Kosmograph.Desktop.EditModel.Base;
-using Kosmograph.Desktop.ViewModel;
+﻿using Kosmograph.Desktop.Editors.ViewModel.Base;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace Kosmograph.Desktop.EditModel
+namespace Kosmograph.Desktop.Editors.ViewModel
 {
     public class DeleteEntityWithRelationshipsEditModel : EditModelBase
     {

@@ -75,59 +75,59 @@
     <Compile Include="ViewModel\RelationshipViewModel.cs" />
     <Compile Include="ViewModel\TagRepositoryViewModel.cs" />
     <Compile Include="ViewModel\TagViewModel.cs" />
-    <Page Include="Controls\CommonResources.xaml">
+    <Page Include="View\CommonResources.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Controls\EditAssignedTagsControl.xaml">
+    <Page Include="View\EditAssignedTagsControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Controls\EditEntityControl.xaml">
+    <Page Include="View\EditEntityControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Controls\EditItemNameControl.xaml">
+    <Page Include="View\EditItemNameControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Controls\EditorButtonPanelControl.xaml">
+    <Page Include="View\EditorButtonPanelControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Controls\EditorHeaderControl.xaml">
+    <Page Include="View\EditorHeaderControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Controls\EditorSectionHeaderControl.xaml">
+    <Page Include="View\EditorSectionHeaderControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Controls\EditRelatedEntitiesControl.xaml">
+    <Page Include="View\EditRelatedEntitiesControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Controls\EditRelationshipControl.xaml">
+    <Page Include="View\EditRelationshipControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Controls\EditTagControl.xaml">
+    <Page Include="View\EditTagControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Controls\EditTagFacetPropertiesControl.xaml">
+    <Page Include="View\EditTagFacetPropertiesControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Controls\ShowEntitiesControl.xaml">
+    <Page Include="View\ShowEntitiesControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Controls\ShowRelationshipsControl.xaml">
+    <Page Include="View\ShowRelationshipsControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Controls\ShowTagsControl.xaml">
+    <Page Include="View\ShowTagsControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -139,43 +139,43 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="Controls\EditAssignedTagsControl.xaml.cs">
+    <Compile Include="View\EditAssignedTagsControl.xaml.cs">
       <DependentUpon>EditAssignedTagsControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\EditEntityControl.xaml.cs">
+    <Compile Include="View\EditEntityControl.xaml.cs">
       <DependentUpon>EditEntityControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\EditItemNameControl.xaml.cs">
+    <Compile Include="View\EditItemNameControl.xaml.cs">
       <DependentUpon>EditItemNameControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\EditorButtonPanelControl.xaml.cs">
+    <Compile Include="View\EditorButtonPanelControl.xaml.cs">
       <DependentUpon>EditorButtonPanelControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\EditorHeaderControl.xaml.cs">
+    <Compile Include="View\EditorHeaderControl.xaml.cs">
       <DependentUpon>EditorHeaderControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\EditorSectionHeaderControl.xaml.cs">
+    <Compile Include="View\EditorSectionHeaderControl.xaml.cs">
       <DependentUpon>EditorSectionHeaderControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\EditRelatedEntitiesControl.xaml.cs">
+    <Compile Include="View\EditRelatedEntitiesControl.xaml.cs">
       <DependentUpon>EditRelatedEntitiesControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\EditRelationshipControl.xaml.cs">
+    <Compile Include="View\EditRelationshipControl.xaml.cs">
       <DependentUpon>EditRelationshipControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\EditTagControl.xaml.cs">
+    <Compile Include="View\EditTagControl.xaml.cs">
       <DependentUpon>EditTagControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\EditTagFacetPropertiesControl.xaml.cs">
+    <Compile Include="View\EditTagFacetPropertiesControl.xaml.cs">
       <DependentUpon>EditTagFacetPropertiesControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\ShowEntitiesControl.xaml.cs">
+    <Compile Include="View\ShowEntitiesControl.xaml.cs">
       <DependentUpon>ShowEntitiesControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\ShowRelationshipsControl.xaml.cs">
+    <Compile Include="View\ShowRelationshipsControl.xaml.cs">
       <DependentUpon>ShowRelationshipsControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\ShowTagsControl.xaml.cs">
+    <Compile Include="View\ShowTagsControl.xaml.cs">
       <DependentUpon>ShowTagsControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\DeleteEntityWithRelationshipsDialog.xaml.cs">
