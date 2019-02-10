@@ -2,30 +2,30 @@
 
 namespace Kosmograph.Desktop.Editors.ViewModel.Base
 {
-    public abstract class NamedEditModelBase<VM, M> : EditModelBase
+    public abstract class NamedEditModelBase<M> : EditModelBase
             where M : NamedBase
-            where VM : NamedViewModelBase<M>
     {
-        public VM ViewModel { get; private set; }
+        public M Model { get; }
 
-        public NamedEditModelBase(VM edited)
+        public NamedEditModelBase(M edited)
         {
-            this.ViewModel = edited;
+            this.Model = edited;
         }
 
         protected override void Commit()
         {
-            this.ViewModel.Name = this.Name;
+            this.Model.Name = this.Name;
         }
 
         protected override void Rollback()
         {
-            this.Name = this.ViewModel.Name;
+            // nullifying the name avoid validating in case of rollback
+            this.Name = null;
         }
 
         public string Name
         {
-            get => this.name ?? this.ViewModel.Name;
+            get => this.name ?? this.Model.Name;
             set
             {
                 if (this.Set(nameof(Name), ref this.name, value?.Trim()))

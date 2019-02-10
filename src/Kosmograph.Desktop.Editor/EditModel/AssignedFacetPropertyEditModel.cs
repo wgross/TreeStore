@@ -1,19 +1,23 @@
 ﻿using Kosmograph.Desktop.Editors.ViewModel.Base;
+using Kosmograph.Model;
+using System.Collections.Generic;
 
 namespace Kosmograph.Desktop.Editors.ViewModel
 {
     public class AssignedFacetPropertyEditModel : EditModelBase
     {
-        public AssignedFacetPropertyEditModel(AssignedFacetPropertyViewModel viewModel)
+        public AssignedFacetPropertyEditModel(FacetProperty model, IDictionary<string, object> values)
         {
-            this.ViewModel = viewModel;
+            this.Model = model;
+            this.Values = values;
         }
 
-        public AssignedFacetPropertyViewModel ViewModel { get; }
+        public FacetProperty Model { get; }
+        public IDictionary<string, object> Values { get; }
 
         public object Value
         {
-            get => this.value ?? this.ViewModel.Value;
+            get => this.value ?? this.Value;
             set => this.Set(nameof(Value), ref this.value, value);
         }
 
@@ -21,7 +25,7 @@ namespace Kosmograph.Desktop.Editors.ViewModel
 
         override protected void Commit()
         {
-            this.ViewModel.Value = this.Value;
+            // this.Model.Value = this.Value;
         }
 
         override protected void Rollback()

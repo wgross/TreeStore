@@ -6,17 +6,17 @@ using System.Windows.Input;
 
 namespace Kosmograph.Desktop.Editors.ViewModel
 {
-    public class TagEditModel : NamedEditModelBase<TagViewModel, Tag>
+    public class TagEditModel : NamedEditModelBase<Tag>
     {
         private readonly ITagEditCallback editCallback;
 
-        public TagEditModel(TagViewModel viewModel, ITagEditCallback editCallback)
-            : base(viewModel)
+        public TagEditModel(Tag edited, ITagEditCallback editCallback)
+            : base(edited)
         {
             this.editCallback = editCallback;
 
             this.Properties =
-                new CommitableObservableCollection<FacetPropertyEditModel>(viewModel.Properties.Select(p => new FacetPropertyEditModel(this, p)));
+                new CommitableObservableCollection<FacetPropertyEditModel>(edited.Facet.Properties.Select(p => new FacetPropertyEditModel(this, p)));
 
             this.CreatePropertyCommand = new RelayCommand(this.CreatePropertyExecuted);
             this.RemovePropertyCommand = new RelayCommand<FacetPropertyEditModel>(this.RemovePropertyExecuted);
@@ -32,7 +32,7 @@ namespace Kosmograph.Desktop.Editors.ViewModel
 
         private void CreatePropertyExecuted()
         {
-            this.Properties.Add(new FacetPropertyEditModel(this, new FacetPropertyViewModel(new FacetProperty("new property"))));
+            this.Properties.Add(new FacetPropertyEditModel(this, new FacetProperty("new property")));
         }
 
         public ICommand CreatePropertyCommand { get; }
@@ -49,11 +49,11 @@ namespace Kosmograph.Desktop.Editors.ViewModel
         protected override void Commit()
         {
             this.Properties.Commit(
-                onAdd: p => this.ViewModel.Properties.Add(p.ViewModel),
-                onRemove: p => this.ViewModel.Properties.Remove(p.ViewModel));
+                onAdd: p => this.Model.Facet.Properties.Add(p.Model),
+                onRemove: p => this.Model.Facet.Properties.Remove(p.Model));
             this.Properties.ForEach(p => p.CommitCommand.Execute(null));
             base.Commit();
-            this.editCallback.Commit(this.ViewModel.Model);
+            this.editCallback.Commit(this.Model);
         }
 
         protected override bool CanCommit()
@@ -69,9 +69,9 @@ namespace Kosmograph.Desktop.Editors.ViewModel
         protected override void Rollback()
         {
             this.Properties =
-                new CommitableObservableCollection<FacetPropertyEditModel>(this.ViewModel.Properties.Select(p => new FacetPropertyEditModel(this, p)));
+                new CommitableObservableCollection<FacetPropertyEditModel>(this.Model.Facet.Properties.Select(p => new FacetPropertyEditModel(this, p)));
             base.Rollback();
-            this.editCallback.Rollback(this.ViewModel.Model);
+            this.editCallback.Rollback(this.Model);
         }
 
         #region Implement Validate

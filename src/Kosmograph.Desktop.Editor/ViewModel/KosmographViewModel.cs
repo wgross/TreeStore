@@ -74,10 +74,10 @@ namespace Kosmograph.Desktop.Editors.ViewModel
 
         private void OnDeletingEntity(EntityViewModel entityViewModel)
         {
-            this.DeletingEntity = new DeleteEntityWithRelationshipsEditModel(entityViewModel,
-                this.Relationships.FindRelationshipByEntity(entityViewModel),
-                this.OnDeleteEntityCommited,
-                this.OnDeleteEntityRollback);
+        //    this.DeletingEntity = new DeleteEntityWithRelationshipsEditModel(entityViewModel,
+        //        this.Relationships.FindRelationshipByEntity(entityViewModel),
+        //        this.OnDeleteEntityCommited,
+        //        this.OnDeleteEntityRollback);
         }
 
         private void OnDeleteEntityRollback(EntityViewModel arg1, IEnumerable<RelationshipViewModel> arg2)

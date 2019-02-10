@@ -99,14 +99,6 @@
     <Compile Include="View\EntityRepositoryView.xaml.cs">
       <DependentUpon>EntityRepositoryView.xaml</DependentUpon>
     </Compile>
-    <Page Include="UserControl1.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Compile Include="UserControl1.xaml.cs">
-      <DependentUpon>UserControl1.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
     <Page Include="View\CommonResources.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

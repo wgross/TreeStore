@@ -91,8 +91,8 @@ namespace Kosmograph.Desktop.Editors.ViewModel
 
             // ACT
 
-            this.viewModel.Edited.From = new Entity().ToViewModel();
-            this.viewModel.Edited.To = new Entity().ToViewModel();
+            this.viewModel.Edited.From = new Entity();
+            this.viewModel.Edited.To = new Entity();
             this.viewModel.Edited.CommitCommand.Execute(null);
 
             // ASSERT

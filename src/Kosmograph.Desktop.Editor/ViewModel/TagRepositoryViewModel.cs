@@ -39,7 +39,7 @@ namespace Kosmograph.Desktop.Editors.ViewModel
             public string Validate(TagEditModel tag)
             {
                 var possibleDuplicate = this.viewModel.FindByName(tag.Name);
-                if (possibleDuplicate is null || possibleDuplicate.Model.Equals(tag.ViewModel.Model))
+                if (possibleDuplicate is null || possibleDuplicate.Model.Equals(tag.Model))
                 {
                     this.HasError = false;
                     return null;
@@ -56,7 +56,7 @@ namespace Kosmograph.Desktop.Editors.ViewModel
             : base(repository, m => new TagViewModel(m))
         {
             this.CreateCommand = new RelayCommand(this.CreateExecuted);
-            this.EditCommand = new RelayCommand<TagViewModel>(this.EditExecuted);
+            this.EditCommand = new RelayCommand<Tag>(this.EditExecuted);
         }
 
         #region Create Tag
@@ -65,7 +65,7 @@ namespace Kosmograph.Desktop.Editors.ViewModel
 
         private void CreateExecuted()
         {
-            this.Edited = new TagEditModel(new TagViewModel(new Tag("new tag", new Facet())), new TagEditCallbackHandler(this, this.OnCreateCommitted));
+            this.Edited = new TagEditModel(new Tag("new tag", new Facet()), new TagEditCallbackHandler(this, this.OnCreateCommitted));
         }
 
         public TagEditModel Edited
@@ -97,7 +97,7 @@ namespace Kosmograph.Desktop.Editors.ViewModel
 
         public ICommand EditCommand { get; }
 
-        private void EditExecuted(TagViewModel tag)
+        private void EditExecuted(Tag tag)
         {
             this.Edited = new TagEditModel(tag, new TagEditCallbackHandler(this, this.OnEditCommitted));
         }

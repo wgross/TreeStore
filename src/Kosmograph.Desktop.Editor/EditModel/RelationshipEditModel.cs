@@ -7,24 +7,24 @@ using System.Windows.Input;
 
 namespace Kosmograph.Desktop.Editors.ViewModel
 {
-    public class RelationshipEditModel : NamedEditModelBase<RelationshipViewModel, Relationship>
+    public class RelationshipEditModel : NamedEditModelBase<Relationship>
     {
         private readonly Action<Relationship> onRelationshipCommitted;
         private readonly Action<Relationship> onRelationshipRollback;
 
-        public RelationshipEditModel(RelationshipViewModel viewModel, Action<Relationship> onRelationshipCommitted, Action<Relationship> onRelationshipRollback)
-            : base(viewModel)
+        public RelationshipEditModel(Relationship edited, Action<Relationship> onRelationshipCommitted, Action<Relationship> onRelationshipRollback)
+            : base(edited)
         {
-            this.From = viewModel.From;
-            this.To = viewModel.To;
+            this.From = edited.From;
+            this.To = edited.To;
             this.tags = new Lazy<CommitableObservableCollection<AssignedTagEditModel>>(() => this.CreateAssignedTags());
-            this.AssignTagCommand = new RelayCommand<TagViewModel>(this.AssignTagExcuted, this.AssignTagCanExecute);
+            this.AssignTagCommand = new RelayCommand<Tag>(this.AssignTagExcuted, this.AssignTagCanExecute);
             this.RemoveTagCommand = new RelayCommand<AssignedTagEditModel>(this.RemoveTagExecuted);
             this.onRelationshipCommitted = onRelationshipCommitted;
             this.onRelationshipRollback = onRelationshipRollback;
         }
 
-        public EntityViewModel From
+        public Entity From
         {
             get => this.from;
             set
@@ -34,9 +34,9 @@ namespace Kosmograph.Desktop.Editors.ViewModel
             }
         }
 
-        private EntityViewModel from;
+        private Entity from;
 
-        public EntityViewModel To
+        public Entity To
         {
             get => this.to;
             set
@@ -46,7 +46,7 @@ namespace Kosmograph.Desktop.Editors.ViewModel
             }
         }
 
-        private EntityViewModel to;
+        private Entity to;
 
         #region Collection of assigned tags
 
@@ -54,19 +54,17 @@ namespace Kosmograph.Desktop.Editors.ViewModel
 
         public CommitableObservableCollection<AssignedTagEditModel> Tags => this.tags.Value;
 
-        private CommitableObservableCollection<AssignedTagEditModel> CreateAssignedTags() => new CommitableObservableCollection<AssignedTagEditModel>(this.ViewModel.Tags.Select(this.CreateAssignedTag));
+        private CommitableObservableCollection<AssignedTagEditModel> CreateAssignedTags() => new CommitableObservableCollection<AssignedTagEditModel>(this.Model.Tags.Select(this.CreateAssignedTag));
 
-        private AssignedTagEditModel CreateAssignedTag(TagViewModel tag) => new AssignedTagEditModel(new AssignedTagViewModel(tag, this.ViewModel.Model.Values));
-
-        private AssignedTagEditModel CreateAssignedTag(AssignedTagViewModel tag) => new AssignedTagEditModel(tag);
+        private AssignedTagEditModel CreateAssignedTag(Tag tag) => new AssignedTagEditModel(tag, this.Model.Values);
 
         #endregion Collection of assigned tags
 
         #region Assign Tag command
 
-        private bool AssignTagCanExecute(TagViewModel tag) => !this.Tags.Any(tvm => tvm.ViewModel.Tag.Model.Equals(tag.Model));
+        private bool AssignTagCanExecute(Tag tag) => !this.Tags.Any(tvm => tvm.Model.Equals(tag));
 
-        private void AssignTagExcuted(TagViewModel tag)
+        private void AssignTagExcuted(Tag tag)
         {
             this.Tags.Add(this.CreateAssignedTag(tag));
         }
@@ -90,35 +88,35 @@ namespace Kosmograph.Desktop.Editors.ViewModel
 
         protected override void Commit()
         {
-            this.ViewModel.From = this.From;
-            this.ViewModel.To = this.To;
+            this.Model.From = this.From;
+            this.Model.To = this.To;
             this.Tags.Commit(onAdd: this.CommitAddedTag, onRemove: this.CommitRemovedTag);
             this.Tags.ForEach(t => t.CommitCommand.Execute(null));
             base.Commit();
-            this.onRelationshipCommitted(this.ViewModel.Model);
-            this.MessengerInstance.Send(new EditModelCommitted(viewModel: this.ViewModel));
+            this.onRelationshipCommitted(this.Model);
+            this.MessengerInstance.Send(new EditModelCommitted(model: this.Model));
         }
 
         protected override bool CanCommit() => !(this.From is null || this.To is null);
 
         private void CommitRemovedTag(AssignedTagEditModel tag)
         {
-            this.ViewModel.Tags.Remove(tag.ViewModel);
+            this.Model.Tags.Remove(tag.Model);
         }
 
         private void CommitAddedTag(AssignedTagEditModel tag)
         {
-            this.ViewModel.Tags.Add(tag.ViewModel);
+            this.Model.Tags.Add(tag.Model);
         }
 
         protected override void Rollback()
         {
-            this.From = this.ViewModel.From;
-            this.To = this.ViewModel.To;
+            this.From = this.Model.From;
+            this.To = this.Model.To;
             this.Tags.Rollback();
             this.Tags.ForEach(t => t.Properties.ForEach(p => p.RollbackCommand.Execute(null)));
             base.Rollback();
-            this.onRelationshipRollback(this.ViewModel.Model);
+            this.onRelationshipRollback(this.Model);
         }
 
         #endregion Implement Commit

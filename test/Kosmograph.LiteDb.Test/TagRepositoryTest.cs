@@ -203,5 +203,52 @@ namespace Kosmograph.LiteDb.Test
 
             Assert.False(result);
         }
+
+        [Fact]
+        public void TagRepository_finds_by_name()
+        {
+            // ARRANGE
+
+            var tag = new Tag("tag", new Facet("facet", new FacetProperty("prop")));
+
+            this.eventSource
+                .Setup(s => s.Modified(tag));
+
+            this.repository.Upsert(tag);
+
+            // ACT
+
+            var result = this.repository.FindByName("tag");
+
+            // ASSERT
+
+            Assert.Equal(tag, result);
+
+            var comp = tag.DeepCompare(result);
+
+            Assert.True(tag.NoPropertyHasDefaultValue());
+            Assert.False(comp.Different.Any());
+        }
+
+        [Fact]
+        public void TagRepository_finding_by_name_returns_null_on_missing_tag()
+        {
+            // ARRANGE
+
+            var tag = new Tag("tag", new Facet("facet", new FacetProperty("prop")));
+
+            this.eventSource
+                .Setup(s => s.Modified(tag));
+
+            this.repository.Upsert(tag);
+
+            // ACT
+
+            var result = this.repository.FindByName("unknown");
+
+            // ASSERT
+
+            Assert.Null(result);
+        }
     }
 }

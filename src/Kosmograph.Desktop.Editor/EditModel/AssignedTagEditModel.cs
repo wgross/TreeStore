@@ -1,18 +1,20 @@
 ﻿using Kosmograph.Desktop.Editors.ViewModel.Base;
+using Kosmograph.Model;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Kosmograph.Desktop.Editors.ViewModel
 {
     public class AssignedTagEditModel : EditModelBase
     {
-        public AssignedTagEditModel(AssignedTagViewModel viewModel)
+        public AssignedTagEditModel(Tag tagModel, IDictionary<string, object> values)
         {
-            this.ViewModel = viewModel;
+            this.Model = tagModel;
             this.Properties = new CommitableObservableCollection<AssignedFacetPropertyEditModel>(
-                viewModel.Properties.Select(p => new AssignedFacetPropertyEditModel(p)));
+                tagModel.Facet.Properties.Select(p => new AssignedFacetPropertyEditModel(p, values)));
         }
 
-        public AssignedTagViewModel ViewModel { get; }
+        public Tag Model { get; }
 
         public CommitableObservableCollection<AssignedFacetPropertyEditModel> Properties { get; }
 

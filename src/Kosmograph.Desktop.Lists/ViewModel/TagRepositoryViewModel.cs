@@ -60,5 +60,10 @@ namespace Kosmograph.Desktop.Lists.ViewModel
                 this.OnRemoved(id);
             }
         }
+
+        public TagViewModel FindByName(string name)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -4,9 +4,9 @@ using System.Linq;
 
 namespace Kosmograph.Desktop.Editors.ViewModel
 {
-    public sealed class FacetPropertyEditModel : NamedEditModelBase<FacetPropertyViewModel, FacetProperty>
+    public sealed class FacetPropertyEditModel : NamedEditModelBase<FacetProperty>
     {
-        public FacetPropertyEditModel(TagEditModel editTag, FacetPropertyViewModel property)
+        public FacetPropertyEditModel(TagEditModel editTag, FacetProperty property)
             : base(property)
         {
             this.Tag = editTag;

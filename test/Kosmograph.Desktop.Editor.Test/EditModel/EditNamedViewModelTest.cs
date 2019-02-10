@@ -1,4 +1,5 @@
-﻿using Kosmograph.Model;
+﻿using Kosmograph.Desktop.Editors.ViewModel;
+using Kosmograph.Model;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -6,14 +7,13 @@ using System.ComponentModel;
 using System.Linq;
 using Xunit;
 
-namespace Kosmograph.Desktop.Editors.ViewModel
+namespace Kosmograph.Desktop.Editors.Test.ViewModel
 {
     public class NamedEditModelTest
     {
         public static IEnumerable<object[]> GetTestedInstances()
         {
-            var tag = new TagEditModel(
-                new TagViewModel(new Tag("tag", new Facet("facet", new FacetProperty("p")))), Mock.Of<ITagEditCallback>());
+            var tag = new TagEditModel(new Tag("tag", new Facet("facet", new FacetProperty("p"))), Mock.Of<ITagEditCallback>());
 
             yield return new object[] { (Action<string>)(s => tag.Name = s), tag };
             yield return new object[] { (Action<string>)(s => tag.Properties.Single().Name = s), tag.Properties.Single() };

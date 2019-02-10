@@ -7,16 +7,16 @@ using System.Windows.Input;
 
 namespace Kosmograph.Desktop.Editors.ViewModel
 {
-    public sealed class EntityEditModel : NamedEditModelBase<EntityViewModel, Entity>
+    public sealed class EntityEditModel : NamedEditModelBase<Entity>
     {
         private readonly Action<Entity> committed;
         private readonly Action<Entity> rolledback;
 
-        public EntityEditModel(EntityViewModel model, Action<Entity> onEntityCommitted, Action<Entity> onEntityRolledback)
-            : base(model)
+        public EntityEditModel(Entity edited, Action<Entity> onEntityCommitted, Action<Entity> onEntityRolledback)
+            : base(edited)
         {
             this.tags = new Lazy<CommitableObservableCollection<AssignedTagEditModel>>(() => this.CreateAssignedTags());
-            this.AssignTagCommand = new RelayCommand<TagViewModel>(this.AssignTagExcuted, this.AssignTagCanExecute);
+            this.AssignTagCommand = new RelayCommand<Tag>(this.AssignTagExcuted, this.AssignTagCanExecute);
             this.RemoveTagCommand = new RelayCommand<AssignedTagEditModel>(this.RemoveTagExecuted);
             this.committed = onEntityCommitted ?? delegate { };
             this.rolledback = onEntityRolledback ?? delegate { };
@@ -28,19 +28,17 @@ namespace Kosmograph.Desktop.Editors.ViewModel
 
         public CommitableObservableCollection<AssignedTagEditModel> Tags => this.tags.Value;
 
-        private CommitableObservableCollection<AssignedTagEditModel> CreateAssignedTags() => new CommitableObservableCollection<AssignedTagEditModel>(this.ViewModel.Tags.Select(this.CreateAssignedTag));
+        private CommitableObservableCollection<AssignedTagEditModel> CreateAssignedTags() => new CommitableObservableCollection<AssignedTagEditModel>(this.Model.Tags.Select(this.CreateAssignedTag));
 
-        private AssignedTagEditModel CreateAssignedTag(TagViewModel tag) => new AssignedTagEditModel(new AssignedTagViewModel(tag, this.ViewModel.Model.Values));
-
-        private AssignedTagEditModel CreateAssignedTag(AssignedTagViewModel tag) => new AssignedTagEditModel(tag);
+        private AssignedTagEditModel CreateAssignedTag(Tag tag) => new AssignedTagEditModel(tag, this.Model.Values);
 
         #endregion Collection of assigned tags
 
         #region Assign Tag command
 
-        private bool AssignTagCanExecute(TagViewModel tag) => !this.Tags.Any(tvm => tvm.ViewModel.Tag.Model.Equals(tag.Model));
+        private bool AssignTagCanExecute(Tag tag) => !this.Tags.Any(tvm => tvm.Model.Equals(tag));
 
-        private void AssignTagExcuted(TagViewModel tag)
+        private void AssignTagExcuted(Tag tag)
         {
             this.Tags.Add(this.CreateAssignedTag(tag));
         }
@@ -67,21 +65,21 @@ namespace Kosmograph.Desktop.Editors.ViewModel
             this.Tags.Commit(onAdd: this.CommitAddedTag, onRemove: this.CommitRemovedTag);
             this.Tags.ForEach(t => t.Properties.ForEach(p => p.CommitCommand.Execute(null)));
             base.Commit();
-            this.committed(this.ViewModel.Model);
-            this.MessengerInstance.Send(new EditModelCommitted(viewModel: this.ViewModel));
+            this.committed(this.Model);
+            this.MessengerInstance.Send(new EditModelCommitted(model: this.Model));
         }
 
         protected override bool CanCommit() => !this.HasErrors;
 
         private void CommitRemovedTag(AssignedTagEditModel tag)
         {
-            this.ViewModel.Tags.Remove(tag.ViewModel);
+            this.Model.Tags.Remove(tag.Model);
             //tag.ViewModel.Properties.ToList().ForEach(p => this.ViewModel.Remove(p.Id.ToString()));
         }
 
         private void CommitAddedTag(AssignedTagEditModel tag)
         {
-            this.ViewModel.Tags.Add(tag.ViewModel);
+            this.Model.Tags.Add(tag.Model);
         }
 
         #endregion Commit changes to Model
@@ -93,7 +91,7 @@ namespace Kosmograph.Desktop.Editors.ViewModel
             this.Tags.Rollback();
             this.Tags.ForEach(t => t.Properties.ForEach(p => p.RollbackCommand.Execute(null)));
             base.Rollback();
-            this.rolledback(this.ViewModel.Model);
+            this.rolledback(this.Model);
         }
 
         #endregion Rollback changes

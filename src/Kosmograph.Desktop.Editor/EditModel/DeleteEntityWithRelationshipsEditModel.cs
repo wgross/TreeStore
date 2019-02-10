@@ -1,4 +1,5 @@
 ﻿using Kosmograph.Desktop.Editors.ViewModel.Base;
+using Kosmograph.Model;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -7,21 +8,20 @@ namespace Kosmograph.Desktop.Editors.ViewModel
 {
     public class DeleteEntityWithRelationshipsEditModel : EditModelBase
     {
-        private readonly Action<EntityViewModel, IEnumerable<RelationshipViewModel>> committed;
-        private readonly Action<EntityViewModel, IEnumerable<RelationshipViewModel>> rollback;
-        private EntityViewModel entityViewModel;
+        private readonly Action<Entity, IEnumerable<Relationship>> committed;
+        private readonly Action<Entity, IEnumerable<Relationship>> rollback;
 
-        public DeleteEntityWithRelationshipsEditModel(EntityViewModel entityViewModel, IEnumerable<RelationshipViewModel> relationships, Action<EntityViewModel, IEnumerable<RelationshipViewModel>> onCommitted, Action<EntityViewModel, IEnumerable<RelationshipViewModel>> onRollback)
+        public DeleteEntityWithRelationshipsEditModel(Entity entity, IEnumerable<Relationship> relationships, Action<Entity, IEnumerable<Relationship>> onCommitted, Action<Entity, IEnumerable<Relationship>> onRollback)
         {
-            this.Entity = entityViewModel;
-            this.Relationships = new ObservableCollection<RelationshipViewModel>(relationships);
+            this.Entity = entity;
+            this.Relationships = new ObservableCollection<Relationship>(relationships);
             this.committed = onCommitted;
             this.rollback = onRollback;
         }
 
-        public EntityViewModel Entity { get; set; }
+        public Entity Entity { get; set; }
 
-        public ObservableCollection<RelationshipViewModel> Relationships { get; set; }
+        public ObservableCollection<Relationship> Relationships { get; set; }
 
         protected override void Commit()
         {

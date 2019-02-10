@@ -1,4 +1,5 @@
 ﻿using Kosmograph.Desktop.Editors.ViewModel;
+using Kosmograph.Model;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -18,10 +19,10 @@ namespace Kosmograph.Desktop.Editors.View
 
         private void fromDropArea_Drop(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(typeof(EntityViewModel)))
+            if (e.Data.GetDataPresent(typeof(Entity)))
             {
                 var oldfrom = this.ViewModel.From;
-                this.ViewModel.From = (EntityViewModel)e.Data.GetData(typeof(EntityViewModel));
+                this.ViewModel.From = (Entity)e.Data.GetData(typeof(Entity));
                 if (this.toDropAreaMouseDown)
                     this.ViewModel.To = oldfrom;
 
@@ -32,10 +33,10 @@ namespace Kosmograph.Desktop.Editors.View
 
         private void toDropArea_Drop(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(typeof(EntityViewModel)))
+            if (e.Data.GetDataPresent(typeof(Entity)))
             {
                 var oldTo = this.ViewModel.To;
-                this.ViewModel.To = (EntityViewModel)e.Data.GetData(typeof(EntityViewModel));
+                this.ViewModel.To = (Entity)e.Data.GetData(typeof(Entity));
                 if (this.fromDropAreaMouseDown)
                     this.ViewModel.From = oldTo;
 
@@ -57,7 +58,7 @@ namespace Kosmograph.Desktop.Editors.View
                     return;
 
                 DataObject data = new DataObject();
-                data.SetData(typeof(EntityViewModel), relatsionhipEditModel.To);
+                data.SetData(typeof(Entity), relatsionhipEditModel.To);
 
                 DragDrop.DoDragDrop((DependencyObject)sender, data, DragDropEffects.Link);
             }

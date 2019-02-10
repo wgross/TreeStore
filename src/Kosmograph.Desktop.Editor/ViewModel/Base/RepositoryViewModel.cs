@@ -108,7 +108,7 @@ namespace Kosmograph.Desktop.Editors.ViewModel
             : base(model, m => NewViewModel(m, newEntityViewModel, newTagViewModel))
         {
             this.CreateCommand = new RelayCommand(this.CreateExecuted);
-            this.EditCommand = new RelayCommand<RelationshipViewModel>(this.EditExecuted);
+            this.EditCommand = new RelayCommand<Relationship>(this.EditExecuted);
         }
 
         private static RelationshipViewModel NewViewModel(Relationship model, Func<Entity, EntityViewModel> newEntityViewModel, Func<Tag, TagViewModel> newTagViewModel)
@@ -126,8 +126,7 @@ namespace Kosmograph.Desktop.Editors.ViewModel
 
         private void CreateExecuted()
         {
-            this.Edited = new RelationshipEditModel(this.CreateViewModel(new Relationship("new relationship", from: null, to: null)),
-                this.OnCreateCommitted, this.OnRollBack);
+            this.Edited = new RelationshipEditModel(new Relationship("new relationship", from: null, to: null), this.OnCreateCommitted, this.OnRollBack);
         }
 
         private void OnRollBack(Relationship obj)
@@ -159,9 +158,9 @@ namespace Kosmograph.Desktop.Editors.ViewModel
 
         public ICommand EditCommand { get; set; }
 
-        private void EditExecuted(RelationshipViewModel viewModel)
+        private void EditExecuted(Relationship model)
         {
-            this.Edited = new RelationshipEditModel(viewModel, this.OnEditCommitted, this.OnRollBack);
+            this.Edited = new RelationshipEditModel(model, this.OnEditCommitted, this.OnRollBack);
         }
 
         private void OnEditCommitted(Relationship relationship)

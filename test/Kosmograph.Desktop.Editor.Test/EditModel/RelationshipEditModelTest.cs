@@ -1,70 +1,69 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
-using Kosmograph.Desktop.Editor.Test;
+using Kosmograph.Desktop.Editors.ViewModel;
 using Kosmograph.Model;
 using System;
 using System.Linq;
 using Xunit;
 
-namespace Kosmograph.Desktop.Editors.ViewModel
+namespace Kosmograph.Desktop.Editors.Test.ViewModel
 {
     public class RelationshipEditModelTest
     {
+        private Tag DefaultTag() => new Tag("tag");
+
+        private Entity DefaultEntity() => new Entity();
+
+        private Entity DefaultEntity(string name) => new Entity(name);
+
+        private Relationship DefaultRelationship() => new Relationship("r", DefaultEntity("entity1"), DefaultEntity("entity2"), DefaultTag());
+
         [Fact]
-        public void RelationshipEditModel_mirrors_ViewModel()
+        public void RelationshipEditModel_mirrors_Model()
         {
             // ARRANGE
 
             var model = new Relationship("r", new Entity(), new Entity(), new Tag());
-            var viewModel = new RelationshipViewModel(model, new EntityViewModel(model.From), new EntityViewModel(model.To), model.Tags.Single().ToViewModel());
 
             // ACT
 
-            var result = new RelationshipEditModel(viewModel, delegate { }, delegate { });
+            var result = new RelationshipEditModel(model, delegate { }, delegate { });
 
             // ASSERT
 
             Assert.Equal("r", result.Name);
-            Assert.Equal(viewModel.From.Model, result.From.Model);
-            Assert.Equal(viewModel.To.Model, result.To.Model);
-            Assert.Equal(viewModel.Tags.Single().Tag.Model, result.Tags.Single().ViewModel.Tag.Model);
+            Assert.Equal(model.From, result.From);
+            Assert.Equal(model.To, result.To);
+            Assert.Equal(model.Tags.Single(), result.Tags.Single().Model);
         }
 
         [Fact]
-        public void RelationshipEditModel_delays_changes_at_ViewModel()
+        public void RelationshipEditModel_delays_changes_at_Model()
         {
             // ARRANGE
 
-            var entity1 = new EntityViewModel(new Entity());
-            var entity2 = new EntityViewModel(new Entity());
-            var model = new Relationship("r", new Entity(), new Entity(), new Tag());
-            var viewModel = new RelationshipViewModel(model, new EntityViewModel(model.From), new EntityViewModel(model.To));
-            var editModel = new RelationshipEditModel(viewModel, delegate { }, delegate { });
+            var model = DefaultRelationship();
+            var editModel = new RelationshipEditModel(model, delegate { }, delegate { });
 
             // ACT
 
             editModel.Name = "changed";
-            editModel.From = entity1;
-            editModel.To = entity2;
+            editModel.From = model.From;
+            editModel.To = model.To;
 
             // ASSERT
 
             Assert.Equal("changed", editModel.Name);
-            Assert.Equal("r", viewModel.Name);
             Assert.Equal("r", model.Name);
-
-            Assert.NotEqual(editModel.From.Model, viewModel.From.Model);
-            Assert.NotEqual(editModel.To.Model, viewModel.To.Model);
+            Assert.NotEqual(model.From, editModel.From);
+            Assert.NotEqual(model.To, editModel.To);
         }
 
         [Fact]
-        public void RelationshipEditModel_commits_changes_to_ViewModel()
+        public void RelationshipEditModel_commits_changes_to_Model()
         {
             // ARRANGE
 
-            var entity1 = new EntityViewModel(new Entity());
-            var entity2 = new EntityViewModel(new Entity());
-            var model = new Relationship("r", new Entity(), new Entity(), new Tag());
-            var viewModel = new RelationshipViewModel(model, new EntityViewModel(model.From), new EntityViewModel(model.To));
+            var model = DefaultRelationship();
 
             Relationship committed = null;
             var commitCB = new Action<Relationship>(r => committed = r);
@@ -72,11 +71,11 @@ namespace Kosmograph.Desktop.Editors.ViewModel
             Relationship reverted = null;
             var revertCB = new Action<Relationship>(r => reverted = r);
 
-            var editModel = new RelationshipEditModel(viewModel, commitCB, revertCB);
+            var editModel = new RelationshipEditModel(model, commitCB, revertCB);
 
             editModel.Name = "changed";
-            editModel.From = entity1;
-            editModel.To = entity2;
+            editModel.From = DefaultEntity();
+            editModel.To = DefaultEntity();
 
             // ACT
 
@@ -88,13 +87,9 @@ namespace Kosmograph.Desktop.Editors.ViewModel
             Assert.Null(reverted);
 
             Assert.Equal("changed", editModel.Name);
-            Assert.Equal("changed", viewModel.Name);
             Assert.Equal("changed", model.Name);
-
-            Assert.Equal(entity1.Model, viewModel.From.Model);
-            Assert.Equal(entity1.Model, model.From);
-            Assert.Equal(entity2.Model, viewModel.To.Model);
-            Assert.Equal(entity2.Model, model.To);
+            Assert.Empty(model.From.Name);
+            Assert.Empty(model.To.Name);
         }
 
         [Fact]
@@ -102,12 +97,8 @@ namespace Kosmograph.Desktop.Editors.ViewModel
         {
             // ARRANGE
 
-            var entity1 = new EntityViewModel(new Entity());
-            var entity2 = new EntityViewModel(new Entity());
-            var model = new Relationship("r", new Entity(), new Entity(), new Tag());
-            var viewModel = new RelationshipViewModel(model, new EntityViewModel(model.From), new EntityViewModel(model.To));
-
-            var editModel = new RelationshipEditModel(viewModel, delegate { }, delegate { });
+            var model = DefaultRelationship();
+            var editModel = new RelationshipEditModel(model, delegate { }, delegate { });
 
             // ACT
 
@@ -122,27 +113,23 @@ namespace Kosmograph.Desktop.Editors.ViewModel
 
             Assert.NotNull(result);
             Assert.Equal(typeof(RelationshipViewModel), result.ViewModel.GetType());
-            Assert.Equal(viewModel, result.TryGetViewModel<RelationshipViewModel>().Item2);
         }
 
         [Fact]
-        public void RelationshipEditModel_revert_changes_from_ViewModel()
+        public void RelationshipEditModel_revert_changes_from_Model()
         {
             // ARRANGE
 
-            var entity1 = new EntityViewModel(new Entity());
-            var entity2 = new EntityViewModel(new Entity());
-            var model = new Relationship("r", new Entity(), new Entity(), new Tag());
-            var viewModel = new RelationshipViewModel(model, new EntityViewModel(model.From), new EntityViewModel(model.To));
+            var model = DefaultRelationship();
 
             Relationship reverted = null;
             var revertCB = new Action<Relationship>(r => reverted = r);
 
-            var editModel = new RelationshipEditModel(viewModel, delegate { }, revertCB);
+            var editModel = new RelationshipEditModel(model, delegate { }, revertCB);
 
             editModel.Name = "changed";
-            editModel.From = entity1;
-            editModel.To = entity2;
+            editModel.From = DefaultEntity();
+            editModel.To = DefaultEntity();
 
             // ACT
 
@@ -152,15 +139,10 @@ namespace Kosmograph.Desktop.Editors.ViewModel
             // ASSERT
 
             Assert.Equal(model, reverted);
-
             Assert.Equal("r", editModel.Name);
-            Assert.Equal("r", viewModel.Name);
             Assert.Equal("r", model.Name);
-
-            Assert.Equal(model.From, editModel.From.Model);
-            Assert.Equal(model.From, viewModel.From.Model);
-            Assert.Equal(model.To, editModel.To.Model);
-            Assert.Equal(model.To, viewModel.To.Model);
+            Assert.Equal("entity1", editModel.From.Name);
+            Assert.Equal("entity2", editModel.To.Name);
         }
 
         [Fact]
@@ -168,15 +150,12 @@ namespace Kosmograph.Desktop.Editors.ViewModel
         {
             // ARRANGE
 
-            var entity1 = new EntityViewModel(new Entity());
-            var entity2 = new EntityViewModel(new Entity());
-            var model = new Relationship("r", new Entity(), new Entity(), new Tag());
-            var viewModel = new RelationshipViewModel(model, new EntityViewModel(model.From), new EntityViewModel(model.To));
+            var model = DefaultRelationship();
 
             Relationship reverted = null;
             var revertCB = new Action<Relationship>(r => reverted = r);
 
-            var editModel = new RelationshipEditModel(viewModel, delegate { }, revertCB);
+            var editModel = new RelationshipEditModel(model, delegate { }, revertCB);
 
             editModel.To = null;
 
@@ -190,14 +169,13 @@ namespace Kosmograph.Desktop.Editors.ViewModel
         }
 
         [Fact]
-        public void RelationshipEditModel_delays_adding_Tag_at_ViewModel()
+        public void RelationshipEditModel_delays_adding_Tag_at_Model()
         {
             // ARRANGE
 
             var tagViewModel = new TagViewModel(new Tag("t2"));
-            var model = new Relationship("r", new Entity(), new Entity(), new Tag());
-            var viewModel = new RelationshipViewModel(model, new EntityViewModel(model.From), new EntityViewModel(model.To), model.Tags.Single().ToViewModel());
-            var editModel = new RelationshipEditModel(viewModel, delegate { }, delegate { });
+            var model = DefaultRelationship();
+            var editModel = new RelationshipEditModel(model, delegate { }, delegate { });
 
             // ACT
 
@@ -206,19 +184,17 @@ namespace Kosmograph.Desktop.Editors.ViewModel
             // ASSERT
 
             Assert.Equal(2, editModel.Tags.Count());
-            Assert.Single(viewModel.Tags);
             Assert.Single(model.Tags);
         }
 
         [Fact]
-        public void RelationshipEditModel_commits_added_Tag_to_ViewModel()
+        public void RelationshipEditModel_commits_added_Tag_to_Model()
         {
             // ARRANGE
 
             var tagViewModel = new TagViewModel(new Tag("t2"));
-            var model = new Relationship("r", new Entity(), new Entity(), new Tag());
-            var viewModel = new RelationshipViewModel(model, new EntityViewModel(model.From), new EntityViewModel(model.To), model.Tags.Single().ToViewModel());
-            var editModel = new RelationshipEditModel(viewModel, delegate { }, delegate { });
+            var model = DefaultRelationship();
+            var editModel = new RelationshipEditModel(model, delegate { }, delegate { });
 
             editModel.AssignTagCommand.Execute(tagViewModel);
 
@@ -229,19 +205,17 @@ namespace Kosmograph.Desktop.Editors.ViewModel
             // ASSERT
 
             Assert.Equal(2, editModel.Tags.Count());
-            Assert.Equal(2, viewModel.Tags.Count());
             Assert.Equal(2, model.Tags.Count());
         }
 
         [Fact]
-        public void RelationshipEditModel_reverts_added_Tag_from_ViewModel()
+        public void RelationshipEditModel_reverts_added_Tag_from_Model()
         {
             // ARRANGE
 
             var tagViewModel = new TagViewModel(new Tag("t2"));
-            var model = new Relationship("r", new Entity(), new Entity(), new Tag());
-            var viewModel = new RelationshipViewModel(model, new EntityViewModel(model.From), new EntityViewModel(model.To), model.Tags.Single().ToViewModel());
-            var editModel = new RelationshipEditModel(viewModel, delegate { }, delegate { });
+            var model = DefaultRelationship();
+            var editModel = new RelationshipEditModel(model, delegate { }, delegate { });
 
             editModel.AssignTagCommand.Execute(tagViewModel);
 
@@ -253,19 +227,17 @@ namespace Kosmograph.Desktop.Editors.ViewModel
             // ASSERT
 
             Assert.Single(editModel.Tags);
-            Assert.Single(viewModel.Tags);
             Assert.Single(model.Tags);
         }
 
         [Fact]
-        public void RelationshipEditModel_delays_removing_Tag_at_ViewModel()
+        public void RelationshipEditModel_delays_removing_Tag_at_Model()
         {
             // ARRANGE
 
             var tagViewModel = new TagViewModel(new Tag("t2"));
-            var model = new Relationship("r", new Entity(), new Entity(), new Tag());
-            var viewModel = new RelationshipViewModel(model, new EntityViewModel(model.From), new EntityViewModel(model.To), model.Tags.Single().ToViewModel());
-            var editModel = new RelationshipEditModel(viewModel, delegate { }, delegate { });
+            var model = DefaultRelationship();
+            var editModel = new RelationshipEditModel(model, delegate { }, delegate { });
 
             // ACT
 
@@ -274,19 +246,17 @@ namespace Kosmograph.Desktop.Editors.ViewModel
             // ASSERT
 
             Assert.Empty(editModel.Tags);
-            Assert.Single(viewModel.Tags);
             Assert.Single(model.Tags);
         }
 
         [Fact]
-        public void RelationshipEditModel_commits_removed_Tag_to_ViewModel()
+        public void RelationshipEditModel_commits_removed_Tag_to_Model()
         {
             // ARRANGE
 
             var tagViewModel = new TagViewModel(new Tag("t2"));
-            var model = new Relationship("r", new Entity(), new Entity(), new Tag());
-            var viewModel = new RelationshipViewModel(model, new EntityViewModel(model.From), new EntityViewModel(model.To), model.Tags.Single().ToViewModel());
-            var editModel = new RelationshipEditModel(viewModel, delegate { }, delegate { });
+            var model = DefaultRelationship();
+            var editModel = new RelationshipEditModel(model, delegate { }, delegate { });
 
             editModel.RemoveTagCommand.Execute(editModel.Tags.Single());
 
@@ -297,18 +267,16 @@ namespace Kosmograph.Desktop.Editors.ViewModel
             // ASSERT
 
             Assert.Empty(editModel.Tags);
-            Assert.Empty(viewModel.Tags);
             Assert.Empty(model.Tags);
         }
 
         [Fact]
-        public void RelationshipEditModel_reverts_removed_Tag_from_ViewModel()
+        public void RelationshipEditModel_reverts_removed_Tag_from_Model()
         {
             // ARRANGE
 
-            var model = new Relationship("r", new Entity(), new Entity(), new Tag());
-            var viewModel = new RelationshipViewModel(model, new EntityViewModel(model.From), new EntityViewModel(model.To), model.Tags.Single().ToViewModel());
-            var editModel = new RelationshipEditModel(viewModel, delegate { }, delegate { });
+            var model = DefaultRelationship();
+            var editModel = new RelationshipEditModel(model, delegate { }, delegate { });
 
             editModel.RemoveTagCommand.Execute(editModel.Tags.Single());
 
@@ -320,7 +288,6 @@ namespace Kosmograph.Desktop.Editors.ViewModel
             // ASSERT
 
             Assert.Single(editModel.Tags);
-            Assert.Single(viewModel.Tags);
             Assert.Single(model.Tags);
         }
 
@@ -330,9 +297,8 @@ namespace Kosmograph.Desktop.Editors.ViewModel
             // ARRANGE
 
             var tagModel = new Tag();
-            var model = new Relationship("r", new Entity(), new Entity(), tagModel);
-            var viewModel = new RelationshipViewModel(model, new EntityViewModel(model.From), new EntityViewModel(model.To), tagModel.ToViewModel());
-            var editModel = new RelationshipEditModel(viewModel, delegate { }, delegate { });
+            var model = DefaultRelationship();
+            var editModel = new RelationshipEditModel(model, delegate { }, delegate { });
 
             // ACT
 
@@ -344,3 +310,4 @@ namespace Kosmograph.Desktop.Editors.ViewModel
         }
     }
 }
+;

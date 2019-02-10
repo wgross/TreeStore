@@ -12,33 +12,16 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="./CommonResources.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <CollectionViewSource
-                x:Key="repositoryCollectionViewSource"
-                Source="{Binding .}">
+            <!--
+            The list of tags is sorted by name.
+            -->
+            <CollectionViewSource x:Key="repositoryCollectionViewSource" Source="{Binding .}">
                 <CollectionViewSource.SortDescriptions>
                     <scm:SortDescription PropertyName="Name" />
                 </CollectionViewSource.SortDescriptions>
             </CollectionViewSource>
         </ResourceDictionary>
     </UserControl.Resources>
-    <!--
-    <UserControl.Style>
-        <Style TargetType="{x:Type UserControl}">
-            -->
-    <!--
-            Control is hidden.
-            If no tag is edited it is shown
-            -->
-    <!--
-            <Setter Property="Visibility" Value="Hidden" />
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding Tags.Edited}" Value="{x:Null}">
-                    <Setter Property="Visibility" Value="Visible" />
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-    </UserControl.Style>
-    -->
     <ListBox
         Name="repositoryListBox"
         Style="{StaticResource modelItemListBoxStyle}"
@@ -46,7 +29,6 @@
         KeyUp="repositoryListBox_KeyUp"
         MouseDoubleClick="repositoryListBox_MouseDoubleClick"
         SelectedItem="{Binding Path=SelectedItem, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:TagRepositoryView}}}">
-
         <ListBox.ItemTemplate>
             <DataTemplate>
                 <Grid MouseMove="repositoryListBoxItem_MouseMove">

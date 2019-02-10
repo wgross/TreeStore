@@ -13,7 +13,7 @@ namespace Kosmograph.Desktop.Editors.ViewModel
             : base(model, m => NewViewModel(m, newTagViewModel))
         {
             this.CreateCommand = new RelayCommand(this.CreateExecuted);
-            this.EditCommand = new RelayCommand<EntityViewModel>(this.EditExecuted);
+            this.EditCommand = new RelayCommand<Entity>(this.EditExecuted);
         }
 
         private static EntityViewModel NewViewModel(Entity model, Func<Tag, TagViewModel> newTagViewModel)
@@ -39,7 +39,7 @@ namespace Kosmograph.Desktop.Editors.ViewModel
 
         private void CreateExecuted()
         {
-            this.Edited = new EntityEditModel(new EntityViewModel(new Entity("new entity")), this.OnCreateCommitted, this.OnRollback);
+            this.Edited = new EntityEditModel(new Entity("new entity"), this.OnCreateCommitted, this.OnRollback);
         }
 
         private void OnRollback(Entity obj)
@@ -59,7 +59,7 @@ namespace Kosmograph.Desktop.Editors.ViewModel
 
         public ICommand EditCommand { get; }
 
-        private void EditExecuted(EntityViewModel entity)
+        private void EditExecuted(Entity entity)
         {
             this.Edited = new EntityEditModel(entity, this.OnEditCommitted, this.OnRollback);
         }

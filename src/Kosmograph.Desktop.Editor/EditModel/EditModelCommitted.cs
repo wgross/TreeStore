@@ -2,9 +2,9 @@
 {
     public sealed class EditModelCommitted
     {
-        public EditModelCommitted(object viewModel)
+        public EditModelCommitted(object model)
         {
-            this.ViewModel = viewModel;
+            this.ViewModel = model;
         }
 
         public object ViewModel { get; set; }

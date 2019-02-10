@@ -110,8 +110,8 @@ namespace Kosmograph.Desktop.Editors.ViewModel
             // ASSERT
 
             Assert.NotNull(this.viewModel.DeletingEntity);
-            Assert.Equal(entity1, this.viewModel.DeletingEntity.Entity.Model);
-            Assert.Equal(relationship.Yield(), this.viewModel.DeletingEntity.Relationships.Select(r => r.Model));
+            Assert.Equal(entity1, this.viewModel.DeletingEntity.Entity);
+            Assert.Equal(relationship.Yield(), this.viewModel.DeletingEntity.Relationships);
         }
 
         [Fact]

@@ -1,17 +1,21 @@
-﻿using Kosmograph.Desktop.Editor.Test;
+﻿using Kosmograph.Desktop.Editors.ViewModel;
 using Kosmograph.Model;
 using Moq;
 using System;
 using System.Linq;
 using Xunit;
 
-namespace Kosmograph.Desktop.Editors.ViewModel
+namespace Kosmograph.Desktop.Editors.Test.ViewModel
 
 {
     public class FacetPropertyEditModelTest : IDisposable
     {
         private readonly MockRepository mocks = new MockRepository(MockBehavior.Strict);
         private readonly Mock<ITagEditCallback> tagEditCallback;
+
+        private Tag DefaultTag(params FacetProperty[] properties) => new Tag("tag", new Facet("f", properties));
+
+        private Tag DefaultTag() => new Tag("tag", new Facet("f", new FacetProperty("p")));
 
         public FacetPropertyEditModelTest()
         {
@@ -24,16 +28,15 @@ namespace Kosmograph.Desktop.Editors.ViewModel
         }
 
         [Fact]
-        public void FacetPropertyEditModel_mirrors_ViewModel()
+        public void FacetPropertyEditModel_mirrors_Model()
         {
             // ARRANGE
 
-            var model = new Tag("", new Facet("", new FacetProperty("p")));
-            var viewModel = model.ToViewModel();
+            var model = DefaultTag();
 
             // ACT
 
-            var result = new TagEditModel(viewModel, this.tagEditCallback.Object).Properties.Single();
+            var result = new TagEditModel(model, this.tagEditCallback.Object).Properties.Single();
 
             // ASSERT
 
@@ -41,13 +44,12 @@ namespace Kosmograph.Desktop.Editors.ViewModel
         }
 
         [Fact]
-        public void FacetPropertyEditModel_delays_changes_of_ViewModel()
+        public void FacetPropertyEditModel_delays_changes_of_Model()
         {
             // ARRANGE
 
-            var model = new Tag("", new Facet("", new FacetProperty("p")));
-            var viewModel = model.ToViewModel();
-            var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
+            var model = DefaultTag();
+            var editModel = new TagEditModel(model, this.tagEditCallback.Object);
 
             // ACT
 
@@ -56,7 +58,6 @@ namespace Kosmograph.Desktop.Editors.ViewModel
             // ASSERT
 
             Assert.Equal("changed", editModel.Properties.Single().Name);
-            Assert.Equal("p", viewModel.Properties.Single().Name);
             Assert.Equal("p", model.Facet.Properties.Single().Name);
         }
 
@@ -65,9 +66,8 @@ namespace Kosmograph.Desktop.Editors.ViewModel
         {
             // ARRANGE
 
-            var model = new Tag("", new Facet("", new FacetProperty("p")));
-            var viewModel = model.ToViewModel();
-            var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
+            var model = DefaultTag();
+            var editModel = new TagEditModel(model, this.tagEditCallback.Object);
 
             // ACT
 
@@ -83,9 +83,8 @@ namespace Kosmograph.Desktop.Editors.ViewModel
         {
             // ARRANGE
 
-            var model = new Tag("", new Facet("", new FacetProperty("p"), new FacetProperty("q")));
-            var viewModel = model.ToViewModel();
-            var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
+            var model = DefaultTag(new FacetProperty("p"), new FacetProperty("q"));
+            var editModel = new TagEditModel(model, this.tagEditCallback.Object);
 
             // ACT
 
@@ -102,9 +101,8 @@ namespace Kosmograph.Desktop.Editors.ViewModel
         {
             // ARRANGE
 
-            var model = new Tag("", new Facet("", new FacetProperty("p"), new FacetProperty("q")));
-            var viewModel = model.ToViewModel();
-            var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
+            var model = DefaultTag(new FacetProperty("p"), new FacetProperty("q"));
+            var editModel = new TagEditModel(model, this.tagEditCallback.Object);
 
             // ACT
 
@@ -119,13 +117,12 @@ namespace Kosmograph.Desktop.Editors.ViewModel
         }
 
         [Fact]
-        public void FacetPropertyEditModel_commits_changes_to_ViewModel()
+        public void FacetPropertyEditModel_commits_changes_to_Model()
         {
             // ARRANGE
 
             var model = new Tag("", new Facet("", new FacetProperty("p")));
-            var viewModel = model.ToViewModel();
-            var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
+            var editModel = new TagEditModel(model, this.tagEditCallback.Object);
 
             editModel.Properties.Single().Name = "changed";
 
@@ -136,18 +133,16 @@ namespace Kosmograph.Desktop.Editors.ViewModel
             // ASSERT
 
             Assert.Equal("changed", editModel.Properties.Single().Name);
-            Assert.Equal("changed", viewModel.Properties.Single().Name);
             Assert.Equal("changed", model.Facet.Properties.Single().Name);
         }
 
         [Fact]
-        public void FacetPropertyEditModel_reverts_changes_to_ViewModel()
+        public void FacetPropertyEditModel_reverts_changes_to_Model()
         {
             // ARRANGE
 
-            var model = new Tag("", new Facet("", new FacetProperty("p")));
-            var viewModel = model.ToViewModel();
-            var editModel = new TagEditModel(viewModel, this.tagEditCallback.Object);
+            var model = DefaultTag();
+            var editModel = new TagEditModel(model, this.tagEditCallback.Object);
 
             editModel.Properties.Single().Name = "changed";
 
@@ -159,7 +154,6 @@ namespace Kosmograph.Desktop.Editors.ViewModel
             // ASSERT
 
             Assert.Equal("p", editModel.Properties.Single().Name);
-            Assert.Equal("p", viewModel.Properties.Single().Name);
             Assert.Equal("p", model.Facet.Properties.Single().Name);
         }
     }
