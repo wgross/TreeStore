@@ -41,7 +41,9 @@
     <ListBox
         Name="repositoryListBox"
         Style="{StaticResource modelItemListBoxStyle}"
-        ItemsSource="{Binding Source={StaticResource repositoryCollectionViewSource}}">
+        ItemsSource="{Binding Source={StaticResource repositoryCollectionViewSource}}"
+        MouseDoubleClick="repositoryListBox_MouseDoubleClick"
+        SelectedItem="{Binding Path=SelectedItem, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:EntityRepositoryView}}}">
         <ListBox.ItemTemplate>
             <DataTemplate>
                 <Grid MouseMove="repositoryListBoxItem_MouseMove">

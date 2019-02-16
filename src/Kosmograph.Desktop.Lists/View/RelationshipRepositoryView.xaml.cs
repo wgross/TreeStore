@@ -32,5 +32,7 @@ namespace Kosmograph.Desktop.Lists.View
                 DragDrop.DoDragDrop((DependencyObject)sender, data, DragDropEffects.Link);
             }
         }
+
+       
     }
 }

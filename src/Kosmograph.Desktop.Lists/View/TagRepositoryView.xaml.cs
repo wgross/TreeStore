@@ -71,11 +71,11 @@ namespace Kosmograph.Desktop.Lists.View
 
         #endregion Map keyboard input to routed events
 
-        #region Map mpuse events to routed events
+        #region Map mouse events to routed events
 
         private void repositoryListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e) => this.RaiseEditTagEvent();
 
-        #endregion Map mpuse events to routed events
+        #endregion Map mouse events to routed events
 
         #region Request editing of a Tag
 
