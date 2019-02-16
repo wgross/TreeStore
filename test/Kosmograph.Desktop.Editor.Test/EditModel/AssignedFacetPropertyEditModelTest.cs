@@ -64,7 +64,7 @@ namespace Kosmograph.Desktop.Editor.Test.ViewModel
             // ASSERT
 
             Assert.Equal("value", editModel.Value);
-            Assert.Equal(1, values[model.Id.ToString()]);
+            Assert.Equal("value", values[model.Id.ToString()]);
         }
 
         [Fact]
