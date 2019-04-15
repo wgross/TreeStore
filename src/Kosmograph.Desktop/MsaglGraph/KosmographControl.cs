@@ -1,6 +1,7 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using Kosmograph.Desktop.EditModel;
 using Kosmograph.Desktop.ViewModel;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -50,7 +51,7 @@ namespace Kosmograph.Desktop.MsaglGraph
             this.Loaded += this.KosmographControl_Loaded;
             Messenger.Default.Register<EditModelCommitted>(this, this.EditModelCommitted);
         }
-
+        
         private void KosmographControl_Loaded(object sender, RoutedEventArgs e)
         {
             this.AddKosmographNodesAndEdges((KosmographViewModel)this.DataContext);

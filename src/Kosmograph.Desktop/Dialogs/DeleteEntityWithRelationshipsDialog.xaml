@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:Kosmograph.Desktop.Dialogs"
         xmlns:kdc="clr-namespace:Kosmograph.Desktop.Controls"
         xmlns:kvm="clr-namespace:Kosmograph.Desktop.ViewModel"
+        xmlns:kdlvm="clr-namespace:Kosmograph.Desktop.Lists.ViewModel;assembly=Kosmograph.Desktop.Lists"
         mc:Ignorable="d"
         WindowStartupLocation="CenterOwner"
         Title="Delete Entities with Relationships" Height="250" Width="400">
@@ -22,7 +23,7 @@
             ItemsSource="{Binding Relationships}"
             HorizontalAlignment="Center">
             <ItemsControl.ItemTemplate>
-                <DataTemplate DataType="{x:Type kvm:RelationshipViewModel}">
+                <DataTemplate DataType="{x:Type kdlvm:RelationshipViewModel}">
                     <TextBlock Text="{Binding Name}"/>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>

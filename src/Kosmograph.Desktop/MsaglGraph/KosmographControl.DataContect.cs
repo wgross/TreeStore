@@ -1,4 +1,5 @@
 ﻿using Kosmograph.Desktop.EditModel;
+using Kosmograph.Desktop.Lists.ViewModel;
 using Kosmograph.Desktop.ViewModel;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,10 +52,10 @@ namespace Kosmograph.Desktop.MsaglGraph
             if (isEntity)
                 this.MsaglGraphViewer.UpdateNode(entity);
             var (isRelationship, relationship) = notification.TryGetViewModel<RelationshipViewModel>();
-            if(isRelationship)
+            if (isRelationship)
                 this.MsaglGraphViewer.UpdateEdge(relationship);
         }
-        
+
         private void AddKosmographNodesAndEdges(KosmographViewModel viewModel)
         {
             var graph = new Microsoft.Msagl.Drawing.Graph();

@@ -7,6 +7,14 @@ namespace Kosmograph.Desktop.ViewModel
     {
         public Lists.ViewModel.RelationshipRepositoryViewModel Relationships { get; }
 
+        public Lists.ViewModel.RelationshipViewModel SelectedRelationship
+        {
+            get => this.selectedRelationship;
+            set => this.Set(nameof(SelectedRelationship), ref this.selectedRelationship, value);
+        }
+
+        public Lists.ViewModel.RelationshipViewModel selectedRelationship;
+
         #region Edit Relatsionhsip
 
         public ICommand EditRelationshipCommand { get; }
@@ -39,7 +47,7 @@ namespace Kosmograph.Desktop.ViewModel
             => this.EditedRelationship = new Editors.ViewModel.RelationshipEditModel(new Relationship("new relationship"), this.CreateRelationshipCommitted, this.CreateRelationshipRollback);
 
         private void CreateRelationshipRollback(Relationship relationship) => this.EditedRelationship = null;
-        
+
         private void CreateRelationshipCommitted(Relationship relationship)
         {
             this.model.Relationships.Upsert(relationship);

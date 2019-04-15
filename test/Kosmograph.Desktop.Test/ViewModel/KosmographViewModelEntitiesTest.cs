@@ -1,4 +1,5 @@
-﻿using Kosmograph.Desktop.ViewModel;
+﻿using Kosmograph.Desktop.Lists.ViewModel;
+using Kosmograph.Desktop.ViewModel;
 using Kosmograph.Model;
 using Moq;
 using System;

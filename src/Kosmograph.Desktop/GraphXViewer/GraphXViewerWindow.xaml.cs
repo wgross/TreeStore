@@ -4,6 +4,7 @@ using GraphX.PCL.Common.Enums;
 using GraphX.PCL.Logic.Algorithms.LayoutAlgorithms;
 using Kosmograph.Desktop.EditModel;
 using Kosmograph.Desktop.GraphXViewer.Model;
+using Kosmograph.Desktop.Lists.ViewModel;
 using Kosmograph.Desktop.ViewModel;
 using System;
 using System.Collections.Specialized;

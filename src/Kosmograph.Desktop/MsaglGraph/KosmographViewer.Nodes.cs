@@ -1,4 +1,4 @@
-﻿using Kosmograph.Desktop.ViewModel;
+﻿using Kosmograph.Desktop.Lists.ViewModel;
 using Microsoft.Msagl.Drawing;
 using System.Collections.Generic;
 using System.Linq;

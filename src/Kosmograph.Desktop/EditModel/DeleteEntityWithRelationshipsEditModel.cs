@@ -1,5 +1,5 @@
-﻿using Kosmograph.Desktop.EditModel.Base;
-using Kosmograph.Desktop.ViewModel;
+﻿using Kosmograph.Desktop.Editors.ViewModel.Base;
+using Kosmograph.Desktop.Lists.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

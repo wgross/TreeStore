@@ -1,6 +1,7 @@
 ﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using Kosmograph.Desktop.EditModel;
+using Kosmograph.Desktop.Lists.ViewModel;
 using Kosmograph.Messaging;
 using Kosmograph.Model;
 using System;
@@ -40,25 +41,7 @@ namespace Kosmograph.Desktop.ViewModel
 
         public KosmographModel Model => this.model;
 
-        public Lists.ViewModel.EntityRepositoryViewModel Entities { get; }
-
         
-
-        public EntityViewModel SelectedEntity
-        {
-            get => this.selectedEntity;
-            set => this.Set(nameof(SelectedEntity), ref this.selectedEntity, value);
-        }
-
-        private EntityViewModel selectedEntity;
-
-        public RelationshipViewModel SelectedRelationship
-        {
-            get => this.selectedRelationship;
-            set => this.Set(nameof(SelectedRelationship), ref this.selectedRelationship, value);
-        }
-
-        public RelationshipViewModel selectedRelationship;
 
         #region Delete Entity with Relastionships
 
@@ -92,8 +75,6 @@ namespace Kosmograph.Desktop.ViewModel
                 this.Set(nameof(DeletingEntity), ref this.deletingEntity, value);
             }
         }
-
-        
 
         private DeleteEntityWithRelationshipsEditModel deletingEntity;
 

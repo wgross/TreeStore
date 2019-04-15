@@ -1,4 +1,5 @@
-﻿using Kosmograph.Desktop.ViewModel;
+﻿using Kosmograph.Desktop.Lists.ViewModel;
+using Kosmograph.Desktop.ViewModel;
 using Microsoft.Msagl.Layout.LargeGraphLayout;
 using System;
 using System.Collections.Generic;

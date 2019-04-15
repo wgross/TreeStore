@@ -5,6 +5,16 @@ namespace Kosmograph.Desktop.ViewModel
 {
     public partial class KosmographViewModel
     {
+        public Lists.ViewModel.EntityRepositoryViewModel Entities { get; }
+
+        public Lists.ViewModel.EntityViewModel SelectedEntity
+        {
+            get => this.selectedEntity;
+            set => this.Set(nameof(SelectedEntity), ref this.selectedEntity, value);
+        }
+
+        private Lists.ViewModel.EntityViewModel selectedEntity;
+
         #region Edit Entity
 
         //private sealed class EntityEditCallbackHandler : Editors.ViewModel.IEntityEditCallback
