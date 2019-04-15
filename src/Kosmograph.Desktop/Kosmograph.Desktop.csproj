@@ -102,29 +102,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Controls\EditAssignedTagsControl.xaml.cs">
-      <DependentUpon>EditAssignedTagsControl.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Controls\EditorButtonPanelControl.xaml.cs">
       <DependentUpon>EditorButtonPanelControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\EditorHeaderControl.xaml.cs">
       <DependentUpon>EditorHeaderControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\EditRelatedEntitiesControl.xaml.cs">
-      <DependentUpon>EditRelatedEntitiesControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\EditRelationshipControl.xaml.cs">
-      <DependentUpon>EditRelationshipControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\EditEntityControl.xaml.cs">
-      <DependentUpon>EditEntityControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\EditorSectionHeaderControl.xaml.cs">
-      <DependentUpon>EditorSectionHeaderControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\EditTagFacetPropertiesControl.xaml.cs">
-      <DependentUpon>EditTagFacetPropertiesControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\ShowEntitiesControl.xaml.cs">
       <DependentUpon>ShowEntitiesControl.xaml</DependentUpon>
@@ -134,9 +116,6 @@
     </Compile>
     <Compile Include="Controls\ShowTagsControl.xaml.cs">
       <DependentUpon>ShowTagsControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\EditItemNameControl.xaml.cs">
-      <DependentUpon>EditItemNameControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\DeleteEntityWithRelationshipsDialog.xaml.cs">
       <DependentUpon>DeleteEntityWithRelationshipsDialog.xaml</DependentUpon>
@@ -211,10 +190,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Controls\EditAssignedTagsControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Controls\EditorButtonPanelControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -222,26 +197,6 @@
     <Page Include="Controls\EditorHeaderControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Controls\EditRelatedEntitiesControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Controls\EditRelationshipControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Controls\EditEntityControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Controls\EditorSectionHeaderControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Controls\EditTagFacetPropertiesControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\ShowEntitiesControl.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -252,10 +207,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\ShowTagsControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Controls\EditItemNameControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
