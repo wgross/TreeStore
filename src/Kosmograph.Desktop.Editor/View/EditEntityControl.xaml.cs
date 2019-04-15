@@ -1,4 +1,5 @@
 ﻿using Kosmograph.Desktop.Editors.ViewModel;
+using Kosmograph.Model;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -15,9 +16,9 @@ namespace Kosmograph.Desktop.Editors.View
 
         private void editEntityControl_Drop(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(typeof(TagViewModel)))
+            if (e.Data.GetDataPresent(typeof(Tag)))
             {
-                this.ViewModel.AssignTagCommand.Execute(e.Data.GetData(typeof(TagViewModel)));
+                this.ViewModel.AssignTagCommand.Execute(e.Data.GetData(typeof(Tag)));
             }
             e.Handled = true;
         }

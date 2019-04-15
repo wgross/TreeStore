@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Kosmograph.Desktop.Editors.View"
         xmlns:kvm="clr-namespace:Kosmograph.Desktop.Editors.ViewModel"
+        xmlns:km="clr-namespace:Kosmograph.Model;assembly=Kosmograph.Model"
         mc:Ignorable="d"
         WindowStartupLocation="CenterOwner"
         Title="Delete Entities with Relationships" Height="250" Width="400">
@@ -21,7 +22,7 @@
             ItemsSource="{Binding Relationships}"
             HorizontalAlignment="Center">
             <ItemsControl.ItemTemplate>
-                <DataTemplate DataType="{x:Type kvm:RelationshipViewModel}">
+                <DataTemplate DataType="{x:Type km:Relationship}">
                     <TextBlock Text="{Binding Name}"/>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>

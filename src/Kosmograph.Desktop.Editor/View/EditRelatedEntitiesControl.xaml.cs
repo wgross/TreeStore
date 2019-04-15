@@ -77,7 +77,7 @@ namespace Kosmograph.Desktop.Editors.View
                     return;
 
                 DataObject data = new DataObject();
-                data.SetData(typeof(EntityViewModel), relatsionhipEditModel.From);
+                data.SetData(typeof(Entity), relatsionhipEditModel.From);
 
                 DragDrop.DoDragDrop((DependencyObject)sender, data, DragDropEffects.Link);
             }

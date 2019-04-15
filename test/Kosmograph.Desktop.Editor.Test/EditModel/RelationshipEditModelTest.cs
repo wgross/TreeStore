@@ -112,7 +112,7 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
             // ASSERT
 
             Assert.NotNull(result);
-            Assert.Equal(typeof(RelationshipViewModel), result.ViewModel.GetType());
+            Assert.Equal(typeof(Relationship), result.Model.GetType());
         }
 
         [Fact]
@@ -173,13 +173,13 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
         {
             // ARRANGE
 
-            var tagViewModel = new TagViewModel(new Tag("t2"));
+            var tag = new Tag("t2");
             var model = DefaultRelationship();
             var editModel = new RelationshipEditModel(model, delegate { }, delegate { });
 
             // ACT
 
-            editModel.AssignTagCommand.Execute(tagViewModel);
+            editModel.AssignTagCommand.Execute(tag);
 
             // ASSERT
 
@@ -192,11 +192,11 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
         {
             // ARRANGE
 
-            var tagViewModel = new TagViewModel(new Tag("t2"));
+            var tag = new Tag("t2");
             var model = DefaultRelationship();
             var editModel = new RelationshipEditModel(model, delegate { }, delegate { });
 
-            editModel.AssignTagCommand.Execute(tagViewModel);
+            editModel.AssignTagCommand.Execute(tag);
 
             // ACT
 
@@ -213,11 +213,11 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
         {
             // ARRANGE
 
-            var tagViewModel = new TagViewModel(new Tag("t2"));
+            var tag = new Tag("t2");
             var model = DefaultRelationship();
             var editModel = new RelationshipEditModel(model, delegate { }, delegate { });
 
-            editModel.AssignTagCommand.Execute(tagViewModel);
+            editModel.AssignTagCommand.Execute(tag);
 
             // ACT
 
@@ -235,7 +235,7 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
         {
             // ARRANGE
 
-            var tagViewModel = new TagViewModel(new Tag("t2"));
+            var tagViewModel = new Tag("t2");
             var model = DefaultRelationship();
             var editModel = new RelationshipEditModel(model, delegate { }, delegate { });
 
@@ -254,7 +254,7 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
         {
             // ARRANGE
 
-            var tagViewModel = new TagViewModel(new Tag("t2"));
+            var tagViewModel = new Tag("t2");
             var model = DefaultRelationship();
             var editModel = new RelationshipEditModel(model, delegate { }, delegate { });
 
@@ -302,7 +302,7 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
 
             // ACT
 
-            var result = editModel.AssignTagCommand.CanExecute(new TagViewModel(tagModel));
+            var result = editModel.AssignTagCommand.CanExecute(tagModel);
 
             // ASSERT
 

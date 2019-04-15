@@ -1,6 +1,7 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using Kosmograph.Desktop.Editor.Test;
 using Kosmograph.Desktop.Editors.ViewModel;
+using Kosmograph.Desktop.Lists.ViewModel;
 using Kosmograph.Model;
 using System;
 using System.Linq;
@@ -120,7 +121,7 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
             // ASSERT
 
             Assert.NotNull(result);
-            Assert.Equal(typeof(EntityViewModel), result.ViewModel.GetType());
+            Assert.Equal(typeof(EntityViewModel), result.Model.GetType());
         }
 
         [Fact]
@@ -303,8 +304,6 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
             var model = DefaultEntity();
             model.SetFacetProperty(model.Tags.Single().Facet.Properties.Single(), 1);
 
-            var viewModel = new EntityViewModel(model, model.Tags.Single().ToViewModel());
-
             Entity reverted = null;
             var revertCB = new Action<Entity>(e => reverted = e);
 
@@ -321,7 +320,6 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
 
             Assert.Equal(model, reverted);
             Assert.Single(editModel.Tags);
-            Assert.Single(viewModel.Tags);
             Assert.Single(model.Tags);
         }
 

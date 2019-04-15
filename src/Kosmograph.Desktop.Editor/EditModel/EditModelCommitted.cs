@@ -4,14 +4,14 @@
     {
         public EditModelCommitted(object model)
         {
-            this.ViewModel = model;
+            this.Model = model;
         }
 
-        public object ViewModel { get; set; }
+        public object Model { get; set; }
 
         public (bool, T) TryGetViewModel<T>() where T : class
         {
-            if (this.ViewModel is T t)
+            if (this.Model is T t)
                 return (true, t);
             else return (false, null);
         }

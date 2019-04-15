@@ -63,18 +63,7 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ViewModel\AssignedFacetPropertyViewModel.cs" />
-    <Compile Include="ViewModel\AssignedTagViewModel.cs" />
-    <Compile Include="ViewModel\Base\NamedViewModelBase.cs" />
-    <Compile Include="ViewModel\Base\RepositoryViewModel.cs" />
     <Compile Include="ViewModel\CommitableObservableCollection.cs" />
-    <Compile Include="ViewModel\EntityRepositoryViewModel.cs" />
-    <Compile Include="ViewModel\EntityViewModel.cs" />
-    <Compile Include="ViewModel\FacetPropertyViewModel.cs" />
-    <Compile Include="ViewModel\KosmographViewModel.cs" />
-    <Compile Include="ViewModel\RelationshipViewModel.cs" />
-    <Compile Include="ViewModel\TagRepositoryViewModel.cs" />
-    <Compile Include="ViewModel\TagViewModel.cs" />
     <Page Include="View\CommonResources.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -119,18 +108,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\ShowEntitiesControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\ShowRelationshipsControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\ShowTagsControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="Dialogs\DeleteEntityWithRelationshipsDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -168,15 +145,6 @@
     </Compile>
     <Compile Include="View\EditTagFacetPropertiesControl.xaml.cs">
       <DependentUpon>EditTagFacetPropertiesControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\ShowEntitiesControl.xaml.cs">
-      <DependentUpon>ShowEntitiesControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\ShowRelationshipsControl.xaml.cs">
-      <DependentUpon>ShowRelationshipsControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\ShowTagsControl.xaml.cs">
-      <DependentUpon>ShowTagsControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\DeleteEntityWithRelationshipsDialog.xaml.cs">
       <DependentUpon>DeleteEntityWithRelationshipsDialog.xaml</DependentUpon>

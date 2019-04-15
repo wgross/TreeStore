@@ -68,7 +68,6 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
 
             var p2 = new FacetProperty("p2");
             var model = new Tag("tag", new Facet("facet", new FacetProperty("p")));
-            var viewModel = new TagViewModel(model);
 
             this.tagEditCallback
                 .Setup(cb => cb.Commit(model));
@@ -92,7 +91,6 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
             // ASSERT
 
             Assert.Equal("changed", editModel.Name);
-            Assert.Equal("changed", viewModel.Name);
             Assert.Equal("changed", model.Name);
         }
 

@@ -1,4 +1,5 @@
 ﻿using Kosmograph.Desktop.Editors.ViewModel;
+using Kosmograph.Desktop.Lists.ViewModel;
 using Kosmograph.Model;
 
 namespace Kosmograph.Desktop.Editor.Test
@@ -9,7 +10,7 @@ namespace Kosmograph.Desktop.Editor.Test
 
         public static EntityViewModel ToViewModel(this Entity model) => new EntityViewModel(model);
 
-        public static RelationshipViewModel ToViewModel(this Relationship model) => new RelationshipViewModel(model, model.From.ToViewModel(), model.To.ToViewModel());
+        public static RelationshipViewModel ToViewModel(this Relationship model) => new RelationshipViewModel(model);
 
         public static FacetPropertyViewModel ToViewModel(this FacetProperty property) => new FacetPropertyViewModel(property);
     }
