@@ -47,8 +47,8 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
             // ACT
 
             editModel.Name = "changed";
-            editModel.From = model.From;
-            editModel.To = model.To;
+            editModel.From = DefaultEntity();
+            editModel.To = DefaultEntity();
 
             // ASSERT
 
@@ -296,13 +296,13 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
         {
             // ARRANGE
 
-            var tagModel = new Tag();
             var model = DefaultRelationship();
             var editModel = new RelationshipEditModel(model, delegate { }, delegate { });
 
             // ACT
+            // try adding tag again
 
-            var result = editModel.AssignTagCommand.CanExecute(tagModel);
+            var result = editModel.AssignTagCommand.CanExecute(model.Tags.Single());
 
             // ASSERT
 

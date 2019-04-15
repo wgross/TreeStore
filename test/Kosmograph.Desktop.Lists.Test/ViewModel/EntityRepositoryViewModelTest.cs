@@ -3,6 +3,7 @@ using Kosmograph.Messaging;
 using Kosmograph.Model;
 using Moq;
 using System;
+using System.Collections.Specialized;
 using System.Linq;
 using Xunit;
 
@@ -69,13 +70,19 @@ namespace Kosmograph.Desktop.Lists.Test.ViewModel
             this.repositoryViewModel.FillAll();
             var originalViewModel = this.repositoryViewModel.Single();
 
-            bool collectionChanged = false;
+            bool existingEntityWasRemoved = false;
+            bool existingEntityWasAdded = false;
             this.repositoryViewModel.CollectionChanged += (sender, e) =>
             {
                 Assert.Same(this.repositoryViewModel, sender);
-                Assert.Equal(entity, e.NewItems.OfType<EntityViewModel>().Single().Model);
-                Assert.Equal(entity, e.OldItems.OfType<EntityViewModel>().Single().Model);
-                collectionChanged = true;
+                if (e.Action == NotifyCollectionChangedAction.Remove && e.OldItems.OfType<EntityViewModel>().Single().Model.Equals(entity))
+                {
+                    existingEntityWasRemoved = true;
+                }
+                if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems.OfType<EntityViewModel>().Single().Model.Equals(entity))
+                {
+                    existingEntityWasAdded = true;
+                }
             };
 
             // ACT
@@ -84,7 +91,8 @@ namespace Kosmograph.Desktop.Lists.Test.ViewModel
 
             // ASSERT
 
-            Assert.True(collectionChanged);
+            Assert.True(existingEntityWasAdded);
+            Assert.True(existingEntityWasRemoved);
             Assert.NotSame(originalViewModel, this.repositoryViewModel.Single());
             Assert.Equal(entity, this.repositoryViewModel.Single().Model);
         }
@@ -121,7 +129,7 @@ namespace Kosmograph.Desktop.Lists.Test.ViewModel
             this.messaging.Modified(entity);
 
             // ASSERT
-            
+
             Assert.True(collectionChanged);
             Assert.False(this.repositoryViewModel.Any());
         }

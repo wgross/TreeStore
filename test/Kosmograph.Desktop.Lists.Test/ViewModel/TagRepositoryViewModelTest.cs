@@ -2,6 +2,7 @@
 using Kosmograph.Model;
 using Moq;
 using System;
+using System.Collections.Specialized;
 using System.Linq;
 using Xunit;
 
@@ -66,13 +67,19 @@ namespace Kosmograph.Desktop.Lists.ViewModel.Test
             this.repositoryViewModel.FillAll();
             var originalViewModel = this.repositoryViewModel.Single();
 
-            bool collectionChanged = false;
+            bool existingTagWasAdded = false;
+            bool existingTagWasRemoved = false;
             this.repositoryViewModel.CollectionChanged += (sender, e) =>
             {
                 Assert.Same(this.repositoryViewModel, sender);
-                Assert.Equal(tag, e.NewItems.OfType<TagViewModel>().Single().Model);
-                Assert.Equal(tag, e.OldItems.OfType<TagViewModel>().Single().Model);
-                collectionChanged = true;
+                if (e.Action == NotifyCollectionChangedAction.Remove && e.OldItems.OfType<TagViewModel>().Single().Model.Equals(tag))
+                {
+                    existingTagWasRemoved = true;
+                }
+                if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems.OfType<TagViewModel>().Single().Model.Equals(tag))
+                {
+                    existingTagWasAdded = true;
+                }
             };
 
             // ACT
@@ -82,7 +89,8 @@ namespace Kosmograph.Desktop.Lists.ViewModel.Test
             // ASSERT
             // same tag, but new view model instance
 
-            Assert.True(collectionChanged);
+            Assert.True(existingTagWasRemoved);
+            Assert.True(existingTagWasAdded);
             Assert.NotSame(originalViewModel, this.repositoryViewModel.Single());
             Assert.Equal(tag, this.repositoryViewModel.Single().Model);
         }

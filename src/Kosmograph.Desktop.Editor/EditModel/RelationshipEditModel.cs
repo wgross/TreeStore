@@ -71,7 +71,7 @@ namespace Kosmograph.Desktop.Editors.ViewModel
 
         public ICommand AssignTagCommand { get; set; }
 
-        #endregion Assign Tag command
+        #endregion Assign Tag command   
 
         #region Remove Tag command
 

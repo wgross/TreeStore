@@ -48,8 +48,14 @@ namespace Kosmograph.Desktop.Lists.ViewModel
             {
                 var tag = new TagViewModel(this.repository.FindById(id));
                 var indexOfTag = this.IndexOf(tag);
+
                 if (indexOfTag > -1)
-                    this.SetItem(indexOfTag, tag);
+                {
+                    // setItem doesn work here most probably because Equals is overwritten to match the Model
+                    // remove/add is ok anyway because the list has to be sorted because the name might have changed.
+                    this.RemoveAt(indexOfTag);
+                    this.Add(tag);
+                }
                 else
                     this.Add(tag);
             }

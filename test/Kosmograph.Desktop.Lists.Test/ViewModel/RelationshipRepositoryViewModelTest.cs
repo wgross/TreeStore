@@ -3,6 +3,7 @@ using Kosmograph.Messaging;
 using Kosmograph.Model;
 using Moq;
 using System;
+using System.Collections.Specialized;
 using System.Linq;
 using Xunit;
 
@@ -58,37 +59,44 @@ namespace Kosmograph.Desktop.Lists.Test.ViewModel
         {
             // ARRANGE
 
-            var entity = DefaultRelationship();
+            var relationship = DefaultRelationship();
 
             this.repository
                 .Setup(r => r.FindAll())
-                .Returns(entity.Yield());
+                .Returns(relationship.Yield());
 
             this.repository
-                .Setup(r => r.FindById(entity.Id))
-                .Returns(entity);
+                .Setup(r => r.FindById(relationship.Id))
+                .Returns(relationship);
 
             this.repositoryViewModel.FillAll();
             var originalViewModel = this.repositoryViewModel.Single();
 
-            bool collectionChanged = false;
+            bool existingRelationshipWasRemoved = false;
+            bool existingRelationshipWasAdded = false;
             this.repositoryViewModel.CollectionChanged += (sender, e) =>
             {
                 Assert.Same(this.repositoryViewModel, sender);
-                Assert.Equal(entity, e.NewItems.OfType<RelationshipViewModel>().Single().Model);
-                Assert.Equal(entity, e.OldItems.OfType<RelationshipViewModel>().Single().Model);
-                collectionChanged = true;
+                if (e.Action == NotifyCollectionChangedAction.Remove && e.OldItems.OfType<RelationshipViewModel>().Single().Model.Equals(relationship))
+                {
+                    existingRelationshipWasRemoved = true;
+                }
+                if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems.OfType<RelationshipViewModel>().Single().Model.Equals(relationship))
+                {
+                    existingRelationshipWasAdded = true;
+                }
             };
 
             // ACT
 
-            this.messaging.Modified(entity);
+            this.messaging.Modified(relationship);
 
             // ASSERT
 
-            Assert.True(collectionChanged);
+            Assert.True(existingRelationshipWasRemoved);
+            Assert.True(existingRelationshipWasAdded);
             Assert.NotSame(originalViewModel, this.repositoryViewModel.Single());
-            Assert.Equal(entity, this.repositoryViewModel.Single().Model);
+            Assert.Equal(relationship, this.repositoryViewModel.Single().Model);
         }
 
         [Fact]

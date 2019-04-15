@@ -1,7 +1,5 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
-using Kosmograph.Desktop.Editor.Test;
 using Kosmograph.Desktop.Editors.ViewModel;
-using Kosmograph.Desktop.Lists.ViewModel;
 using Kosmograph.Model;
 using System;
 using System.Linq;
@@ -121,7 +119,7 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
             // ASSERT
 
             Assert.NotNull(result);
-            Assert.Equal(typeof(EntityViewModel), result.Model.GetType());
+            Assert.Equal(typeof(Entity), result.Model.GetType());
         }
 
         [Fact]
@@ -170,7 +168,7 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
             // ASSERT
 
             Assert.Equal(2, editModel.Tags.Count());
-            Assert.Empty(model.Tags);
+            Assert.Single(model.Tags);
         }
 
         [Fact]
@@ -218,8 +216,7 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
 
             Assert.Equal(model, committed);
             Assert.Null(reverted);
-            Assert.Single(editModel.Tags);
-            Assert.Single(model.Tags);
+            Assert.Equal(new[] { model.Tags.First(), tag2 }, model.Tags);
         }
 
         [Fact]
@@ -245,8 +242,8 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
             // ASSERT
 
             Assert.Equal(model, reverted);
-            Assert.Empty(editModel.Tags);
-            Assert.Empty(model.Tags);
+            Assert.Single(editModel.Tags);
+            Assert.Single(model.Tags);
         }
 
         [Fact]

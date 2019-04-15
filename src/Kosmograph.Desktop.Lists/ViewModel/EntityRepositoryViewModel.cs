@@ -43,9 +43,14 @@ namespace Kosmograph.Desktop.Lists.ViewModel
             try
             {
                 var entity = new EntityViewModel(this.repository.FindById(id));
-                var indexOfTag = this.IndexOf(entity);
-                if (indexOfTag > -1)
-                    this.SetItem(indexOfTag, entity);
+                var indexOfEntity = this.IndexOf(entity);
+                if (indexOfEntity > -1)
+                {
+                    // setItem doesn work here most probably because Equals is overwritten to match the Model
+                    // remove/add is ok anyway because the list has to be sorted because the name might have changed.
+                    this.RemoveAt(indexOfEntity);
+                    this.Add(entity);
+                }
                 else
                     this.Add(entity);
             }
