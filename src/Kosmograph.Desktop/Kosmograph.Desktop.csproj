@@ -144,10 +144,6 @@
     <Compile Include="EditModel\DeleteEntityWithRelationshipsEditModel.cs" />
     <Compile Include="EditModel\EditModelCommitted.cs" />
     <Compile Include="EditModel\ITagEditCallback.cs" />
-    <Compile Include="Editor\EditorCommands.cs" />
-    <Compile Include="Editor\EditorControl.xaml.cs">
-      <DependentUpon>EditorControl.xaml</DependentUpon>
-    </Compile>
     <Compile Include="GraphXViewer\GraphXViewerWindow.xaml.cs">
       <DependentUpon>GraphXViewerWindow.xaml</DependentUpon>
     </Compile>
@@ -264,10 +260,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialogs\DeleteEntityWithRelationshipsDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Editor\EditorControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

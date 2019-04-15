@@ -3,8 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Kosmograph.Desktop"
         xmlns:kde ="clr-namespace:Kosmograph.Desktop.Editor"
+        xmlns:kdev="clr-namespace:Kosmograph.Desktop.Editors.View;assembly=Kosmograph.Desktop.Editor"
         xmlns:kdc="clr-namespace:Kosmograph.Desktop.Controls"
         mc:Ignorable="d"
         Title="Kosmograph" Height="450" Width="900">
@@ -40,7 +40,7 @@
             <Grid Grid.Column="0"
                   Margin="5,0,5,0">
                 <kdc:ShowTagsControl/>
-                <kde:EditorControl DataContext="{Binding EditedTag, Mode=OneWay}" />
+                <kdev:EditorControl DataContext="{Binding EditedTag, Mode=OneWay}" />
             </Grid>
 
             <!--
@@ -57,7 +57,7 @@
             <Grid Grid.Column="1"
                 Margin="5,0,5,0">
                 <kdc:ShowEntitiesControl/>
-                <kde:EditorControl DataContext="{Binding EditedEntity, Mode=OneWay}" />
+                <kdev:EditorControl DataContext="{Binding EditedEntity, Mode=OneWay}" />
             </Grid>
 
             <!--
@@ -74,7 +74,7 @@
             <Grid Grid.Column="2"
                   Margin="5,0,5,0">
                 <kdc:ShowRelationshipsControl/>
-                <kde:EditorControl DataContext="{Binding EditedRelationship, Mode=OneWay}" />
+                <kdev:EditorControl DataContext="{Binding EditedRelationship, Mode=OneWay}" />
             </Grid>
         </Grid>
     </DockPanel>
