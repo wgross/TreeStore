@@ -1,4 +1,5 @@
-﻿using Kosmograph.Model;
+﻿using Kosmograph.Desktop.Lists.ViewModel;
+using Kosmograph.Model;
 using Moq;
 using System;
 using Xunit;
@@ -186,10 +187,11 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // ARRANGE
 
             var tag1 = DefaultTag(t => t.Name = "t1");
-            this.viewModel.CreateTagCommand.Execute(null);
             this.tagRepository
                 .Setup(r => r.FindByName("t1"))
                 .Returns(tag1);
+
+            this.viewModel.CreateTagCommand.Execute(null);
 
             // ACT
             // commit editor
@@ -201,6 +203,21 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // editor is gone
 
             Assert.False(result);
+        }
+
+        [Fact]
+        public void KosmographVIewModel_deletes_tag_at_model()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(t => t.Name = "t1");
+            this.tagRepository
+                .Setup(r => r.Delete(tag))
+                .Returns(true);
+
+            // ACT
+
+            this.viewModel.DeleteTagCommand.Execute(new TagViewModel(tag));
         }
     }
 }

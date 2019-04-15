@@ -1,4 +1,5 @@
-﻿using Kosmograph.Model;
+﻿using Kosmograph.Desktop.Lists.ViewModel;
+using Kosmograph.Model;
 using System;
 using System.Windows.Input;
 
@@ -83,7 +84,6 @@ namespace Kosmograph.Desktop.ViewModel
         #region Create Tag
 
         public ICommand CreateTagCommand { get; set; }
-        
 
         private void CreateTagExecuted()
         {
@@ -99,5 +99,16 @@ namespace Kosmograph.Desktop.ViewModel
         }
 
         #endregion Create Tag
+
+        #region Delete Tag
+
+        public ICommand DeleteTagCommand { get; set; }
+
+        private void DeleteTagExecuted(TagViewModel tag)
+        {
+            this.model.Tags.Delete(tag.Model);
+        }
+
+        #endregion Delete Tag
     }
 }

@@ -8,7 +8,9 @@
              xmlns:lists="clr-namespace:Kosmograph.Desktop.Lists.View;assembly=Kosmograph.Desktop.Lists"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
-             lists:TagRepositoryView.EditTag="tagRepositoryView_EditTag">
+             lists:TagRepositoryView.EditTag="tagRepositoryView_EditTag"
+             lists:TagRepositoryView.CreateTag="tagRepositoryView_CreateTag"
+             lists:TagRepositoryView.DeleteTag="tagRepositoryView_DeleteTag">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

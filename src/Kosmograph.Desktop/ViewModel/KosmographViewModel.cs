@@ -29,6 +29,7 @@ namespace Kosmograph.Desktop.ViewModel
             this.CreateTagCommand = new RelayCommand(this.CreateTagExecuted);
             this.CreateEntityCommand = new RelayCommand(this.CreateEntityExecuted);
             this.CreateRelationshipCommand = new RelayCommand(this.CreateRelationshipExecuted);
+            this.DeleteTagCommand = new RelayCommand<TagViewModel>(this.DeleteTagExecuted);
             this.DeleteEntityCommand = new RelayCommand<EntityViewModel>(this.OnDeletingEntity);
         }
 
@@ -40,8 +41,6 @@ namespace Kosmograph.Desktop.ViewModel
         }
 
         public KosmographModel Model => this.model;
-
-        
 
         #region Delete Entity with Relastionships
 
