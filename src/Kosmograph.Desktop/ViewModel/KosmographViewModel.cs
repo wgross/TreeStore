@@ -10,45 +10,39 @@ using System.Windows.Input;
 
 namespace Kosmograph.Desktop.ViewModel
 {
-    public class KosmographViewModel : ViewModelBase, IDisposable
+    public partial class KosmographViewModel : ViewModelBase, IDisposable
     {
         private KosmographModel model;
 
         public KosmographViewModel(KosmographModel kosmographModel)
         {
             this.model = kosmographModel;
-            this.Tags = new TagRepositoryViewModel(this.model.Tags);
-            this.Tags2 = new Lists.ViewModel.TagRepositoryViewModel(this.model.Tags, KosmographMessageBus.Default.Tags);
-            this.Entities = new EntityRepositoryViewModel(this.model.Entities, this.Tags.GetViewModel);
-            this.Relationships = new RelationshipRepositoryViewModel(this.model.Relationships, this.Entities.GetViewModel, this.Tags.GetViewModel);
+            this.Tags = new Lists.ViewModel.TagRepositoryViewModel(this.model.Tags, KosmographMessageBus.Default.Tags);
+            this.Entities = new Lists.ViewModel.EntityRepositoryViewModel(this.model.Entities, KosmographMessageBus.Default.Entities);
+            this.Relationships = new Lists.ViewModel.RelationshipRepositoryViewModel(this.model.Relationships, KosmographMessageBus.Default.Relationships);
+            //this.Entities = new EntityRepositoryViewModel(this.model.Entities, this.Tags.GetViewModel);
+            //this.Relationships = new RelationshipRepositoryViewModel(this.model.Relationships, this.Entities.GetViewModel, this.Tags.GetViewModel);
+            this.EditTagCommand = new RelayCommand<Lists.ViewModel.TagViewModel>(this.EditTagExecuted);
+            this.EditEntityCommand = new RelayCommand<Lists.ViewModel.EntityViewModel>(this.EditEntityExecuted);
+            this.EditRelationshipCommand = new RelayCommand<Lists.ViewModel.RelationshipViewModel>(this.EditRelationshipExecuted);
+            this.CreateTagCommand = new RelayCommand(this.CreateTagExecuted);
+            this.CreateEntityCommand = new RelayCommand(this.CreateEntityExecuted);
+            this.CreateRelationshipCommand = new RelayCommand(this.CreateRelationshipExecuted);
             this.DeleteEntityCommand = new RelayCommand<EntityViewModel>(this.OnDeletingEntity);
         }
 
         public void FillAll()
         {
             this.Tags.FillAll();
-            this.Tags2.FillAll();
             this.Entities.FillAll();
             this.Relationships.FillAll();
         }
 
         public KosmographModel Model => this.model;
 
-        public TagRepositoryViewModel Tags { get; }
+        public Lists.ViewModel.EntityRepositoryViewModel Entities { get; }
 
-        public Kosmograph.Desktop.Lists.ViewModel.TagRepositoryViewModel Tags2 { get; }
-
-        public EntityRepositoryViewModel Entities { get; }
-
-        public RelationshipRepositoryViewModel Relationships { get; }
-
-        public TagViewModel SelectedTag
-        {
-            get => this.selectedTag;
-            set => this.Set(nameof(SelectedTag), ref this.selectedTag, value);
-        }
-
-        private TagViewModel selectedTag;
+        
 
         public EntityViewModel SelectedEntity
         {
@@ -73,7 +67,7 @@ namespace Kosmograph.Desktop.ViewModel
         private void OnDeletingEntity(EntityViewModel entityViewModel)
         {
             this.DeletingEntity = new DeleteEntityWithRelationshipsEditModel(entityViewModel,
-                this.Relationships.FindRelationshipByEntity(entityViewModel),
+                null, // this.Relationships.FindRelationshipByEntity(entityViewModel),
                 this.OnDeleteEntityCommited,
                 this.OnDeleteEntityRollback);
         }
@@ -98,6 +92,8 @@ namespace Kosmograph.Desktop.ViewModel
                 this.Set(nameof(DeletingEntity), ref this.deletingEntity, value);
             }
         }
+
+        
 
         private DeleteEntityWithRelationshipsEditModel deletingEntity;
 

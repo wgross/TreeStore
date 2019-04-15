@@ -6,17 +6,19 @@
              xmlns:local="clr-namespace:Kosmograph.Desktop.Editor"
              xmlns:kdc="clr-namespace:Kosmograph.Desktop.Controls"
              xmlns:kem="clr-namespace:Kosmograph.Desktop.EditModel"
+             xmlns:kdevm="clr-namespace:Kosmograph.Desktop.Editors.ViewModel;assembly=Kosmograph.Desktop.Editor"
+             xmlns:kdev="clr-namespace:Kosmograph.Desktop.Editors.View;assembly=Kosmograph.Desktop.Editor"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <ResourceDictionary>
-            <DataTemplate DataType="{x:Type kem:TagEditModel}">
-                <kdc:EditTagControl />
+            <DataTemplate DataType="{x:Type kdevm:TagEditModel}">
+                <kdev:EditTagControl />
             </DataTemplate>
-            <DataTemplate DataType="{x:Type kem:EntityEditModel}">
-                <kdc:EditEntityControl />
+            <DataTemplate DataType="{x:Type kdevm:EntityEditModel}">
+                <kdev:EditEntityControl />
             </DataTemplate>
-            <DataTemplate DataType="{x:Type kem:RelationshipEditModel}">
+            <DataTemplate DataType="{x:Type kdevm:RelationshipEditModel}">
                 <kdc:EditRelationshipControl />
             </DataTemplate>
         </ResourceDictionary>

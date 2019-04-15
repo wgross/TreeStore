@@ -5,72 +5,47 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
              xmlns:local="clr-namespace:Kosmograph.Desktop.Controls"
+             xmlns:lists="clr-namespace:Kosmograph.Desktop.Lists.View;assembly=Kosmograph.Desktop.Lists"
              mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="800"
+             lists:EntityRepositoryView.EditEntity="entityRepositoryView_EditEntity">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="./CommonResources.xaml"/>
+                <ResourceDictionary Source="./CommonResources.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <CollectionViewSource 
-                x:Key="entiesCollectionViewSource" 
-                Source="{Binding Entities}" >
-                <CollectionViewSource.SortDescriptions>
-                    <scm:SortDescription PropertyName="Name" />
-                </CollectionViewSource.SortDescriptions>
-            </CollectionViewSource>
         </ResourceDictionary>
     </UserControl.Resources>
     <UserControl.Style>
         <Style TargetType="{x:Type UserControl}">
             <!--
-            Control is hidden.
-            If no entity is edited it is shown
+            Control is hidden if an entity is currently edited in the KosmographViewModel model instance
             -->
             <Setter Property="Visibility" Value="Hidden" />
             <Style.Triggers>
-                <DataTrigger Binding="{Binding Entities.Edited}" Value="{x:Null}">
+                <DataTrigger Binding="{Binding EditedEntity}" Value="{x:Null}">
                     <Setter Property="Visibility" Value="Visible" />
                 </DataTrigger>
             </Style.Triggers>
         </Style>
     </UserControl.Style>
-    <DockPanel 
-        LastChildFill="True"      
-        Margin="0,0,0,0">
+    <DockPanel
+        LastChildFill="True"
+        Margin="2,0,0,0">
         <DockPanel DockPanel.Dock="Top"
             LastChildFill="False">
             <TextBlock DockPanel.Dock="Left"
                 Text="Entities"
                 Foreground="Gray"
                 FontWeight="Bold" />
-            <Button DockPanel.Dock="Right" 
-                Style="{StaticResource addButtonInHeaderStyle}"
-                Command="{Binding Entities.CreateCommand}"/>
+            <Button DockPanel.Dock="Right"
+                    Style="{StaticResource addButtonInHeaderStyle}"
+                    Command="{Binding CreateEntityCommand}" />
         </DockPanel>
-        <ListBox
-            Name="entityListBox"
-            Style="{StaticResource modelItemListBoxStyle}"
-            ItemsSource="{Binding Source={StaticResource entiesCollectionViewSource}}"
-            SelectedItem="{Binding SelectedEntity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-            MouseDoubleClick="entityListBox_MouseDoubleClick">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <Grid MouseMove="entityListBoxItem_MouseMove">
-                        <TextBlock Text="{Binding Name}" />
-                    </Grid>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-            <ListBox.InputBindings>
-                <KeyBinding
-                    Key="Return"
-                    Command="{Binding Entities.EditCommand}"
-                    CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
-                <KeyBinding
-                    Key="Delete"
-                    Command="{Binding DeleteEntityCommand}"
-                    CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType=ListBox}}" />
-            </ListBox.InputBindings>
-        </ListBox>
+        <!--
+        List view to show the entities.
+        Routed events from this view trigger editing creating and deletion of entities.
+        -->
+        <lists:EntityRepositoryView Name="entityRepositoryView" DataContext="{Binding Entities}" />
     </DockPanel>
 </UserControl>

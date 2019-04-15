@@ -5,9 +5,6 @@ using System.Windows.Input;
 
 namespace Kosmograph.Desktop.Controls
 {
-    /// <summary>
-    /// Interaction logic for ShowTagsControl.xaml
-    /// </summary>
     public partial class ShowTagsControl : UserControl
     {
         public ShowTagsControl()
@@ -17,28 +14,22 @@ namespace Kosmograph.Desktop.Controls
 
         KosmographViewModel ViewModel => this.DataContext as KosmographViewModel;
 
-        //private void tagListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e) =>
-        //    this.ViewModel.Tags.EditCommand.Execute(this.tagListBox.SelectedItem);
-
         private void tagListBoxItem_MouseMove(object sender, MouseEventArgs e)
         {
             base.OnMouseMove(e);
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                var tagViewModel = ((FrameworkElement)sender).DataContext as TagViewModel;
+                var tagViewModel = ((FrameworkElement)sender).DataContext as Lists.ViewModel.TagViewModel;
                 if (tagViewModel is null)
                     return;
 
                 DataObject data = new DataObject();
-                data.SetData(typeof(TagViewModel), tagViewModel);
+                data.SetData(typeof(Lists.ViewModel.TagViewModel), tagViewModel);
 
                 DragDrop.DoDragDrop((DependencyObject)sender, data, DragDropEffects.Link);
             }
         }
 
-        private void tagRepositoryView_EditTag(object sender, RoutedEventArgs e)
-        {
-            this.ViewModel.Tags.EditCommand.Execute(this.tagRepositoryView.SelectedItem);
-        }
+        private void tagRepositoryView_EditTag(object sender, RoutedEventArgs e) => this.ViewModel.EditTagCommand.Execute(this.tagRepositoryView.SelectedItem);
     }
 }

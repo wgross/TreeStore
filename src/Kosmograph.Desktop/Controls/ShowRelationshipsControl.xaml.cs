@@ -1,4 +1,5 @@
 ﻿using Kosmograph.Desktop.ViewModel;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
@@ -16,7 +17,7 @@ namespace Kosmograph.Desktop.Controls
 
         KosmographViewModel ViewModel => this.DataContext as KosmographViewModel;
 
-        private void relationshipsListBox_MouseMove(object sender, MouseEventArgs e)
+        private void relationshipsListBoxItem_MouseMove(object sender, MouseEventArgs e)
         {
             base.OnMouseMove(e);
             //if (e.LeftButton == MouseButtonState.Pressed)
@@ -31,6 +32,8 @@ namespace Kosmograph.Desktop.Controls
             //}
         }
 
-        private void relationshipsListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e) => this.ViewModel.Relationships.EditCommand.Execute(this.relationshipsListBox.SelectedItem);
+        private void relationshipRepositoryView_EditRelationhip(object sender, RoutedEventArgs e) => this.ViewModel.EditRelationshipCommand.Execute(this.relationshipRepositoryView.SelectedItem);
+
+        
     }
 }

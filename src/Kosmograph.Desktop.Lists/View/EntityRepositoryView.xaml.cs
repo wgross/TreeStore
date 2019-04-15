@@ -53,7 +53,7 @@ namespace Kosmograph.Desktop.Lists.View
 
         #region Request editing of an entity
 
-        public static readonly RoutedEvent EditEntityEvent = EventManager.RegisterRoutedEvent("EditEntity", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(EntityRepositoryView));
+        public static readonly RoutedEvent EditEntityEvent = EventManager.RegisterRoutedEvent(nameof(EditEntity), RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(EntityRepositoryView));
 
         public event RoutedEventHandler EditEntity
         {

@@ -14,23 +14,22 @@ namespace Kosmograph.Desktop.Controls
 
         private KosmographViewModel ViewModel => this.DataContext as KosmographViewModel;
 
-        private void entityListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e) 
-            => this.ViewModel.Entities.EditCommand.Execute(entityListBox.SelectedItem);
-
         private void entityListBoxItem_MouseMove(object sender, MouseEventArgs e)
         {
             base.OnMouseMove(e);
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                var entityViewModel = ((FrameworkElement)sender).DataContext as EntityViewModel;
+                var entityViewModel = ((FrameworkElement)sender).DataContext as Lists.ViewModel.EntityViewModel;
                 if (entityViewModel is null)
                     return;
 
                 DataObject data = new DataObject();
-                data.SetData(typeof(EntityViewModel), entityViewModel);
+                data.SetData(typeof(Lists.ViewModel.EntityViewModel), entityViewModel);
 
                 DragDrop.DoDragDrop((DependencyObject)sender, data, DragDropEffects.Link);
             }
         }
+
+        private void entityRepositoryView_EditEntity(object sender, RoutedEventArgs e) => this.ViewModel.EditEntityCommand.Execute(this.entityRepositoryView.SelectedItem);
     }
 }

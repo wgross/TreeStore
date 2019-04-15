@@ -79,7 +79,7 @@ namespace Kosmograph.Desktop.Lists.View
 
         #region Request editing of a Tag
 
-        public static readonly RoutedEvent EditTagEvent = EventManager.RegisterRoutedEvent("EditTag", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(TagRepositoryView));
+        public static readonly RoutedEvent EditTagEvent = EventManager.RegisterRoutedEvent(nameof(EditTag), RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(TagRepositoryView));
 
         public event RoutedEventHandler EditTag
         {

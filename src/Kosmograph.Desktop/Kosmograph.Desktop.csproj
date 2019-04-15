@@ -123,9 +123,6 @@
     <Compile Include="Controls\EditorSectionHeaderControl.xaml.cs">
       <DependentUpon>EditorSectionHeaderControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\EditTagControl.xaml.cs">
-      <DependentUpon>EditTagControl.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Controls\EditTagFacetPropertiesControl.xaml.cs">
       <DependentUpon>EditTagFacetPropertiesControl.xaml</DependentUpon>
     </Compile>
@@ -203,6 +200,9 @@
     <Compile Include="EditModel\TagEditModel.cs" />
     <Compile Include="ViewModel\EntityViewModel.cs" />
     <Compile Include="ViewModel\KosmographViewModel.cs" />
+    <Compile Include="ViewModel\KosmographViewModel.Entities.cs" />
+    <Compile Include="ViewModel\KosmographViewModel.Relationships.cs" />
+    <Compile Include="ViewModel\KosmographViewModel.Tags.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\Base\NamedViewModelBase.cs" />
     <Compile Include="ViewModel\Base\RepositoryViewModel.cs" />
@@ -240,10 +240,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\EditorSectionHeaderControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Controls\EditTagControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -355,6 +351,10 @@
     <ProjectReference Include="..\..\..\github\GraphX\GraphX.PCL.Logic\GraphX.PCL.Logic.csproj">
       <Project>{a30d218b-aaa4-483a-99f7-eaeb1b8b4610}</Project>
       <Name>GraphX.PCL.Logic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Kosmograph.Desktop.Editor\Kosmograph.Desktop.Editor.csproj">
+      <Project>{153f522f-c029-445d-9174-5045f1c49849}</Project>
+      <Name>Kosmograph.Desktop.Editor</Name>
     </ProjectReference>
     <ProjectReference Include="..\Kosmograph.Desktop.Lists\Kosmograph.Desktop.Lists.csproj">
       <Project>{4d13afc3-0622-4572-9353-6cadc689ea2d}</Project>

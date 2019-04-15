@@ -18,11 +18,11 @@ namespace Kosmograph.Desktop.MsaglGraph
                     ((KosmographViewModel)e.OldValue).Entities.CollectionChanged -= this.Entities_CollectionChanged;
                 }
 
-                if ((e.NewValue as KosmographViewModel) != null)
-                {
-                    ((KosmographViewModel)e.NewValue).Relationships.CollectionChanged += this.Relationships_CollectionChanged;
-                    ((KosmographViewModel)e.NewValue).Entities.CollectionChanged += this.Entities_CollectionChanged;
-                }
+                //if ((e.NewValue as KosmographViewModel) != null)
+                //{
+                //    ((KosmographViewModel)e.NewValue).Relationships.CollectionChanged += this.Relationships_CollectionChanged;
+                //    ((KosmographViewModel)e.NewValue).Entities.CollectionChanged += this.Entities_CollectionChanged;
+                //}
             }
             base.OnPropertyChanged(e);
         }
@@ -59,13 +59,13 @@ namespace Kosmograph.Desktop.MsaglGraph
         {
             var graph = new Microsoft.Msagl.Drawing.Graph();
 
-            this.AddEntities(viewModel.Entities, graph);
+            // this.AddEntities(viewModel.Entities, graph);
 
-            foreach (var relationship in viewModel.Relationships)
-            {
-                var edge = graph.AddEdge(relationship.From.Model.Id.ToString(), relationship.To.Model.Id.ToString());
-                edge.LabelText = relationship.Name;
-            }
+            //foreach (var relationship in viewModel.Relationships)
+            //{
+            //    var edge = graph.AddEdge(relationship.From.Model.Id.ToString(), relationship.To.Model.Id.ToString());
+            //    edge.LabelText = relationship.Name;
+            //}
             graph.Attr.LayerDirection = Microsoft.Msagl.Drawing.LayerDirection.LR;
             this.MsaglGraphViewer.Graph = graph;
         }
