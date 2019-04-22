@@ -30,10 +30,13 @@ namespace Kosmograph.Desktop.Controls
             }
         }
 
-        private void tagRepositoryView_EditTag(object sender, RoutedEventArgs e) => this.ViewModel.EditTagCommand.Execute(this.tagRepositoryView.SelectedItem);
+        private void tagRepositoryView_EditTag(object sender, RoutedEventArgs e)
+            => this.ViewModel.EditTagCommand.Execute(this.tagRepositoryView.SelectedItem);
 
-        private void tagRepositoryView_CreateTag(object sender, RoutedEventArgs e) => this.ViewModel.CreateTagCommand.Execute(null);
+        private void tagRepositoryView_CreateTag(object sender, RoutedEventArgs e)
+            => this.ViewModel.CreateTagCommand.Execute(null);
 
-        private void tagRepositoryView_DeleteTag(object sender, RoutedEventArgs e) => this.ViewModel.DeleteTagCommand.Execute(this.tagRepositoryView.SelectedItem);
+        private void tagRepositoryView_DeleteTag(object sender, RoutedEventArgs e)
+            => this.ViewModel.DeleteTagCommand.Execute(this.tagRepositoryView.SelectedItem);
     }
 }

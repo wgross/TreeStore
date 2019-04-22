@@ -30,6 +30,13 @@ namespace Kosmograph.Desktop.Controls
             }
         }
 
-        private void entityRepositoryView_EditEntity(object sender, RoutedEventArgs e) => this.ViewModel.EditEntityCommand.Execute(this.entityRepositoryView.SelectedItem);
+        private void entityRepositoryView_EditEntity(object sender, RoutedEventArgs e)
+            => this.ViewModel.EditEntityCommand.Execute(this.entityRepositoryView.SelectedItem);
+
+        private void entityRepositoryView_CreateEntity(object sender, RoutedEventArgs e)
+            => this.ViewModel.CreateEntityCommand.Execute(null);
+
+        private void entitRepositoryView_DeleteEntity(object sender, RoutedEventArgs e)
+            => this.ViewModel.DeleteEntityCommand.Execute(this.entityRepositoryView.SelectedItem);
     }
 }

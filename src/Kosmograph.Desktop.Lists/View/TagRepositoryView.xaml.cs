@@ -99,7 +99,7 @@ namespace Kosmograph.Desktop.Lists.View
 
         #region Request deletion of a Tag
 
-        public static readonly RoutedEvent DeleteTagEvent = EventManager.RegisterRoutedEvent("DeleteTag", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(TagRepositoryView));
+        public static readonly RoutedEvent DeleteTagEvent = EventManager.RegisterRoutedEvent(nameof(DeleteTag), RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(TagRepositoryView));
 
         public event RoutedEventHandler DeleteTag
         {
@@ -119,7 +119,7 @@ namespace Kosmograph.Desktop.Lists.View
 
         #region Request creation of a Tag
 
-        public static readonly RoutedEvent CreateTagEvent = EventManager.RegisterRoutedEvent("CreateTag", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(TagRepositoryView));
+        public static readonly RoutedEvent CreateTagEvent = EventManager.RegisterRoutedEvent(nameof(CreateTag), RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(TagRepositoryView));
 
         public event RoutedEventHandler CreateTag
         {
