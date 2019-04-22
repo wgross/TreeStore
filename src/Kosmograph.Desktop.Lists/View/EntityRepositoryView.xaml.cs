@@ -14,9 +14,6 @@ namespace Kosmograph.Desktop.Lists.View
 
         EntityRepositoryViewModel ViewModel => this.DataContext as EntityRepositoryViewModel;
 
-        //private void tagListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e) =>
-        //    this.ViewModel.Tags.EditCommand.Execute(this.tagListBox.SelectedItem);
-
         #region Map mouse events to routed events
 
         private void repositoryListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e) => this.RaiseEditEntityEvent();

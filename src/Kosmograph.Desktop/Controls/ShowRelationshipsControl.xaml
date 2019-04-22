@@ -7,6 +7,8 @@
              xmlns:local="clr-namespace:Kosmograph.Desktop.Controls"
              xmlns:lists="clr-namespace:Kosmograph.Desktop.Lists.View;assembly=Kosmograph.Desktop.Lists"
              lists:RelationshipRepositoryView.EditRelationship="relationshipRepositoryView_EditRelationhip"
+             lists:RelationshipRepositoryView.CreateRelationship="relationshipRepositoryView_CreateRelationship"
+             lists:RelationshipRepositoryView.DeleteRelationship="relationshipRepositoryView_DeleteRelationship"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>

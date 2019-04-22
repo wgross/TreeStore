@@ -136,7 +136,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
         }
 
         [Fact]
-        public void KosmographViewModel_clears_new_entity_on_rollback()
+        public void KosmographViewModel_clears_new_relationship_on_rollback()
         {
             // ARRANGE
 
@@ -150,7 +150,22 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // ASSERT
             // editor is gone
 
-            Assert.Null(this.viewModel.EditedEntity);
+            Assert.Null(this.viewModel.EditedRelationship);
+        }
+
+        [Fact]
+        public void KosmographVIewModel_deletes_relationship_at_model()
+        {
+            // ARRANGE
+
+            var relationship = DefaultRelationship();
+            this.relationshipRepository
+                .Setup(r => r.Delete(relationship))
+                .Returns(true);
+
+            // ACT
+
+            this.viewModel.DeleteRelationshipCommand.Execute(new RelationshipViewModel(relationship));
         }
     }
 }

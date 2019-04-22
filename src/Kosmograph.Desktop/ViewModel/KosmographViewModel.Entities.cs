@@ -1,4 +1,6 @@
 ﻿using Kosmograph.Model;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Input;
 
 namespace Kosmograph.Desktop.ViewModel
@@ -91,5 +93,42 @@ namespace Kosmograph.Desktop.ViewModel
         }
 
         #endregion Create Entity
+
+        #region Delete Entity with Relationships
+
+        public ICommand DeleteEntityCommand { get; }
+
+        private void DeleteEntityExecuted(Lists.ViewModel.EntityViewModel entityViewModel)
+        {
+            this.DeletingEntity = new Editors.ViewModel.DeleteEntityWithRelationshipsEditModel(entityViewModel.Model,
+                null, // this.Relationships.FindRelationshipByEntity(entityViewModel),
+                this.OnDeleteEntityCommited,
+                this.OnDeleteEntityRollback);
+        }
+
+        private void OnDeleteEntityRollback(Entity arg1, IEnumerable<Relationship> arg2)
+        {
+            this.DeletingEntity = null;
+        }
+
+        private void OnDeleteEntityCommited(Entity entity, IEnumerable<Relationship> relationships)
+        {
+            relationships.ToList().ForEach(r => this.Relationships.DeleteCommand.Execute(r));
+            this.Entities.DeleteCommand.Execute(entity);
+            this.DeletingEntity = null;
+        }
+
+        public Editors.ViewModel.DeleteEntityWithRelationshipsEditModel DeletingEntity
+        {
+            get => this.deletingEntity;
+            set
+            {
+                this.Set(nameof(DeletingEntity), ref this.deletingEntity, value);
+            }
+        }
+
+        private Editors.ViewModel.DeleteEntityWithRelationshipsEditModel deletingEntity;
+
+        #endregion Delete Entity with Relationships
     }
 }

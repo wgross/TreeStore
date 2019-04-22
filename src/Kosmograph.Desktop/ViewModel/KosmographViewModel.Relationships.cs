@@ -1,4 +1,5 @@
-﻿using Kosmograph.Model;
+﻿using Kosmograph.Desktop.Lists.ViewModel;
+using Kosmograph.Model;
 using System.Windows.Input;
 
 namespace Kosmograph.Desktop.ViewModel
@@ -55,5 +56,16 @@ namespace Kosmograph.Desktop.ViewModel
         }
 
         #endregion Create Relationship
+
+        #region Delete Relationship
+
+        public ICommand DeleteRelationshipCommand { get; set; }
+
+        private void DeleteRelationshipExecuted(RelationshipViewModel relationship)
+        {
+            this.model.Relationships.Delete(relationship.Model);
+        }
+
+        #endregion Delete Relationship
     }
 }
