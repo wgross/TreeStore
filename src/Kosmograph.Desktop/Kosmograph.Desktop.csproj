@@ -102,12 +102,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Controls\EditorButtonPanelControl.xaml.cs">
-      <DependentUpon>EditorButtonPanelControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\EditorHeaderControl.xaml.cs">
-      <DependentUpon>EditorHeaderControl.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Controls\ShowEntitiesControl.xaml.cs">
       <DependentUpon>ShowEntitiesControl.xaml</DependentUpon>
     </Compile>
@@ -163,14 +157,6 @@
     <Page Include="Controls\CommonResources.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Controls\EditorButtonPanelControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Controls\EditorHeaderControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\ShowEntitiesControl.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -291,7 +277,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Dialogs\" />
     <Folder Include="Resources\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
