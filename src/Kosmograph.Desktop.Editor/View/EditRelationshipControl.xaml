@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              AllowDrop="True"
-             Drop="editEntityControl_Drop"
+             Drop="editRelationshipControl_Drop"
              Background="White">
     <UserControl.Resources>
         <ResourceDictionary>

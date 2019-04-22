@@ -14,7 +14,7 @@ namespace Kosmograph.Desktop.Editors.View
 
         private RelationshipEditModel ViewModel => this.DataContext as RelationshipEditModel;
 
-        private void editEntityControl_Drop(object sender, DragEventArgs e)
+        private void editRelationshipControl_Drop(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(typeof(Tag)))
             {
