@@ -47,9 +47,9 @@
         <Setter Property="BorderThickness" Value="0" />
     </Style>
 
-    <Style x:Key="editItemNameConrolInEditor" TargetType="{x:Type local:EditItemNameControl}">
+    <Style x:Key="editItemNameControlInEditor" TargetType="{x:Type local:EditItemNameControl}">
         <!--
-        the name editor muist be set to the rght a biot because the propearty listboxes(-Items)
+        the name editor must be set to the right a bit because to align with the property listboxes(-Items)
         have margin/padding 
         -->
         <Setter Property="Margin" Value="4"/>

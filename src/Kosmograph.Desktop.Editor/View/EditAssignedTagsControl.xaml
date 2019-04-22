@@ -22,7 +22,7 @@
                     <DockPanel LastChildFill="false"
                         Margin="0,5,0,5">
                         <local:EditorSectionHeaderControl DockPanel.Dock="Left"
-                            Text="{Binding ViewModel.Tag.Name, StringFormat={}Properties of {0}}" />
+                            Text="{Binding Model.Name, StringFormat={}Properties of {0}}" />
 
                         <Button
                             DockPanel.Dock="Right"
@@ -30,7 +30,7 @@
                             Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ItemsControl}}, Path=DataContext.RemoveTagCommand}"
                             CommandParameter="{Binding}">
                             <TextBlock
-                                Text="{Binding ViewModel.Tag.Name, StringFormat={}remove {0}}" />
+                                Text="{Binding Model.Name, StringFormat={}remove {0}}" />
                         </Button>
                     </DockPanel>
 
@@ -51,7 +51,7 @@
 
             <DataTemplate DataType="{x:Type kem:AssignedFacetPropertyEditModel}">
                 <DockPanel LastChildFill="True">
-                    <Label DockPanel.Dock="Left" Content="{Binding ViewModel.Property.Name}" />
+                    <Label DockPanel.Dock="Left" Content="{Binding Model.Name}" />
                     <TextBox
                         Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
                         Style="{StaticResource editFacetPropertyValueTexBoxStyle}" />
@@ -62,7 +62,7 @@
                     x:Key="tagsCollectionViewSource"
                     Source="{Binding Tags}">
                 <CollectionViewSource.SortDescriptions>
-                    <scm:SortDescription PropertyName="ViewModel.Tag.Name" />
+                    <scm:SortDescription PropertyName="Model.Name" />
                 </CollectionViewSource.SortDescriptions>
             </CollectionViewSource>
         </ResourceDictionary>
