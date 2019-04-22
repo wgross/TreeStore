@@ -210,7 +210,7 @@ namespace Kosmograph.LiteDb.Test
         }
 
         [Fact]
-        public void RelationshipRepository_removing_unknown_entity_returns_false()
+        public void RelationshipRepository_removing_unknown_relationhip_returns_false()
         {
             // ARRANGE
 
@@ -254,6 +254,39 @@ namespace Kosmograph.LiteDb.Test
             // ASSERT
 
             Assert.All(new[] { relationship1, relationship2 }, r => Assert.Contains(r, result));
+        }
+
+        [Fact]
+        public void RelationshipRepository_removes_mutiple_relationships()
+        {
+            // ARRANGE
+
+            var entity1 = this.entityRepository.Upsert(new Entity());
+            var entity2 = this.entityRepository.Upsert(new Entity());
+            var relationship1 = new Relationship("r1", entity1, entity2);
+            var relationship2 = new Relationship("r2", entity1, entity2);
+
+            this.eventSource
+                .Setup(s => s.Modified(relationship1));
+            this.eventSource
+                .Setup(s => s.Modified(relationship2));
+
+            this.relationshipRepository.Upsert(relationship1);
+            this.relationshipRepository.Upsert(relationship2);
+
+            this.eventSource
+                .Setup(s => s.Removed(relationship1));
+            this.eventSource
+                .Setup(s => s.Removed(relationship2));
+
+            // ACT
+
+            this.relationshipRepository.Delete(new[] { relationship1, relationship2 });
+
+            // ASSERT
+
+            Assert.Throws<InvalidOperationException>(() => this.relationshipRepository.FindById(relationship1.Id));
+            Assert.Throws<InvalidOperationException>(() => this.relationshipRepository.FindById(relationship2.Id));
         }
     }
 }

@@ -100,8 +100,17 @@ namespace Kosmograph.Desktop.ViewModel
 
         private void DeleteEntityExecuted(Lists.ViewModel.EntityViewModel entityViewModel)
         {
+            // try to delete entity. If the entity has relationships it will fail.
+            var removed = this.model.Entities.Delete(entityViewModel.Model);
+            if (removed)
+                return;
+
+            var relationships = this.model.Relationships.FindByEntity(entityViewModel.Model).ToArray();
+            if (!relationships.Any())
+                return;
+
             this.DeletingEntity = new Editors.ViewModel.DeleteEntityWithRelationshipsEditModel(entityViewModel.Model,
-                null, // this.Relationships.FindRelationshipByEntity(entityViewModel),
+                relationships,
                 this.OnDeleteEntityCommited,
                 this.OnDeleteEntityRollback);
         }
@@ -113,8 +122,8 @@ namespace Kosmograph.Desktop.ViewModel
 
         private void OnDeleteEntityCommited(Entity entity, IEnumerable<Relationship> relationships)
         {
-            relationships.ToList().ForEach(r => this.Relationships.DeleteCommand.Execute(r));
-            this.Entities.DeleteCommand.Execute(entity);
+            this.model.Relationships.Delete(relationships);
+            this.model.Entities.Delete(entity);
             this.DeletingEntity = null;
         }
 

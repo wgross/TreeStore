@@ -1,8 +1,8 @@
 ﻿using Kosmograph.Desktop.Lists.ViewModel;
-using Kosmograph.Desktop.ViewModel;
 using Kosmograph.Model;
 using Moq;
 using System;
+using System.Linq;
 using Xunit;
 
 namespace Kosmograph.Desktop.Test.ViewModel
@@ -155,6 +155,134 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // editor is gone
 
             Assert.Null(this.viewModel.EditedEntity);
+        }
+
+        [Fact]
+        public void KosmographViewModel_deletes_entity_without_relationships()
+        {
+            // ARRANGE
+
+            var entity = DefaultEntityViewModel();
+
+            this.entityRepository
+                .Setup(r => r.Delete(entity.Model))
+                .Returns(true);
+
+            // ACT
+
+            this.viewModel.DeleteEntityCommand.Execute(entity);
+        }
+
+        [Fact]
+        public void KosmographViewModel_deletes_unkown_entity()
+        {
+            // ARRANGE
+
+            var entity = DefaultEntityViewModel();
+
+            this.entityRepository
+                .Setup(r => r.Delete(entity.Model))
+                .Returns(false);
+
+            this.relationshipRepository
+                .Setup(r => r.FindByEntity(entity.Model))
+                .Returns(new Relationship[0]);
+
+            // ACT
+
+            this.viewModel.DeleteEntityCommand.Execute(entity);
+
+            // ASSERT
+
+            Assert.Null(this.viewModel.DeletingEntity);
+        }
+
+        [Fact]
+        public void KosmographViewModel_deleting_entity_with_relationships_shows_dialog()
+        {
+            // ARRANGE
+
+            var entity = DefaultEntityViewModel();
+
+            this.entityRepository
+                .Setup(r => r.Delete(entity.Model))
+                .Returns(false);
+
+            var relationship = DefaultRelationship();
+            this.relationshipRepository
+                .Setup(r => r.FindByEntity(entity.Model))
+                .Returns(relationship.Yield());
+
+            // ACT
+
+            this.viewModel.DeleteEntityCommand.Execute(entity);
+
+            // ASSERT
+
+            Assert.NotNull(this.viewModel.DeletingEntity);
+            Assert.Same(entity.Model, this.viewModel.DeletingEntity.Entity);
+            Assert.Same(relationship, this.viewModel.DeletingEntity.Relationships.Single());
+        }
+
+        [Fact]
+        public void KosmographViewModel_deletes_entity_with_relationships_on_committing_deletion_dialog()
+        {
+            // ARRANGE
+
+            var relWasDeleted = false;
+
+            var entity = DefaultEntityViewModel();
+
+            this.entityRepository
+                .Setup(r => r.Delete(entity.Model))
+                .Returns(relWasDeleted);
+
+            var relationship = DefaultRelationship();
+            this.relationshipRepository
+                .Setup(r => r.FindByEntity(entity.Model))
+                .Returns(relationship.Yield());
+
+            this.relationshipRepository
+                .Setup(r => r.Delete(new[] { relationship }))
+                .Callback(() => relWasDeleted = true);
+
+            this.viewModel.DeleteEntityCommand.Execute(entity);
+
+            // ACT
+
+            this.viewModel.DeletingEntity.CommitCommand.Execute(null);
+
+            // ASSERT
+
+            this.entityRepository.Verify(r => r.Delete(entity.Model), Times.Exactly(2));
+            Assert.Null(this.viewModel.DeletingEntity);
+        }
+
+        [Fact]
+        public void KosmographViewModel_deleting_entity_with_relationships_is_rolledback()
+        {
+            // ARRANGE
+
+            var entity = DefaultEntityViewModel();
+
+            this.entityRepository
+                .Setup(r => r.Delete(entity.Model))
+                .Returns(false);
+
+            var relationship = DefaultRelationship();
+            this.relationshipRepository
+                .Setup(r => r.FindByEntity(entity.Model))
+                .Returns(relationship.Yield());
+
+            this.viewModel.DeleteEntityCommand.Execute(entity);
+
+            // ACT
+
+            this.viewModel.DeletingEntity.RollbackCommand.Execute(null);
+
+            // ASSERT
+
+            Assert.Null(this.viewModel.DeletingEntity);
         }
     }
 }

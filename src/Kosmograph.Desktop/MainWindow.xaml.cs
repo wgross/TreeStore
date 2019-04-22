@@ -1,5 +1,4 @@
-﻿using Kosmograph.Desktop.Dialogs;
-using Kosmograph.Desktop.GraphXViewer;
+﻿using Kosmograph.Desktop.GraphXViewer;
 using Kosmograph.Desktop.MsaglGraph;
 using Kosmograph.Desktop.ViewModel;
 using Kosmograph.LiteDb;
@@ -80,32 +79,30 @@ namespace Kosmograph.Desktop
             {
                 this.ViewModel?.Dispose();
                 this.DataContext = value;
-                this.ViewModel.PropertyChanged += this.Value_PropertyChanged;
+                //this.ViewModel.PropertyChanged += this.Value_PropertyChanged;
             }
         }
-
-        public DeleteEntityWithRelationshipsDialog DeleteEntityWithRelationshipsDialog { get; private set; }
-
-        private void Value_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName.Equals(nameof(KosmographViewModel.DeletingEntity)))
-            {
-                if (this.ViewModel.DeletingEntity is null)
-                {
-                    this.DeleteEntityWithRelationshipsDialog?.Close();
-                    this.DeleteEntityWithRelationshipsDialog = null;
-                }
-                else
-                {
-                    this.DeleteEntityWithRelationshipsDialog = new DeleteEntityWithRelationshipsDialog
-                    {
-                        DataContext = this.ViewModel.DeletingEntity,
-                        Owner = this
-                    };
-                    this.DeleteEntityWithRelationshipsDialog.ShowDialog();
-                }
-            }
-        }
+        
+        //private void Value_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        //{
+        //    if (e.PropertyName.Equals(nameof(KosmographViewModel.DeletingEntity)))
+        //    {
+        //        if (this.ViewModel.DeletingEntity is null)
+        //        {
+        //            this.DeleteEntityWithRelationshipsDialog?.Close();
+        //            this.DeleteEntityWithRelationshipsDialog = null;
+        //        }
+        //        else
+        //        {
+        //            this.DeleteEntityWithRelationshipsDialog = new DeleteEntityWithRelationshipsDialog
+        //            {
+        //                DataContext = this.ViewModel.DeletingEntity,
+        //                Owner = this
+        //            };
+        //            this.DeleteEntityWithRelationshipsDialog.ShowDialog();
+        //        }
+        //    }
+        //}
 
         private void NewGraph_Executed(object sender, ExecutedRoutedEventArgs e)
         {

@@ -3,6 +3,7 @@ using Kosmograph.Model;
 using LiteDB;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Kosmograph.LiteDb
 {
@@ -40,6 +41,9 @@ namespace Kosmograph.LiteDb
             }
             return false;
         }
+
+        public void Delete(IEnumerable<Relationship> relationships)
+            => relationships.ToList().ForEach(r => this.Delete(r));
 
         public override Relationship FindById(Guid id) => this.QueryAndInclude().SingleById(id);
 

@@ -117,10 +117,6 @@
     <Compile Include="Controls\ShowTagsControl.xaml.cs">
       <DependentUpon>ShowTagsControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\DeleteEntityWithRelationshipsDialog.xaml.cs">
-      <DependentUpon>DeleteEntityWithRelationshipsDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="EditModel\DeleteEntityWithRelationshipsEditModel.cs" />
     <Compile Include="EditModel\EditModelCommitted.cs" />
     <Compile Include="GraphXViewer\GraphXViewerWindow.xaml.cs">
       <DependentUpon>GraphXViewerWindow.xaml</DependentUpon>
@@ -185,10 +181,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\ShowTagsControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Dialogs\DeleteEntityWithRelationshipsDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -299,6 +291,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Dialogs\" />
     <Folder Include="Resources\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
