@@ -3,29 +3,29 @@ using System;
 
 namespace Kosmograph.Desktop.Graph.ViewModel
 {
-    public class KosmographVisualGraphModel : BidirectionalGraph<KosmographVisualVertexModel, KosmographVisualEdgeModel>
+    public class GraphViewModel : BidirectionalGraph<VertexViewModel, EdgeViewModel>
     {
         public readonly IdentityMap<Guid, object> IdentityMap = new IdentityMap<Guid, object>();
 
-        protected override void OnVertexAdded(KosmographVisualVertexModel args)
+        protected override void OnVertexAdded(VertexViewModel args)
         {
             base.OnVertexAdded(args);
             this.IdentityMap.Add(args.ModelId, args);
         }
 
-        protected override void OnVertexRemoved(KosmographVisualVertexModel args)
+        protected override void OnVertexRemoved(VertexViewModel args)
         {
             base.OnVertexRemoved(args);
             this.IdentityMap.Remove(args.ModelId);
         }
 
-        protected override void OnEdgeAdded(KosmographVisualEdgeModel args)
+        protected override void OnEdgeAdded(EdgeViewModel args)
         {
             base.OnEdgeAdded(args);
             this.IdentityMap.Add(args.ModelId, args);
         }
 
-        protected override void OnEdgeRemoved(KosmographVisualEdgeModel args)
+        protected override void OnEdgeRemoved(EdgeViewModel args)
         {
             base.OnEdgeRemoved(args);
             this.IdentityMap.Remove(args.ModelId);

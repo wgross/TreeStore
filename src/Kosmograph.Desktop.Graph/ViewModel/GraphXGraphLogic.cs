@@ -7,5 +7,5 @@ using System.Threading.Tasks;
 
 namespace Kosmograph.Desktop.Graph.ViewModel
 {
-    public class KosmographVisualGraphLogic : GXLogicCore<KosmographVisualVertexModel, KosmographVisualEdgeModel, KosmographVisualGraphModel> { }
+    public class GraphXGraphLogic : GXLogicCore<VertexViewModel, EdgeViewModel, GraphViewModel> { }
 }

@@ -74,11 +74,11 @@
     <Compile Include="View\GraphXViewerWindow.xaml.cs">
       <DependentUpon>GraphXViewerWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ViewModel\KosmographVisualEdgeModel.cs" />
-    <Compile Include="ViewModel\KosmographVisualGraph.cs" />
-    <Compile Include="ViewModel\KosmographVisualGraphLogic.cs" />
-    <Compile Include="ViewModel\KosmographVisualGraphModel.cs" />
-    <Compile Include="ViewModel\KosmographVisualVertexModel.cs" />
+    <Compile Include="ViewModel\EdgeViewModel.cs" />
+    <Compile Include="ViewModel\GraphXGraphArea.cs" />
+    <Compile Include="ViewModel\GraphXGraphLogic.cs" />
+    <Compile Include="ViewModel\GraphViewModel.cs" />
+    <Compile Include="ViewModel\VertexViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">

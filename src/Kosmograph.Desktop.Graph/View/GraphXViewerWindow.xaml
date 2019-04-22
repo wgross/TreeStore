@@ -16,7 +16,7 @@
     </Window.Resources>
     <Grid>
         <controls:ZoomControl x:Name="zoomctrl">
-            <vm:KosmographVisualArea x:Name="graphArea" />
+            <vm:GraphXGraphArea x:Name="graphArea" />
         </controls:ZoomControl>
     </Grid>
 </Window>

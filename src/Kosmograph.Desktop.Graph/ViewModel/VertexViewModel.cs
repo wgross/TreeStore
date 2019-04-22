@@ -4,11 +4,11 @@ using System.ComponentModel;
 
 namespace Kosmograph.Desktop.Graph.ViewModel
 {
-    public sealed class KosmographVisualEdgeModel : EdgeBase<KosmographVisualVertexModel>, INotifyPropertyChanged
+    public class VertexViewModel : VertexBase, INotifyPropertyChanged
     {
-        public KosmographVisualEdgeModel(KosmographVisualVertexModel source, KosmographVisualVertexModel target, double weight = 1)
-            : base(source, target, weight)
-        { }
+        public VertexViewModel()
+        {
+        }
 
         private string label;
 

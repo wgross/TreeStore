@@ -14,13 +14,7 @@ namespace Kosmograph.Desktop.Graph.View
     /// </summary>
     public partial class GraphXViewerWindow : Window, IDisposable
     {
-        //public KosmographViewModel ViewModel
-        //{
-        //    get
-        //    {
-        //        return (KosmographViewModel)this.DataContext;
-        //    }
-        //}
+        public GraphXViewerViewModel ViewModel => (GraphXViewerViewModel)this.DataContext;
 
         public GraphXViewerWindow()
         {
@@ -49,7 +43,7 @@ namespace Kosmograph.Desktop.Graph.View
         private void SetupGraphArea()
         {
             //Lets create logic core and filled data graph with edges and vertices
-            var logicCore = new KosmographVisualGraphLogic()
+            var logicCore = new GraphXGraphLogic()
             {
                 Graph = this.SetupGraph()
             };
@@ -66,38 +60,38 @@ namespace Kosmograph.Desktop.Graph.View
             this.graphArea.LogicCore = logicCore;
         }
 
-        private KosmographVisualGraphModel SetupGraph()
+        private GraphViewModel SetupGraph()
         {
             //Lets make new data graph instance
-            var visualModel = new KosmographVisualGraphModel();
+            var visualModel = new GraphViewModel();
             //Now we need to create edges and vertices to fill data graph
             //This edges and vertices will represent graph structure and connections
             //Lets make some vertices
-            //foreach (var entity in this.ViewModel.Entities)
-            //{
-            //    visualModel.AddVertex(new KosmographVisualVertexModel()
-            //    {
-            //        ModelId = entity.Model.Id,
-            //        Label = entity.Name
-            //    });
-            //}
+            foreach (var entity in this.ViewModel.Entities)
+            {
+                visualModel.AddVertex(new VertexViewModel()
+                {
+                    ModelId = entity.Id,
+                    Label = entity.Name
+                });
+            }
 
             var vertices = visualModel.Vertices.ToDictionary(v => v.ModelId);
 
-            //foreach (var edge in this.ViewModel.Relationships)
-            //{
-            //    var visualEdge = new KosmographVisualEdgeModel(vertices[edge.From.Model.Id], vertices[edge.To.Model.Id])
-            //    {
-            //        ModelId = edge.Model.Id,
-            //        Label = edge.Name
-            //    };
-            //    visualModel.AddEdge(visualEdge);
-            //}
+            foreach (var edge in this.ViewModel.Relationships)
+            {
+                var visualEdge = new EdgeViewModel(vertices[edge.From.Id], vertices[edge.To.Id])
+                {
+                    ModelId = edge.Id,
+                    Label = edge.Name
+                };
+                visualModel.AddEdge(visualEdge);
+            }
 
             return visualModel;
         }
 
-        private static void AddEdge(KosmographVisualGraphModel visualModel, KosmographVisualVertexModel fromVertex, KosmographVisualVertexModel toVertex, Relationship edge)
+        private static void AddEdge(GraphViewModel visualModel, VertexViewModel fromVertex, VertexViewModel toVertex, Relationship edge)
         {
         }
 
