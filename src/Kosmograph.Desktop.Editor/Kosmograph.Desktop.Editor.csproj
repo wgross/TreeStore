@@ -112,7 +112,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Editor\EditorControl.xaml">
+    <Page Include="View\EditorControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -149,21 +149,21 @@
     <Compile Include="Dialogs\DeleteEntityWithRelationshipsDialog.xaml.cs">
       <DependentUpon>DeleteEntityWithRelationshipsDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="EditModel\AssignedFacetPropertyEditModel.cs" />
-    <Compile Include="EditModel\AssignedTagEditModel.cs" />
-    <Compile Include="EditModel\Base\EditModelBase.cs" />
-    <Compile Include="EditModel\Base\EditNamedViewModelBase.cs" />
-    <Compile Include="EditModel\Base\NamedEditModelBase.cs" />
-    <Compile Include="EditModel\DeleteEntityWithRelationshipsEditModel.cs" />
-    <Compile Include="EditModel\EditFacetViewModel.cs" />
-    <Compile Include="EditModel\EditModelCommitted.cs" />
-    <Compile Include="EditModel\EntityEditModel.cs" />
-    <Compile Include="EditModel\FacetPropertyEditModel.cs" />
-    <Compile Include="EditModel\ITagEditCallback.cs" />
-    <Compile Include="EditModel\RelationshipEditModel.cs" />
-    <Compile Include="EditModel\TagEditModel.cs" />
-    <Compile Include="Editor\EditorCommands.cs" />
-    <Compile Include="Editor\EditorControl.xaml.cs">
+    <Compile Include="ViewModel\AssignedFacetPropertyEditModel.cs" />
+    <Compile Include="ViewModel\AssignedTagEditModel.cs" />
+    <Compile Include="ViewModel\Base\EditModelBase.cs" />
+    <Compile Include="ViewModel\Base\EditNamedViewModelBase.cs" />
+    <Compile Include="ViewModel\Base\NamedEditModelBase.cs" />
+    <Compile Include="ViewModel\DeleteEntityWithRelationshipsEditModel.cs" />
+    <Compile Include="ViewModel\EditFacetViewModel.cs" />
+    <Compile Include="ViewModel\EditModelCommitted.cs" />
+    <Compile Include="ViewModel\EntityEditModel.cs" />
+    <Compile Include="ViewModel\FacetPropertyEditModel.cs" />
+    <Compile Include="ViewModel\ITagEditCallback.cs" />
+    <Compile Include="ViewModel\RelationshipEditModel.cs" />
+    <Compile Include="ViewModel\TagEditModel.cs" />
+    <Compile Include="View\EditorCommands.cs" />
+    <Compile Include="View\EditorControl.xaml.cs">
       <DependentUpon>EditorControl.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
@@ -206,5 +206,6 @@
       <Name>Kosmograph.Model</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
