@@ -1,4 +1,5 @@
 ﻿using Kosmograph.Desktop.Lists.ViewModel;
+using Kosmograph.Model;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -40,7 +41,7 @@ namespace Kosmograph.Desktop.Lists.View
                     return;
 
                 DataObject data = new DataObject();
-                data.SetData(typeof(TagViewModel), tagViewModel);
+                data.SetData(typeof(Tag), tagViewModel.Model);
 
                 DragDrop.DoDragDrop((DependencyObject)sender, data, DragDropEffects.Link);
             }
