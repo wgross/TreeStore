@@ -102,7 +102,7 @@ namespace Kosmograph.Desktop.ViewModel
 
         #region Delete Tag
 
-        public ICommand DeleteTagCommand { get; set; }
+        public ICommand DeleteTagCommand { get; }
 
         private void DeleteTagExecuted(TagViewModel tag)
         {

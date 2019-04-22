@@ -69,6 +69,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="ViewModel\GraphXViewerViewModel.cs" />
     <Compile Include="ViewModel\IdentityMap.cs" />
     <Compile Include="View\GraphXViewerWindow.xaml.cs">
       <DependentUpon>GraphXViewerWindow.xaml</DependentUpon>

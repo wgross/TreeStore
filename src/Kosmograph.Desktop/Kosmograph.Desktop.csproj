@@ -112,7 +112,6 @@
       <DependentUpon>ShowTagsControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="EditModel\EditModelCommitted.cs" />
-    <Compile Include="IdentityMap.cs" />
     <Compile Include="MsaglGraph\Base\KosmographViewerItemBase.cs" />
     <Compile Include="MsaglGraph\ClickCounter.cs" />
     <Compile Include="MsaglGraph\DispatcherObjectExtensions.cs" />

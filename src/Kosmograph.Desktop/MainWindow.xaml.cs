@@ -41,7 +41,7 @@ namespace Kosmograph.Desktop
 
             new Kosmograph.Desktop.Graph.View.GraphXViewerWindow
             {
-                DataContext = this.DataContext,
+                DataContext = this.ViewModel.Graph,
                 Owner = this,
                 Left = this.Left,
                 Top = this.Top + this.Height,

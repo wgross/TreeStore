@@ -21,10 +21,10 @@ namespace Kosmograph.Desktop.Test.ViewModel
 
         public KosmographViewModelEntitiesTest()
         {
-            this.relationshipRepository = this.mocks.Create<IRelationshipRepository>();
-            this.entityRepository = this.mocks.Create<IEntityRepository>();
-            this.tagRepository = this.mocks.Create<ITagRepository>();
-            this.persistence = this.mocks.Create<IKosmographPersistence>();
+            this.relationshipRepository = this.Mocks.Create<IRelationshipRepository>();
+            this.entityRepository = this.Mocks.Create<IEntityRepository>();
+            this.tagRepository = this.Mocks.Create<ITagRepository>();
+            this.persistence = this.Mocks.Create<IKosmographPersistence>();
             this.persistence
                 .Setup(p => p.Entities)
                 .Returns(this.entityRepository.Object);

@@ -1,7 +1,7 @@
 ﻿using System;
 using Xunit;
 
-namespace Kosmograph.Desktop.Test
+namespace Kosmograph.Desktop.Graph.ViewModel.Test
 {
     public class IdentityMapTest
     {
