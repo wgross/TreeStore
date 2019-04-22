@@ -2,7 +2,7 @@
 using System;
 using System.ComponentModel;
 
-namespace Kosmograph.Desktop.GraphXViewer.Model
+namespace Kosmograph.Desktop.Graph.ViewModel
 {
     public sealed class KosmographVisualEdgeModel : EdgeBase<KosmographVisualVertexModel>, INotifyPropertyChanged
     {

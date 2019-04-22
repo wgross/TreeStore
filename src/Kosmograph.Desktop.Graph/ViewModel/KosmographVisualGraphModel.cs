@@ -1,7 +1,7 @@
 ﻿using QuickGraph;
 using System;
 
-namespace Kosmograph.Desktop.GraphXViewer.Model
+namespace Kosmograph.Desktop.Graph.ViewModel
 {
     public class KosmographVisualGraphModel : BidirectionalGraph<KosmographVisualVertexModel, KosmographVisualEdgeModel>
     {

@@ -112,14 +112,6 @@
       <DependentUpon>ShowTagsControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="EditModel\EditModelCommitted.cs" />
-    <Compile Include="GraphXViewer\GraphXViewerWindow.xaml.cs">
-      <DependentUpon>GraphXViewerWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="GraphXViewer\Model\KosmographVisualEdgeModel.cs" />
-    <Compile Include="GraphXViewer\Model\KosmographVisualGraph.cs" />
-    <Compile Include="GraphXViewer\Model\KosmographVisualGraphLogic.cs" />
-    <Compile Include="GraphXViewer\Model\KosmographVisualVertexModel.cs" />
-    <Compile Include="GraphXViewer\Model\KosmographVisualGraphModel.cs" />
     <Compile Include="IdentityMap.cs" />
     <Compile Include="MsaglGraph\Base\KosmographViewerItemBase.cs" />
     <Compile Include="MsaglGraph\ClickCounter.cs" />
@@ -167,14 +159,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\ShowTagsControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="GraphXViewer\GraphXViewerResoures.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="GraphXViewer\GraphXViewerWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -254,6 +238,10 @@
     <ProjectReference Include="..\Kosmograph.Desktop.Editor\Kosmograph.Desktop.Editor.csproj">
       <Project>{153f522f-c029-445d-9174-5045f1c49849}</Project>
       <Name>Kosmograph.Desktop.Editor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Kosmograph.Desktop.Graph\Kosmograph.Desktop.Graph.csproj">
+      <Project>{36927bb2-825c-42f1-bcca-612ab619deb8}</Project>
+      <Name>Kosmograph.Desktop.Graph</Name>
     </ProjectReference>
     <ProjectReference Include="..\Kosmograph.Desktop.Lists\Kosmograph.Desktop.Lists.csproj">
       <Project>{4d13afc3-0622-4572-9353-6cadc689ea2d}</Project>

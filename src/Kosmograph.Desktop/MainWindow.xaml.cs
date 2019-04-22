@@ -1,5 +1,4 @@
-﻿using Kosmograph.Desktop.GraphXViewer;
-using Kosmograph.Desktop.MsaglGraph;
+﻿using Kosmograph.Desktop.MsaglGraph;
 using Kosmograph.Desktop.ViewModel;
 using Kosmograph.LiteDb;
 using Kosmograph.Messaging;
@@ -40,7 +39,7 @@ namespace Kosmograph.Desktop
                 Left = this.Left + this.Width,
             }.Show();
 
-            new GraphXViewerWindow
+            new Kosmograph.Desktop.Graph.View.GraphXViewerWindow
             {
                 DataContext = this.DataContext,
                 Owner = this,
@@ -82,7 +81,7 @@ namespace Kosmograph.Desktop
                 //this.ViewModel.PropertyChanged += this.Value_PropertyChanged;
             }
         }
-        
+
         //private void Value_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         //{
         //    if (e.PropertyName.Equals(nameof(KosmographViewModel.DeletingEntity)))

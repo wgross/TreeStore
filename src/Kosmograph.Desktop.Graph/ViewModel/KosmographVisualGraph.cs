@@ -1,6 +1,6 @@
 ﻿using GraphX.Controls;
 
-namespace Kosmograph.Desktop.GraphXViewer.Model
+namespace Kosmograph.Desktop.Graph.ViewModel
 {
     public class KosmographVisualArea : GraphArea<KosmographVisualVertexModel, KosmographVisualEdgeModel, KosmographVisualGraphModel>
     {

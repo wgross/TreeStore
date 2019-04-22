@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Kosmograph.Desktop.GraphXViewer.Model
+namespace Kosmograph.Desktop.Graph.ViewModel
 {
     public class KosmographVisualGraphLogic : GXLogicCore<KosmographVisualVertexModel, KosmographVisualEdgeModel, KosmographVisualGraphModel> { }
 }

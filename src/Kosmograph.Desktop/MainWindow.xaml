@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:kde ="clr-namespace:Kosmograph.Desktop.Editor"
         xmlns:kdev="clr-namespace:Kosmograph.Desktop.Editors.View;assembly=Kosmograph.Desktop.Editor"
         xmlns:kdc="clr-namespace:Kosmograph.Desktop.Controls"
         mc:Ignorable="d"
