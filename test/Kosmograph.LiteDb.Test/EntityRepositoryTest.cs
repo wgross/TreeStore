@@ -57,10 +57,11 @@ namespace Kosmograph.LiteDb.Test
 
             Assert.NotNull(readEntity);
             Assert.Equal(entity.Id, readEntity.AsDocument["_id"].AsGuid);
+            Assert.Equal(entity.Name, readEntity.AsDocument["Name"].AsString);
         }
 
         [Fact]
-        public void EntityRepository_reads_entity()
+        public void EntityRepository_reads_entity_by_id()
         {
             // ARRANGE
 
@@ -129,14 +130,47 @@ namespace Kosmograph.LiteDb.Test
 
             // ASSERT
 
-            Assert.Equal(entity, readByAll);
-            Assert.NotSame(entity, readByAll);
-            Assert.Equal(entity, readById);
-            Assert.NotSame(entity, readById);
+            Assert.All(new[] { readByAll, readById }, e =>
+            {
+                Assert.Equal(entity, e);
+                Assert.NotSame(entity, e);
+                Assert.Equal(entity.Name, e.Name);
+                Assert.Equal(entity.Tags.Single().Id, e.Tags.Single().Id);
+                Assert.Equal(entity.Tags.Single().Name, e.Tags.Single().Name);
+                Assert.Equal(entity.Tags.Single().Facet.Name, e.Tags.Single().Facet.Name);
+                Assert.Equal(entity.Tags.Single().Facet.Properties.Single().Name, e.Tags.Single().Facet.Properties.Single().Name);
+            });
         }
 
         [Fact]
-        public void EntityRepository_writes_and_reads_Entity_with_FacetProperty_values()
+        public void EntityRepository_writes_Entity_with_FacetProperty_values()
+        {
+            // ARRANGE
+
+            var tag = this.tagRepository.Upsert(new Tag("tag", new Facet("facet", new FacetProperty("prop"))));
+
+            var entity = new Entity("entity", tag);
+            entity.SetFacetProperty(entity.Facets().Single().Properties.Single(), 1);
+
+            this.eventSource
+              .Setup(s => s.Modified(entity));
+
+            // ACT
+
+            this.entityRepository.Upsert(entity);
+
+            // ASSERT
+
+            var readEntity = this.entities.FindById(entity.Id);
+
+            Assert.NotNull(readEntity);
+            Assert.Equal(entity.Id, readEntity.AsDocument["_id"].AsGuid);
+            Assert.Equal(entity.Values[entity.Tags.Single().Facet.Properties.Single().Id.ToString()], readEntity["Values"].AsDocument[entity.Tags.Single().Facet.Properties.Single().Id.ToString()].RawValue);
+            Assert.Equal(TagRepository.CollectionName, readEntity["Tags"].AsArray[0].AsDocument["$ref"].AsString);
+        }
+
+        [Fact]
+        public void EntityRepository_reads_Entity_with_FacetProperty_values()
         {
             // ARRANGE
 
@@ -153,14 +187,22 @@ namespace Kosmograph.LiteDb.Test
 
             // ACT
 
-            var result = this.entityRepository.FindById(entity.Id);
+            var readById = this.entityRepository.FindById(entity.Id);
+            var readByAll = this.entityRepository.FindAll().Single();
 
             // ASSERT
 
-            var comp = entity.DeepCompare(result);
-
-            Assert.True(comp.AreEqual);
-            Assert.Equal(1, result.TryGetFacetProperty(result.Facets().Single().Properties.Single()).Item2);
+            Assert.All(new[] { readByAll, readById }, e =>
+            {
+                Assert.Equal(entity, e);
+                Assert.NotSame(entity, e);
+                Assert.Equal(entity.Name, e.Name);
+                Assert.Equal(entity.Tags.Single().Id, e.Tags.Single().Id);
+                Assert.Equal(entity.Tags.Single().Name, e.Tags.Single().Name);
+                Assert.Equal(entity.Tags.Single().Facet.Name, e.Tags.Single().Facet.Name);
+                Assert.Equal(entity.Tags.Single().Facet.Properties.Single().Name, e.Tags.Single().Facet.Properties.Single().Name);
+                Assert.Equal(entity.Values[entity.Tags.Single().Facet.Properties.Single().Id.ToString()], e.Values[e.Tags.Single().Facet.Properties.Single().Id.ToString()]);
+            });
         }
 
         [Fact]

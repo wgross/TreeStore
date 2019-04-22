@@ -111,16 +111,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EditModel\DeleteEntityWithRelationshipsEditModelTest.cs" />
-    <Compile Include="EditModel\AssignedTagEditModelTest.cs" />
-    <Compile Include="EditModel\AssignedFacetPropertyEditModelTest.cs" />
+    <Compile Include="ViewModel\DeleteEntityWithRelationshipsEditModelTest.cs" />
+    <Compile Include="ViewModel\AssignedTagEditModelTest.cs" />
+    <Compile Include="ViewModel\AssignedFacetPropertyEditModelTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="EditModel\EntityEditModelTest.cs" />
-    <Compile Include="EditModel\FacetPropertyEditModelTest.cs" />
-    <Compile Include="EditModel\FacetEditModelTest.cs" />
-    <Compile Include="EditModel\EditNamedViewModelTest.cs" />
-    <Compile Include="EditModel\TagEditModelTest.cs" />
-    <Compile Include="EditModel\RelationshipEditModelTest.cs" />
+    <Compile Include="ViewModel\EntityEditModelTest.cs" />
+    <Compile Include="ViewModel\FacetPropertyEditModelTest.cs" />
+    <Compile Include="ViewModel\FacetEditModelTest.cs" />
+    <Compile Include="ViewModel\EditNamedViewModelTest.cs" />
+    <Compile Include="ViewModel\TagEditModelTest.cs" />
+    <Compile Include="ViewModel\RelationshipEditModelTest.cs" />
     <Compile Include="ModelExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
