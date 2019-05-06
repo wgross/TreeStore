@@ -17,7 +17,7 @@ namespace Kosmograph.Desktop.ViewModel
         {
             this.model = kosmographModel;
             this.Tags = new Lists.ViewModel.TagRepositoryViewModel(this.model.Tags, KosmographMessageBus.Default.Tags);
-            this.Entities = new Lists.ViewModel.EntityRepositoryViewModel(this.model.Entities, KosmographMessageBus.Default.Entities);
+            this.Entities = new Lists.ViewModel.EntityRepositoryViewModel(this.model.Entities, KosmographMessageBus.Default.Entities, KosmographMessageBus.Default.Tags);
             this.Relationships = new Lists.ViewModel.RelationshipRepositoryViewModel(this.model.Relationships, KosmographMessageBus.Default.Relationships);
             this.Graph = new GraphXViewerViewModel(KosmographMessageBus.Default);
             //this.Entities = new EntityRepositoryViewModel(this.model.Entities, this.Tags.GetViewModel);

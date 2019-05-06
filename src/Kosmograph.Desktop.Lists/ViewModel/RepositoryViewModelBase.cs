@@ -17,17 +17,17 @@ namespace Kosmograph.Desktop.Lists.ViewModel
 
         #region IObserver<ChangedMessage<CO>> Members
 
-        public void OnCompleted()
+        void IObserver<ChangedMessage<CO>>.OnCompleted()
         {
             throw new NotImplementedException();
         }
 
-        public void OnError(Exception error)
+        void IObserver<ChangedMessage<CO>>.OnError(Exception error)
         {
             throw new NotImplementedException();
         }
 
-        public void OnNext(ChangedMessage<CO> value)
+        void IObserver<ChangedMessage<CO>>.OnNext(ChangedMessage<CO> value)
         {
             switch (value.ChangeType)
             {

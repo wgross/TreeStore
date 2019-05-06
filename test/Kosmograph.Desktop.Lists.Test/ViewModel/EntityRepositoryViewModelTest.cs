@@ -11,25 +11,48 @@ namespace Kosmograph.Desktop.Lists.Test.ViewModel
 {
     public class EntityRepositoryViewModelTest : IDisposable
     {
+        private MockRepository Mocks { get; } = new MockRepository(MockBehavior.Strict);
         private readonly EntityRepositoryViewModel repositoryViewModel;
-        private readonly EntityMessageBus messaging = new EntityMessageBus();
-        private readonly MockRepository mocks = new MockRepository(MockBehavior.Strict);
+        private readonly EntityMessageBus entityMessaging = new EntityMessageBus();
+        private readonly TagMessageBus tagMessaging = new TagMessageBus();
         private readonly Mock<IEntityRepository> repository;
 
         public EntityRepositoryViewModelTest()
         {
-            this.repository = this.mocks.Create<IEntityRepository>();
-            this.repositoryViewModel = new EntityRepositoryViewModel(this.repository.Object, this.messaging);
+            this.repository = this.Mocks.Create<IEntityRepository>();
+            this.repositoryViewModel = new EntityRepositoryViewModel(this.repository.Object, this.entityMessaging, this.tagMessaging);
         }
 
         public void Dispose()
         {
-            this.mocks.VerifyAll();
+            this.Mocks.VerifyAll();
         }
 
         public Tag DefaultTag() => new Tag("tag", new Facet("facet", new FacetProperty("p")));
 
         public Entity DefaultEntity() => new Entity("entity", DefaultTag());
+
+        [Fact]
+        public void EntityRepositoryViewModel_subscribes_entity_and_tags_events()
+        {
+            // ARRANGE
+
+            var entityMessageBusMock = this.Mocks.Create<IChangedMessageBus<IEntity>>();
+
+            entityMessageBusMock
+                .Setup(m => m.Subscribe(It.IsAny<IObserver<ChangedMessage<IEntity>>>()))
+                .Returns(Mock.Of<IDisposable>());
+
+            var tagMessageBusMock = this.Mocks.Create<IChangedMessageBus<ITag>>();
+
+            tagMessageBusMock
+                .Setup(m => m.Subscribe(It.IsAny<IObserver<ChangedMessage<ITag>>>()))
+                .Returns(Mock.Of<IDisposable>());
+
+            // ACT
+
+            var tmp = new EntityRepositoryViewModel(this.repository.Object, entityMessageBusMock.Object, tagMessageBusMock.Object);
+        }
 
         [Fact]
         public void EntityRepositoryViewModel_creates_TagViewModel_from_all_Tags()
@@ -87,7 +110,7 @@ namespace Kosmograph.Desktop.Lists.Test.ViewModel
 
             // ACT
 
-            this.messaging.Modified(entity);
+            this.entityMessaging.Modified(entity);
 
             // ASSERT
 
@@ -126,7 +149,7 @@ namespace Kosmograph.Desktop.Lists.Test.ViewModel
 
             // ACT
 
-            this.messaging.Modified(entity);
+            this.entityMessaging.Modified(entity);
 
             // ASSERT
 
@@ -159,7 +182,7 @@ namespace Kosmograph.Desktop.Lists.Test.ViewModel
 
             // ACT
 
-            this.messaging.Removed(entity);
+            this.entityMessaging.Removed(entity);
 
             // ASSERT
 
@@ -189,7 +212,7 @@ namespace Kosmograph.Desktop.Lists.Test.ViewModel
 
             // ACT
 
-            this.messaging.Modified(entity);
+            this.entityMessaging.Modified(entity);
 
             // ASSERT
             // same tag, but new view model instance
@@ -217,7 +240,7 @@ namespace Kosmograph.Desktop.Lists.Test.ViewModel
 
             // ACT
 
-            this.messaging.Modified(entity);
+            this.entityMessaging.Modified(entity);
 
             // ASSERT
 
@@ -239,7 +262,7 @@ namespace Kosmograph.Desktop.Lists.Test.ViewModel
             // deleting a tag at the repos raises a changed event
             this.repository
                 .Setup(r => r.Delete(entity))
-                .Callback(() => this.messaging.Removed(entity))
+                .Callback(() => this.entityMessaging.Removed(entity))
                 .Returns(true);
 
             this.repositoryViewModel.FillAll();
@@ -263,6 +286,96 @@ namespace Kosmograph.Desktop.Lists.Test.ViewModel
 
             Assert.True(collectionChanged);
             Assert.False(this.repositoryViewModel.Any());
+        }
+
+        [Fact]
+        public void EntityRepositoryViewModel_updates_Entity_with_modified_Tag()
+        {
+            // ARRANGE
+
+            var entity = DefaultEntity();
+
+            this.repository
+                .Setup(r => r.FindAll())
+                .Returns(entity.Yield());
+
+            this.repository
+                .Setup(r => r.FindById(entity.Id))
+                .Returns(entity);
+
+            this.repositoryViewModel.FillAll();
+            var originalViewModel = this.repositoryViewModel.Single();
+
+            bool existingEntityWasRemoved = false;
+            bool existingEntityWasAdded = false;
+            this.repositoryViewModel.CollectionChanged += (sender, e) =>
+            {
+                Assert.Same(this.repositoryViewModel, sender);
+                if (e.Action == NotifyCollectionChangedAction.Remove && e.OldItems.OfType<EntityViewModel>().Single().Model.Equals(entity))
+                {
+                    existingEntityWasRemoved = true;
+                }
+                if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems.OfType<EntityViewModel>().Single().Model.Equals(entity))
+                {
+                    existingEntityWasAdded = true;
+                }
+            };
+
+            // ACT
+
+            this.tagMessaging.Modified(entity.Tags.Single());
+
+            // ASSERT
+
+            Assert.True(existingEntityWasAdded);
+            Assert.True(existingEntityWasRemoved);
+            Assert.NotSame(originalViewModel, this.repositoryViewModel.Single());
+            Assert.Equal(entity, this.repositoryViewModel.Single().Model);
+        }
+
+        [Fact]
+        public void EntityRepositoryViewModel_updates_Entity_with_removed_Tag()
+        {
+            // ARRANGE
+
+            var entity = DefaultEntity();
+
+            this.repository
+                .Setup(r => r.FindAll())
+                .Returns(entity.Yield());
+
+            this.repository
+                .Setup(r => r.FindById(entity.Id))
+                .Returns(entity);
+
+            this.repositoryViewModel.FillAll();
+            var originalViewModel = this.repositoryViewModel.Single();
+
+            bool existingEntityWasRemoved = false;
+            bool existingEntityWasAdded = false;
+            this.repositoryViewModel.CollectionChanged += (sender, e) =>
+            {
+                Assert.Same(this.repositoryViewModel, sender);
+                if (e.Action == NotifyCollectionChangedAction.Remove && e.OldItems.OfType<EntityViewModel>().Single().Model.Equals(entity))
+                {
+                    existingEntityWasRemoved = true;
+                }
+                if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems.OfType<EntityViewModel>().Single().Model.Equals(entity))
+                {
+                    existingEntityWasAdded = true;
+                }
+            };
+
+            // ACT
+
+            this.tagMessaging.Removed(entity.Tags.Single());
+
+            // ASSERT
+
+            Assert.True(existingEntityWasAdded);
+            Assert.True(existingEntityWasRemoved);
+            Assert.NotSame(originalViewModel, this.repositoryViewModel.Single());
+            Assert.Equal(entity, this.repositoryViewModel.Single().Model);
         }
     }
 }
