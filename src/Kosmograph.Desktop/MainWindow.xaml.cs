@@ -30,15 +30,15 @@ namespace Kosmograph.Desktop
                         Application.Current.Shutdown();
             }
 
-            new Kosmograph.Desktop.Graph.View.GraphXViewerWindow
-            {
-                DataContext = this.ViewModel.Graph,
-                Owner = this,
-                Left = this.Left,
-                Top = this.Top + this.Height,
-                Width = this.Width,
-                Height = this.Height
-            }.Show();
+            //new Kosmograph.Desktop.Graph.View.GraphXViewerWindow
+            //{
+            //    DataContext = this.ViewModel.Graph,
+            //    Owner = this,
+            //    Left = this.Left,
+            //    Top = this.Top + this.Height,
+            //    Width = this.Width,
+            //    Height = this.Height
+            //}.Show();
         }
 
         private void CreateNewModel()
