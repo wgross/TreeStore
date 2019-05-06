@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:controls="http://schemas.panthernet.ru/graphx/"
-        xmlns:vm="clr-namespace:Kosmograph.Desktop.Graph.ViewModel"
+        xmlns:local="clr-namespace:Kosmograph.Desktop.Graph.View"
         mc:Ignorable="d"
         Title="GraphX Viewer" Height="450" Width="800">
     <Window.Resources>
@@ -16,7 +16,7 @@
     </Window.Resources>
     <Grid>
         <controls:ZoomControl x:Name="zoomctrl">
-            <vm:GraphXGraphArea x:Name="graphArea" />
+            <local:GraphXViewerGraphArea x:Name="graphArea" />
         </controls:ZoomControl>
     </Grid>
 </Window>

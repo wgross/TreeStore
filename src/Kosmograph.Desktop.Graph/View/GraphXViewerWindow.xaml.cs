@@ -12,7 +12,7 @@ namespace Kosmograph.Desktop.Graph.View
     /// <summary>
     /// Interaction logic for GraphXViewerWindow.xaml
     /// </summary>
-    public partial class GraphXViewerWindow : Window, IDisposable
+    public partial class GraphXViewerWindow : Window, IDisposable, IGraphCallback
     {
         public GraphXViewerViewModel ViewModel => (GraphXViewerViewModel)this.DataContext;
 
@@ -63,18 +63,21 @@ namespace Kosmograph.Desktop.Graph.View
         private GraphViewModel SetupGraph()
         {
             //Lets make new data graph instance
-            var visualModel = new GraphViewModel();
+
+            this.ViewModel.GraphCallback = this;
+            var visualModel = this.ViewModel.GraphViewModel;
+
             //Now we need to create edges and vertices to fill data graph
             //This edges and vertices will represent graph structure and connections
             //Lets make some vertices
-            foreach (var entity in this.ViewModel.Entities)
-            {
-                visualModel.AddVertex(new VertexViewModel()
-                {
-                    ModelId = entity.Id,
-                    Label = entity.Name
-                });
-            }
+            //foreach (var entity in this.ViewModel.Entities)
+            //{
+            //    this.ViewModel.GraphViewModel.AddVertex(new VertexViewModel()
+            //    {
+            //        ModelId = entity.Id,
+            //        Label = entity.Name
+            //    });
+            //}
 
             var vertices = visualModel.Vertices.ToDictionary(v => v.ModelId);
 
@@ -103,6 +106,36 @@ namespace Kosmograph.Desktop.Graph.View
         }
 
         #region Update Graph from view model
+
+        public void Add(VertexViewModel vertexData)
+        {
+            this.Dispatcher.Invoke(() =>
+            {
+                this.graphArea.AddVertexAndData(vertexData, this.graphArea.ControlFactory.CreateVertexControl(vertexData));
+                this.graphArea.RelayoutGraph(true);
+                this.zoomctrl.ZoomToFill();
+            });
+        }
+
+        public void Remove(VertexViewModel vertex)
+        {
+            this.Dispatcher.Invoke(() =>
+            {
+                this.graphArea.RemoveVertexAndEdges(vertex);
+                this.graphArea.RelayoutGraph(true);
+                this.zoomctrl.ZoomToFill();
+            });
+        }
+
+        public void Add(EdgeViewModel edge)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Remove(EdgeViewModel edge)
+        {
+            throw new NotImplementedException();
+        }
 
         //protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
         //{
@@ -214,7 +247,7 @@ namespace Kosmograph.Desktop.Graph.View
         //    edge = null;
         //    return false;
         //}
-    }
 
-    #endregion Update Graph from view model
+        #endregion Update Graph from view model
+    }
 }

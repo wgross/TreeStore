@@ -7,7 +7,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
     public class KosmographViewModelGraphTest : KosmographViewModelTestBase
     {
         [Fact]
-        public void KosmographViewModel_add_all_entities_and_relatinships_to_graph_view()
+        public void KosmographViewModel_add_all_entities_and_relationships_to_graph_view()
         {
             // ARRANGE
 

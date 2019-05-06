@@ -71,11 +71,12 @@
     </Page>
     <Compile Include="ViewModel\GraphXViewerViewModel.cs" />
     <Compile Include="ViewModel\IdentityMap.cs" />
+    <Compile Include="ViewModel\IGraphCallback.cs" />
     <Compile Include="View\GraphXViewerWindow.xaml.cs">
       <DependentUpon>GraphXViewerWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModel\EdgeViewModel.cs" />
-    <Compile Include="ViewModel\GraphXGraphArea.cs" />
+    <Compile Include="View\GraphXViewerGraphArea.cs" />
     <Compile Include="ViewModel\GraphXGraphLogic.cs" />
     <Compile Include="ViewModel\GraphViewModel.cs" />
     <Compile Include="ViewModel\VertexViewModel.cs" />
@@ -116,6 +117,10 @@
     <ProjectReference Include="..\..\..\github\GraphX\GraphX.PCL.Logic\GraphX.PCL.Logic.csproj">
       <Project>{a30d218b-aaa4-483a-99f7-eaeb1b8b4610}</Project>
       <Name>GraphX.PCL.Logic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Kosmograph.Messaging\Kosmograph.Messaging.csproj">
+      <Project>{b14515a9-3064-419d-9bda-4cb81db82ffd}</Project>
+      <Name>Kosmograph.Messaging</Name>
     </ProjectReference>
     <ProjectReference Include="..\Kosmograph.Model\Kosmograph.Model.csproj">
       <Project>{89824d16-940a-4b72-9f23-a4f5ab487e8c}</Project>
