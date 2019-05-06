@@ -74,9 +74,11 @@ namespace Kosmograph.Desktop.Graph.ViewModel
             switch (value.ChangeType)
             {
                 case ChangeTypeValues.Removed:
-                    this.entities
-                        .FirstOrDefault(e => e.Id.Equals(value.Changed.Id))
-                        .IfExistsThen(e => this.entities.Remove(e));
+                    this
+                        .GraphViewModel
+                        .Vertices
+                        .FirstOrDefault(v => v.ModelId.Equals(value.Changed.Id))
+                        .IfExistsThen(v => this.GraphCallback.Remove(v));
                     break;
 
                 case ChangeTypeValues.Modified:
@@ -85,11 +87,10 @@ namespace Kosmograph.Desktop.Graph.ViewModel
                     if (existingNode is null)
                     {
                         this.entities.Add((Entity)value.Changed);
-                        //this.GraphCallback.Add(new VertexViewModel
-                        //{
-                        //    ModelId = value.Changed.Id,
-                        //    Label = value.Changed.Name
-                        //});
+                    }
+                    else
+                    {
+                        existingNode.Label = value.Changed.Name;
                     }
                     break;
             }
@@ -105,29 +106,54 @@ namespace Kosmograph.Desktop.Graph.ViewModel
             throw new NotImplementedException();
         }
 
-        public void OnNext(ChangedMessage<IRelationship> value)
+        #endregion Handle changes of model entities
+
+        void IObserver<ChangedMessage<IRelationship>>.OnNext(ChangedMessage<IRelationship> value)
         {
             switch (value.ChangeType)
             {
                 case ChangeTypeValues.Removed:
-                    this.relationships
-                        .FirstOrDefault(e => e.Id.Equals(value.Changed.Id))
-                        .IfExistsThen(e => this.relationships.Remove(e));
+                    this
+                        .GraphViewModel
+                        .Edges
+                        .FirstOrDefault(v => v.ModelId.Equals(value.Changed.Id))
+                        .IfExistsThen(e => this.GraphCallback.Remove(e));
+                    break;
+
+                case ChangeTypeValues.Modified:
+                    var existingEdge = this
+                        .GraphViewModel
+                        .Edges
+                        .FirstOrDefault(v => v.ModelId.Equals(value.Changed.Id));
+
+                    if (existingEdge is null)
+                    {
+                        var source = this.GraphViewModel.Vertices.FirstOrDefault(v => v.ModelId.Equals(value.Changed.From.Id));
+                        var target = this.GraphViewModel.Vertices.FirstOrDefault(v => v.ModelId.Equals(value.Changed.To.Id));
+                        this.GraphCallback
+                            .Add(new EdgeViewModel(source, target)
+                            {
+                                ModelId = value.Changed.Id,
+                                Label = ((Relationship)value.Changed).Name
+                            });
+                    }
+                    else
+                    {
+                        existingEdge.Label = ((Relationship)value.Changed).Name;
+                    }
                     break;
             }
         }
 
-        public void OnError(Exception error)
+        void IObserver<ChangedMessage<IRelationship>>.OnError(Exception error)
         {
             throw new NotImplementedException();
         }
 
-        public void OnCompleted()
+        void IObserver<ChangedMessage<IRelationship>>.OnCompleted()
         {
             throw new NotImplementedException();
         }
-
-        #endregion Handle changes of model entities
 
         #region Maintain the visualization model
 

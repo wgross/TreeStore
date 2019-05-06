@@ -20,12 +20,13 @@ namespace Kosmograph.Model
             return items;
         }
 
-        public static void IfExistsThen<T>(this T item, Action<T> thenDo) where T : class
+        public static T IfExistsThen<T>(this T item, Action<T> thenDo) where T : class
         {
             if (item is null)
-                return;
+                return null;
 
             thenDo(item);
+            return item;
         }
     }
 }

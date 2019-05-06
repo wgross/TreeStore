@@ -129,12 +129,23 @@ namespace Kosmograph.Desktop.Graph.View
 
         public void Add(EdgeViewModel edge)
         {
-            throw new NotImplementedException();
+            this.Dispatcher.Invoke(() =>
+            {
+                var sourceVertex = this.graphArea.VertexList[edge.Source];
+                var targetVertax = this.graphArea.VertexList[edge.Target];
+                
+                this.graphArea.AddEdgeAndData(edge, this.graphArea.ControlFactory.CreateEdgeControl(sourceVertex, targetVertax, edge));
+            });
         }
 
         public void Remove(EdgeViewModel edge)
         {
-            throw new NotImplementedException();
+            this.Dispatcher.Invoke(() =>
+            {
+                this.graphArea.RemoveEdge(edge);
+                this.graphArea.RelayoutGraph(true);
+                this.zoomctrl.ZoomToFill();
+            });
         }
 
         //protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
