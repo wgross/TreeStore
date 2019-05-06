@@ -5,8 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:kdev="clr-namespace:Kosmograph.Desktop.Editors.View;assembly=Kosmograph.Desktop.Editor"
         xmlns:kdc="clr-namespace:Kosmograph.Desktop.Controls"
+        xmlns:kdgv="clr-namespace:Kosmograph.Desktop.Graph.View;assembly=Kosmograph.Desktop.Graph"
         mc:Ignorable="d"
-        Title="Kosmograph" Height="450" Width="900">
+        Title="Kosmograph" Height="900" Width="900">
 
     <Window.Resources>
         <ResourceDictionary>
@@ -27,17 +28,38 @@
             </MenuItem>
         </Menu>
         <Grid Name="rootPanel">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*" MinHeight="100"/>
+                <RowDefinition Height="1*" MinHeight="100"/>
+            </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition MinWidth="150" />
                 <ColumnDefinition MinWidth="150" />
                 <ColumnDefinition MinWidth="150" />        
-
             </Grid.ColumnDefinitions>
+            <!--
+            Graph Viewer in the upper area
+            -->
+            <kdgv:GraphXViewer Grid.Column="0" Grid.Row="0"  Grid.ColumnSpan="3"
+                DataContext="{Binding Graph}"
+                Margin="0,0,0,5"/>
+            <!--
+            Splitter between graph and tags/entities/relationships
+            -->
+            <GridSplitter Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3"
+                ResizeDirection="Rows"   
+                IsTabStop="False"
+                Height="2"
+                Width="Auto"
+                VerticalAlignment="Top"
+                HorizontalAlignment="Stretch"
+                Foreground="DarkGray" />
+            
             <!--
             Tags in the left column
             -->
-            <Grid Grid.Column="0"
-                  Margin="5,0,5,0">
+            <Grid Grid.Column="0" Grid.Row="1"
+                  Margin="5,5,5,0">
                 <kdc:ShowTagsControl/>
                 <kdev:EditorControl DataContext="{Binding EditedTag, Mode=OneWay}" />
             </Grid>
@@ -45,7 +67,7 @@
             <!--
             Splitter between entities and tags
             -->
-            <GridSplitter Grid.Column="0"
+            <GridSplitter Grid.Column="0" Grid.Row="1"
                 IsTabStop="False"
                 Width="2"
                 Foreground="DarkGray" />
@@ -53,8 +75,8 @@
             <!--
             Entities in the middle column
             -->
-            <Grid Grid.Column="1"
-                Margin="5,0,5,0">
+            <Grid Grid.Column="1" Grid.Row="1"
+                Margin="5,5,5,0">
                 <kdc:ShowEntitiesControl/>
                 <kdev:EditorControl DataContext="{Binding EditedEntity, Mode=OneWay}" />
                 <kdev:DeleteEntityWithRelationshipsDialog DataContext="{Binding DeletingEntity, Mode=OneWay}"/>
@@ -63,7 +85,7 @@
             <!--
             Splitter between entities and tags
             -->
-            <GridSplitter Grid.Column="1"
+            <GridSplitter Grid.Column="1" Grid.Row="1"
                 IsTabStop="False"
                 Width="2"
                 Foreground="DarkGray" />
@@ -71,8 +93,8 @@
             <!--
             Relationships in the middle column
             -->
-            <Grid Grid.Column="2"
-                  Margin="5,0,5,0">
+            <Grid Grid.Column="2" Grid.Row="1"
+                  Margin="5,5,5,0">
                 <kdc:ShowRelationshipsControl/>
                 <kdev:EditorControl DataContext="{Binding EditedRelationship, Mode=OneWay}" />
             </Grid>
