@@ -1,5 +1,4 @@
-﻿using Kosmograph.Desktop.MsaglGraph;
-using Kosmograph.Desktop.ViewModel;
+﻿using Kosmograph.Desktop.ViewModel;
 using Kosmograph.LiteDb;
 using Kosmograph.Messaging;
 using Kosmograph.Model;
@@ -30,14 +29,6 @@ namespace Kosmograph.Desktop
                     if (Application.Current != null)
                         Application.Current.Shutdown();
             }
-
-            new KosmographViewerWindow
-            {
-                DataContext = this.DataContext,
-                Owner = this,
-                Top = this.Top,
-                Left = this.Left + this.Width,
-            }.Show();
 
             new Kosmograph.Desktop.Graph.View.GraphXViewerWindow
             {

@@ -124,10 +124,6 @@
     <Compile Include="ModelExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\github\automatic-graph-layout\GraphLayout\MSAGL\Msagl.csproj">
-      <Project>{415d3e3f-7105-46c1-84d2-7ecb34213d92}</Project>
-      <Name>Msagl</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\src\Kosmograph.Desktop.Editor\Kosmograph.Desktop.Editor.csproj">
       <Project>{153f522f-c029-445d-9174-5045f1c49849}</Project>
       <Name>Kosmograph.Desktop.Editor</Name>
@@ -147,10 +143,6 @@
     <ProjectReference Include="..\..\src\Kosmograph.Model\Kosmograph.Model.csproj">
       <Project>{89824d16-940a-4b72-9f23-a4f5ab487e8c}</Project>
       <Name>Kosmograph.Model</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\WpfGraphControl\WpfGraphControl.csproj">
-      <Project>{fce1d24e-cc6b-47bc-9ce4-427e5d56b71e}</Project>
-      <Name>WpfGraphControl</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
