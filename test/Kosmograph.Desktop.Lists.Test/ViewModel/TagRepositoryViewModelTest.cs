@@ -1,4 +1,5 @@
-﻿using Kosmograph.Messaging;
+﻿using Kosmograph.Desktop.Lists.ViewModel;
+using Kosmograph.Messaging;
 using Kosmograph.Model;
 using Moq;
 using System;
@@ -6,7 +7,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using Xunit;
 
-namespace Kosmograph.Desktop.Lists.ViewModel.Test
+namespace Kosmograph.Desktop.Lists.Test.ViewModel
 {
     public class TagRepositoryViewModelTest : IDisposable
     {
@@ -27,6 +28,42 @@ namespace Kosmograph.Desktop.Lists.ViewModel.Test
         }
 
         public Tag DefaultTag() => new Tag("tag", new Facet("facet", new FacetProperty("p")));
+
+        [Fact]
+        public void TagRepositoryViewModel_subscribes_to_tag_changes()
+        {
+            // ARRANGE
+
+            var tagMessagingMock = this.mocks.Create<IChangedMessageBus<ITag>>();
+            tagMessagingMock
+                .Setup(t => t.Subscribe(It.IsAny<TagRepositoryViewModel>()))
+                .Returns(Mock.Of<IDisposable>());
+
+            // ACT
+
+            var tmp = new TagRepositoryViewModel(this.repository.Object, tagMessagingMock.Object);
+        }
+
+        [Fact]
+        public void TagRepositoryViewModel_disposes_tag_changes()
+        {
+            // ARRANGE
+
+            var tagSubscription = this.mocks.Create<IDisposable>();
+            tagSubscription
+                .Setup(t => t.Dispose());
+
+            var tagMessagingMock = this.mocks.Create<IChangedMessageBus<ITag>>();
+            tagMessagingMock
+                .Setup(t => t.Subscribe(It.IsAny<TagRepositoryViewModel>()))
+                .Returns(tagSubscription.Object);
+
+            var viewModel = new TagRepositoryViewModel(this.repository.Object, tagMessagingMock.Object);
+
+            // ACT
+
+            viewModel.Dispose();
+        }
 
         [Fact]
         public void TagRepositoryViewModel_creates_TagViewModel_from_all_Tags()

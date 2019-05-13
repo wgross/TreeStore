@@ -33,6 +33,58 @@ namespace Kosmograph.Desktop.Lists.Test.ViewModel
         public Entity DefaultEntity() => new Entity("entity", DefaultTag());
 
         [Fact]
+        public void EntityRepositoryViewModel_subscribes_to_entity_and_tag_changes()
+        {
+            // ARRANGE
+
+            var tagMessagingMock = this.Mocks.Create<IChangedMessageBus<ITag>>();
+            tagMessagingMock
+                .Setup(t => t.Subscribe(It.IsAny<EntityRepositoryViewModel>()))
+                .Returns(Mock.Of<IDisposable>());
+
+            var entityMessagingMock = this.Mocks.Create<IChangedMessageBus<IEntity>>();
+
+            entityMessagingMock
+                .Setup(r => r.Subscribe(It.IsAny<EntityRepositoryViewModel>()))
+                .Returns(Mock.Of<IDisposable>());
+
+            // ACT
+
+            var tmp = new EntityRepositoryViewModel(this.repository.Object, entityMessagingMock.Object, tagMessagingMock.Object);
+        }
+
+        [Fact]
+        public void EntityRepositoryViewModel_disposes_relationship_and_tag_subscriptions()
+        {
+            // ARRANGE
+
+            var tagSubscription = this.Mocks.Create<IDisposable>();
+            tagSubscription
+                .Setup(t => t.Dispose());
+
+            var tagMessagingMock = this.Mocks.Create<IChangedMessageBus<ITag>>();
+            tagMessagingMock
+                .Setup(t => t.Subscribe(It.IsAny<EntityRepositoryViewModel>()))
+                .Returns(tagSubscription.Object);
+
+            var entitySubscription = this.Mocks.Create<IDisposable>();
+            entitySubscription
+                .Setup(t => t.Dispose());
+
+            var entityMessagingMock = this.Mocks.Create<IChangedMessageBus<IEntity>>();
+
+            entityMessagingMock
+                .Setup(r => r.Subscribe(It.IsAny<EntityRepositoryViewModel>()))
+                .Returns(entitySubscription.Object);
+
+            var viewModel = new EntityRepositoryViewModel(this.repository.Object, entityMessagingMock.Object, tagMessagingMock.Object);
+
+            // ACT
+
+            viewModel.Dispose();
+        }
+
+        [Fact]
         public void EntityRepositoryViewModel_subscribes_entity_and_tags_events()
         {
             // ARRANGE

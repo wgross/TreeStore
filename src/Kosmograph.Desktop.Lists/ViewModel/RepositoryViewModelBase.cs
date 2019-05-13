@@ -58,7 +58,7 @@ namespace Kosmograph.Desktop.Lists.ViewModel
                 if (disposing)
                 {
                     this.Clear();
-                    this.subscription.Dispose();
+                    this.subscription?.Dispose();
                 }
 
                 this.subscription = null;

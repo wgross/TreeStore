@@ -6,18 +6,16 @@ using System.Linq;
 
 namespace Kosmograph.Desktop.Lists.ViewModel
 {
-    public class EntityRepositoryViewModel : RepositoryViewModelBase<EntityViewModel, IEntity>, IObserver<ChangedMessage<ITag>>
+    public class EntityRepositoryViewModel : TaggedRepositoryViewModelBase<EntityViewModel, Entity, IEntity>, IObserver<ChangedMessage<ITag>>
     {
         private readonly IEntityRepository repository;
         private readonly IChangedMessageBus<ITag> tagChanges;
         private readonly IDisposable tagSubscriptions;
 
         public EntityRepositoryViewModel(IEntityRepository repository, IChangedMessageBus<IEntity> entityChanges, IChangedMessageBus<ITag> tagChanges)
-            : base(entityChanges)
+            : base(entityChanges, tagChanges)
         {
             this.repository = repository;
-            this.tagChanges = tagChanges;
-            this.tagSubscriptions = this.tagChanges.Subscribe(this);
             this.DeleteCommand = new RelayCommand<EntityViewModel>(this.DeleteCommandExecuted);
         }
 
@@ -65,30 +63,5 @@ namespace Kosmograph.Desktop.Lists.ViewModel
                 this.OnRemoved(id);
             }
         }
-
-        #region IObserver<ChangedMessage<ITag>> Members
-
-        void IObserver<ChangedMessage<ITag>>.OnNext(ChangedMessage<ITag> value)
-        {
-            var affectedEntitiesIds =
-                from e in this
-                where e.Tags.Any(t => t.Tag.Id.Equals(value.Changed.Id))
-                select e.Model.Id;
-
-            foreach (var id in affectedEntitiesIds.ToArray())
-                this.OnUpdated(id);
-        }
-
-        void IObserver<ChangedMessage<ITag>>.OnError(Exception error)
-        {
-            throw new NotImplementedException();
-        }
-
-        void IObserver<ChangedMessage<ITag>>.OnCompleted()
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion IObserver<ChangedMessage<ITag>> Members
     }
 }

@@ -88,6 +88,8 @@
     <Compile Include="ViewModel\NamedViewModelBase.cs" />
     <Compile Include="ViewModel\RelationshipViewModel.cs" />
     <Compile Include="ViewModel\RepositoryViewModelBase.cs" />
+    <Compile Include="ViewModel\TaggedRepositoryViewModelBase.cs" />
+    <Compile Include="ViewModel\TaggedViewModelBase.cs" />
     <Compile Include="ViewModel\TagRepositoryViewModel.cs" />
     <Compile Include="ViewModel\TagViewModel.cs" />
     <Compile Include="View\RelationshipRepositoryView.xaml.cs">

@@ -35,6 +35,58 @@ namespace Kosmograph.Desktop.Lists.Test.ViewModel
         public Relationship DefaultRelationship() => new Relationship("entity", from: DefaultEntity(), to: DefaultEntity(), tags: DefaultTag());
 
         [Fact]
+        public void RelationshipRepositoryViewModel_subscribes_to_relationship_and_tag_changes()
+        {
+            // ARRANGE
+
+            var tagMessagingMock = this.mocks.Create<IChangedMessageBus<ITag>>();
+            tagMessagingMock
+                .Setup(t => t.Subscribe(It.IsAny<RelationshipRepositoryViewModel>()))
+                .Returns(Mock.Of<IDisposable>());
+
+            var relationshipMessagingMock = this.mocks.Create<IChangedMessageBus<IRelationship>>();
+
+            relationshipMessagingMock
+                .Setup(r => r.Subscribe(It.IsAny<RelationshipRepositoryViewModel>()))
+                .Returns(Mock.Of<IDisposable>());
+
+            // ACT
+
+            var tmp = new RelationshipRepositoryViewModel(this.repository.Object, relationshipMessagingMock.Object, tagMessagingMock.Object);
+        }
+
+        [Fact]
+        public void RelationshipRepositoryViewModel_disposes_to_relationship_and_tag_subscriptions()
+        {
+            // ARRANGE
+
+            var tagSubscription = this.mocks.Create<IDisposable>();
+            tagSubscription
+                .Setup(t => t.Dispose());
+
+            var tagMessagingMock = this.mocks.Create<IChangedMessageBus<ITag>>();
+            tagMessagingMock
+                .Setup(t => t.Subscribe(It.IsAny<RelationshipRepositoryViewModel>()))
+                .Returns(tagSubscription.Object);
+
+            var relationshipSubscription = this.mocks.Create<IDisposable>();
+            relationshipSubscription
+                .Setup(t => t.Dispose());
+
+            var relationshipMessagingMock = this.mocks.Create<IChangedMessageBus<IRelationship>>();
+
+            relationshipMessagingMock
+                .Setup(r => r.Subscribe(It.IsAny<RelationshipRepositoryViewModel>()))
+                .Returns(relationshipSubscription.Object);
+
+            var viewModel = new RelationshipRepositoryViewModel(this.repository.Object, relationshipMessagingMock.Object, tagMessagingMock.Object);
+
+            // ACT
+
+            viewModel.Dispose();
+        }
+
+        [Fact]
         public void RelationshipRepositoryViewModel_creates_TagViewModel_from_all_Tags()
         {
             // ARRANGE
