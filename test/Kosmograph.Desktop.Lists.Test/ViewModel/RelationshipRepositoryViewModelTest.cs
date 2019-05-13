@@ -12,14 +12,15 @@ namespace Kosmograph.Desktop.Lists.Test.ViewModel
     public class RelationshipRepositoryViewModelTest : IDisposable
     {
         private readonly RelationshipRepositoryViewModel repositoryViewModel;
-        private readonly RelationshipMessageBus messaging = new RelationshipMessageBus();
+        private readonly RelationshipMessageBus relationshipMessaging = new RelationshipMessageBus();
+        private readonly TagMessageBus tagMessaging = new TagMessageBus();
         private readonly MockRepository mocks = new MockRepository(MockBehavior.Strict);
         private readonly Mock<IRelationshipRepository> repository;
 
         public RelationshipRepositoryViewModelTest()
         {
             this.repository = this.mocks.Create<IRelationshipRepository>();
-            this.repositoryViewModel = new RelationshipRepositoryViewModel(this.repository.Object, this.messaging);
+            this.repositoryViewModel = new RelationshipRepositoryViewModel(this.repository.Object, this.relationshipMessaging, this.tagMessaging);
         }
 
         public void Dispose()
@@ -89,7 +90,7 @@ namespace Kosmograph.Desktop.Lists.Test.ViewModel
 
             // ACT
 
-            this.messaging.Modified(relationship);
+            this.relationshipMessaging.Modified(relationship);
 
             // ASSERT
 
@@ -128,7 +129,7 @@ namespace Kosmograph.Desktop.Lists.Test.ViewModel
 
             // ACT
 
-            this.messaging.Modified(entity);
+            this.relationshipMessaging.Modified(entity);
 
             // ASSERT
 
@@ -161,7 +162,7 @@ namespace Kosmograph.Desktop.Lists.Test.ViewModel
 
             // ACT
 
-            this.messaging.Removed(entity);
+            this.relationshipMessaging.Removed(entity);
 
             // ASSERT
 
@@ -191,7 +192,7 @@ namespace Kosmograph.Desktop.Lists.Test.ViewModel
 
             // ACT
 
-            this.messaging.Modified(entity);
+            this.relationshipMessaging.Modified(entity);
 
             // ASSERT
             // same tag, but new view model instance
@@ -201,7 +202,7 @@ namespace Kosmograph.Desktop.Lists.Test.ViewModel
         }
 
         [Fact]
-        public void RelationshipRepositoryViewModel_adding_TagViewModel_on_updated_ignores_missing_relationship()
+        public void RelationshipRepositoryViewModel_adding_TagViewModel_on_update_ignores_missing_relationship()
         {
             // ARRANGE
 
@@ -219,7 +220,7 @@ namespace Kosmograph.Desktop.Lists.Test.ViewModel
 
             // ACT
 
-            this.messaging.Modified(entity);
+            this.relationshipMessaging.Modified(entity);
 
             // ASSERT
 
@@ -241,7 +242,7 @@ namespace Kosmograph.Desktop.Lists.Test.ViewModel
             // deleting a tag at the repos raises a changed event
             this.repository
                 .Setup(r => r.Delete(relationship))
-                .Callback(() => this.messaging.Removed(relationship))
+                .Callback(() => this.relationshipMessaging.Removed(relationship))
                 .Returns(true);
 
             this.repositoryViewModel.FillAll();
@@ -265,6 +266,96 @@ namespace Kosmograph.Desktop.Lists.Test.ViewModel
 
             Assert.True(collectionChanged);
             Assert.False(this.repositoryViewModel.Any());
+        }
+
+        [Fact]
+        public void RelationshipRepositoryViewModel_updates_Relationship_with_modified_Tag()
+        {
+            // ARRANGE
+
+            var relationship = DefaultRelationship();
+
+            this.repository
+                .Setup(r => r.FindAll())
+                .Returns(relationship.Yield());
+
+            this.repository
+                .Setup(r => r.FindById(relationship.Id))
+                .Returns(relationship);
+
+            this.repositoryViewModel.FillAll();
+            var originalViewModel = this.repositoryViewModel.Single();
+
+            bool existingEntityWasRemoved = false;
+            bool existingEntityWasAdded = false;
+            this.repositoryViewModel.CollectionChanged += (sender, e) =>
+            {
+                Assert.Same(this.repositoryViewModel, sender);
+                if (e.Action == NotifyCollectionChangedAction.Remove && e.OldItems.OfType<RelationshipViewModel>().Single().Model.Equals(relationship))
+                {
+                    existingEntityWasRemoved = true;
+                }
+                if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems.OfType<RelationshipViewModel>().Single().Model.Equals(relationship))
+                {
+                    existingEntityWasAdded = true;
+                }
+            };
+
+            // ACT
+
+            this.tagMessaging.Modified(relationship.Tags.Single());
+
+            // ASSERT
+
+            Assert.True(existingEntityWasAdded);
+            Assert.True(existingEntityWasRemoved);
+            Assert.NotSame(originalViewModel, this.repositoryViewModel.Single());
+            Assert.Equal(relationship, this.repositoryViewModel.Single().Model);
+        }
+
+        [Fact]
+        public void RelationshipRepositoryViewModel_updates_Relationship_with_removed_Tag()
+        {
+            // ARRANGE
+
+            var relationship = DefaultRelationship();
+
+            this.repository
+                .Setup(r => r.FindAll())
+                .Returns(relationship.Yield());
+
+            this.repository
+                .Setup(r => r.FindById(relationship.Id))
+                .Returns(relationship);
+
+            this.repositoryViewModel.FillAll();
+            var originalViewModel = this.repositoryViewModel.Single();
+
+            bool existingEntityWasRemoved = false;
+            bool existingEntityWasAdded = false;
+            this.repositoryViewModel.CollectionChanged += (sender, e) =>
+            {
+                Assert.Same(this.repositoryViewModel, sender);
+                if (e.Action == NotifyCollectionChangedAction.Remove && e.OldItems.OfType<RelationshipViewModel>().Single().Model.Equals(relationship))
+                {
+                    existingEntityWasRemoved = true;
+                }
+                if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems.OfType<RelationshipViewModel>().Single().Model.Equals(relationship))
+                {
+                    existingEntityWasAdded = true;
+                }
+            };
+
+            // ACT
+
+            this.tagMessaging.Removed(relationship.Tags.Single());
+
+            // ASSERT
+
+            Assert.True(existingEntityWasAdded);
+            Assert.True(existingEntityWasRemoved);
+            Assert.NotSame(originalViewModel, this.repositoryViewModel.Single());
+            Assert.Equal(relationship, this.repositoryViewModel.Single().Model);
         }
     }
 }

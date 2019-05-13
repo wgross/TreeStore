@@ -6,14 +6,18 @@ using System.Linq;
 
 namespace Kosmograph.Desktop.Lists.ViewModel
 {
-    public class RelationshipRepositoryViewModel : RepositoryViewModelBase<RelationshipViewModel, IRelationship>
+    public class RelationshipRepositoryViewModel : RepositoryViewModelBase<RelationshipViewModel, IRelationship>, IObserver<ChangedMessage<ITag>>
     {
         private readonly IRelationshipRepository repository;
+        private readonly IChangedMessageBus<ITag> tagMessaging;
+        private readonly IDisposable tagSubscriptions;
 
-        public RelationshipRepositoryViewModel(IRelationshipRepository repository, IChangedMessageBus<IRelationship> messaging)
-            : base(messaging)
+        public RelationshipRepositoryViewModel(IRelationshipRepository repository, IChangedMessageBus<IRelationship> relationshipMessaging, IChangedMessageBus<ITag> tagMessaging)
+            : base(relationshipMessaging)
         {
             this.repository = repository;
+            this.tagMessaging = tagMessaging;
+            this.tagSubscriptions = this.tagMessaging.Subscribe(this);
             this.DeleteCommand = new RelayCommand<RelationshipViewModel>(this.DeleteCommandExecuted);
         }
 
@@ -61,5 +65,30 @@ namespace Kosmograph.Desktop.Lists.ViewModel
                 this.OnRemoved(id);
             }
         }
+
+        #region IObserver<ChangedMessage<ITag>> Members
+
+        void IObserver<ChangedMessage<ITag>>.OnNext(ChangedMessage<ITag> value)
+        {
+            var affectedRelationshipIds =
+                from e in this
+                where e.Tags.Any(t => t.Tag.Id.Equals(value.Changed.Id))
+                select e.Model.Id;
+
+            foreach (var id in affectedRelationshipIds.ToArray())
+                this.OnUpdated(id);
+        }
+
+        void IObserver<ChangedMessage<ITag>>.OnError(Exception error)
+        {
+            throw new NotImplementedException();
+        }
+
+        void IObserver<ChangedMessage<ITag>>.OnCompleted()
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion IObserver<ChangedMessage<ITag>> Members
     }
 }
