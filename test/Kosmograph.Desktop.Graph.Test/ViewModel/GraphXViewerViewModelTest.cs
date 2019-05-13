@@ -144,5 +144,23 @@ namespace Kosmograph.Desktop.Graph.Test
 
             Assert.Empty(this.viewModel.Relationships);
         }
+
+        [Fact]
+        public void GraphXViewerViewModel_updates_relationship_on_modified_message()
+        {
+            // ARRANGE
+
+            var relationship = new Relationship();
+            this.viewModel.Show(relationship.Yield());
+
+            this.graphCallback
+              .Setup(c => c.Add(It.IsAny<EdgeViewModel>()));
+            this.graphCallback
+              .Setup(c => c.Remove(It.IsAny<EdgeViewModel>()));
+
+            // ACT
+
+           this.messageBus.Relationships.Modified(relationship);
+        }
     }
 }

@@ -105,7 +105,7 @@ namespace Kosmograph.Desktop.Graph.View
             this.graphArea.Dispose();
         }
 
-        #region Update Graph from view model
+        #region IGraphCallback Members
 
         public void Add(VertexViewModel vertexData)
         {
@@ -133,7 +133,7 @@ namespace Kosmograph.Desktop.Graph.View
             {
                 var sourceVertex = this.graphArea.VertexList[edge.Source];
                 var targetVertax = this.graphArea.VertexList[edge.Target];
-                
+
                 this.graphArea.AddEdgeAndData(edge, this.graphArea.ControlFactory.CreateEdgeControl(sourceVertex, targetVertax, edge));
             });
         }
@@ -146,6 +146,11 @@ namespace Kosmograph.Desktop.Graph.View
                 this.graphArea.RelayoutGraph(true);
                 this.zoomctrl.ZoomToFill();
             });
+        }
+
+        public void Replace(EdgeViewModel edgeViewModel)
+        {
+            throw new NotImplementedException();
         }
 
         //protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
@@ -259,6 +264,6 @@ namespace Kosmograph.Desktop.Graph.View
         //    return false;
         //}
 
-        #endregion Update Graph from view model
+        #endregion IGraphCallback Members
     }
 }

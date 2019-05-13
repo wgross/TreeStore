@@ -67,7 +67,7 @@ namespace Kosmograph.Desktop.Graph.ViewModel
 
         #endregion Track the shown relationships
 
-        #region Handle changes of model entities
+        #region IObserver<ChangedMessage<IEntity>> Members
 
         void IObserver<ChangedMessage<IEntity>>.OnNext(ChangedMessage<IEntity> value)
         {
@@ -106,7 +106,9 @@ namespace Kosmograph.Desktop.Graph.ViewModel
             throw new NotImplementedException();
         }
 
-        #endregion Handle changes of model entities
+        #endregion IObserver<ChangedMessage<IEntity>> Members
+
+        #region IObserver<ChangedMessage<IRelationship>> Members
 
         void IObserver<ChangedMessage<IRelationship>>.OnNext(ChangedMessage<IRelationship> value)
         {
@@ -139,7 +141,21 @@ namespace Kosmograph.Desktop.Graph.ViewModel
                     }
                     else
                     {
-                        existingEdge.Label = ((Relationship)value.Changed).Name;
+                        // remove edge and add again
+                        this
+                           .GraphViewModel
+                           .Edges
+                           .FirstOrDefault(v => v.ModelId.Equals(value.Changed.Id))
+                           .IfExistsThen(e => this.GraphCallback.Remove(e));
+
+                        var source = this.GraphViewModel.Vertices.FirstOrDefault(v => v.ModelId.Equals(value.Changed.From.Id));
+                        var target = this.GraphViewModel.Vertices.FirstOrDefault(v => v.ModelId.Equals(value.Changed.To.Id));
+                        this.GraphCallback
+                            .Add(new EdgeViewModel(source, target)
+                            {
+                                ModelId = value.Changed.Id,
+                                Label = ((Relationship)value.Changed).Name
+                            });
                     }
                     break;
             }
@@ -154,6 +170,8 @@ namespace Kosmograph.Desktop.Graph.ViewModel
         {
             throw new NotImplementedException();
         }
+
+        #endregion IObserver<ChangedMessage<IRelationship>> Members
 
         #region Maintain the visualization model
 
