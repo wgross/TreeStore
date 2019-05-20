@@ -57,5 +57,14 @@ namespace Kosmograph.LiteDb
             .Query<Entity>(CollectionName)
             .Include(e => e.Tags)
             .ToArray();
+
+        public IEnumerable<Entity> FindByTag(Tag tag)
+        {
+            // i'm sure this is a table scan...
+            return this.Repository.Query<Entity>(CollectionName)
+                .Include(e => e.Tags)
+                .Where(e => e.Tags.Contains(tag))
+                .ToArray();
+        }
     }
 }

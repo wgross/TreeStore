@@ -51,6 +51,8 @@ namespace Kosmograph.LiteDb
 
         public IEnumerable<Relationship> FindByEntity(Entity entity) => this.QueryAndInclude(q => q.Where(r => r.From.Id.Equals(entity.Id) || r.To.Id.Equals(entity.Id))).ToEnumerable();
 
+        public IEnumerable<Relationship> FindByTag(Tag tag) => this.QueryAndInclude(q => q.Where(r => r.Tags.Contains(tag))).ToEnumerable();
+
         private LiteQueryable<Relationship> QueryAndInclude(Func<LiteQueryable<Relationship>, LiteQueryable<Relationship>> query = null)
         {
             if (query is null)
@@ -61,5 +63,8 @@ namespace Kosmograph.LiteDb
                 .Include(r => r.From)
                 .Include(r => r.To);
         }
+
+        
+        
     }
 }

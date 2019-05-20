@@ -288,5 +288,31 @@ namespace Kosmograph.LiteDb.Test
             Assert.Throws<InvalidOperationException>(() => this.relationshipRepository.FindById(relationship1.Id));
             Assert.Throws<InvalidOperationException>(() => this.relationshipRepository.FindById(relationship2.Id));
         }
+
+        [Fact]
+        public void EntityRepositiry_finds_relationships_by_tag()
+        {
+            // ARRANGE
+            this.eventSource
+              .Setup(s => s.Modified(It.IsAny<Relationship>()));
+
+            var tag1 = this.tagRepository.Upsert(new Tag("t1"));
+            var tag2 = this.tagRepository.Upsert(new Tag("t2"));
+            var entity1 = this.entityRepository.Upsert(new Entity("entity1"));
+            var entity2 = this.entityRepository.Upsert(new Entity("entity2"));
+            var entity3 = this.entityRepository.Upsert(new Entity("entity3"));
+            var entity4 = this.entityRepository.Upsert(new Entity("entity4"));
+            var relationship1 = this.relationshipRepository.Upsert(new Relationship("r1", entity1, entity2, tag1));
+            var relationship2 = this.relationshipRepository.Upsert(new Relationship("r1", entity3, entity4, tag2));
+
+            // ACT
+
+            var result = this.relationshipRepository.FindByTag(tag1).ToArray();
+
+            // ASSERT
+
+            Assert.Single(result);
+            Assert.Equal(relationship1, result.Single());
+        }
     }
 }
