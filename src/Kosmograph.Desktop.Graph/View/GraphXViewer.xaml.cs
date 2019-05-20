@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace Kosmograph.Desktop.Graph.View
 {
@@ -19,10 +20,14 @@ namespace Kosmograph.Desktop.Graph.View
         public GraphXViewer()
         {
             this.InitializeComponent();
-            // Messenger.Default.Register<EditModelCommitted>(this, this.EditModelCommitted);
+            this.CommandBindings.Add(new CommandBinding(GraphXViewerCommands.ClearCommand, this.ClearCommandExecuted));
             ZoomControl.SetViewFinderVisibility(this.zoomctrl, Visibility.Visible);
 
-            //this.Loaded += this.GraphXViewerWindow_Loaded;
+        }
+
+        private void ClearCommandExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            this.graphArea.ClearLayout(true, true, true);
         }
 
         protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
@@ -37,13 +42,6 @@ namespace Kosmograph.Desktop.Graph.View
                 this.SetupGraphArea();
                 this.zoomctrl.ZoomToFill();
             }
-        }
-
-        private void GraphXViewerWindow_Loaded(object sender, RoutedEventArgs e)
-        {
-            this.SetupGraphArea();
-
-            this.zoomctrl.ZoomToFill();
         }
 
         #region Setup graph from view model

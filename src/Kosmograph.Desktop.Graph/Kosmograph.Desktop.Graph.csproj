@@ -79,6 +79,7 @@
     <Compile Include="View\GraphXViewer.xaml.cs">
       <DependentUpon>GraphXViewer.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\GraphXViewerCommands.cs" />
     <Compile Include="View\GraphXViewerWindow.xaml.cs">
       <DependentUpon>GraphXViewerWindow.xaml</DependentUpon>
     </Compile>
