@@ -90,17 +90,17 @@ namespace Kosmograph.Desktop.Graph.View
             //    });
             //}
 
-            var vertices = visualModel.Vertices.ToDictionary(v => v.ModelId);
+            //var vertices = visualModel.Vertices.ToDictionary(v => v.ModelId);
 
-            foreach (var edge in this.ViewModel.Relationships)
-            {
-                var visualEdge = new EdgeViewModel(vertices[edge.From.Id], vertices[edge.To.Id])
-                {
-                    ModelId = edge.Id,
-                    Label = edge.Name
-                };
-                visualModel.AddEdge(visualEdge);
-            }
+            //foreach (var edge in this.ViewModel.Relationships)
+            //{
+            //    var visualEdge = new EdgeViewModel(vertices[edge.From.Id], vertices[edge.To.Id])
+            //    {
+            //        ModelId = edge.Id,
+            //        Label = edge.Name
+            //    };
+            //    visualModel.AddEdge(visualEdge);
+            //}
 
             return visualModel;
         }

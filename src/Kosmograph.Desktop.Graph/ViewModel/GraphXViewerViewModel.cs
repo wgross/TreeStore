@@ -2,8 +2,6 @@
 using Kosmograph.Model;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.Linq;
 
 namespace Kosmograph.Desktop.Graph.ViewModel
@@ -19,14 +17,9 @@ namespace Kosmograph.Desktop.Graph.ViewModel
             this.messageBus = messageBus;
             this.entitySubscription = this.messageBus.Entities.Subscribe(this);
             this.relationshipSubscription = this.messageBus.Relationships.Subscribe(this);
-            this.relationships.CollectionChanged += this.Entities_CollectionChanged;
         }
 
         #region Track the shown entities
-
-        private readonly ObservableCollection<Entity> entities = new ObservableCollection<Entity>();
-
-        public IEnumerable<Entity> Entities => this.entities;
 
         public void Show(IEnumerable<Entity> entities)
         {
@@ -55,10 +48,6 @@ namespace Kosmograph.Desktop.Graph.ViewModel
 
         #region Track the shown relationships
 
-        private readonly ObservableCollection<Relationship> relationships = new ObservableCollection<Relationship>();
-
-        public IEnumerable<Relationship> Relationships => relationships;
-
         public void Show(IEnumerable<Relationship> relationshipsToShow)
         {
             foreach (var relationship in relationshipsToShow)
@@ -86,6 +75,12 @@ namespace Kosmograph.Desktop.Graph.ViewModel
 
         #region IObserver<ChangedMessage<IEntity>> Members
 
+        private VertexViewModel NewVertexViewModel(Entity e) => new VertexViewModel
+        {
+            Label = e.Name,
+            ModelId = e.Id,
+        };
+
         void IObserver<ChangedMessage<IEntity>>.OnNext(ChangedMessage<IEntity> value)
         {
             switch (value.ChangeType)
@@ -103,7 +98,7 @@ namespace Kosmograph.Desktop.Graph.ViewModel
                         .FirstOrDefault(v => v.ModelId.Equals(value.Changed.Id));
                     if (existingNode is null)
                     {
-                        this.entities.Add((Entity)value.Changed);
+                        this.GraphCallback.Add(NewVertexViewModel((Entity)value.Changed));
                     }
                     else
                     {
@@ -186,29 +181,6 @@ namespace Kosmograph.Desktop.Graph.ViewModel
         #region Maintain the visualization model
 
         public IGraphCallback GraphCallback { get; set; }
-
-        private void Entities_CollectionChanged(object sender, NotifyCollectionChangedEventArgs ev)
-        {
-            switch (ev.Action)
-            {
-                case NotifyCollectionChangedAction.Add:
-                    ev.NewItems.OfType<Entity>().ForEach(e => this.GraphCallback.Add(new VertexViewModel
-                    {
-                        Label = e.Name,
-                        ModelId = e.Id,
-                    }));
-                    break;
-
-                case NotifyCollectionChangedAction.Remove:
-                    ev.OldItems.OfType<Entity>().ForEach(e =>
-                    {
-                        this.GraphViewModel.Vertices
-                            .FirstOrDefault(v => v.ModelId.Equals(e.Id))
-                            .IfExistsThen(v => this.GraphCallback.Remove(v));
-                    });
-                    break;
-            }
-        }
 
         public GraphViewModel GraphViewModel { get; } = new GraphViewModel();
 
