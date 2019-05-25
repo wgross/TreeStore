@@ -136,6 +136,9 @@ namespace Kosmograph.Desktop.Graph.Test
             var relationship = new Relationship();
             this.viewModel.Show(relationship.Yield());
 
+            this.graphCallback
+              .Setup(c => c.Remove(It.IsAny<EdgeViewModel>()));
+
             // ACT
 
             this.messageBus.Relationships.Removed(relationship);
@@ -160,7 +163,7 @@ namespace Kosmograph.Desktop.Graph.Test
 
             // ACT
 
-           this.messageBus.Relationships.Modified(relationship);
+            this.messageBus.Relationships.Modified(relationship);
         }
     }
 }

@@ -19,14 +19,14 @@ namespace Kosmograph.Desktop.Graph.ViewModel
             this.messageBus = messageBus;
             this.entitySubscription = this.messageBus.Entities.Subscribe(this);
             this.relationshipSubscription = this.messageBus.Relationships.Subscribe(this);
-            this.entities.CollectionChanged += this.Entities_CollectionChanged;
+            this.relationships.CollectionChanged += this.Entities_CollectionChanged;
         }
 
         #region Track the shown entities
 
         private readonly ObservableCollection<Entity> entities = new ObservableCollection<Entity>();
 
-        public IEnumerable<Entity> Entities => entities;
+        public IEnumerable<Entity> Entities => this.entities;
 
         public void Show(IEnumerable<Entity> entities)
         {
@@ -59,10 +59,27 @@ namespace Kosmograph.Desktop.Graph.ViewModel
 
         public IEnumerable<Relationship> Relationships => relationships;
 
-        public void Show(IEnumerable<Relationship> relationships)
+        public void Show(IEnumerable<Relationship> relationshipsToShow)
         {
-            foreach (var relationship in relationships)
-                this.relationships.Add(relationship);
+            foreach (var relationship in relationshipsToShow)
+            {
+                if (this.GraphCallback is null)
+                {
+                    this.GraphViewModel.AddEdge(NewEdgeViewModel(relationship));
+                }
+                else this.GraphCallback.Add(NewEdgeViewModel(relationship));
+            }
+        }
+
+        private EdgeViewModel NewEdgeViewModel(Relationship relationship)
+        {
+            var source = this.GraphViewModel.Vertices.FirstOrDefault(v => v.ModelId.Equals(relationship.From.Id));
+            var target = this.GraphViewModel.Vertices.FirstOrDefault(v => v.ModelId.Equals(relationship.To.Id));
+            return new EdgeViewModel(source, target)
+            {
+                ModelId = relationship.Id,
+                Label = relationship.Name
+            };
         }
 
         #endregion Track the shown relationships
@@ -130,14 +147,7 @@ namespace Kosmograph.Desktop.Graph.ViewModel
 
                     if (existingEdge is null)
                     {
-                        var source = this.GraphViewModel.Vertices.FirstOrDefault(v => v.ModelId.Equals(value.Changed.From.Id));
-                        var target = this.GraphViewModel.Vertices.FirstOrDefault(v => v.ModelId.Equals(value.Changed.To.Id));
-                        this.GraphCallback
-                            .Add(new EdgeViewModel(source, target)
-                            {
-                                ModelId = value.Changed.Id,
-                                Label = ((Relationship)value.Changed).Name
-                            });
+                        this.GraphCallback.Add(NewEdgeViewModel((Relationship)value.Changed));
                     }
                     else
                     {
