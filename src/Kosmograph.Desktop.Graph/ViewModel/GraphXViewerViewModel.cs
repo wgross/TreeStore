@@ -8,12 +8,14 @@ namespace Kosmograph.Desktop.Graph.ViewModel
 {
     public class GraphXViewerViewModel : IObserver<ChangedMessage<IEntity>>, IObserver<ChangedMessage<IRelationship>>
     {
+        private readonly KosmographModel model;
         private readonly IKosmographMessageBus messageBus;
         private readonly IDisposable entitySubscription;
         private readonly IDisposable relationshipSubscription;
 
-        public GraphXViewerViewModel(IKosmographMessageBus messageBus)
+        public GraphXViewerViewModel(KosmographModel model, IKosmographMessageBus messageBus)
         {
+            this.model = model;
             this.messageBus = messageBus;
             this.entitySubscription = this.messageBus.Entities.Subscribe(this);
             this.relationshipSubscription = this.messageBus.Relationships.Subscribe(this);
@@ -166,7 +168,45 @@ namespace Kosmograph.Desktop.Graph.ViewModel
             }
         }
 
+        #region Build graph from tag queries
+
+        public void ShowTag(Tag tag)
+        {
+            var tagQuery = new TagQuery(this.model, this.messageBus, tag);
+            tagQuery.EntityAdded = e => this.AddEntity(e);
+            tagQuery.RelationshipAdded = this.AddRelationship;
+            tagQuery.StartQuery();
+        }
+
+        private void AddRelationship(Relationship obj)
+        {
+            var existing = ExistingEdgeViewModel(obj);
+            if (existing is null)
+                this.GraphCallback.Add(this.NewEdgeViewModel(obj, this.AddEntity(obj.From), this.AddEntity(obj.To)));
+        }
+
+        private EdgeViewModel ExistingEdgeViewModel(Relationship relationship) => this.GraphViewModel.Edges.FirstOrDefault(e => e.ModelId.Equals(relationship.Id));
+
+        private VertexViewModel AddEntity(Entity added)
+        {
+            var existing = ExistingVertexViewModel(added);
+            if (existing is null)
+                this.GraphCallback.Add(existing = NewVertexViewModel(added));
+            return existing;
+        }
+
+        private VertexViewModel ExistingVertexViewModel(Entity entity) => this.GraphViewModel.Vertices.FirstOrDefault(v => v.ModelId.Equals(entity.Id));
+
+        private EdgeViewModel NewEdgeViewModel(Relationship relationship, VertexViewModel source, VertexViewModel target) => new EdgeViewModel(source, target)
+        {
+            ModelId = relationship.Id,
+            Label = relationship.Name
+        };
+
+        #endregion Build graph from tag queries
+
         void IObserver<ChangedMessage<IRelationship>>.OnError(Exception error)
+
         {
             throw new NotImplementedException();
         }

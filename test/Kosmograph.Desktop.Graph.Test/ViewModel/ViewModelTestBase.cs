@@ -1,10 +1,11 @@
 ﻿using Kosmograph.Messaging;
+using Kosmograph.Model;
 using Moq;
 using System;
 
-namespace Kosmograph.Model.Test
+namespace Kosmograph.Desktop.Graph.Test.ViewModel
 {
-    public class ModelTestBase : IDisposable
+    public class ViewModelTestBase
     {
         protected MockRepository Mocks { get; } = new MockRepository(MockBehavior.Strict);
 
@@ -12,7 +13,7 @@ namespace Kosmograph.Model.Test
 
         protected Mock<IKosmographPersistence> Persistence { get; }
 
-        public ModelTestBase()
+        public ViewModelTestBase()
         {
             this.MessageBus = new KosmographMessageBus();
             this.Persistence = this.Mocks.Create<IKosmographPersistence>();
@@ -35,6 +36,8 @@ namespace Kosmograph.Model.Test
 
         protected Entity DefaultEntity(Action<Entity> setup = null) => Setup(new Entity("e", DefaultTag()), setup);
 
-        protected Relationship DefaultRelationship(Action<Relationship> setup = null, params Tag[] tags) => Setup(new Relationship("r", DefaultEntity(), DefaultEntity(), tags));
+        protected Relationship DefaultRelationship(Entity from, Entity to, Action<Relationship> setup = null, params Tag[] tags) => Setup(new Relationship("r", from, to, tags), setup);
+
+        protected Relationship DefaultRelationship(Action<Relationship> setup = null, params Tag[] tags) => DefaultRelationship(DefaultEntity(), DefaultEntity(), setup, tags);
     }
 }

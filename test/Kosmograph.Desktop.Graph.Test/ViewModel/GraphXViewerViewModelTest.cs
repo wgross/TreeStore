@@ -3,29 +3,22 @@ using Kosmograph.Messaging;
 using Kosmograph.Model;
 using Moq;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
-namespace Kosmograph.Desktop.Graph.Test
+namespace Kosmograph.Desktop.Graph.Test.ViewModel
 {
-    public class GraphXViewerViewModelTest : IDisposable
+    public class GraphXViewerViewModelTest : ViewModelTestBase
     {
-        private MockRepository Mocks { get; } = new MockRepository(MockBehavior.Strict);
-
         private readonly GraphXViewerViewModel viewModel;
-        private readonly IKosmographMessageBus messageBus = new KosmographMessageBus();
         private readonly Mock<IGraphCallback> graphCallback;
 
         public GraphXViewerViewModelTest()
         {
             this.graphCallback = this.Mocks.Create<IGraphCallback>();
-            this.viewModel = new GraphXViewerViewModel(this.messageBus);
+            this.viewModel = new GraphXViewerViewModel(new KosmographModel(this.Persistence.Object), this.MessageBus);
             this.viewModel.GraphCallback = this.graphCallback.Object;
-        }
-
-        public void Dispose()
-        {
-            this.Mocks.VerifyAll();
         }
 
         [Fact]
@@ -33,29 +26,29 @@ namespace Kosmograph.Desktop.Graph.Test
         {
             // ARRANGE
 
-            var messageBusMock = this.Mocks.Create<IKosmographMessageBus>();
+            var MessageBusMock = this.Mocks.Create<IKosmographMessageBus>();
 
-            var messageBusEntitiesMock = this.Mocks.Create<IChangedMessageBus<IEntity>>();
-            messageBusMock
+            var MessageBusEntitiesMock = this.Mocks.Create<IChangedMessageBus<IEntity>>();
+            MessageBusMock
                 .Setup(m => m.Entities)
-                .Returns(messageBusEntitiesMock.Object);
+                .Returns(MessageBusEntitiesMock.Object);
 
-            var messageBusRelationshipMock = this.Mocks.Create<IChangedMessageBus<IRelationship>>();
-            messageBusMock
+            var MessageBusRelationshipMock = this.Mocks.Create<IChangedMessageBus<IRelationship>>();
+            MessageBusMock
                 .Setup(m => m.Relationships)
-                .Returns(messageBusRelationshipMock.Object);
+                .Returns(MessageBusRelationshipMock.Object);
 
-            messageBusEntitiesMock
+            MessageBusEntitiesMock
                 .Setup(m => m.Subscribe(It.IsAny<IObserver<ChangedMessage<IEntity>>>()))
                 .Returns(Mock.Of<IDisposable>());
 
-            messageBusRelationshipMock
+            MessageBusRelationshipMock
                 .Setup(m => m.Subscribe(It.IsAny<IObserver<ChangedMessage<IRelationship>>>()))
                 .Returns(Mock.Of<IDisposable>());
 
             // ACT
 
-            var tmp = new GraphXViewerViewModel(messageBusMock.Object);
+            var tmp = new GraphXViewerViewModel(new KosmographModel(this.Persistence.Object), MessageBusMock.Object);
         }
 
         [Fact]
@@ -85,7 +78,7 @@ namespace Kosmograph.Desktop.Graph.Test
 
             // ACT
             // send removal through message bus
-            this.messageBus.Entities.Modified(entity);
+            this.MessageBus.Entities.Modified(entity);
 
             // ASSERT
 
@@ -105,7 +98,7 @@ namespace Kosmograph.Desktop.Graph.Test
 
             // ACT
             // send removal through message bus
-            this.messageBus.Entities.Removed(entity);
+            this.MessageBus.Entities.Removed(entity);
 
             // ASSERT
 
@@ -139,10 +132,9 @@ namespace Kosmograph.Desktop.Graph.Test
 
             // ACT
 
-            this.messageBus.Relationships.Removed(relationship);
+            this.MessageBus.Relationships.Removed(relationship);
 
             // ASSERT
-
         }
 
         [Fact]
@@ -160,7 +152,209 @@ namespace Kosmograph.Desktop.Graph.Test
 
             // ACT
 
-            this.messageBus.Relationships.Modified(relationship);
+            this.MessageBus.Relationships.Modified(relationship);
+        }
+
+        [Fact]
+        public void GraphXViewerViewModel_adds_entities_and_relationships_from_TagQuery()
+        {
+            // ARRANGE
+
+            var vertices = new List<Guid>();
+            this.graphCallback
+                .Setup(c => c.Add(It.IsAny<VertexViewModel>()))
+                .Callback<VertexViewModel>(v => vertices.Add(v.ModelId));
+
+            var edges = new List<Guid>();
+            this.graphCallback
+                .Setup(c => c.Add(It.IsAny<EdgeViewModel>()))
+                .Callback<EdgeViewModel>(v => edges.Add(v.ModelId));
+
+            var queryTag = DefaultTag();
+
+            var entity = DefaultEntity(e => e.Tags.Add(queryTag));
+            var entityRepository = this.Mocks.Create<IEntityRepository>();
+            entityRepository
+                .Setup(r => r.FindByTag(queryTag))
+                .Returns(entity.Yield());
+
+            this.Persistence
+                .Setup(p => p.Entities)
+                .Returns(entityRepository.Object);
+
+            var relationship = DefaultRelationship(r => r.Tags.Add(queryTag));
+            var relationshipRepository = this.Mocks.Create<IRelationshipRepository>();
+            relationshipRepository
+                .Setup(r => r.FindByTag(queryTag))
+                .Returns(relationship.Yield());
+
+            this.Persistence
+                .Setup(p => p.Relationships)
+                .Returns(relationshipRepository.Object);
+
+            // ACT
+
+            this.viewModel.ShowTag(queryTag);
+
+            // ASSERT
+            // relationship was added
+            Assert.Equal(relationship.Id, edges.Single());
+            // three entites were added
+            Assert.Equal(new[] { entity.Id, relationship.From.Id, relationship.To.Id }, vertices);
+        }
+
+        [Fact]
+        public void GraphXViewerViewModel_adding_entity_reuses_existing_entity_from_TagQuery()
+        {
+            // ARRANGE
+
+            var vertices = new List<Guid>();
+            this.graphCallback
+                .Setup(c => c.Add(It.IsAny<VertexViewModel>()))
+                .Callback<VertexViewModel>(v => vertices.Add(v.ModelId));
+
+            var edges = new List<Guid>();
+            this.graphCallback
+                .Setup(c => c.Add(It.IsAny<EdgeViewModel>()))
+                .Callback<EdgeViewModel>(v => edges.Add(v.ModelId));
+
+            var queryTag = DefaultTag();
+
+            var entity = DefaultEntity(e => e.Tags.Add(queryTag));
+            var entityRepository = this.Mocks.Create<IEntityRepository>();
+            entityRepository
+                .Setup(r => r.FindByTag(queryTag))
+                .Returns(entity.Yield());
+
+            this.Persistence
+                .Setup(p => p.Entities)
+                .Returns(entityRepository.Object);
+
+            var relationshipRepository = this.Mocks.Create<IRelationshipRepository>();
+            relationshipRepository
+                .Setup(r => r.FindByTag(queryTag))
+                .Returns(Enumerable.Empty<Relationship>());
+
+            this.Persistence
+                .Setup(p => p.Relationships)
+                .Returns(relationshipRepository.Object);
+
+            // entity was edded before
+            this.viewModel.GraphViewModel.AddVertex(new VertexViewModel { ModelId = entity.Id });
+
+            // ACT
+
+            this.viewModel.ShowTag(queryTag);
+
+            // ASSERT
+            // no additinal entity were added
+
+            Assert.Empty(vertices);
+        }
+
+        [Fact]
+        public void GraphXViewerViewModel_adding_relationship_reuses_existing_entity_from_TagQuery()
+        {
+            // ARRANGE
+
+            var vertices = new List<Guid>();
+            this.graphCallback
+                .Setup(c => c.Add(It.IsAny<VertexViewModel>()))
+                .Callback<VertexViewModel>(v => vertices.Add(v.ModelId));
+
+            var edges = new List<Guid>();
+            this.graphCallback
+                .Setup(c => c.Add(It.IsAny<EdgeViewModel>()))
+                .Callback<EdgeViewModel>(v => edges.Add(v.ModelId));
+
+            var queryTag = DefaultTag();
+
+            var entity = DefaultEntity(e => e.Tags.Add(queryTag));
+            var entityRepository = this.Mocks.Create<IEntityRepository>();
+            entityRepository
+                .Setup(r => r.FindByTag(queryTag))
+                .Returns(entity.Yield());
+
+            this.Persistence
+                .Setup(p => p.Entities)
+                .Returns(entityRepository.Object);
+
+            var relationship = DefaultRelationship(entity, DefaultEntity(), r => r.Tags.Add(queryTag));
+            var relationshipRepository = this.Mocks.Create<IRelationshipRepository>();
+            relationshipRepository
+                .Setup(r => r.FindByTag(queryTag))
+                .Returns(relationship.Yield());
+
+            this.Persistence
+                .Setup(p => p.Relationships)
+                .Returns(relationshipRepository.Object);
+
+            // entity was edded before
+            this.viewModel.GraphViewModel.AddVertex(new VertexViewModel { ModelId = entity.Id });
+
+            // ACT
+
+            this.viewModel.ShowTag(queryTag);
+
+            // ASSERT
+            // relationship was added
+            Assert.Equal(relationship.Id, edges.Single());
+            // three entites were added
+            Assert.Equal(new[] { relationship.To.Id }, vertices);
+        }
+
+        [Fact]
+        public void GraphXViewerViewModel_adding_relationship_doesnt_add_existing_edge_TagQuery()
+        {
+            // ARRANGE
+
+            var vertices = new List<Guid>();
+            this.graphCallback
+                .Setup(c => c.Add(It.IsAny<VertexViewModel>()))
+                .Callback<VertexViewModel>(v => vertices.Add(v.ModelId));
+
+            var edges = new List<Guid>();
+            this.graphCallback
+                .Setup(c => c.Add(It.IsAny<EdgeViewModel>()))
+                .Callback<EdgeViewModel>(v => edges.Add(v.ModelId));
+
+            var queryTag = DefaultTag();
+
+            var entityRepository = this.Mocks.Create<IEntityRepository>();
+            entityRepository
+                .Setup(r => r.FindByTag(queryTag))
+                .Returns(Enumerable.Empty<Entity>());
+
+            this.Persistence
+                .Setup(p => p.Entities)
+                .Returns(entityRepository.Object);
+
+            var relationship = DefaultRelationship(DefaultEntity(), DefaultEntity(), r => r.Tags.Add(queryTag));
+            var relationshipRepository = this.Mocks.Create<IRelationshipRepository>();
+            relationshipRepository
+                .Setup(r => r.FindByTag(queryTag))
+                .Returns(relationship.Yield());
+
+            this.Persistence
+                .Setup(p => p.Relationships)
+                .Returns(relationshipRepository.Object);
+
+            // relationship was added before
+
+            this.viewModel.GraphViewModel.AddVertex(new VertexViewModel());
+            this.viewModel.GraphViewModel.AddVertex(new VertexViewModel());
+            this.viewModel.GraphViewModel.AddEdge(new EdgeViewModel(this.viewModel.GraphViewModel.Vertices.First(), this.viewModel.GraphViewModel.Vertices.Last())
+            {
+                ModelId = relationship.Id
+            });
+
+            // ACT
+
+            this.viewModel.ShowTag(queryTag);
+
+            // ASSERT
+            // relationship wasn't added
+            Assert.Empty(edges);
         }
     }
 }
