@@ -8,12 +8,12 @@ namespace Kosmograph.Model.Test
     public class TagQueryTest : ModelTestBase
     {
         private readonly Tag queryTag;
-        private readonly TagQueryEx tagQuery;
+        private readonly TagQuery tagQuery;
 
         public TagQueryTest()
         {
             this.queryTag = DefaultTag(t => t.Name = "query");
-            this.tagQuery = new TagQueryEx(new KosmographModel(this.Persistence.Object), this.MessageBus, queryTag);
+            this.tagQuery = new TagQuery(new KosmographModel(this.Persistence.Object), this.MessageBus, queryTag);
         }
 
         [Fact]

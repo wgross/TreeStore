@@ -6,9 +6,6 @@ namespace Kosmograph.Model
 {
     public class TrackingModelController : ModelController
     {
-        private IDisposable tagSubscription;
-        private IDisposable entitySubscription;
-        private IDisposable relationshipSubscription;
         private readonly HashSet<Guid> trackedTags = new HashSet<Guid>();
         private readonly HashSet<Guid> trackedEntities = new HashSet<Guid>();
         private readonly HashSet<Guid> trackedRelationships = new HashSet<Guid>();

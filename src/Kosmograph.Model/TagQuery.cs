@@ -3,13 +3,12 @@ using System.Linq;
 
 namespace Kosmograph.Model
 {
-    public class TagQueryEx : TrackingModelController
+    public class TagQuery : TrackingModelController
     {
-        private KosmographModel kosmographModel;
-        private KosmographMessageBus messageBus;
-        private Tag queryTag;
+        private readonly KosmographModel kosmographModel;
+        private readonly Tag queryTag;
 
-        public TagQueryEx(KosmographModel kosmographModel, IKosmographMessageBus messageBus, Tag tag)
+        public TagQuery(KosmographModel kosmographModel, IKosmographMessageBus messageBus, Tag tag)
             : base(messageBus)
         {
             this.kosmographModel = kosmographModel;
