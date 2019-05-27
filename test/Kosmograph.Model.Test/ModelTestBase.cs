@@ -10,12 +10,12 @@ namespace Kosmograph.Model.Test
 
         protected KosmographMessageBus MessageBus { get; }
 
-        // protected KosmographLiteDbPersistence Persistence { get; }
+        protected Mock<IKosmographPersistence> Persistence { get; }
 
         public ModelTestBase()
         {
             this.MessageBus = new KosmographMessageBus();
-            //this.Persistence = new KosmographLiteDbPersistence(this.MessageBus);
+            this.Persistence = this.Mocks.Create<IKosmographPersistence>();
         }
 
         protected T Setup<T>(T t, Action<T> setup = null)

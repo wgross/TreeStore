@@ -60,7 +60,7 @@ namespace Kosmograph.Model
             this.trackedEntities.Add(entity.Id);
         }
 
-        private void OnAddedEntity(Entity entity) => this.EntityAdded?.Invoke(entity);
+        protected virtual void OnAddedEntity(Entity entity) => this.EntityAdded?.Invoke(entity);
 
         protected override void OnRemovingEntity(Guid entityId)
         {
@@ -82,7 +82,7 @@ namespace Kosmograph.Model
             this.trackedRelationships.Add(changed.Id);
         }
 
-        private void OnAddedRelationship(Relationship relationship) => this.RelationshipAdded?.Invoke(relationship);
+        protected virtual void OnAddedRelationship(Relationship relationship) => this.RelationshipAdded?.Invoke(relationship);
 
         protected override void OnRemovingRelationship(Guid relationshipId)
         {
