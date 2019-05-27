@@ -112,7 +112,7 @@ namespace Kosmograph.LiteDb
 
         #endregion Add or remove Entites from result set
 
-        #region Add or remove Relationshios from result set
+        #region Add or remove Relationships from result set
 
         void IObserver<ChangedMessage<IRelationship>>.OnCompleted()
         {
