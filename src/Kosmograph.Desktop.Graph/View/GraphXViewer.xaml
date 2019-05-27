@@ -5,6 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:controls="http://schemas.panthernet.ru/graphx/"
              xmlns:local="clr-namespace:Kosmograph.Desktop.Graph.View"
+             AllowDrop="True"
+             Drop="graphXViewer_Drop"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>

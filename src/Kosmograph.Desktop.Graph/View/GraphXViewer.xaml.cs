@@ -2,8 +2,8 @@
 using GraphX.PCL.Common.Enums;
 using GraphX.PCL.Logic.Algorithms.LayoutAlgorithms;
 using Kosmograph.Desktop.Graph.ViewModel;
+using Kosmograph.Model;
 using System;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -22,7 +22,6 @@ namespace Kosmograph.Desktop.Graph.View
             this.InitializeComponent();
             this.CommandBindings.Add(new CommandBinding(GraphXViewerCommands.ClearCommand, this.ClearCommandExecuted));
             ZoomControl.SetViewFinderVisibility(this.zoomctrl, Visibility.Visible);
-
         }
 
         private void ClearCommandExecuted(object sender, ExecutedRoutedEventArgs e)
@@ -141,7 +140,7 @@ namespace Kosmograph.Desktop.Graph.View
                 var sourceVertex = this.graphArea.VertexList[edge.Source];
                 var targetVertax = this.graphArea.VertexList[edge.Target];
 
-                this.graphArea.AddEdgeAndData(edge, this.graphArea.ControlFactory.CreateEdgeControl(sourceVertex, targetVertax, edge), generateLabel:true);
+                this.graphArea.AddEdgeAndData(edge, this.graphArea.ControlFactory.CreateEdgeControl(sourceVertex, targetVertax, edge), generateLabel: true);
             });
         }
 
@@ -155,8 +154,19 @@ namespace Kosmograph.Desktop.Graph.View
             });
         }
 
-      
-
         #endregion IGraphCallback Members
+
+        #region Drag&Drop
+
+        private void graphXViewer_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(typeof(Tag)))
+            {
+                this.ViewModel.ShowTag((Tag)e.Data.GetData(typeof(Tag)));
+            }
+            e.Handled = true;
+        }
+
+        #endregion Drag&Drop
     }
 }
