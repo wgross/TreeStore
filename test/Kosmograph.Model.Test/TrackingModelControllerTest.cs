@@ -1,27 +1,16 @@
-﻿using Kosmograph.Messaging;
-using Moq;
-using System;
+﻿using System;
 using Xunit;
 
 namespace Kosmograph.Model.Test
 {
-    public class TrackingModelControllerTest
+    public class TrackingModelControllerTest : ModelTestBase
     {
-        private readonly KosmographMessageBus messageBus;
         private readonly TrackingModelController modelController;
-        private MockRepository mocks = new MockRepository(MockBehavior.Strict);
 
         public TrackingModelControllerTest()
         {
-            this.messageBus = new KosmographMessageBus();
-            this.modelController = new TrackingModelController(this.messageBus);
+            this.modelController = new TrackingModelController(this.MessageBus);
         }
-
-        private Tag DefaultTag() => new Tag("t");
-
-        private Entity DefaultEntity() => new Entity("e");
-
-        private Relationship DefaultRelationship() => new Relationship("r", DefaultEntity(), DefaultEntity());
 
         [Fact]
         public void ModelController_raises_TagAdded_on_first_changed_message()
@@ -34,7 +23,7 @@ namespace Kosmograph.Model.Test
 
             var result = default(Tag);
             this.modelController.TagAdded = t => result = t;
-            this.messageBus.Tags.Modified(tag);
+            this.MessageBus.Tags.Modified(tag);
 
             // ASSERT
 
@@ -47,13 +36,13 @@ namespace Kosmograph.Model.Test
             // ARRANGE
 
             var tag = DefaultTag();
-            this.messageBus.Tags.Modified(tag);
+            this.MessageBus.Tags.Modified(tag);
 
             // ACT
 
             var result = default(Tag);
             this.modelController.TagChanged = t => result = t;
-            this.messageBus.Tags.Modified(tag);
+            this.MessageBus.Tags.Modified(tag);
 
             // ASSERT
 
@@ -66,14 +55,14 @@ namespace Kosmograph.Model.Test
             // ARRANGE
 
             var tag = DefaultTag();
-            this.messageBus.Tags.Modified(tag);
-            this.messageBus.Tags.Removed(tag);
+            this.MessageBus.Tags.Modified(tag);
+            this.MessageBus.Tags.Removed(tag);
 
             // ACT
 
             var result = default(Guid?);
             this.modelController.TagRemoved = id => result = id;
-            this.messageBus.Tags.Removed(tag);
+            this.MessageBus.Tags.Removed(tag);
 
             // ASSERT
 
@@ -91,7 +80,7 @@ namespace Kosmograph.Model.Test
 
             var result = default(Entity);
             this.modelController.EntityAdded = e => result = e;
-            this.messageBus.Entities.Modified(entity);
+            this.MessageBus.Entities.Modified(entity);
 
             // ASSERT
 
@@ -104,13 +93,13 @@ namespace Kosmograph.Model.Test
             // ARRANGE
 
             var entity = DefaultEntity();
-            this.messageBus.Entities.Modified(entity);
+            this.MessageBus.Entities.Modified(entity);
 
             // ACT
 
             var result = default(Entity);
             this.modelController.EntityChanged = t => result = t;
-            this.messageBus.Entities.Modified(entity);
+            this.MessageBus.Entities.Modified(entity);
 
             // ASSERT
 
@@ -123,14 +112,14 @@ namespace Kosmograph.Model.Test
             // ARRANGE
 
             var entity = DefaultEntity();
-            this.messageBus.Entities.Modified(entity);
-            this.messageBus.Entities.Removed(entity);
+            this.MessageBus.Entities.Modified(entity);
+            this.MessageBus.Entities.Removed(entity);
 
             // ACT
 
             var result = default(Guid?);
             this.modelController.EntityRemoved = id => result = id;
-            this.messageBus.Entities.Removed(entity);
+            this.MessageBus.Entities.Removed(entity);
 
             // ASSERT
 
@@ -148,7 +137,7 @@ namespace Kosmograph.Model.Test
 
             var result = default(Relationship);
             this.modelController.RelationshipAdded = t => result = t;
-            this.messageBus.Relationships.Modified(relationship);
+            this.MessageBus.Relationships.Modified(relationship);
 
             // ASSERT
 
@@ -161,13 +150,13 @@ namespace Kosmograph.Model.Test
             // ARRANGE
 
             var entity = DefaultRelationship();
-            this.messageBus.Relationships.Modified(entity);
+            this.MessageBus.Relationships.Modified(entity);
 
             // ACT
 
             var result = default(Relationship);
             this.modelController.RelationshipChanged = t => result = t;
-            this.messageBus.Relationships.Modified(entity);
+            this.MessageBus.Relationships.Modified(entity);
 
             // ASSERT
 
@@ -180,14 +169,14 @@ namespace Kosmograph.Model.Test
             // ARRANGE
 
             var relationship = DefaultRelationship();
-            this.messageBus.Relationships.Modified(relationship);
-            this.messageBus.Relationships.Removed(relationship);
+            this.MessageBus.Relationships.Modified(relationship);
+            this.MessageBus.Relationships.Removed(relationship);
 
             // ACT
 
             var result = default(Guid?);
             this.modelController.RelationshipRemoved = id => result = id;
-            this.messageBus.Relationships.Removed(relationship);
+            this.MessageBus.Relationships.Removed(relationship);
 
             // ASSERT
 

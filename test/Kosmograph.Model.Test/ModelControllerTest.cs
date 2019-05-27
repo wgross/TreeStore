@@ -5,30 +5,22 @@ using Xunit;
 
 namespace Kosmograph.Model.Test
 {
-    public class ModelControllerTest
+    public class ModelControllerTest : ModelTestBase
     {
-        private readonly KosmographMessageBus messageBus;
         private readonly ModelController modelController;
-        private MockRepository mocks = new MockRepository(MockBehavior.Strict);
 
         public ModelControllerTest()
         {
-            this.messageBus = new KosmographMessageBus();
-            this.modelController = new ModelController(this.messageBus);
+            // this.MessageBus = new KosmographMessageBus();
+            this.modelController = new ModelController(this.MessageBus);
         }
-
-        private Tag DefaultTag() => new Tag("t");
-
-        private Entity DefaultEntity() => new Entity("e");
-
-        private Relationship DefaultRelationship() => new Relationship("r", DefaultEntity(), DefaultEntity());
 
         [Fact]
         public void ModelController_observes_all_repos()
         {
             // ARRANGE
 
-            var tags = this.mocks.Create<IChangedMessageBus<ITag>>();
+            var tags = this.Mocks.Create<IChangedMessageBus<ITag>>();
             ModelController tagSubsciber = null;
             tags
                 .Setup(t => t.Subscribe(It.IsAny<IObserver<ChangedMessage<ITag>>>()))
@@ -36,14 +28,14 @@ namespace Kosmograph.Model.Test
                 .Returns(Mock.Of<IDisposable>());
 
             ModelController entitySubscriber = null;
-            var entities = this.mocks.Create<IChangedMessageBus<IEntity>>();
+            var entities = this.Mocks.Create<IChangedMessageBus<IEntity>>();
             entities
                 .Setup(t => t.Subscribe(It.IsAny<IObserver<ChangedMessage<IEntity>>>()))
                 .Callback<IObserver<ChangedMessage<IEntity>>>(m => entitySubscriber = (ModelController)m)
                 .Returns(Mock.Of<IDisposable>());
 
             ModelController relationshipSubscriber = null;
-            var relationships = this.mocks.Create<IChangedMessageBus<IRelationship>>();
+            var relationships = this.Mocks.Create<IChangedMessageBus<IRelationship>>();
 
             relationships
                 .Setup(t => t.Subscribe(It.IsAny<IObserver<ChangedMessage<IRelationship>>>()))
@@ -72,7 +64,7 @@ namespace Kosmograph.Model.Test
 
             var result = default(Tag);
             this.modelController.TagChanged = t => result = t;
-            this.messageBus.Tags.Modified(tag);
+            this.MessageBus.Tags.Modified(tag);
 
             // ASSERT
 
@@ -90,7 +82,7 @@ namespace Kosmograph.Model.Test
 
             var result = default(Guid?);
             this.modelController.TagRemoved = id => result = id;
-            this.messageBus.Tags.Removed(tag);
+            this.MessageBus.Tags.Removed(tag);
 
             // ASSERT
 
@@ -108,7 +100,7 @@ namespace Kosmograph.Model.Test
 
             var result = default(Entity);
             this.modelController.EntityChanged = t => result = t;
-            this.messageBus.Entities.Modified(entity);
+            this.MessageBus.Entities.Modified(entity);
 
             // ASSERT
 
@@ -126,7 +118,7 @@ namespace Kosmograph.Model.Test
 
             var result = default(Guid?);
             this.modelController.EntityRemoved = id => result = id;
-            this.messageBus.Entities.Removed(entity);
+            this.MessageBus.Entities.Removed(entity);
 
             // ASSERT
 
@@ -144,7 +136,7 @@ namespace Kosmograph.Model.Test
 
             var result = default(Relationship);
             this.modelController.RelationshipChanged = t => result = t;
-            this.messageBus.Relationships.Modified(relationship);
+            this.MessageBus.Relationships.Modified(relationship);
 
             // ASSERT
 
@@ -162,7 +154,7 @@ namespace Kosmograph.Model.Test
 
             var result = default(Guid?);
             this.modelController.RelationshipRemoved = id => result = id;
-            this.messageBus.Relationships.Removed(relationship);
+            this.MessageBus.Relationships.Removed(relationship);
 
             // ASSERT
 
