@@ -2,6 +2,7 @@
 using Kosmograph.Model;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace Kosmograph.Desktop.Graph.ViewModel
@@ -176,13 +177,15 @@ namespace Kosmograph.Desktop.Graph.ViewModel
             tagQuery.EntityAdded = e => this.AddEntity(e);
             tagQuery.RelationshipAdded = this.AddRelationship;
             tagQuery.StartQuery();
+
+            this.TagQueries.Add(new TagQueryViewModel(tagQuery));
         }
 
-        private void AddRelationship(Relationship obj)
+        private void AddRelationship(Relationship relationship)
         {
-            var existing = ExistingEdgeViewModel(obj);
+            var existing = ExistingEdgeViewModel(relationship);
             if (existing is null)
-                this.GraphCallback.Add(this.NewEdgeViewModel(obj, this.AddEntity(obj.From), this.AddEntity(obj.To)));
+                this.GraphCallback.Add(this.NewEdgeViewModel(relationship, this.AddEntity(relationship.From), this.AddEntity(relationship.To)));
         }
 
         private EdgeViewModel ExistingEdgeViewModel(Relationship relationship) => this.GraphViewModel.Edges.FirstOrDefault(e => e.ModelId.Equals(relationship.Id));
@@ -223,6 +226,8 @@ namespace Kosmograph.Desktop.Graph.ViewModel
         public IGraphCallback GraphCallback { get; set; }
 
         public GraphViewModel GraphViewModel { get; } = new GraphViewModel();
+
+        public ObservableCollection<TagQueryViewModel> TagQueries { get; } = new ObservableCollection<TagQueryViewModel>();
 
         #endregion Maintain the visualization model
     }

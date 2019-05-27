@@ -6,26 +6,27 @@ namespace Kosmograph.Model
     public class TagQuery : TrackingModelController
     {
         private readonly KosmographModel kosmographModel;
-        private readonly Tag queryTag;
+
+        public Tag Tag { get; }
 
         public TagQuery(KosmographModel kosmographModel, IKosmographMessageBus messageBus, Tag tag)
             : base(messageBus)
         {
             this.kosmographModel = kosmographModel;
-            this.queryTag = tag;
+            this.Tag = tag;
         }
 
         public void StartQuery()
         {
             this.kosmographModel
                 .Entities
-                .FindByTag(this.queryTag)
+                .FindByTag(this.Tag)
                 .ToList()
                 .ForEach(e => this.AddEntity(e));
 
             this.kosmographModel
                .Relationships
-               .FindByTag(this.queryTag)
+               .FindByTag(this.Tag)
                .ToList()
                .ForEach(r => this.AddRelationship(r));
         }
@@ -36,13 +37,13 @@ namespace Kosmograph.Model
 
         protected override void OnAddedEntity(Entity entity)
         {
-            if (entity.Tags.Contains(this.queryTag))
+            if (entity.Tags.Contains(this.Tag))
                 base.OnAddedEntity(entity);
         }
 
         protected override void OnChangingEntity(Entity changed)
         {
-            if (changed.Tags.Contains(this.queryTag))
+            if (changed.Tags.Contains(this.Tag))
                 base.OnChangingEntity(changed);
             else
                 RemoveEntity(changed);
@@ -52,13 +53,13 @@ namespace Kosmograph.Model
 
         protected override void OnAddedRelationship(Relationship relationship)
         {
-            if (relationship.Tags.Contains(this.queryTag))
+            if (relationship.Tags.Contains(this.Tag))
                 base.OnAddedRelationship(relationship);
         }
 
         protected override void OnChangingRelationship(Relationship changed)
         {
-            if (changed.Tags.Contains(this.queryTag))
+            if (changed.Tags.Contains(this.Tag))
                 base.OnChangingRelationship(changed);
             else
                 this.RemoveRelationship(changed);

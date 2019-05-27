@@ -76,6 +76,7 @@
     <Compile Include="ViewModel\GraphXViewerViewModel.cs" />
     <Compile Include="ViewModel\IdentityMap.cs" />
     <Compile Include="ViewModel\IGraphCallback.cs" />
+    <Compile Include="ViewModel\TagQueryViewModel.cs" />
     <Compile Include="View\GraphXViewer.xaml.cs">
       <DependentUpon>GraphXViewer.xaml</DependentUpon>
     </Compile>

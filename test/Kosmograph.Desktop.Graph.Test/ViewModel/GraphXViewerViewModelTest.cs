@@ -356,5 +356,51 @@ namespace Kosmograph.Desktop.Graph.Test.ViewModel
             // relationship wasn't added
             Assert.Empty(edges);
         }
+
+        [Fact]
+        public void GraphXViewerViewModel_adds_TagQueryViewModel()
+        {
+            // ARRANGE
+
+            var vertices = new List<Guid>();
+            this.graphCallback
+                .Setup(c => c.Add(It.IsAny<VertexViewModel>()))
+                .Callback<VertexViewModel>(v => vertices.Add(v.ModelId));
+
+            var edges = new List<Guid>();
+            this.graphCallback
+                .Setup(c => c.Add(It.IsAny<EdgeViewModel>()))
+                .Callback<EdgeViewModel>(v => edges.Add(v.ModelId));
+
+            var queryTag = DefaultTag();
+
+            var entity = DefaultEntity(e => e.Tags.Add(queryTag));
+            var entityRepository = this.Mocks.Create<IEntityRepository>();
+            entityRepository
+                .Setup(r => r.FindByTag(queryTag))
+                .Returns(entity.Yield());
+
+            this.Persistence
+                .Setup(p => p.Entities)
+                .Returns(entityRepository.Object);
+
+            var relationship = DefaultRelationship(r => r.Tags.Add(queryTag));
+            var relationshipRepository = this.Mocks.Create<IRelationshipRepository>();
+            relationshipRepository
+                .Setup(r => r.FindByTag(queryTag))
+                .Returns(relationship.Yield());
+
+            this.Persistence
+                .Setup(p => p.Relationships)
+                .Returns(relationshipRepository.Object);
+
+            // ACT
+
+            this.viewModel.ShowTag(queryTag);
+
+            // ASSERT
+
+            Assert.Equal(queryTag.Name, this.viewModel.TagQueries.Single().Name);
+        }
     }
 }

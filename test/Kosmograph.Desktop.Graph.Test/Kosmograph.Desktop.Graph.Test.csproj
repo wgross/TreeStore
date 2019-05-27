@@ -94,6 +94,7 @@
     <Compile Include="ViewModel\GraphXViewerViewModelTest.cs" />
     <Compile Include="ViewModel\IdentityMapTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModel\TagQueryViewModel.cs" />
     <Compile Include="ViewModel\ViewModelTestBase.cs" />
   </ItemGroup>
   <ItemGroup>

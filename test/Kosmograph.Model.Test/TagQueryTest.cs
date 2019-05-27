@@ -17,6 +17,15 @@ namespace Kosmograph.Model.Test
         }
 
         [Fact]
+        public void TagQuery_publishes_underlying_tag()
+        {
+            // ASSERT
+
+            Assert.Same(this.queryTag, this.tagQuery.Tag);
+
+        }
+
+        [Fact]
         public void TagQuery_starts_with_retrieving_matching_entities_and_relationships()
         {
             // ARRANGE
