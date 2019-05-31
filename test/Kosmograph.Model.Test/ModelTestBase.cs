@@ -35,6 +35,8 @@ namespace Kosmograph.Model.Test
 
         protected Entity DefaultEntity(Action<Entity> setup = null) => Setup(new Entity("e", DefaultTag()), setup);
 
-        protected Relationship DefaultRelationship(Action<Relationship> setup = null, params Tag[] tags) => Setup(new Relationship("r", DefaultEntity(), DefaultEntity(), tags));
+        protected Relationship DefaultRelationship(Action<Relationship> setup = null) => DefaultRelationship(DefaultEntity(), DefaultEntity(), setup);
+
+        protected Relationship DefaultRelationship(Entity from, Entity to, Action<Relationship> setup = null) => Setup(new Relationship("r", from, to), setup);
     }
 }

@@ -20,9 +20,14 @@
         <DockPanel DockPanel.Dock="Top" LastChildFill="False">
             <Button Command="{x:Static local:GraphXViewerCommands.ClearCommand}" DockPanel.Dock="Right" Content="Clear Graph"/>
         </DockPanel>
-        <controls:ZoomControl x:Name="zoomctrl">
-            <local:GraphXViewerGraphArea x:Name="graphArea" />
-        </controls:ZoomControl>
+        <DockPanel LastChildFill="True">
+            <Expander Header="Tags" DockPanel.Dock="Top">
+                <ListBox ItemsSource="{Binding TagQueries}"/>
+            </Expander>
+            <controls:ZoomControl x:Name="zoomctrl">
+                <local:GraphXViewerGraphArea x:Name="graphArea" />
+            </controls:ZoomControl>
+        </DockPanel>
     </DockPanel>
     
 </UserControl>

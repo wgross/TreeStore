@@ -18,9 +18,15 @@ namespace Kosmograph.Model
             : base(tags, entities, relationships)
         { }
 
+        public bool Contains(Tag tag) => this.trackedTags.Contains(tag.Id);
+
         public Action<Tag> TagAdded { private get; set; }
 
+        public bool ContainsEntity(Guid entityId) => this.trackedEntities.Contains(entityId);
+
         public Action<Entity> EntityAdded { private get; set; }
+
+        public bool ContainsRelationship(Guid relationshipId) => this.trackedRelationships.Contains(relationshipId);
 
         public Action<Relationship> RelationshipAdded { private get; set; }
 
@@ -83,10 +89,11 @@ namespace Kosmograph.Model
 
         protected override void OnRemovingRelationship(Guid relationshipId)
         {
-            if(this.trackedRelationships.Contains(relationshipId))
+            if (this.trackedRelationships.Contains(relationshipId))
                 base.OnRemovingRelationship(relationshipId);
             this.trackedRelationships.Remove(relationshipId);
         }
+
         #endregion Observe Relationships
     }
 }

@@ -22,7 +22,6 @@ namespace Kosmograph.Model.Test
             // ASSERT
 
             Assert.Same(this.queryTag, this.tagQuery.Tag);
-
         }
 
         [Fact]
@@ -40,7 +39,7 @@ namespace Kosmograph.Model.Test
                 .Setup(p => p.Entities)
                 .Returns(entityRepository.Object);
 
-            var relationship = DefaultRelationship(setup: null, tags: this.queryTag);
+            var relationship = DefaultRelationship(setup: r => r.AddTag(this.queryTag));
             var relationshipRepository = this.Mocks.Create<IRelationshipRepository>();
             relationshipRepository
                 .Setup(r => r.FindByTag(this.queryTag))
@@ -117,7 +116,7 @@ namespace Kosmograph.Model.Test
             // ACT
             // send entity for the secod time without the tag
 
-            entity.Tags.Add(this.queryTag);
+            entity.AddTag(this.queryTag);
             this.MessageBus.Entities.Modified(entity);
 
             // ASSERT
@@ -137,7 +136,7 @@ namespace Kosmograph.Model.Test
             // ACT
             // send relationship without the right tag
 
-            this.MessageBus.Relationships.Modified(DefaultRelationship(tags: DefaultTag()));
+            this.MessageBus.Relationships.Modified(DefaultRelationship(r => r.AddTag(DefaultTag())));
 
             // ASSERT
             // relationship was ignored
@@ -152,7 +151,7 @@ namespace Kosmograph.Model.Test
 
             var result = new List<Guid>();
             this.tagQuery.RelationshipRemoved = result.Add;
-            var relationship = DefaultRelationship(tags: this.queryTag);
+            var relationship = DefaultRelationship(r => r.AddTag(this.queryTag));
             this.MessageBus.Relationships.Modified(relationship);
 
             // ACT
@@ -166,7 +165,7 @@ namespace Kosmograph.Model.Test
 
             Assert.Equal(relationship.Id, result.Single());
         }
-        
+
         [Fact]
         public void TagQuery_adds_newly_tagged_relationship()
         {
@@ -174,13 +173,13 @@ namespace Kosmograph.Model.Test
 
             var result = new List<Relationship>();
             this.tagQuery.RelationshipAdded = result.Add;
-            var relationship = DefaultRelationship(tags: DefaultTag());
+            var relationship = DefaultRelationship(r => r.AddTag(DefaultTag()));
             this.MessageBus.Relationships.Modified(relationship);
 
             // ACT
             // send entity for the secod time without the tag
 
-            relationship.Tags.Add(this.queryTag);
+            relationship.AddTag(this.queryTag);
             this.MessageBus.Relationships.Modified(relationship);
 
             // ASSERT

@@ -13,7 +13,7 @@ namespace Kosmograph.Model.Test
         }
 
         [Fact]
-        public void ModelController_raises_TagAdded_on_first_changed_message()
+        public void TrackingModelController_raises_TagAdded_on_first_changed_message()
         {
             // ARRANGE
 
@@ -28,10 +28,11 @@ namespace Kosmograph.Model.Test
             // ASSERT
 
             Assert.Same(tag, result);
+            Assert.True(this.modelController.Contains(tag));
         }
 
         [Fact]
-        public void ModelController_raises_TagChanged_on_second_changed_message()
+        public void TrackingModelController_raises_TagChanged_on_second_changed_message()
         {
             // ARRANGE
 
@@ -50,7 +51,27 @@ namespace Kosmograph.Model.Test
         }
 
         [Fact]
-        public void ModelController_doesnt_raise_TagRemoved_on_second_removed_message()
+        public void TrackingModelController_doesnt_contain_tag_after_TagRemoved()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag();
+            this.MessageBus.Tags.Modified(tag);
+
+            // ACT
+
+            var result = default(Guid?);
+            this.modelController.TagRemoved = id => result = id;
+            this.MessageBus.Tags.Removed(tag);
+
+            // ASSERT
+
+            Assert.Equal(tag.Id, result);
+            Assert.False(this.modelController.Contains(tag));
+        }
+
+        [Fact]
+        public void TrackingModelController_doesnt_raise_TagRemoved_on_second_removed_message()
         {
             // ARRANGE
 
@@ -70,7 +91,7 @@ namespace Kosmograph.Model.Test
         }
 
         [Fact]
-        public void ModelController_raises_EntityAdded_on_first_changed_message()
+        public void TrackingModelController_raises_EntityAdded_on_first_changed_message()
         {
             // ARRANGE
 
@@ -85,10 +106,11 @@ namespace Kosmograph.Model.Test
             // ASSERT
 
             Assert.Same(entity, result);
+            Assert.True(this.modelController.ContainsEntity(entity.Id));
         }
 
         [Fact]
-        public void ModelController_raises_EntityChanged_on_second_changed_message()
+        public void TrackingModelController_raises_EntityChanged_on_second_changed_message()
         {
             // ARRANGE
 
@@ -107,7 +129,7 @@ namespace Kosmograph.Model.Test
         }
 
         [Fact]
-        public void ModelController_doesnt_raise_EntityRemoved_on_second_removed_message()
+        public void TrackingModelController_doesnt_raise_EntityRemoved_on_second_removed_message()
         {
             // ARRANGE
 
@@ -127,7 +149,7 @@ namespace Kosmograph.Model.Test
         }
 
         [Fact]
-        public void ModelController_raises_RelationshipAdded_on_first_changed_message()
+        public void TrackingModelController_raises_RelationshipAdded_on_first_changed_message()
         {
             // ARRANGE
 
@@ -142,10 +164,11 @@ namespace Kosmograph.Model.Test
             // ASSERT
 
             Assert.Same(relationship, result);
+            Assert.True(this.modelController.ContainsRelationship(relationship.Id));
         }
 
         [Fact]
-        public void ModelController_raises_RelationshipChanged_on_second_changed_message()
+        public void TrackingModelController_raises_RelationshipChanged_on_second_changed_message()
         {
             // ARRANGE
 
@@ -164,7 +187,7 @@ namespace Kosmograph.Model.Test
         }
 
         [Fact]
-        public void ModelController_doesnt_raise_RelationshipRemoved_on_second_removed_message()
+        public void TrackingModelController_doesnt_raise_RelationshipRemoved_on_second_removed_message()
         {
             // ARRANGE
 
