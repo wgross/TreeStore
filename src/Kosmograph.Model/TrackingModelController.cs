@@ -56,7 +56,7 @@ namespace Kosmograph.Model
 
         protected override void OnChangingEntity(Entity entity)
         {
-            if (trackedEntities.Contains(entity.Id))
+            if (this.trackedEntities.Contains(entity.Id))
                 base.OnChangingEntity(entity);
             else
                 this.OnAddedEntity(entity);

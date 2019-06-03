@@ -43,10 +43,20 @@ namespace Kosmograph.Model
 
         protected override void OnChangingEntity(Entity changed)
         {
-            if (changed.Tags.Contains(this.Tag))
+            if (this.ContainsEntity(changed.Id))
+            {
+                if (!changed.Tags.Contains(this.Tag))
+                {
+                    // its a removal only if the entity is known and no longer contains the tag
+                    RemoveEntity(changed);
+                }
+            }
+            else if (changed.Tags.Contains(this.Tag))
+            {
+                // a yet unkonw entity having the query tags is
+                // considered an "add" and is propagted to the tracking controller
                 base.OnChangingEntity(changed);
-            else
-                RemoveEntity(changed);
+            }
         }
 
         private void RemoveEntity(Entity entity) => this.OnRemovingEntity(entity.Id);
@@ -59,10 +69,20 @@ namespace Kosmograph.Model
 
         protected override void OnChangingRelationship(Relationship changed)
         {
-            if (changed.Tags.Contains(this.Tag))
+            if (ContainsRelationship(changed.Id))
+            {
+                if (!changed.Tags.Contains(this.Tag))
+                {
+                    // its a removal only if the relationship is known and no longer contains the tag
+                    this.RemoveRelationship(changed);
+                }
+            }
+            else if (changed.Tags.Contains(this.Tag))
+            {
+                // a yet unkonw relationship having the query tags is
+                // considered an "add" and is propagted to the tracking controller
                 base.OnChangingRelationship(changed);
-            else
-                this.RemoveRelationship(changed);
+            }
         }
 
         private void RemoveRelationship(Relationship changed) => this.OnRemovingRelationship(changed.Id);

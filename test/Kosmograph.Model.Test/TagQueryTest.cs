@@ -65,14 +65,11 @@ namespace Kosmograph.Model.Test
         [Fact]
         public void TagQuery_ignores_untagged_entity()
         {
-            // ARRANGE
-
-            var result = new List<Entity>();
-            this.tagQuery.EntityAdded = result.Add;
-
             // ACT
             // send entity withouut the right tag
 
+            var result = new List<Entity>();
+            this.tagQuery.EntityAdded = result.Add;
             this.MessageBus.Entities.Modified(DefaultEntity(tags: DefaultTag()));
 
             // ASSERT
@@ -85,16 +82,17 @@ namespace Kosmograph.Model.Test
         public void TagQuery_removes_untagged_entity()
         {
             // ARRANGE
+            // add tag with query tag
+
+            var entity = DefaultEntity(tags: this.queryTag);
+            this.MessageBus.Entities.Modified(entity);
+            entity.Tags.Clear();
+
+            // ACT
+            // send entity for the second time without the tag
 
             var result = new List<Guid>();
             this.tagQuery.EntityRemoved = result.Add;
-            var entity = DefaultEntity(tags: this.queryTag);
-            this.MessageBus.Entities.Modified(entity);
-
-            // ACT
-            // send entity for the secod time without the tag
-
-            entity.Tags.Clear();
             this.MessageBus.Entities.Modified(entity);
 
             // ASSERT
@@ -107,35 +105,55 @@ namespace Kosmograph.Model.Test
         public void TagQuery_adds_newly_tagged_entity()
         {
             // ARRANGE
+            // create entity without query tags
 
-            var result = new List<Entity>();
-            this.tagQuery.EntityAdded = result.Add;
             var entity = DefaultEntity(tags: DefaultTag());
             this.MessageBus.Entities.Modified(entity);
 
             // ACT
-            // send entity for the secod time without the tag
+            // send entity for the second time with query tag
 
             entity.AddTag(this.queryTag);
+            var result = new List<Entity>();
+            this.tagQuery.EntityAdded = result.Add;
             this.MessageBus.Entities.Modified(entity);
 
             // ASSERT
-            // entity was removed
+            // entity was added
 
             Assert.Equal(entity, result.Single());
         }
 
         [Fact]
-        public void TagQuery_ignores_untagged_relationship()
+        public void TagQuery_ignores_general_entity_changes()
         {
             // ARRANGE
+            // add entity with query tag
 
-            var result = new List<Relationship>();
-            this.tagQuery.RelationshipAdded = result.Add;
+            var entity = DefaultEntity(e => e.AddTag(this.queryTag));
+            this.MessageBus.Entities.Modified(entity);
 
+            // ACT
+            // send entity for the second time with query tag
+
+            var result = new List<Entity>();
+            this.tagQuery.EntityChanged = result.Add;
+            this.MessageBus.Entities.Modified(entity);
+
+            // ASSERT
+            // notfification wasn't propagated
+
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public void TagQuery_ignores_untagged_relationship()
+        {
             // ACT
             // send relationship without the right tag
 
+            var result = new List<Relationship>();
+            this.tagQuery.RelationshipAdded = result.Add;
             this.MessageBus.Relationships.Modified(DefaultRelationship(r => r.AddTag(DefaultTag())));
 
             // ASSERT
@@ -148,6 +166,7 @@ namespace Kosmograph.Model.Test
         public void TagQuery_removes_untagged_relationship()
         {
             // ARRANGE
+            // add relationship with query tag
 
             var result = new List<Guid>();
             this.tagQuery.RelationshipRemoved = result.Add;
@@ -155,13 +174,13 @@ namespace Kosmograph.Model.Test
             this.MessageBus.Relationships.Modified(relationship);
 
             // ACT
-            // send entity for the second time without the tag
+            // send notification for the second time without the tag
 
             relationship.Tags.Clear();
             this.MessageBus.Relationships.Modified(relationship);
 
             // ASSERT
-            // entity was removed
+            // relationship was removed
 
             Assert.Equal(relationship.Id, result.Single());
         }
@@ -170,6 +189,7 @@ namespace Kosmograph.Model.Test
         public void TagQuery_adds_newly_tagged_relationship()
         {
             // ARRANGE
+            // create relationship without query tag
 
             var result = new List<Relationship>();
             this.tagQuery.RelationshipAdded = result.Add;
@@ -177,15 +197,37 @@ namespace Kosmograph.Model.Test
             this.MessageBus.Relationships.Modified(relationship);
 
             // ACT
-            // send entity for the secod time without the tag
+            // send entity for the second time without the tag
 
             relationship.AddTag(this.queryTag);
             this.MessageBus.Relationships.Modified(relationship);
 
             // ASSERT
-            // entity was removed
+            // relationship was removed
 
             Assert.Equal(relationship, result.Single());
+        }
+
+        [Fact]
+        public void TagQuery_ignores_general_relationship_changes()
+        {
+            // ARRANGE
+            // add relationship to query
+
+            var relationship = DefaultRelationship(r => r.AddTag(this.queryTag));
+            this.MessageBus.Relationships.Modified(relationship);
+
+            // ACT
+            // Send change notification without changing tags
+
+            var result = new List<Relationship>();
+            this.tagQuery.RelationshipChanged = result.Add;
+            this.MessageBus.Relationships.Modified(relationship);
+
+            // ASSERT
+            // entity was removed
+
+            Assert.Empty(result);
         }
     }
 }
