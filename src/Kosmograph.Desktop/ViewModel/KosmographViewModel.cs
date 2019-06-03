@@ -38,8 +38,8 @@ namespace Kosmograph.Desktop.ViewModel
             this.Tags.FillAll();
             this.Entities.FillAll();
             this.Relationships.FillAll();
-            this.Graph.Show(this.Entities.Select(e => e.Model));
-            this.Graph.Show(this.Relationships.Select(r => r.Model));
+            //this.Graph.Show(this.Entities.Select(e => e.Model));
+            //this.Graph.Show(this.Relationships.Select(r => r.Model));
         }
 
         public KosmographModel Model => this.model;

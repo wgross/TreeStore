@@ -54,16 +54,16 @@ namespace Kosmograph.Model
 
         #region Observe Entities
 
-        protected override void OnChangingEntity(Entity entity)
+        protected override void OnEntityChanging(Entity entity)
         {
             if (this.trackedEntities.Contains(entity.Id))
-                base.OnChangingEntity(entity);
+                base.OnEntityChanging(entity);
             else
-                this.OnAddedEntity(entity);
+                this.OnEntityAdding(entity);
             this.trackedEntities.Add(entity.Id);
         }
 
-        protected virtual void OnAddedEntity(Entity entity) => this.EntityAdded?.Invoke(entity);
+        protected virtual void OnEntityAdding(Entity entity) => this.EntityAdded?.Invoke(entity);
 
         protected override void OnRemovingEntity(Guid entityId)
         {
@@ -76,21 +76,21 @@ namespace Kosmograph.Model
 
         #region Observe Relationships
 
-        protected override void OnChangingRelationship(Relationship changed)
+        protected override void OnRelationshipChanging(Relationship changed)
         {
             if (this.trackedRelationships.Contains(changed.Id))
-                base.OnChangingRelationship(changed);
+                base.OnRelationshipChanging(changed);
             else
-                this.OnAddedRelationship(changed);
+                this.OnRelationshipAdding(changed);
             this.trackedRelationships.Add(changed.Id);
         }
 
-        protected virtual void OnAddedRelationship(Relationship relationship) => this.RelationshipAdded?.Invoke(relationship);
+        protected virtual void OnRelationshipAdding(Relationship relationship) => this.RelationshipAdded?.Invoke(relationship);
 
-        protected override void OnRemovingRelationship(Guid relationshipId)
+        protected override void OnRelationshipRemoving(Guid relationshipId)
         {
             if (this.trackedRelationships.Contains(relationshipId))
-                base.OnRemovingRelationship(relationshipId);
+                base.OnRelationshipRemoving(relationshipId);
             this.trackedRelationships.Remove(relationshipId);
         }
 

@@ -5,7 +5,7 @@ using System;
 
 namespace Kosmograph.Desktop.Graph.Test.ViewModel
 {
-    public class ViewModelTestBase
+    public class ViewModelTestBase : IDisposable
     {
         protected MockRepository Mocks { get; } = new MockRepository(MockBehavior.Strict);
 

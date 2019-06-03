@@ -31,17 +31,17 @@ namespace Kosmograph.Model
                .ForEach(r => this.AddRelationship(r));
         }
 
-        private void AddRelationship(Relationship added) => this.OnChangingRelationship(added);
+        private void AddRelationship(Relationship added) => this.OnRelationshipChanging(added);
 
-        private void AddEntity(Entity entity) => this.OnChangingEntity(entity);
+        private void AddEntity(Entity entity) => this.OnEntityChanging(entity);
 
-        protected override void OnAddedEntity(Entity entity)
+        protected override void OnEntityAdding(Entity entity)
         {
             if (entity.Tags.Contains(this.Tag))
-                base.OnAddedEntity(entity);
+                base.OnEntityAdding(entity);
         }
 
-        protected override void OnChangingEntity(Entity changed)
+        protected override void OnEntityChanging(Entity changed)
         {
             if (this.ContainsEntity(changed.Id))
             {
@@ -55,36 +55,36 @@ namespace Kosmograph.Model
             {
                 // a yet unkonw entity having the query tags is
                 // considered an "add" and is propagted to the tracking controller
-                base.OnChangingEntity(changed);
+                base.OnEntityChanging(changed);
             }
         }
 
         private void RemoveEntity(Entity entity) => this.OnRemovingEntity(entity.Id);
 
-        protected override void OnAddedRelationship(Relationship relationship)
+        protected override void OnRelationshipAdding(Relationship relationship)
         {
             if (relationship.Tags.Contains(this.Tag))
-                base.OnAddedRelationship(relationship);
+                base.OnRelationshipAdding(relationship);
         }
 
-        protected override void OnChangingRelationship(Relationship changed)
+        protected override void OnRelationshipChanging(Relationship changing)
         {
-            if (ContainsRelationship(changed.Id))
+            if (ContainsRelationship(changing.Id))
             {
-                if (!changed.Tags.Contains(this.Tag))
+                if (!changing.Tags.Contains(this.Tag))
                 {
                     // its a removal only if the relationship is known and no longer contains the tag
-                    this.RemoveRelationship(changed);
+                    this.RemoveRelationship(changing);
                 }
             }
-            else if (changed.Tags.Contains(this.Tag))
+            else if (changing.Tags.Contains(this.Tag))
             {
                 // a yet unkonw relationship having the query tags is
                 // considered an "add" and is propagted to the tracking controller
-                base.OnChangingRelationship(changed);
+                base.OnRelationshipChanging(changing);
             }
         }
 
-        private void RemoveRelationship(Relationship changed) => this.OnRemovingRelationship(changed.Id);
+        private void RemoveRelationship(Relationship removed) => this.OnRelationshipRemoving(removed.Id);
     }
 }

@@ -29,7 +29,7 @@ namespace Kosmograph.Model
 
         public Action<Guid> RelationshipRemoved { private get; set; }
 
-        public void Add(Tag tag)
+        public TagQuery Add(Tag tag)
         {
             var tagQuery = new TagQuery(this.model, this.messageBus, tag);
             tagQuery.EntityAdded = this.OnEntityAdded;
@@ -39,6 +39,7 @@ namespace Kosmograph.Model
 
             this.tagQueries.Add(tagQuery);
             tagQuery.StartQuery();
+            return tagQuery;
         }
 
         private void OnEntityChanged(Entity obj) => this.EntityChanged?.Invoke(obj);

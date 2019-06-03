@@ -63,14 +63,14 @@ namespace Kosmograph.Model
         void IObserver<ChangedMessage<IEntity>>.OnNext(ChangedMessage<IEntity> value)
         {
             if (value.ChangeType.Equals(ChangeTypeValues.Modified))
-                this.OnChangingEntity((Entity)value.Changed);
+                this.OnEntityChanging((Entity)value.Changed);
             else
                 this.OnRemovingEntity(value.Changed.Id);
         }
 
         virtual protected void OnRemovingEntity(Guid entityId) => this.EntityRemoved?.Invoke(entityId);
 
-        virtual protected void OnChangingEntity(Entity changed) => this.EntityChanged?.Invoke(changed);
+        virtual protected void OnEntityChanging(Entity changed) => this.EntityChanged?.Invoke(changed);
 
         void IObserver<ChangedMessage<IEntity>>.OnCompleted()
         {
@@ -89,14 +89,14 @@ namespace Kosmograph.Model
         void IObserver<ChangedMessage<IRelationship>>.OnNext(ChangedMessage<IRelationship> value)
         {
             if (value.ChangeType.Equals(ChangeTypeValues.Modified))
-                this.OnChangingRelationship((Relationship)value.Changed);
+                this.OnRelationshipChanging((Relationship)value.Changed);
             else
-                OnRemovingRelationship(value.Changed.Id);
+                OnRelationshipRemoving(value.Changed.Id);
         }
 
-        virtual protected void OnRemovingRelationship(Guid relationshipId) => this.RelationshipRemoved?.Invoke(relationshipId);
+        virtual protected void OnRelationshipRemoving(Guid relationshipId) => this.RelationshipRemoved?.Invoke(relationshipId);
 
-        virtual protected void OnChangingRelationship(Relationship changed) => this.RelationshipChanged?.Invoke(changed);
+        virtual protected void OnRelationshipChanging(Relationship changed) => this.RelationshipChanged?.Invoke(changed);
 
         void IObserver<ChangedMessage<IRelationship>>.OnCompleted()
         {

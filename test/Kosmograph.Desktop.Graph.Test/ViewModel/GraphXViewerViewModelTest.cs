@@ -26,149 +26,61 @@ namespace Kosmograph.Desktop.Graph.Test.ViewModel
         {
             // ARRANGE
 
-            var MessageBusMock = this.Mocks.Create<IKosmographMessageBus>();
+            var messageBusMock = this.Mocks.Create<IKosmographMessageBus>();
 
-            var MessageBusEntitiesMock = this.Mocks.Create<IChangedMessageBus<IEntity>>();
-            MessageBusMock
+            var messageBusTagsMock = this.Mocks.Create<IChangedMessageBus<ITag>>();
+            messageBusMock
+                .Setup(m => m.Tags)
+                .Returns(messageBusTagsMock.Object);
+
+            var messageBusEntitiesMock = this.Mocks.Create<IChangedMessageBus<IEntity>>();
+            messageBusMock
                 .Setup(m => m.Entities)
-                .Returns(MessageBusEntitiesMock.Object);
+                .Returns(messageBusEntitiesMock.Object);
 
-            var MessageBusRelationshipMock = this.Mocks.Create<IChangedMessageBus<IRelationship>>();
-            MessageBusMock
+            var messageBusRelationshipMock = this.Mocks.Create<IChangedMessageBus<IRelationship>>();
+            messageBusMock
                 .Setup(m => m.Relationships)
-                .Returns(MessageBusRelationshipMock.Object);
+                .Returns(messageBusRelationshipMock.Object);
 
-            MessageBusEntitiesMock
+            messageBusTagsMock
+                .Setup(m => m.Subscribe(It.IsAny<IObserver<ChangedMessage<ITag>>>()))
+                .Returns(Mock.Of<IDisposable>());
+
+            messageBusEntitiesMock
                 .Setup(m => m.Subscribe(It.IsAny<IObserver<ChangedMessage<IEntity>>>()))
                 .Returns(Mock.Of<IDisposable>());
 
-            MessageBusRelationshipMock
+            messageBusRelationshipMock
                 .Setup(m => m.Subscribe(It.IsAny<IObserver<ChangedMessage<IRelationship>>>()))
                 .Returns(Mock.Of<IDisposable>());
 
             // ACT
 
-            var tmp = new GraphXViewerViewModel(new KosmographModel(this.Persistence.Object), MessageBusMock.Object);
-        }
-
-        [Fact]
-        public void GraphXViewerViewModel_adds_entity_to_show()
-        {
-            // ARRANGE
-
-            var entity = new Entity();
-
-            this.graphCallback
-                .Setup(c => c.Add(It.IsAny<VertexViewModel>()));
-
-            // ACT
-
-            this.viewModel.Show(entity.Yield());
-        }
-
-        [Fact]
-        public void GraphXViewerViewModel_adds_entity_on_added_message()
-        {
-            // ARRANGE
-
-            this.graphCallback
-                .Setup(c => c.Add(It.IsAny<VertexViewModel>()));
-
-            var entity = new Entity();
-
-            // ACT
-            // send removal through message bus
-            this.MessageBus.Entities.Modified(entity);
+            var tmp = new GraphXViewerViewModel(new KosmographModel(this.Persistence.Object), messageBusMock.Object);
 
             // ASSERT
+            // view model observce changes in the model
 
-            // Assert.Single(this.viewModel.Entities);
+            messageBusTagsMock.Verify(m => m.Subscribe(It.IsAny<IObserver<ChangedMessage<ITag>>>()), Times.Once());
+            messageBusEntitiesMock.Verify(m => m.Subscribe(It.IsAny<IObserver<ChangedMessage<IEntity>>>()), Times.Once());
+            messageBusRelationshipMock.Verify(m => m.Subscribe(It.IsAny<IObserver<ChangedMessage<IRelationship>>>()), Times.Once());
         }
 
         [Fact]
-        public void GraphXViewerViewModel_removes_entity_on_delete_message()
+        public void GraphXViewerViewModel_adds_tag_query()
         {
             // ARRANGE
 
-            this.graphCallback
-                .Setup(c => c.Add(It.IsAny<VertexViewModel>()));
-
-            var entity = new Entity();
-            this.viewModel.Show(entity.Yield());
-
-            // ACT
-            // send removal through message bus
-            this.MessageBus.Entities.Removed(entity);
-
-            // ASSERT
-
-            // Assert.Empty(this.viewModel.Entities);
-        }
-
-        [Fact]
-        public void GraphXViewerViewModel_adds_relationship_to_show()
-        {
-            // ARRANGE
-
-            var entity = new Relationship();
-
-            // ACT
-
-            this.viewModel.Show(entity.Yield());
-
-            // ASSERT
-        }
-
-        [Fact]
-        public void GraphXViewerViewModel_removes_relationship_on_delete_message()
-        {
-            // ARRANGE
-
-            var relationship = new Relationship();
-            this.viewModel.Show(relationship.Yield());
-
-            this.graphCallback
-              .Setup(c => c.Remove(It.IsAny<EdgeViewModel>()));
-
-            // ACT
-
-            this.MessageBus.Relationships.Removed(relationship);
-
-            // ASSERT
-        }
-
-        [Fact]
-        public void GraphXViewerViewModel_updates_relationship_on_modified_message()
-        {
-            // ARRANGE
-
-            var relationship = new Relationship();
-            this.viewModel.Show(relationship.Yield());
-
-            this.graphCallback
-              .Setup(c => c.Add(It.IsAny<EdgeViewModel>()));
-            this.graphCallback
-              .Setup(c => c.Remove(It.IsAny<EdgeViewModel>()));
-
-            // ACT
-
-            this.MessageBus.Relationships.Modified(relationship);
-        }
-
-        [Fact]
-        public void GraphXViewerViewModel_adds_entities_and_relationships_from_TagQuery()
-        {
-            // ARRANGE
-
-            var vertices = new List<Guid>();
-            this.graphCallback
+            this.graphCallback // graph will be called to add entity
                 .Setup(c => c.Add(It.IsAny<VertexViewModel>()))
-                .Callback<VertexViewModel>(v => vertices.Add(v.ModelId));
+                .Callback<VertexViewModel>(v => this.viewModel.GraphViewModel.AddVertex(v));
 
-            var edges = new List<Guid>();
-            this.graphCallback
+            this.graphCallback // graph will be called to add relationship
                 .Setup(c => c.Add(It.IsAny<EdgeViewModel>()))
-                .Callback<EdgeViewModel>(v => edges.Add(v.ModelId));
+                .Callback<EdgeViewModel>(e => this.viewModel.GraphViewModel.AddEdge(e));
+
+            // prepare tag query finsing one entity and on relationship
 
             var queryTag = DefaultTag();
 
@@ -197,34 +109,33 @@ namespace Kosmograph.Desktop.Graph.Test.ViewModel
             this.viewModel.ShowTag(queryTag);
 
             // ASSERT
-            // relationship was added
-            Assert.Equal(relationship.Id, edges.Single());
-            // three entites were added
-            Assert.Equal(new[] { entity.Id, relationship.From.Id, relationship.To.Id }, vertices);
+
+            Assert.Equal(queryTag.Name, this.viewModel.TagQueries.Single().Name);
+            Assert.Equal(3, this.viewModel.GraphViewModel.Vertices.Count());
+            Assert.Contains(entity.Id, this.viewModel.GraphViewModel.Vertices.Select(v => v.ModelId));
+            Assert.Contains(relationship.From.Id, this.viewModel.GraphViewModel.Vertices.Select(v => v.ModelId));
+            Assert.Contains(relationship.To.Id, this.viewModel.GraphViewModel.Vertices.Select(v => v.ModelId));
+            Assert.Single(this.viewModel.GraphViewModel.Edges);
+            Assert.Contains(relationship.Id, this.viewModel.GraphViewModel.Edges.Select(v => v.ModelId));
         }
 
         [Fact]
-        public void GraphXViewerViewModel_adding_entity_reuses_existing_entity_from_TagQuery()
+        public void GraphXViewerViewModel_adds_vertex_on_modified_entity_message()
         {
             // ARRANGE
 
-            var vertices = new List<Guid>();
-            this.graphCallback
+            this.graphCallback // graph will be called to add entity
                 .Setup(c => c.Add(It.IsAny<VertexViewModel>()))
-                .Callback<VertexViewModel>(v => vertices.Add(v.ModelId));
+                .Callback<VertexViewModel>(v => this.viewModel.GraphViewModel.AddVertex(v));
 
-            var edges = new List<Guid>();
-            this.graphCallback
-                .Setup(c => c.Add(It.IsAny<EdgeViewModel>()))
-                .Callback<EdgeViewModel>(v => edges.Add(v.ModelId));
+            // prepare empty tag query
 
             var queryTag = DefaultTag();
 
-            var entity = DefaultEntity(e => e.Tags.Add(queryTag));
             var entityRepository = this.Mocks.Create<IEntityRepository>();
             entityRepository
                 .Setup(r => r.FindByTag(queryTag))
-                .Returns(entity.Yield());
+                .Returns(Enumerable.Empty<Entity>());
 
             this.Persistence
                 .Setup(p => p.Entities)
@@ -239,17 +150,282 @@ namespace Kosmograph.Desktop.Graph.Test.ViewModel
                 .Setup(p => p.Relationships)
                 .Returns(relationshipRepository.Object);
 
-            // entity was edded before
-            this.viewModel.GraphViewModel.AddVertex(new VertexViewModel { ModelId = entity.Id });
+            this.viewModel.ShowTag(queryTag);
 
             // ACT
+            // send entity through message bus
+
+            var entity = DefaultEntity(e => e.Tags.Add(queryTag));
+            this.MessageBus.Entities.Modified(entity);
+
+            // ASSERT
+
+            Assert.Single(this.viewModel.GraphViewModel.Vertices);
+            Assert.Contains(entity.Id, this.viewModel.GraphViewModel.Vertices.Select(v => v.ModelId));
+            Assert.Empty(this.viewModel.GraphViewModel.Edges);
+        }
+
+        [Fact]
+        public void GraphXViewerViewModel_adds_edge_on_on_modified_relationship_message()
+        {
+            // ARRANGE
+
+            this.graphCallback // graph will be called to add entity
+                .Setup(c => c.Add(It.IsAny<VertexViewModel>()))
+                .Callback<VertexViewModel>(v => this.viewModel.GraphViewModel.AddVertex(v));
+
+            this.graphCallback // graph will be called to add relationship
+               .Setup(c => c.Add(It.IsAny<EdgeViewModel>()))
+               .Callback<EdgeViewModel>(e => this.viewModel.GraphViewModel.AddEdge(e));
+
+            // prepare empty tag query
+
+            var queryTag = DefaultTag();
+
+            var entityRepository = this.Mocks.Create<IEntityRepository>();
+            entityRepository
+                .Setup(r => r.FindByTag(queryTag))
+                .Returns(Enumerable.Empty<Entity>());
+
+            this.Persistence
+                .Setup(p => p.Entities)
+                .Returns(entityRepository.Object);
+
+            var relationshipRepository = this.Mocks.Create<IRelationshipRepository>();
+            relationshipRepository
+                .Setup(r => r.FindByTag(queryTag))
+                .Returns(Enumerable.Empty<Relationship>());
+
+            this.Persistence
+                .Setup(p => p.Relationships)
+                .Returns(relationshipRepository.Object);
 
             this.viewModel.ShowTag(queryTag);
 
-            // ASSERT
-            // no additinal entity were added
+            // ACT
+            // send entity through message bus
 
-            Assert.Empty(vertices);
+            var relationship = DefaultRelationship(r => r.Tags.Add(queryTag));
+            this.MessageBus.Relationships.Modified(relationship);
+
+            // ASSERT
+
+            Assert.Single(this.viewModel.GraphViewModel.Edges);
+            Assert.Contains(relationship.Id, this.viewModel.GraphViewModel.Edges.Select(v => v.ModelId));
+        }
+
+        [Fact]
+        public void GraphXViewerViewModel_removes_vertex_on_modified_entity_message()
+        {
+            // ARRANGE
+
+            this.graphCallback // graph will be called to add entity
+                .Setup(c => c.Add(It.IsAny<VertexViewModel>()))
+                .Callback<VertexViewModel>(v => this.viewModel.GraphViewModel.AddVertex(v));
+
+            this.graphCallback // graph will be called to remove entity
+                .Setup(c => c.Remove(It.IsAny<VertexViewModel>()))
+                .Callback<VertexViewModel>(v => this.viewModel.GraphViewModel.RemoveVertex(v));
+
+            this.graphCallback // graph will be called to add relationship
+                .Setup(c => c.Add(It.IsAny<EdgeViewModel>()))
+                .Callback<EdgeViewModel>(e => this.viewModel.GraphViewModel.AddEdge(e));
+
+            // prepare tag query finsing one entity and on relationship
+
+            var queryTag = DefaultTag();
+
+            var entity = DefaultEntity(e => e.Tags.Add(queryTag));
+            var entityRepository = this.Mocks.Create<IEntityRepository>();
+            entityRepository
+                .Setup(r => r.FindByTag(queryTag))
+                .Returns(entity.Yield());
+
+            this.Persistence
+                .Setup(p => p.Entities)
+                .Returns(entityRepository.Object);
+
+            var relationship = DefaultRelationship(r => r.Tags.Add(queryTag));
+            var relationshipRepository = this.Mocks.Create<IRelationshipRepository>();
+            relationshipRepository
+                .Setup(r => r.FindByTag(queryTag))
+                .Returns(relationship.Yield());
+
+            this.Persistence
+                .Setup(p => p.Relationships)
+                .Returns(relationshipRepository.Object);
+
+            this.viewModel.ShowTag(queryTag);
+
+            // ACT
+            // send removal through message bus
+
+            entity.Tags.Remove(queryTag);
+            this.MessageBus.Entities.Modified(entity);
+
+            // ASSERT
+
+            Assert.DoesNotContain(this.viewModel.GraphViewModel.Vertices, v => v.ModelId == entity.Id);
+        }
+
+        [Fact]
+        public void GraphXViewerViewModel_removes_vertex_on_removed_entity_message()
+        {
+            // ARRANGE
+
+            this.graphCallback // graph will be called to add entity
+                .Setup(c => c.Add(It.IsAny<VertexViewModel>()))
+                .Callback<VertexViewModel>(v => this.viewModel.GraphViewModel.AddVertex(v));
+
+            this.graphCallback // graph will be called to remove entity
+                .Setup(c => c.Remove(It.IsAny<VertexViewModel>()))
+                .Callback<VertexViewModel>(v => this.viewModel.GraphViewModel.RemoveVertex(v));
+
+            this.graphCallback // graph will be called to add relationship
+                .Setup(c => c.Add(It.IsAny<EdgeViewModel>()))
+                .Callback<EdgeViewModel>(e => this.viewModel.GraphViewModel.AddEdge(e));
+
+            // prepare tag query finsing one entity and on relationship
+
+            var queryTag = DefaultTag();
+
+            var entity = DefaultEntity(e => e.Tags.Add(queryTag));
+            var entityRepository = this.Mocks.Create<IEntityRepository>();
+            entityRepository
+                .Setup(r => r.FindByTag(queryTag))
+                .Returns(entity.Yield());
+
+            this.Persistence
+                .Setup(p => p.Entities)
+                .Returns(entityRepository.Object);
+
+            var relationship = DefaultRelationship(r => r.Tags.Add(queryTag));
+            var relationshipRepository = this.Mocks.Create<IRelationshipRepository>();
+            relationshipRepository
+                .Setup(r => r.FindByTag(queryTag))
+                .Returns(relationship.Yield());
+
+            this.Persistence
+                .Setup(p => p.Relationships)
+                .Returns(relationshipRepository.Object);
+
+            this.viewModel.ShowTag(queryTag);
+
+            // ACT
+            // send removal through message bus
+
+            this.MessageBus.Entities.Removed(entity);
+
+            // ASSERT
+
+            Assert.DoesNotContain(this.viewModel.GraphViewModel.Vertices, v => v.ModelId == entity.Id);
+        }
+
+        [Fact]
+        public void GraphXViewerViewModel_removes_edge_on_modified_relationship_message()
+        {
+            // ARRANGE
+
+            this.graphCallback // graph will be called to add entity
+                .Setup(c => c.Add(It.IsAny<VertexViewModel>()))
+                .Callback<VertexViewModel>(v => this.viewModel.GraphViewModel.AddVertex(v));
+
+            this.graphCallback // graph will be called to add relationship
+                .Setup(c => c.Add(It.IsAny<EdgeViewModel>()))
+                .Callback<EdgeViewModel>(e => this.viewModel.GraphViewModel.AddEdge(e));
+
+            this.graphCallback // graph will be called to remove relationhsip
+                .Setup(c => c.Remove(It.IsAny<EdgeViewModel>()))
+                .Callback<EdgeViewModel>(e => this.viewModel.GraphViewModel.RemoveEdge(e));
+
+            // prepare tag query finsing one entity and on relationship
+
+            var queryTag = DefaultTag();
+
+            var entity = DefaultEntity(e => e.Tags.Add(queryTag));
+            var entityRepository = this.Mocks.Create<IEntityRepository>();
+            entityRepository
+                .Setup(r => r.FindByTag(queryTag))
+                .Returns(entity.Yield());
+
+            this.Persistence
+                .Setup(p => p.Entities)
+                .Returns(entityRepository.Object);
+
+            var relationship = DefaultRelationship(r => r.Tags.Add(queryTag));
+            var relationshipRepository = this.Mocks.Create<IRelationshipRepository>();
+            relationshipRepository
+                .Setup(r => r.FindByTag(queryTag))
+                .Returns(relationship.Yield());
+
+            this.Persistence
+                .Setup(p => p.Relationships)
+                .Returns(relationshipRepository.Object);
+
+            this.viewModel.ShowTag(queryTag);
+
+            // ACT
+            // send removal through message bus
+
+            relationship.Tags.Remove(queryTag);
+            this.MessageBus.Relationships.Modified(relationship);
+
+            // ASSERT
+
+            Assert.DoesNotContain(this.viewModel.GraphViewModel.Edges, v => v.ModelId == relationship.Id);
+        }
+
+        [Fact]
+        public void GraphXViewerViewModel_removes_edge_on_removed_relationship_message()
+        {
+            // ARRANGE
+
+            this.graphCallback // graph will be called to add entity
+                .Setup(c => c.Add(It.IsAny<VertexViewModel>()))
+                .Callback<VertexViewModel>(v => this.viewModel.GraphViewModel.AddVertex(v));
+
+            this.graphCallback // graph will be called to add relationship
+                .Setup(c => c.Add(It.IsAny<EdgeViewModel>()))
+                .Callback<EdgeViewModel>(e => this.viewModel.GraphViewModel.AddEdge(e));
+
+            this.graphCallback // graph will be called to remove relationhsip
+                .Setup(c => c.Remove(It.IsAny<EdgeViewModel>()))
+                .Callback<EdgeViewModel>(e => this.viewModel.GraphViewModel.RemoveEdge(e));
+
+            // prepare tag query finsing one entity and on relationship
+
+            var queryTag = DefaultTag();
+
+            var entity = DefaultEntity(e => e.Tags.Add(queryTag));
+            var entityRepository = this.Mocks.Create<IEntityRepository>();
+            entityRepository
+                .Setup(r => r.FindByTag(queryTag))
+                .Returns(entity.Yield());
+
+            this.Persistence
+                .Setup(p => p.Entities)
+                .Returns(entityRepository.Object);
+
+            var relationship = DefaultRelationship(r => r.Tags.Add(queryTag));
+            var relationshipRepository = this.Mocks.Create<IRelationshipRepository>();
+            relationshipRepository
+                .Setup(r => r.FindByTag(queryTag))
+                .Returns(relationship.Yield());
+
+            this.Persistence
+                .Setup(p => p.Relationships)
+                .Returns(relationshipRepository.Object);
+
+            this.viewModel.ShowTag(queryTag);
+
+            // ACT
+            // send removal through message bus
+
+            this.MessageBus.Relationships.Removed(relationship);
+
+            // ASSERT
+
+            Assert.DoesNotContain(this.viewModel.GraphViewModel.Edges, v => v.ModelId == relationship.Id);
         }
 
         [Fact]
@@ -301,106 +477,6 @@ namespace Kosmograph.Desktop.Graph.Test.ViewModel
             Assert.Equal(relationship.Id, edges.Single());
             // three entites were added
             Assert.Equal(new[] { relationship.To.Id }, vertices);
-        }
-
-        [Fact]
-        public void GraphXViewerViewModel_adding_relationship_doesnt_add_existing_edge_TagQuery()
-        {
-            // ARRANGE
-
-            var vertices = new List<Guid>();
-            this.graphCallback
-                .Setup(c => c.Add(It.IsAny<VertexViewModel>()))
-                .Callback<VertexViewModel>(v => vertices.Add(v.ModelId));
-
-            var edges = new List<Guid>();
-            this.graphCallback
-                .Setup(c => c.Add(It.IsAny<EdgeViewModel>()))
-                .Callback<EdgeViewModel>(v => edges.Add(v.ModelId));
-
-            var queryTag = DefaultTag();
-
-            var entityRepository = this.Mocks.Create<IEntityRepository>();
-            entityRepository
-                .Setup(r => r.FindByTag(queryTag))
-                .Returns(Enumerable.Empty<Entity>());
-
-            this.Persistence
-                .Setup(p => p.Entities)
-                .Returns(entityRepository.Object);
-
-            var relationship = DefaultRelationship(DefaultEntity(), DefaultEntity(), r => r.Tags.Add(queryTag));
-            var relationshipRepository = this.Mocks.Create<IRelationshipRepository>();
-            relationshipRepository
-                .Setup(r => r.FindByTag(queryTag))
-                .Returns(relationship.Yield());
-
-            this.Persistence
-                .Setup(p => p.Relationships)
-                .Returns(relationshipRepository.Object);
-
-            // relationship was added before
-
-            this.viewModel.GraphViewModel.AddVertex(new VertexViewModel());
-            this.viewModel.GraphViewModel.AddVertex(new VertexViewModel());
-            this.viewModel.GraphViewModel.AddEdge(new EdgeViewModel(this.viewModel.GraphViewModel.Vertices.First(), this.viewModel.GraphViewModel.Vertices.Last())
-            {
-                ModelId = relationship.Id
-            });
-
-            // ACT
-
-            this.viewModel.ShowTag(queryTag);
-
-            // ASSERT
-            // relationship wasn't added
-            Assert.Empty(edges);
-        }
-
-        [Fact]
-        public void GraphXViewerViewModel_adds_TagQueryViewModel()
-        {
-            // ARRANGE
-
-            var vertices = new List<Guid>();
-            this.graphCallback
-                .Setup(c => c.Add(It.IsAny<VertexViewModel>()))
-                .Callback<VertexViewModel>(v => vertices.Add(v.ModelId));
-
-            var edges = new List<Guid>();
-            this.graphCallback
-                .Setup(c => c.Add(It.IsAny<EdgeViewModel>()))
-                .Callback<EdgeViewModel>(v => edges.Add(v.ModelId));
-
-            var queryTag = DefaultTag();
-
-            var entity = DefaultEntity(e => e.Tags.Add(queryTag));
-            var entityRepository = this.Mocks.Create<IEntityRepository>();
-            entityRepository
-                .Setup(r => r.FindByTag(queryTag))
-                .Returns(entity.Yield());
-
-            this.Persistence
-                .Setup(p => p.Entities)
-                .Returns(entityRepository.Object);
-
-            var relationship = DefaultRelationship(r => r.Tags.Add(queryTag));
-            var relationshipRepository = this.Mocks.Create<IRelationshipRepository>();
-            relationshipRepository
-                .Setup(r => r.FindByTag(queryTag))
-                .Returns(relationship.Yield());
-
-            this.Persistence
-                .Setup(p => p.Relationships)
-                .Returns(relationshipRepository.Object);
-
-            // ACT
-
-            this.viewModel.ShowTag(queryTag);
-
-            // ASSERT
-
-            Assert.Equal(queryTag.Name, this.viewModel.TagQueries.Single().Name);
         }
     }
 }
