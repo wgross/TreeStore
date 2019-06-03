@@ -165,10 +165,10 @@ namespace Kosmograph.Model.Test
         }
 
         [Fact]
-        public void MultiTagQuery_notifies_changed_on_uncomplete_removal()
+        public void MultiTagQuery_notifies_changed_on_tagging_changed_by_removing()
         {
             // ARRANGE
-            // entity1 and relatinship are in both queries
+            // entity1 and relationship are in both queries
 
             var queryTag1 = DefaultTag();
             var queryTag2 = DefaultTag();
@@ -184,6 +184,10 @@ namespace Kosmograph.Model.Test
                 .Setup(r => r.FindByTag(queryTag2))
                 .Returns(entity1.Yield());
 
+            entityRepository
+                .Setup(r => r.FindById(entity1.Id))
+                .Returns(entity1);
+
             this.Persistence
                 .Setup(p => p.Entities)
                 .Returns(entityRepository.Object);
@@ -196,6 +200,10 @@ namespace Kosmograph.Model.Test
                 .Setup(r => r.FindByTag(queryTag2))
                 .Returns(relationship.Yield());
 
+            relationshipRepository
+                .Setup(r => r.FindById(relationship.Id))
+                .Returns(relationship);
+
             this.Persistence
                 .Setup(p => p.Relationships)
                 .Returns(relationshipRepository.Object);
@@ -204,7 +212,7 @@ namespace Kosmograph.Model.Test
             this.multiTagQuery.Add(queryTag2);
 
             // ACT
-            // Remove one tag from entity and relationship
+            // Remove one query tag from entity and relationship to change their tagging
 
             entity1.Tags.Remove(queryTag1);
             relationship.Tags.Remove(queryTag1);
@@ -225,10 +233,82 @@ namespace Kosmograph.Model.Test
             this.MessageBus.Relationships.Modified(relationship);
 
             // ASSERT
+            // both remain in a single tyge query and thefore in the multi tag query
+            // botzh have been changed in semantics of the multi tag query
 
             Assert.Empty(result_entity_removed);
             Assert.Equal(entity1, result_entity_changed.Single());
             Assert.Empty(result_relationship_removed);
+            Assert.Equal(relationship, result_relationship_changed.Single());
+        }
+
+        [Fact]
+        public void MultiTagQuery_notifies_changed_on_tagging_changed_by_adding()
+        {
+            // ARRANGE
+            // entity1 and relationship are in singl query each
+
+            var queryTag1 = DefaultTag();
+            var queryTag2 = DefaultTag();
+            var entity1 = DefaultEntity(e => { e.AddTag(queryTag1); });
+            var entity2 = DefaultEntity();
+            var relationship = DefaultRelationship(entity1, entity2, r => { r.AddTag(queryTag2); });
+
+            entityRepository
+                .Setup(r => r.FindByTag(queryTag1))
+                .Returns(entity1.Yield());
+
+            entityRepository
+                .Setup(r => r.FindByTag(queryTag2))
+                .Returns(Enumerable.Empty<Entity>());
+
+            this.Persistence
+                .Setup(p => p.Entities)
+                .Returns(entityRepository.Object);
+
+            relationshipRepository
+                .Setup(r => r.FindByTag(queryTag1))
+                .Returns(Enumerable.Empty<Relationship>());
+
+            relationshipRepository
+                .Setup(r => r.FindByTag(queryTag2))
+                .Returns(relationship.Yield());
+
+            this.Persistence
+                .Setup(p => p.Relationships)
+                .Returns(relationshipRepository.Object);
+
+            this.multiTagQuery.Add(queryTag1);
+            this.multiTagQuery.Add(queryTag2);
+
+            // ACT
+            // Remove one query tag from entity and relationship to change their tagging
+
+            entity1.AddTag(queryTag2);
+            relationship.AddTag(queryTag1);
+
+            var result_entity_added = new List<Entity>();
+            this.multiTagQuery.EntityAdded = result_entity_added.Add;
+            var result_entity_changed = new List<Entity>();
+            this.multiTagQuery.EntityChanged = result_entity_changed.Add;
+
+            var result_relationship_added = new List<Relationship>();
+            this.multiTagQuery.RelationshipAdded = result_relationship_added.Add;
+            var result_relationship_changed = new List<Relationship>();
+            this.multiTagQuery.RelationshipChanged = result_relationship_changed.Add;
+
+            // notifying once instead of twice makes no difference because the source of the
+            // duplicate event are the two TagQueries not the message bus.
+            this.MessageBus.Entities.Modified(entity1);
+            this.MessageBus.Relationships.Modified(relationship);
+
+            // ASSERT
+            // both remain in a single tyge query and thefore in the multi tag query
+            // botzh have been changed in semantics of the multi tag query
+
+            Assert.Empty(result_entity_added);
+            Assert.Equal(entity1, result_entity_changed.Single());
+            Assert.Empty(result_relationship_added);
             Assert.Equal(relationship, result_relationship_changed.Single());
         }
 
@@ -301,7 +381,7 @@ namespace Kosmograph.Model.Test
         #region Changing model item in TagQueries
 
         [Fact]
-        public void MultiTagQuery_notifies_change()
+        public void MultiTagQuery_ignores_general_changes()
         {
             // ARRANGE
 
@@ -351,10 +431,8 @@ namespace Kosmograph.Model.Test
 
             // ASSERT
 
-            Assert.Equal(2, result_entity.Count);
-            Assert.Equal(entity1, result_entity.Distinct().Single());
-            Assert.Equal(2, result_relationship.Count);
-            Assert.Equal(relationship, result_relationship.Distinct().Single());
+            Assert.Empty(result_entity);
+            Assert.Empty(result_relationship);
         }
 
         #endregion Changing model item in TagQueries
