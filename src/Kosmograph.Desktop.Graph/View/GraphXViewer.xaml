@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:controls="http://schemas.panthernet.ru/graphx/"
              xmlns:local="clr-namespace:Kosmograph.Desktop.Graph.View"
+             xmlns:vm="clr-namespace:Kosmograph.Desktop.Graph.ViewModel"
              AllowDrop="True"
              Drop="graphXViewer_Drop"
              mc:Ignorable="d" 
@@ -13,21 +14,23 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="./GraphXViewerResoures.xaml" />
+                <ResourceDictionary>
+                    <DataTemplate DataType="{x:Type vm:TagQueryViewModel}">
+                        <TextBlock Text="{Binding Name}"/>
+                    </DataTemplate>
+                </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
     <DockPanel LastChildFill="True">
-        <DockPanel DockPanel.Dock="Top" LastChildFill="False">
-            <Button Command="{x:Static local:GraphXViewerCommands.ClearCommand}" DockPanel.Dock="Right" Content="Clear Graph"/>
-        </DockPanel>
-        <DockPanel LastChildFill="True">
-            <Expander Header="Tags" DockPanel.Dock="Top">
-                <ListBox ItemsSource="{Binding TagQueries}"/>
-            </Expander>
-            <controls:ZoomControl x:Name="zoomctrl">
-                <local:GraphXViewerGraphArea x:Name="graphArea" />
-            </controls:ZoomControl>
-        </DockPanel>
+        <local:GraphXViewerHeaderArea DockPanel.Dock="Top"/>
+        <!--
+        Popup solution for overlapping expander
+        https://stackoverflow.com/questions/42513749/can-you-have-an-expander-do-an-overlay-overtop-of-other-visual-tree-elements-in
+        -->
+        <controls:ZoomControl x:Name="zoomctrl">
+            <local:GraphXViewerGraphArea x:Name="graphArea" />
+        </controls:ZoomControl>
     </DockPanel>
     
 </UserControl>

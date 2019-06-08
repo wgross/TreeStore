@@ -65,6 +65,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="View\GraphXViewerHeaderArea.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\GraphXViewerResoures.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -81,6 +85,9 @@
       <DependentUpon>GraphXViewer.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\GraphXViewerCommands.cs" />
+    <Compile Include="View\GraphXViewerHeaderArea.xaml.cs">
+      <DependentUpon>GraphXViewerHeaderArea.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\GraphXViewerWindow.xaml.cs">
       <DependentUpon>GraphXViewerWindow.xaml</DependentUpon>
     </Compile>
