@@ -17,6 +17,8 @@ namespace Kosmograph.Model
             this.messageBus = messageBus;
         }
 
+        public IEnumerable<TagQuery> TagQueries => this.tagQueries;
+
         public Action<Entity> EntityAdded { private get; set; }
 
         public Action<Entity> EntityChanged { private get; set; }
@@ -28,6 +30,8 @@ namespace Kosmograph.Model
         public Action<Relationship> RelationshipChanged { private get; set; }
 
         public Action<Guid> RelationshipRemoved { private get; set; }
+
+        #region Add tag query
 
         public TagQuery Add(Tag tag)
         {
@@ -78,6 +82,14 @@ namespace Kosmograph.Model
                 this.RelationshipChanged?.Invoke(this.model.Relationships.FindById(relationshipId));
         }
 
+        #endregion Add tag query
+
         public bool Contains(Tag tag) => this.tagQueries.FirstOrDefault(tq => tq.Tag.Equals(tag)) != null;
+
+        public void Remove(TagQuery tagQuery)
+        {
+            tagQuery.StopQuery();
+            this.tagQueries.Remove(tagQuery);
+        }
     }
 }

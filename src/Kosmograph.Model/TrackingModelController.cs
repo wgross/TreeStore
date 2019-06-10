@@ -14,21 +14,35 @@ namespace Kosmograph.Model
             : base(kosmographMessageBus.Tags, kosmographMessageBus.Entities, kosmographMessageBus.Relationships)
         { }
 
-        public TrackingModelController(IChangedMessageBus<ITag> tags, IChangedMessageBus<IEntity> entities, IChangedMessageBus<IRelationship> relationships)
-            : base(tags, entities, relationships)
-        { }
+        #region Track Tags
 
-        public bool Contains(Tag tag) => this.trackedTags.Contains(tag.Id);
+        public IEnumerable<Guid> TrackedTags => this.trackedTags;
+
+        public bool ContainsTag(Tag tag) => this.trackedTags.Contains(tag.Id);
 
         public Action<Tag> TagAdded { private get; set; }
+
+        #endregion Track Tags
+
+        #region Track Entities
+
+        public IEnumerable<Guid> TrackedEntities => this.trackedEntities;
 
         public bool ContainsEntity(Guid entityId) => this.trackedEntities.Contains(entityId);
 
         public Action<Entity> EntityAdded { private get; set; }
 
+        #endregion Track Entities
+
+        #region Track Relationships
+
+        public IEnumerable<Guid> TrackedRelationships => this.trackedRelationships;
+
         public bool ContainsRelationship(Guid relationshipId) => this.trackedRelationships.Contains(relationshipId);
 
         public Action<Relationship> RelationshipAdded { private get; set; }
+
+        #endregion Track Relationships
 
         #region Observe Tags
 
@@ -65,10 +79,10 @@ namespace Kosmograph.Model
 
         protected virtual void OnEntityAdding(Entity entity) => this.EntityAdded?.Invoke(entity);
 
-        protected override void OnRemovingEntity(Guid entityId)
+        protected override void OnEntityRemoving(Guid entityId)
         {
             if (this.trackedEntities.Contains(entityId))
-                base.OnRemovingEntity(entityId);
+                base.OnEntityRemoving(entityId);
             this.trackedEntities.Remove(entityId);
         }
 

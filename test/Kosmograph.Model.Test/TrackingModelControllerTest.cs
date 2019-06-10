@@ -28,7 +28,7 @@ namespace Kosmograph.Model.Test
             // ASSERT
 
             Assert.Same(tag, result);
-            Assert.True(this.modelController.Contains(tag));
+            Assert.True(this.modelController.ContainsTag(tag));
         }
 
         [Fact]
@@ -67,7 +67,7 @@ namespace Kosmograph.Model.Test
             // ASSERT
 
             Assert.Equal(tag.Id, result);
-            Assert.False(this.modelController.Contains(tag));
+            Assert.False(this.modelController.ContainsTag(tag));
         }
 
         [Fact]

@@ -59,7 +59,7 @@ namespace Kosmograph.Model
             }
         }
 
-        private void RemoveEntity(Entity entity) => this.OnRemovingEntity(entity.Id);
+        private void RemoveEntity(Entity entity) => this.OnEntityRemoving(entity.Id);
 
         protected override void OnRelationshipAdding(Relationship relationship)
         {
@@ -86,5 +86,16 @@ namespace Kosmograph.Model
         }
 
         private void RemoveRelationship(Relationship removed) => this.OnRelationshipRemoving(removed.Id);
+
+        public void StopQuery()
+        {
+            this.Dispose();
+
+            foreach (var relationshipId in this.TrackedRelationships.ToArray())
+                this.OnRelationshipRemoving(relationshipId);
+
+            foreach (var entityId in this.TrackedEntities.ToArray())
+                this.OnEntityRemoving(entityId);
+        }
     }
 }

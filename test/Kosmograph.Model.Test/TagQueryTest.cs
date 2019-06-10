@@ -63,6 +63,46 @@ namespace Kosmograph.Model.Test
         }
 
         [Fact]
+        public void TagQuery_stops_with_removing_entities_and_relationships()
+        {
+            // ARRANGE
+
+            var entity = DefaultEntity(setup: null, tags: this.queryTag);
+            var entityRepository = this.Mocks.Create<IEntityRepository>();
+            entityRepository
+                .Setup(r => r.FindByTag(this.queryTag))
+                .Returns(entity.Yield());
+
+            this.Persistence
+                .Setup(p => p.Entities)
+                .Returns(entityRepository.Object);
+
+            var relationship = DefaultRelationship(setup: r => r.AddTag(this.queryTag));
+            var relationshipRepository = this.Mocks.Create<IRelationshipRepository>();
+            relationshipRepository
+                .Setup(r => r.FindByTag(this.queryTag))
+                .Returns(relationship.Yield());
+
+            this.Persistence
+                .Setup(p => p.Relationships)
+                .Returns(relationshipRepository.Object);
+
+            this.tagQuery.StartQuery();
+
+            // ACT
+
+            var result = (entities: new List<Guid>(), relationships: new List<Guid>());
+            this.tagQuery.EntityRemoved = result.entities.Add;
+            this.tagQuery.RelationshipRemoved = result.relationships.Add;
+            this.tagQuery.StopQuery();
+
+            // ASSERT
+
+            Assert.Equal(entity.Id, result.entities.Single());
+            Assert.Equal(relationship.Id, result.relationships.Single());
+        }
+
+        [Fact]
         public void TagQuery_ignores_untagged_entity()
         {
             // ACT

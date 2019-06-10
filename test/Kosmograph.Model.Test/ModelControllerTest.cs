@@ -54,6 +54,47 @@ namespace Kosmograph.Model.Test
         }
 
         [Fact]
+        public void ModelController_dispose_stops_observing_all_repos()
+        {
+            // ARRANGE
+
+            IDisposable make_disposable()
+            {
+                var tmp = this.Mocks.Create<IDisposable>();
+                tmp.Setup(d => d.Dispose());
+                return tmp.Object;
+            }
+
+            var tags = this.Mocks.Create<IChangedMessageBus<ITag>>();
+            ModelController tagSubsciber = null;
+            tags
+                .Setup(t => t.Subscribe(It.IsAny<IObserver<ChangedMessage<ITag>>>()))
+                .Callback<IObserver<ChangedMessage<ITag>>>(m => tagSubsciber = (ModelController)m)
+                .Returns(make_disposable());
+
+            ModelController entitySubscriber = null;
+            var entities = this.Mocks.Create<IChangedMessageBus<IEntity>>();
+            entities
+                .Setup(t => t.Subscribe(It.IsAny<IObserver<ChangedMessage<IEntity>>>()))
+                .Callback<IObserver<ChangedMessage<IEntity>>>(m => entitySubscriber = (ModelController)m)
+                .Returns(make_disposable());
+
+            ModelController relationshipSubscriber = null;
+            var relationships = this.Mocks.Create<IChangedMessageBus<IRelationship>>();
+
+            relationships
+                .Setup(t => t.Subscribe(It.IsAny<IObserver<ChangedMessage<IRelationship>>>()))
+                .Callback<IObserver<ChangedMessage<IRelationship>>>(m => relationshipSubscriber = (ModelController)m)
+                .Returns(make_disposable());
+
+            var controller = new ModelController(tags.Object, entities.Object, relationships.Object);
+
+            // ACT
+
+            controller.Dispose();
+        }
+
+        [Fact]
         public void ModelController_raises_TagChanged_on_changed_message()
         {
             // ARRANGE

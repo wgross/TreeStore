@@ -3,7 +3,7 @@ using System;
 
 namespace Kosmograph.Model
 {
-    public class ModelController : IObserver<ChangedMessage<ITag>>, IObserver<ChangedMessage<IEntity>>, IObserver<ChangedMessage<IRelationship>>
+    public class ModelController : IDisposable, IObserver<ChangedMessage<ITag>>, IObserver<ChangedMessage<IEntity>>, IObserver<ChangedMessage<IRelationship>>
     {
         private IDisposable tagSubscription;
         private IDisposable entitySubscription;
@@ -18,6 +18,16 @@ namespace Kosmograph.Model
             this.tagSubscription = tags.Subscribe(this);
             this.entitySubscription = entities.Subscribe(this);
             this.relationshipSubscription = relationships.Subscribe(this);
+        }
+
+        public void Dispose()
+        {
+            this.tagSubscription?.Dispose();
+            this.tagSubscription = null;
+            this.entitySubscription?.Dispose();
+            this.entitySubscription = null;
+            this.relationshipSubscription?.Dispose();
+            this.relationshipSubscription = null;
         }
 
         public Action<Tag> TagChanged { private get; set; }
@@ -65,10 +75,10 @@ namespace Kosmograph.Model
             if (value.ChangeType.Equals(ChangeTypeValues.Modified))
                 this.OnEntityChanging((Entity)value.Changed);
             else
-                this.OnRemovingEntity(value.Changed.Id);
+                this.OnEntityRemoving(value.Changed.Id);
         }
 
-        virtual protected void OnRemovingEntity(Guid entityId) => this.EntityRemoved?.Invoke(entityId);
+        virtual protected void OnEntityRemoving(Guid entityId) => this.EntityRemoved?.Invoke(entityId);
 
         virtual protected void OnEntityChanging(Entity changed) => this.EntityChanged?.Invoke(changed);
 

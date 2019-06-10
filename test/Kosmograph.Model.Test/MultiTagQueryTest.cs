@@ -99,20 +99,65 @@ namespace Kosmograph.Model.Test
 
             // ACT
 
-            var result_entity = new List<Entity>();
-            this.multiTagQuery.EntityAdded = result_entity.Add;
-            var result_relationship = new List<Relationship>();
-            this.multiTagQuery.RelationshipAdded = result_relationship.Add;
+            var result = (entities: new List<Entity>(), relationships: new List<Relationship>());
+            this.multiTagQuery.EntityAdded = result.entities.Add;
+            this.multiTagQuery.RelationshipAdded = result.relationships.Add;
             this.multiTagQuery.Add(queryTag1);
             this.multiTagQuery.Add(queryTag2);
 
             // ASSERT
 
-            Assert.Equal(entity1, result_entity.Single());
-            Assert.Equal(relationship, result_relationship.Single());
+            Assert.Equal(entity1, result.entities.Single());
+            Assert.Equal(relationship, result.relationships.Single());
         }
 
         #endregion Adding TagQueries
+
+        #region Remove TagQueries
+
+        [Fact]
+        public void MultiTagQuery_remove_TagQuery_removes_entities_and_relationships()
+        {
+            // ARRANGE
+
+            var queryTag = DefaultTag();
+            var entity1 = DefaultEntity(e => e.AddTag(queryTag));
+            var entity2 = DefaultEntity();
+            var relationship = DefaultRelationship(entity1, entity2, r => r.AddTag(queryTag));
+
+            entityRepository
+                .Setup(r => r.FindByTag(queryTag))
+                .Returns(entity1.Yield());
+
+            this.Persistence
+                .Setup(p => p.Entities)
+                .Returns(entityRepository.Object);
+
+            relationshipRepository
+                .Setup(r => r.FindByTag(queryTag))
+                .Returns(relationship.Yield());
+
+            this.Persistence
+                .Setup(p => p.Relationships)
+                .Returns(relationshipRepository.Object);
+
+            this.multiTagQuery.Add(queryTag);
+
+            // ACT
+
+            var result = (entities: new List<Guid>(), relationships: new List<Guid>());
+            this.multiTagQuery.EntityRemoved = result.entities.Add;
+            var result_relationships = new List<Guid>();
+            this.multiTagQuery.RelationshipRemoved = result.relationships.Add;
+            this.multiTagQuery.Remove(this.multiTagQuery.TagQueries.Single());
+
+            // ASSERT
+
+            Assert.Equal(entity1.Id, result.entities.Single());
+            Assert.Equal(relationship.Id, result.relationships.Single());
+        }
+
+        #endregion Remove TagQueries
 
         #region Removing model items from TagQueries
 
