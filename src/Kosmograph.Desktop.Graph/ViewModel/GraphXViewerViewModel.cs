@@ -1,4 +1,5 @@
-﻿using Kosmograph.Messaging;
+﻿using GalaSoft.MvvmLight;
+using Kosmograph.Messaging;
 using Kosmograph.Model;
 using System;
 using System.Collections.ObjectModel;
@@ -6,7 +7,7 @@ using System.Linq;
 
 namespace Kosmograph.Desktop.Graph.ViewModel
 {
-    public class GraphXViewerViewModel : IObserver<ChangedMessage<IEntity>>, IObserver<ChangedMessage<IRelationship>>
+    public class GraphXViewerViewModel : ViewModelBase, IObserver<ChangedMessage<IEntity>>, IObserver<ChangedMessage<IRelationship>>
     {
         private readonly KosmographModel model;
         private readonly IKosmographMessageBus messageBus;
@@ -32,7 +33,19 @@ namespace Kosmograph.Desktop.Graph.ViewModel
             this.multiTagQuery.EntityRemoved = this.OnEntityRemoving;
             this.multiTagQuery.RelationshipAdded = this.OnRelationshipAdding;
             this.multiTagQuery.RelationshipRemoved = this.OnRelationshipRemoving;
+            // update IsEmpty from tag queries
+            this.TagQueries.CollectionChanged += this.TagQueries_CollectionChanged;
         }
+
+        private void TagQueries_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e) => this.IsEmpty = !this.TagQueries.Any();
+
+        public bool IsEmpty
+        {
+            get => this.isEmpty;
+            private set => this.Set(ref this.isEmpty, value, nameof(IsEmpty));
+        }
+
+        private bool isEmpty = true;
 
         public ObservableCollection<TagQueryViewModel> TagQueries { get; } = new ObservableCollection<TagQueryViewModel>();
 

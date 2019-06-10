@@ -68,6 +68,19 @@ namespace Kosmograph.Desktop.Graph.Test.ViewModel
         }
 
         [Fact]
+        public void GraphXViewerViewModel_indicates_empty_graph()
+        {
+            // ACT
+
+            var result = this.viewModel.IsEmpty;
+
+            // ASSERT
+            // view model has no items
+
+            Assert.True(result);
+        }
+
+        [Fact]
         public void GraphXViewerViewModel_adds_tag_query()
         {
             // ARRANGE
@@ -104,12 +117,17 @@ namespace Kosmograph.Desktop.Graph.Test.ViewModel
                 .Setup(p => p.Relationships)
                 .Returns(relationshipRepository.Object);
 
+            // wait for change notification of IsEmpty
+            string propertyName = null;
+            this.viewModel.PropertyChanged += (s, e) => propertyName = e.PropertyName;
+
             // ACT
 
             this.viewModel.ShowTag(queryTag);
 
             // ASSERT
 
+            // tag query was added to the view model
             Assert.Equal(queryTag.Name, this.viewModel.TagQueries.Single().Name);
             Assert.Equal(3, this.viewModel.GraphViewModel.Vertices.Count());
             Assert.Contains(entity.Id, this.viewModel.GraphViewModel.Vertices.Select(v => v.ModelId));
@@ -117,6 +135,10 @@ namespace Kosmograph.Desktop.Graph.Test.ViewModel
             Assert.Contains(relationship.To.Id, this.viewModel.GraphViewModel.Vertices.Select(v => v.ModelId));
             Assert.Single(this.viewModel.GraphViewModel.Edges);
             Assert.Contains(relationship.Id, this.viewModel.GraphViewModel.Edges.Select(v => v.ModelId));
+
+            // viewmodel isn't empty any more
+            Assert.False(this.viewModel.IsEmpty);
+            Assert.Equal(nameof(this.viewModel.IsEmpty), propertyName);
         }
 
         [Fact]

@@ -21,37 +21,73 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
-    <DockPanel 
-        DockPanel.Dock="Top" 
-        LastChildFill="true" 
-        Margin="5,0,0,0">
-        <!--<DockPanel.Style>
+    <Grid>
+        <!--
+        Header line witth D&D hint is shown if graph is empty/has no tag queries
+        -->
+        <DockPanel
+            DockPanel.Dock="Top"
+            LastChildFill="True">
+            <DockPanel.Style>
             <Style TargetType="{x:Type DockPanel}">
                 <Setter Property="Visibility" Value="Visible" />
                 <Style.Triggers>
-                    <DataTrigger Binding="{Binding TagQueries}" Value="{x:Null}">
-                        <Setter Property="Visibility" Value="Collapsed" />
+                    <DataTrigger 
+                                Binding="{Binding IsEmpty}" 
+                                Value="False">
+                        <Setter Property="Visibility" Value="Hidden" />
                     </DataTrigger>
                 </Style.Triggers>
             </Style>
-        </DockPanel.Style>-->
-        <Button
-            DockPanel.Dock="Right"
-            Content="Clear Graph"
-            Command="{x:Static local:GraphXViewerCommands.ClearCommand}" />
-        <TextBlock
-            DockPanel.Dock="Left"
-            Foreground="Gray"
-            FontWeight="Bold"
-            Text="Graph generated from tags:" />
-        <ItemsControl
-            DockPanel.Dock="Left"
-            ItemsSource="{Binding TagQueries}">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <StackPanel Orientation="Horizontal" />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-        </ItemsControl>
-    </DockPanel>
+            </DockPanel.Style>
+            <TextBlock
+                DockPanel.Dock="Left"
+                Foreground="Gray"
+                FontWeight="Bold"
+                Margin="0,0,5,0"
+                Text="Graph:" />
+            <TextBlock
+                Foreground="Gray"
+                Text="Drag tags at the graph area to populate the view" />
+        </DockPanel>
+        <!--
+        Header line with tags is shown if graph isn't empty/has tag queries
+        -->
+        <DockPanel 
+            DockPanel.Dock="Top" 
+            LastChildFill="true" 
+            Margin="5,0,0,0">
+            <DockPanel.Style>
+                <Style TargetType="{x:Type DockPanel}">
+                    <Setter Property="Visibility" Value="Hidden" />
+                    <Style.Triggers>
+                        <DataTrigger 
+                            Binding="{Binding IsEmpty}" 
+                            Value="False">
+                                <Setter Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </DockPanel.Style>
+            <Button
+                DockPanel.Dock="Right"
+                Content="Clear Graph"
+                Command="{x:Static local:GraphXViewerCommands.ClearCommand}" />
+            <TextBlock
+                DockPanel.Dock="Left"
+                Foreground="Gray"
+                FontWeight="Bold"
+                Margin="0,0,5,0"
+                Text="Graph from Tags:" />
+            <ItemsControl
+                DockPanel.Dock="Left"
+                ItemsSource="{Binding TagQueries}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </DockPanel>
+    </Grid>
 </UserControl>
