@@ -59,6 +59,9 @@ namespace Kosmograph.Model.Test
 
             Assert.Equal(entity1, result_entity);
             Assert.Equal(relationship, result_relationship);
+            Assert.True(multiTagQuery.ContainsEntity(entity1.Id));
+            Assert.False(multiTagQuery.ContainsEntity(entity2.Id));
+            Assert.True(multiTagQuery.ContainsRelationship(relationship.Id));
         }
 
         [Fact]
@@ -155,6 +158,8 @@ namespace Kosmograph.Model.Test
 
             Assert.Equal(entity1.Id, result.entities.Single());
             Assert.Equal(relationship.Id, result.relationships.Single());
+            Assert.False(multiTagQuery.ContainsEntity(entity1.Id));
+            Assert.False(multiTagQuery.ContainsRelationship(relationship.Id));
         }
 
         #endregion Remove TagQueries

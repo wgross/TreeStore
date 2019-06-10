@@ -84,7 +84,11 @@ namespace Kosmograph.Model
 
         #endregion Add tag query
 
-        public bool Contains(Tag tag) => this.tagQueries.FirstOrDefault(tq => tq.Tag.Equals(tag)) != null;
+        public bool ContainsRelationship(Guid relationshipId) => this.tagQueries.Any(tq => tq.ContainsRelationship(relationshipId));
+
+        public bool ContainsEntity(Guid entityId) => this.tagQueries.Any(tq => tq.ContainsEntity(entityId));
+
+        public bool ContainsTag(Tag tag) => this.tagQueries.Any(tq => tq.Tag.Equals(tag));
 
         public void Remove(TagQuery tagQuery)
         {
