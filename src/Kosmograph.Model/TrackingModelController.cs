@@ -10,8 +10,12 @@ namespace Kosmograph.Model
         private readonly HashSet<Guid> trackedEntities = new HashSet<Guid>();
         private readonly HashSet<Guid> trackedRelationships = new HashSet<Guid>();
 
+        public TrackingModelController(KosmographModel model)
+            : base(model)
+        { }
+
         public TrackingModelController(IKosmographMessageBus kosmographMessageBus)
-            : base(kosmographMessageBus.Tags, kosmographMessageBus.Entities, kosmographMessageBus.Relationships)
+            : base(kosmographMessageBus)
         { }
 
         #region Track Tags

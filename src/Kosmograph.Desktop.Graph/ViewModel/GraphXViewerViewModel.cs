@@ -13,23 +13,21 @@ namespace Kosmograph.Desktop.Graph.ViewModel
     public class GraphXViewerViewModel : ViewModelBase, IObserver<ChangedMessage<IEntity>>, IObserver<ChangedMessage<IRelationship>>
     {
         private readonly KosmographModel model;
-        private readonly IKosmographMessageBus messageBus;
         private readonly ModelController modelController;
 
         //private readonly IDisposable entitySubscription;
         //private readonly IDisposable relationshipSubscription;
         private readonly MultiTagQuery multiTagQuery;
 
-        public GraphXViewerViewModel(KosmographModel model, IKosmographMessageBus messageBus)
+        public GraphXViewerViewModel(KosmographModel model)
         {
             this.model = model;
-            this.messageBus = messageBus;
             // model controller observes changes of model items
-            this.modelController = new ModelController(this.messageBus);
+            this.modelController = new ModelController(this.model);
             this.modelController.EntityChanged = this.OnEntityChanging;
             this.modelController.RelationshipChanged = this.OnRelationshipChanging;
             // multi tag query is the source of entities and relationships added to the graph
-            this.multiTagQuery = new MultiTagQuery(this.model, this.messageBus);
+            this.multiTagQuery = new MultiTagQuery(this.model);
             this.multiTagQuery.EntityAdded = this.OnEntityAdding;
             this.multiTagQuery.EntityRemoved = this.OnEntityRemoving;
             this.multiTagQuery.RelationshipAdded = this.OnRelationshipAdding;

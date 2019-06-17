@@ -8,30 +8,6 @@ namespace Kosmograph.Desktop.Test.ViewModel
 {
     public class KosmographViewModelTagsTest : KosmographViewModelTestBase, IDisposable
     {
-        protected readonly Mock<ITagRepository> tagRepository;
-        private readonly Mock<IRelationshipRepository> relationshipRepository;
-        protected readonly Mock<IEntityRepository> entityRepository;
-        protected readonly Mock<IKosmographPersistence> persistence;
-        protected readonly Desktop.ViewModel.KosmographViewModel viewModel;
-
-        public KosmographViewModelTagsTest()
-        {
-            this.relationshipRepository = this.Mocks.Create<IRelationshipRepository>();
-            this.entityRepository = this.Mocks.Create<IEntityRepository>();
-            this.tagRepository = this.Mocks.Create<ITagRepository>();
-            this.persistence = this.Mocks.Create<IKosmographPersistence>();
-            this.persistence
-                .Setup(p => p.Entities)
-                .Returns(this.entityRepository.Object);
-            this.persistence
-                .Setup(p => p.Tags)
-                .Returns(this.tagRepository.Object);
-            this.persistence
-                .Setup(p => p.Relationships)
-                .Returns(this.relationshipRepository.Object);
-            this.viewModel = new Kosmograph.Desktop.ViewModel.KosmographViewModel(new Model.KosmographModel(this.persistence.Object));
-        }
-
         public Lists.ViewModel.TagViewModel DefaultTagViewModel() => new Lists.ViewModel.TagViewModel(DefaultTag());
 
         public Lists.ViewModel.TagViewModel DefaultTagViewModel(Tag tag) => new Lists.ViewModel.TagViewModel(tag);
@@ -46,13 +22,13 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // ACT
             // start editing of a tag
 
-            this.viewModel.EditTagCommand.Execute(tagViewModel);
+            this.ViewModel.EditTagCommand.Execute(tagViewModel);
 
             // ASSERT
             // editor was created
 
-            Assert.NotNull(this.viewModel.EditedTag);
-            Assert.Equal(tagViewModel.Model, this.viewModel.EditedTag.Model);
+            Assert.NotNull(this.ViewModel.EditedTag);
+            Assert.Equal(tagViewModel.Model, this.ViewModel.EditedTag.Model);
         }
 
         [Fact]
@@ -62,20 +38,20 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // edit a tag
 
             var tagViewModel = DefaultTagViewModel();
-            this.viewModel.EditTagCommand.Execute(tagViewModel);
-            this.tagRepository
+            this.ViewModel.EditTagCommand.Execute(tagViewModel);
+            this.TagRepository
                 .Setup(r => r.Upsert(tagViewModel.Model))
                 .Returns(tagViewModel.Model);
 
             // ACT
             // commit the tag upserts the tag in the DB
 
-            this.viewModel.EditedTag.CommitCommand.Execute(null);
+            this.ViewModel.EditedTag.CommitCommand.Execute(null);
 
             // ASSERT
             // the tag is sent to the repo
 
-            Assert.Null(this.viewModel.EditedTag);
+            Assert.Null(this.ViewModel.EditedTag);
         }
 
         [Fact]
@@ -85,17 +61,17 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // edit a tag
 
             var tagViewModel = DefaultTagViewModel();
-            this.viewModel.EditTagCommand.Execute(tagViewModel);
+            this.ViewModel.EditTagCommand.Execute(tagViewModel);
 
             // ACT
             // rollback the tag
 
-            this.viewModel.EditedTag.RollbackCommand.Execute(null);
+            this.ViewModel.EditedTag.RollbackCommand.Execute(null);
 
             // ASSERT
             // the tag is sent to the repo
 
-            Assert.Null(this.viewModel.EditedTag);
+            Assert.Null(this.ViewModel.EditedTag);
         }
 
         [Fact]
@@ -106,16 +82,16 @@ namespace Kosmograph.Desktop.Test.ViewModel
             var tag1 = DefaultTag(t => t.Name = "t1");
             var tag2 = DefaultTag(t => t.Name = "t2");
             var tagViewModel = DefaultTagViewModel(tag2);
-            this.viewModel.EditTagCommand.Execute(tagViewModel);
-            this.tagRepository
+            this.ViewModel.EditTagCommand.Execute(tagViewModel);
+            this.TagRepository
                 .Setup(r => r.FindByName("t1"))
                 .Returns(tag1);
 
             // ACT
             // make a duplicate name and try to commit it
 
-            this.viewModel.EditedTag.Name = tag1.Name;
-            var result = this.viewModel.EditedTag.CommitCommand.CanExecute(null);
+            this.ViewModel.EditedTag.Name = tag1.Name;
+            var result = this.ViewModel.EditedTag.CommitCommand.CanExecute(null);
 
             // ASSERT
             // the tag is sent to the repo
@@ -129,14 +105,14 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // ACT
             // start editing of a tag
 
-            this.viewModel.CreateTagCommand.Execute(null);
+            this.ViewModel.CreateTagCommand.Execute(null);
 
             // ASSERT
             // editor with minimal tag was created
 
-            Assert.NotNull(this.viewModel.EditedTag);
-            Assert.Equal("new tag", this.viewModel.EditedTag.Name);
-            Assert.Empty(this.viewModel.EditedTag.Properties);
+            Assert.NotNull(this.ViewModel.EditedTag);
+            Assert.Equal("new tag", this.ViewModel.EditedTag.Name);
+            Assert.Empty(this.ViewModel.EditedTag.Properties);
         }
 
         [Fact]
@@ -144,9 +120,9 @@ namespace Kosmograph.Desktop.Test.ViewModel
         {
             // ARRANGE
 
-            this.viewModel.CreateTagCommand.Execute(null);
+            this.ViewModel.CreateTagCommand.Execute(null);
             Tag createdTag = null;
-            this.tagRepository
+            this.TagRepository
                 .Setup(r => r.Upsert(It.IsAny<Tag>()))
                 .Callback<Tag>(t => createdTag = t)
                 .Returns<Tag>(t => t);
@@ -154,12 +130,12 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // ACT
             // commit editor
 
-            this.viewModel.EditedTag.CommitCommand.Execute(null);
+            this.ViewModel.EditedTag.CommitCommand.Execute(null);
 
             // ASSERT
             // editor is gone
 
-            Assert.Null(this.viewModel.EditedTag);
+            Assert.Null(this.ViewModel.EditedTag);
             Assert.NotNull(createdTag);
         }
 
@@ -168,17 +144,17 @@ namespace Kosmograph.Desktop.Test.ViewModel
         {
             // ARRANGE
 
-            this.viewModel.CreateTagCommand.Execute(null);
+            this.ViewModel.CreateTagCommand.Execute(null);
 
             // ACT
             // rollback editor
 
-            this.viewModel.EditedTag.RollbackCommand.Execute(null);
+            this.ViewModel.EditedTag.RollbackCommand.Execute(null);
 
             // ASSERT
             // editor is gone
 
-            Assert.Null(this.viewModel.EditedTag);
+            Assert.Null(this.ViewModel.EditedTag);
         }
 
         [Fact]
@@ -187,17 +163,17 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // ARRANGE
 
             var tag1 = DefaultTag(t => t.Name = "t1");
-            this.tagRepository
+            this.TagRepository
                 .Setup(r => r.FindByName("t1"))
                 .Returns(tag1);
 
-            this.viewModel.CreateTagCommand.Execute(null);
+            this.ViewModel.CreateTagCommand.Execute(null);
 
             // ACT
             // commit editor
 
-            this.viewModel.EditedTag.Name = "t1";
-            var result = this.viewModel.EditedTag.CommitCommand.CanExecute(null);
+            this.ViewModel.EditedTag.Name = "t1";
+            var result = this.ViewModel.EditedTag.CommitCommand.CanExecute(null);
 
             // ASSERT
             // editor is gone
@@ -211,13 +187,13 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // ARRANGE
 
             var tag = DefaultTag(t => t.Name = "t1");
-            this.tagRepository
+            this.TagRepository
                 .Setup(r => r.Delete(tag))
                 .Returns(true);
 
             // ACT
 
-            this.viewModel.DeleteTagCommand.Execute(new TagViewModel(tag));
+            this.ViewModel.DeleteTagCommand.Execute(new TagViewModel(tag));
         }
     }
 }

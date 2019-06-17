@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Kosmograph.Messaging;
+using System;
 
 namespace Kosmograph.Model
 {
@@ -11,6 +12,8 @@ namespace Kosmograph.Model
             this.persistence = persistence;
         }
 
+        public IKosmographMessageBus MessageBus => this.persistence.MessageBus;
+
         public ITagRepository Tags => this.persistence.Tags;
 
         public IEntityRepository Entities => this.persistence.Entities;
@@ -21,7 +24,8 @@ namespace Kosmograph.Model
 
         public void Dispose()
         {
-            this.persistence.Dispose();
+            this.persistence?.Dispose();
+            this.persistence = null;
         }
     }
 }

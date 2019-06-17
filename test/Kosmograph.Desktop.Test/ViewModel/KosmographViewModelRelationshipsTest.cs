@@ -8,30 +8,6 @@ namespace Kosmograph.Desktop.Test.ViewModel
 {
     public class KosmographViewModelRelationshipsTest : KosmographViewModelTestBase
     {
-        private readonly Mock<IRelationshipRepository> relationshipRepository;
-        private readonly Mock<IEntityRepository> entityRepository;
-        private readonly Mock<ITagRepository> tagRepository;
-        private readonly Mock<IKosmographPersistence> persistence;
-        private readonly Desktop.ViewModel.KosmographViewModel viewModel;
-
-        public KosmographViewModelRelationshipsTest()
-        {
-            this.relationshipRepository = this.Mocks.Create<IRelationshipRepository>();
-            this.entityRepository = this.Mocks.Create<IEntityRepository>();
-            this.tagRepository = this.Mocks.Create<ITagRepository>();
-            this.persistence = this.Mocks.Create<IKosmographPersistence>();
-            this.persistence
-                .Setup(p => p.Entities)
-                .Returns(this.entityRepository.Object);
-            this.persistence
-                .Setup(p => p.Tags)
-                .Returns(this.tagRepository.Object);
-            this.persistence
-                .Setup(p => p.Relationships)
-                .Returns(this.relationshipRepository.Object);
-            this.viewModel = new Kosmograph.Desktop.ViewModel.KosmographViewModel(new Model.KosmographModel(this.persistence.Object));
-        }
-
         private Lists.ViewModel.RelationshipViewModel DefaultRelationhipViewModel(Action<RelationshipViewModel> setup = null)
             => Setup(new Lists.ViewModel.RelationshipViewModel(DefaultRelationship()));
 
@@ -45,13 +21,13 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // ACT
             // start editing of relationship
 
-            this.viewModel.EditRelationshipCommand.Execute(relationshipViewModel);
+            this.ViewModel.EditRelationshipCommand.Execute(relationshipViewModel);
 
             // ASSERT
             // editor weas created
 
-            Assert.NotNull(this.viewModel.EditedRelationship);
-            Assert.Equal(relationshipViewModel.Model, this.viewModel.EditedRelationship.Model);
+            Assert.NotNull(this.ViewModel.EditedRelationship);
+            Assert.Equal(relationshipViewModel.Model, this.ViewModel.EditedRelationship.Model);
         }
 
         [Fact]
@@ -61,20 +37,20 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // edit a relationship
 
             var relationshipViewModel = DefaultRelationhipViewModel();
-            this.viewModel.EditRelationshipCommand.Execute(relationshipViewModel);
-            this.relationshipRepository
+            this.ViewModel.EditRelationshipCommand.Execute(relationshipViewModel);
+            this.RelationshipRepository
                 .Setup(r => r.Upsert(relationshipViewModel.Model))
                 .Returns(relationshipViewModel.Model);
 
             // ACT
             // committing the relationship upserts the relationship to the db
 
-            this.viewModel.EditedRelationship.CommitCommand.Execute(null);
+            this.ViewModel.EditedRelationship.CommitCommand.Execute(null);
 
             // ASSERT
             // the relatsionhip was sent to repo
 
-            Assert.Null(this.viewModel.EditedRelationship);
+            Assert.Null(this.ViewModel.EditedRelationship);
         }
 
         [Fact]
@@ -84,17 +60,17 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // edit a relationship
 
             var relationshipViewModel = DefaultRelationhipViewModel();
-            this.viewModel.EditRelationshipCommand.Execute(relationshipViewModel);
+            this.ViewModel.EditRelationshipCommand.Execute(relationshipViewModel);
 
             // ACT
             // rollback the relationship
 
-            this.viewModel.EditedRelationship.RollbackCommand.Execute(null);
+            this.ViewModel.EditedRelationship.RollbackCommand.Execute(null);
 
             // ASSERT
             // the relationship is sent to the repo
 
-            Assert.Null(this.viewModel.EditedRelationship);
+            Assert.Null(this.ViewModel.EditedRelationship);
         }
 
         [Fact]
@@ -103,12 +79,12 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // ACT
             // start editing of relationship
 
-            this.viewModel.CreateRelationshipCommand.Execute(null);
+            this.ViewModel.CreateRelationshipCommand.Execute(null);
 
             // ASSERT
             // editor weas created
 
-            Assert.NotNull(this.viewModel.EditedRelationship);
+            Assert.NotNull(this.ViewModel.EditedRelationship);
         }
 
         [Fact]
@@ -117,22 +93,22 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // ARRANGE
             // edit a relationship
 
-            this.viewModel.CreateRelationshipCommand.Execute(null);
-            this.relationshipRepository
+            this.ViewModel.CreateRelationshipCommand.Execute(null);
+            this.RelationshipRepository
                 .Setup(r => r.Upsert(It.IsAny<Relationship>()))
                 .Returns<Relationship>(r => r);
 
             // ACT
             // committing the relationship upserts the relationship to the db
 
-            this.viewModel.EditedRelationship.From = DefaultEntity();
-            this.viewModel.EditedRelationship.To = DefaultEntity();
-            this.viewModel.EditedRelationship.CommitCommand.Execute(null);
+            this.ViewModel.EditedRelationship.From = DefaultEntity();
+            this.ViewModel.EditedRelationship.To = DefaultEntity();
+            this.ViewModel.EditedRelationship.CommitCommand.Execute(null);
 
             // ASSERT
             // the relatsionhip was sent to repo
 
-            Assert.Null(this.viewModel.EditedRelationship);
+            Assert.Null(this.ViewModel.EditedRelationship);
         }
 
         [Fact]
@@ -140,17 +116,17 @@ namespace Kosmograph.Desktop.Test.ViewModel
         {
             // ARRANGE
 
-            this.viewModel.CreateRelationshipCommand.Execute(null);
+            this.ViewModel.CreateRelationshipCommand.Execute(null);
 
             // ACT
             // rollback editor
 
-            this.viewModel.EditedRelationship.RollbackCommand.Execute(null);
+            this.ViewModel.EditedRelationship.RollbackCommand.Execute(null);
 
             // ASSERT
             // editor is gone
 
-            Assert.Null(this.viewModel.EditedRelationship);
+            Assert.Null(this.ViewModel.EditedRelationship);
         }
 
         [Fact]
@@ -159,13 +135,13 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // ARRANGE
 
             var relationship = DefaultRelationship();
-            this.relationshipRepository
+            this.RelationshipRepository
                 .Setup(r => r.Delete(relationship))
                 .Returns(true);
 
             // ACT
 
-            this.viewModel.DeleteRelationshipCommand.Execute(new RelationshipViewModel(relationship));
+            this.ViewModel.DeleteRelationshipCommand.Execute(new RelationshipViewModel(relationship));
         }
     }
 }

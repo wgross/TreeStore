@@ -10,7 +10,7 @@ namespace Kosmograph.LiteDb
     public class RelationshipRepository : LiteDbRepositoryBase<Relationship>, IRelationshipRepository
     {
         public const string CollectionName = "relationships";
-        private readonly IChangedMessageBus<IRelationship> eventSource;
+        private readonly IChangedMessageBus<IRelationship> messageBus;
 
         static RelationshipRepository()
         {
@@ -21,14 +21,14 @@ namespace Kosmograph.LiteDb
                    .DbRef(r => r.To, EntityRepository.CollectionName);
         }
 
-        public RelationshipRepository(LiteRepository repo, Messaging.IChangedMessageBus<Messaging.IRelationship> eventSource) : base(repo, CollectionName)
+        public RelationshipRepository(LiteRepository repo, Messaging.IChangedMessageBus<Messaging.IRelationship> messageBus) : base(repo, CollectionName)
         {
-            this.eventSource = eventSource;
+            this.messageBus = messageBus;
         }
 
         public override Relationship Upsert(Relationship relationship)
         {
-            this.eventSource.Modified(base.Upsert(relationship));
+            this.messageBus.Modified(base.Upsert(relationship));
             return relationship;
         }
 
@@ -36,7 +36,7 @@ namespace Kosmograph.LiteDb
         {
             if (base.Delete(relationship))
             {
-                this.eventSource.Removed(relationship);
+                this.messageBus.Removed(relationship);
                 return true;
             }
             return false;
@@ -63,8 +63,5 @@ namespace Kosmograph.LiteDb
                 .Include(r => r.From)
                 .Include(r => r.To);
         }
-
-        
-        
     }
 }

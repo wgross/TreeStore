@@ -9,11 +9,19 @@ namespace Kosmograph.Model
         private IDisposable entitySubscription;
         private IDisposable relationshipSubscription;
 
+        public ModelController(KosmographModel model)
+            : this(model.MessageBus)
+        {
+            this.Model = model;
+        }
+
+        public KosmographModel Model { get; }
+
         public ModelController(IKosmographMessageBus kosmographMessageBus)
             : this(kosmographMessageBus.Tags, kosmographMessageBus.Entities, kosmographMessageBus.Relationships)
         { }
 
-        public ModelController(IChangedMessageBus<ITag> tags, IChangedMessageBus<IEntity> entities, IChangedMessageBus<IRelationship> relationships)
+        private ModelController(IChangedMessageBus<ITag> tags, IChangedMessageBus<IEntity> entities, IChangedMessageBus<IRelationship> relationships)
         {
             this.tagSubscription = tags.Subscribe(this);
             this.entitySubscription = entities.Subscribe(this);
@@ -30,6 +38,8 @@ namespace Kosmograph.Model
             this.relationshipSubscription = null;
         }
 
+        #region Publish model changes
+
         public Action<Tag> TagChanged { private get; set; }
 
         public Action<Guid> TagRemoved { private get; set; }
@@ -41,6 +51,8 @@ namespace Kosmograph.Model
         public Action<Relationship> RelationshipChanged { private get; set; }
 
         public Action<Guid> RelationshipRemoved { private get; set; }
+
+        #endregion Publish model changes
 
         #region Observe Tags
 

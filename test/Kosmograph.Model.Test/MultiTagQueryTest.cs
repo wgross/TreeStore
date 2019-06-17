@@ -16,7 +16,7 @@ namespace Kosmograph.Model.Test
         {
             this.entityRepository = this.Mocks.Create<IEntityRepository>();
             this.relationshipRepository = this.Mocks.Create<IRelationshipRepository>();
-            this.multiTagQuery = new MultiTagQuery(new KosmographModel(this.Persistence.Object), this.MessageBus);
+            this.multiTagQuery = new MultiTagQuery(this.NewModel());
         }
 
         #region Adding TagQueries

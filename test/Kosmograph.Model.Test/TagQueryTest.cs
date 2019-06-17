@@ -13,7 +13,7 @@ namespace Kosmograph.Model.Test
         public TagQueryTest()
         {
             this.queryTag = DefaultTag(t => t.Name = "query");
-            this.tagQuery = new TagQuery(new KosmographModel(this.Persistence.Object), this.MessageBus, queryTag);
+            this.tagQuery = new TagQuery(this.NewModel(), queryTag);
         }
 
         [Fact]

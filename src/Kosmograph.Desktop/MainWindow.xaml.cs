@@ -103,7 +103,7 @@ namespace Kosmograph.Desktop
             if (!(openFileDialog.ShowDialog() ?? false))
                 return;
 
-            this.ViewModel = new KosmographViewModel(new KosmographModel(new KosmographLiteDbPersistence(File.Create(openFileDialog.FileName))));
+            this.ViewModel = new KosmographViewModel(new KosmographModel(new KosmographLiteDbPersistence(Kosmograph.Messaging.KosmographMessageBus.Default, File.Create(openFileDialog.FileName))));
             this.ViewModel.FillAll();
 
             //using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
@@ -122,7 +122,9 @@ namespace Kosmograph.Desktop
             if (!(openFileDialog.ShowDialog() ?? false))
                 return;
 
-            this.ViewModel = new KosmographViewModel(new KosmographModel(new KosmographLiteDbPersistence(File.Open(openFileDialog.FileName, FileMode.Open))));
+            this.ViewModel = new KosmographViewModel(new KosmographModel(new KosmographLiteDbPersistence(
+                messageBus: KosmographMessageBus.Default,
+                storageStream: File.Open(openFileDialog.FileName, FileMode.Open))));
             this.ViewModel.FillAll();
         }
     }

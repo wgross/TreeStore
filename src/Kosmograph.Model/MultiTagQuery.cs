@@ -9,12 +9,10 @@ namespace Kosmograph.Model
     {
         private readonly List<TagQuery> tagQueries = new List<TagQuery>();
         private readonly KosmographModel model;
-        private readonly IKosmographMessageBus messageBus;
 
-        public MultiTagQuery(KosmographModel model, IKosmographMessageBus messageBus)
+        public MultiTagQuery(KosmographModel model)
         {
             this.model = model;
-            this.messageBus = messageBus;
         }
 
         public IEnumerable<TagQuery> TagQueries => this.tagQueries;
@@ -35,7 +33,7 @@ namespace Kosmograph.Model
 
         public TagQuery Add(Tag tag)
         {
-            var tagQuery = new TagQuery(this.model, this.messageBus, tag);
+            var tagQuery = new TagQuery(this.model, tag);
             tagQuery.EntityAdded = this.OnEntityAdded;
             tagQuery.EntityRemoved = this.OnEntityRemoved;
             tagQuery.RelationshipAdded = this.OnRelationshipAdded;

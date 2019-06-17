@@ -12,7 +12,7 @@ namespace Kosmograph.Model.Test
         public ModelControllerTest()
         {
             // this.MessageBus = new KosmographMessageBus();
-            this.modelController = new ModelController(this.MessageBus);
+            this.modelController = new ModelController(this.NewModel());
         }
 
         [Fact]
@@ -42,9 +42,22 @@ namespace Kosmograph.Model.Test
                 .Callback<IObserver<ChangedMessage<IRelationship>>>(m => relationshipSubscriber = (ModelController)m)
                 .Returns(Mock.Of<IDisposable>());
 
+            var messageBus = this.Mocks.Create<IKosmographMessageBus>();
+            messageBus
+                .Setup(m => m.Tags)
+                .Returns(tags.Object);
+
+            messageBus
+                .Setup(m => m.Entities)
+                .Returns(entities.Object);
+
+            messageBus
+                .Setup(m => m.Relationships)
+                .Returns(relationships.Object);
+
             // ACT
 
-            var result = new ModelController(tags.Object, entities.Object, relationships.Object);
+            var result = new ModelController(messageBus.Object);
 
             // ASSERT
 
@@ -87,7 +100,20 @@ namespace Kosmograph.Model.Test
                 .Callback<IObserver<ChangedMessage<IRelationship>>>(m => relationshipSubscriber = (ModelController)m)
                 .Returns(make_disposable());
 
-            var controller = new ModelController(tags.Object, entities.Object, relationships.Object);
+            var messageBus = this.Mocks.Create<IKosmographMessageBus>();
+            messageBus
+                .Setup(m => m.Tags)
+                .Returns(tags.Object);
+
+            messageBus
+                .Setup(m => m.Entities)
+                .Returns(entities.Object);
+
+            messageBus
+                .Setup(m => m.Relationships)
+                .Returns(relationships.Object);
+
+            var controller = new ModelController(messageBus.Object);
 
             // ACT
 
