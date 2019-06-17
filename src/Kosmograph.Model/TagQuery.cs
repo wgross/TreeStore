@@ -1,34 +1,30 @@
-﻿using Kosmograph.Messaging;
-using System.Linq;
+﻿using System.Linq;
 
 namespace Kosmograph.Model
 {
     public class TagQuery : TrackingModelController
     {
-        private readonly KosmographModel kosmographModel;
-
         public Tag Tag { get; }
 
-        public TagQuery(KosmographModel kosmographModel, IKosmographMessageBus messageBus, Tag tag)
-            : base(messageBus)
+        public TagQuery(KosmographModel kosmographModel, Tag tag)
+            : base(kosmographModel)
         {
-            this.kosmographModel = kosmographModel;
             this.Tag = tag;
         }
 
         public void StartQuery()
         {
-            this.kosmographModel
+            this.Model
                 .Entities
                 .FindByTag(this.Tag)
                 .ToList()
                 .ForEach(e => this.AddEntity(e));
 
-            this.kosmographModel
-               .Relationships
-               .FindByTag(this.Tag)
-               .ToList()
-               .ForEach(r => this.AddRelationship(r));
+            this.Model
+                .Relationships
+                .FindByTag(this.Tag)
+                .ToList()
+                .ForEach(r => this.AddRelationship(r));
         }
 
         private void AddRelationship(Relationship added) => this.OnRelationshipChanging(added);

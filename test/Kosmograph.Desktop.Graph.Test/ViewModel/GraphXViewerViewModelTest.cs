@@ -17,7 +17,7 @@ namespace Kosmograph.Desktop.Graph.Test.ViewModel
         public GraphXViewerViewModelTest()
         {
             this.graphCallback = this.Mocks.Create<IGraphCallback>();
-            this.viewModel = new GraphXViewerViewModel(new KosmographModel(this.Persistence.Object), this.MessageBus);
+            this.viewModel = new GraphXViewerViewModel(this.NewModel());
             this.viewModel.GraphCallback = this.graphCallback.Object;
         }
 
@@ -57,7 +57,11 @@ namespace Kosmograph.Desktop.Graph.Test.ViewModel
 
             // ACT
 
-            var tmp = new GraphXViewerViewModel(new KosmographModel(this.Persistence.Object), messageBusMock.Object);
+            this.Persistence
+                .Setup(p => p.MessageBus)
+                .Returns(messageBusMock.Object);
+
+            var tmp = new GraphXViewerViewModel(new KosmographModel(this.Persistence.Object));
 
             // ASSERT
             // view model observce changes in the model

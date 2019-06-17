@@ -30,6 +30,12 @@ namespace Kosmograph.Desktop.Graph.Test.ViewModel
             return t;
         }
 
+        protected KosmographModel NewModel()
+        {
+            this.Persistence.Setup(p => p.MessageBus).Returns(this.MessageBus);
+            return new KosmographModel(this.Persistence.Object);
+        }
+
         protected Tag DefaultTag(Action<Tag> setup = null) => Setup(new Tag("t", new Facet("f", new FacetProperty("p"))), setup);
 
         protected Entity DefaultEntity(Action<Entity> setup = null, params Tag[] tags) => Setup(new Entity("e", tags), setup);

@@ -5,17 +5,17 @@ namespace Kosmograph.Model.Test
 {
     public class KosmographModelTest : ModelTestBase
     {
-        private readonly MockRepository mocks;
         private readonly Mock<ICategoryRepository> categoryRepository;
         private readonly Mock<ITagRepository> tagRepository;
         private readonly KosmographModel model;
 
         public KosmographModelTest()
         {
-            this.mocks = new MockRepository(MockBehavior.Strict);
-            this.categoryRepository = this.mocks.Create<ICategoryRepository>();
-            this.tagRepository = this.mocks.Create<ITagRepository>();
+            this.categoryRepository = this.Mocks.Create<ICategoryRepository>();
+            this.tagRepository = this.Mocks.Create<ITagRepository>();
             this.model = this.NewModel();
+            // just touch the message bus to satify the strict mock repo
+            var msgBus = this.model.MessageBus;
         }
 
         [Fact]

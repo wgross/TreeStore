@@ -9,7 +9,7 @@ namespace Kosmograph.Model.Test
 
         public TrackingModelControllerTest()
         {
-            this.modelController = new TrackingModelController(this.MessageBus);
+            this.modelController = new TrackingModelController(this.NewModel());
         }
 
         [Fact]

@@ -1,4 +1,5 @@
-﻿using Kosmograph.Model;
+﻿using Kosmograph.Messaging;
+using Kosmograph.Model;
 using Moq;
 using System;
 
@@ -9,10 +10,16 @@ namespace Kosmograph.Desktop.Test.ViewModel
         protected MockRepository Mocks { get; } = new MockRepository(MockBehavior.Strict);
 
         protected Mock<IRelationshipRepository> RelationshipRepository { get; }
+
         protected Mock<IEntityRepository> EntityRepository { get; }
+
         protected Mock<ITagRepository> TagRepository { get; }
+
         protected Mock<IKosmographPersistence> Persistence { get; }
+
         protected Desktop.ViewModel.KosmographViewModel ViewModel { get; }
+
+        protected IKosmographMessageBus MessageBus { get; } = new KosmographMessageBus();
 
         public KosmographViewModelTestBase()
         {
@@ -29,6 +36,10 @@ namespace Kosmograph.Desktop.Test.ViewModel
             this.Persistence
                 .Setup(p => p.Relationships)
                 .Returns(this.RelationshipRepository.Object);
+            this.Persistence
+                .Setup(p => p.MessageBus)
+                .Returns(this.MessageBus);
+
             this.ViewModel = new Kosmograph.Desktop.ViewModel.KosmographViewModel(new Model.KosmographModel(this.Persistence.Object));
         }
 

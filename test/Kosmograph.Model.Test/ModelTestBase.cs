@@ -16,7 +16,6 @@ namespace Kosmograph.Model.Test
         {
             this.MessageBus = new KosmographMessageBus();
             this.Persistence = this.Mocks.Create<IKosmographPersistence>();
-            
         }
 
         public void Dispose() => this.Mocks.VerifyAll();
@@ -27,7 +26,11 @@ namespace Kosmograph.Model.Test
             return t;
         }
 
-        protected KosmographModel NewModel() => new KosmographModel(this.Persistence.Object);
+        protected KosmographModel NewModel()
+        {
+            this.Persistence.Setup(p => p.MessageBus).Returns(this.MessageBus);
+            return new KosmographModel(this.Persistence.Object);
+        }
 
         protected Tag DefaultTag(Action<Tag> setup = null) => Setup(new Tag("t", new Facet("f", new FacetProperty("p"))), setup);
 
