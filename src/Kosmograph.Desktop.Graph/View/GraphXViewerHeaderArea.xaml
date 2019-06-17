@@ -13,9 +13,18 @@
                 <ResourceDictionary>
                     <DataTemplate 
                         DataType="{x:Type vm:TagQueryViewModel}">
-                        <TextBlock 
+                        <Menu>
+                            <MenuItem Header="{Binding Name}">
+                                <MenuItem 
+                                    Header="Remove from Graph" 
+                                    Command="{Binding Path=DataContext.RemoveTagCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type UserControl}}}" 
+                                    CommandParameter="{Binding}"/>
+                                <MenuItem Header="Edit.."/>
+                            </MenuItem>
+                        </Menu>
+                        <!--<TextBlock 
                             Text="{Binding Name}" 
-                            Margin="3,0,0,3" />
+                            Margin="3,0,0,3" />-->
                     </DataTemplate>
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>

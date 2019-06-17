@@ -4,13 +4,13 @@ namespace Kosmograph.Desktop.Graph.ViewModel
 {
     public class TagQueryViewModel
     {
-        private readonly TagQuery tagQuery;
+        public TagQuery TagQuery { get; }
 
         public TagQueryViewModel(TagQuery tagQuery)
         {
-            this.tagQuery = tagQuery;
+            this.TagQuery = tagQuery;
         }
 
-        public string Name => this.tagQuery.Tag.Name;
+        public string Name => this.TagQuery.Tag.Name;
     }
 }

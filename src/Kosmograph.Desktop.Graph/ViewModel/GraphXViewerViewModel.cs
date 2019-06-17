@@ -1,9 +1,12 @@
 ﻿using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Command;
 using Kosmograph.Messaging;
 using Kosmograph.Model;
 using System;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
+using System.Windows.Input;
 
 namespace Kosmograph.Desktop.Graph.ViewModel
 {
@@ -21,9 +24,7 @@ namespace Kosmograph.Desktop.Graph.ViewModel
         {
             this.model = model;
             this.messageBus = messageBus;
-            //this.entitySubscription = this.messageBus.Entities.Subscribe(this);
-            //this.relationshipSubscription = this.messageBus.Relationships.Subscribe(this);
-            // model conreoller observes changes of model items
+            // model controller observes changes of model items
             this.modelController = new ModelController(this.messageBus);
             this.modelController.EntityChanged = this.OnEntityChanging;
             this.modelController.RelationshipChanged = this.OnRelationshipChanging;
@@ -33,11 +34,21 @@ namespace Kosmograph.Desktop.Graph.ViewModel
             this.multiTagQuery.EntityRemoved = this.OnEntityRemoving;
             this.multiTagQuery.RelationshipAdded = this.OnRelationshipAdding;
             this.multiTagQuery.RelationshipRemoved = this.OnRelationshipRemoving;
+            // provide command for view model change
+            this.RemoveTagCommand = new RelayCommand<TagQueryViewModel>(execute: this.RemoveTagCommandExecuted);
             // update IsEmpty from tag queries
             this.TagQueries.CollectionChanged += this.TagQueries_CollectionChanged;
         }
 
-        private void TagQueries_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e) => this.IsEmpty = !this.TagQueries.Any();
+        private void TagQueries_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                foreach (var tqvm in e.OldItems.OfType<TagQueryViewModel>())
+                    this.multiTagQuery.Remove(tqvm.TagQuery);
+            }
+            this.IsEmpty = !this.TagQueries.Any();
+        }
 
         public bool IsEmpty
         {
@@ -51,17 +62,17 @@ namespace Kosmograph.Desktop.Graph.ViewModel
 
         #region Build graph from tag queries
 
-        public void ShowTag(Tag tag)
-        {
-            //var tagQuery = new TagQuery(this.model, this.messageBus, tag);
-            //tagQuery.EntityAdded = e => this.GetOrAddEntity(e);
-            //tagQuery.RelationshipAdded = this.AddRelationship;
-            //tagQuery.StartQuery();
-
-            this.TagQueries.Add(new TagQueryViewModel(this.multiTagQuery.Add(tag)));
-        }
+        public void ShowTag(Tag tag) => this.TagQueries.Add(new TagQueryViewModel(this.multiTagQuery.Add(tag)));
 
         #endregion Build graph from tag queries
+
+        #region Remove Tag Query from view model
+
+        public ICommand RemoveTagCommand { get; set; }
+
+        private void RemoveTagCommandExecuted(TagQueryViewModel tagQuery) => this.TagQueries.Remove(tagQuery);
+
+        #endregion Remove Tag Query from view model
 
         #region Handle tag multi query changes
 
@@ -83,6 +94,8 @@ namespace Kosmograph.Desktop.Graph.ViewModel
 
         private void OnRelationshipChanging(Relationship obj)
         {
+            this.RemoveRelationship(obj.Id);
+            this.AddRelationship(obj);
         }
 
         #endregion Handle model item changes
@@ -125,10 +138,33 @@ namespace Kosmograph.Desktop.Graph.ViewModel
 
         private void RemoveRelationship(Guid relationshipId)
         {
-            var existing = ExistingEdgeViewModel(e => e.ModelId.Equals(relationshipId));
-            if (existing is null)
+            var existingEdge = ExistingEdgeViewModel(e => e.ModelId.Equals(relationshipId));
+            if (existingEdge is null)
                 return;
-            this.GraphCallback.Remove(existing);
+            this.GraphCallback.Remove(existingEdge);
+
+            // remove edge nodes
+            var nodes = (
+                src: ExistingVertexViewModel(v => v.ModelId.Equals(existingEdge.Source.ModelId)),
+                dst: ExistingVertexViewModel(v => v.ModelId.Equals(existingEdge.Target.ModelId))
+            );
+
+            if (!this.multiTagQuery.ContainsEntity(nodes.src.ModelId))
+                this.GraphCallback.Remove(nodes.src);
+
+            if (!this.multiTagQuery.ContainsEntity(nodes.dst.ModelId))
+                this.GraphCallback.Remove(nodes.dst);
+
+            //// remove source and destination if they are not in the actual query result
+            //if (!this.multiTagQuery.ContainsEntity(existing.Source.ModelId))
+            //    this.GraphCallback.Remove(ExistingVertexViewModel(v => v.ModelId.Equals(existing.Source.ModelId)));
+            //if (!this.multiTagQuery.ContainsEntity(existing.Target.ModelId))
+            //    this.GraphCallback.Remove(ExistingVertexViewModel(v => v.ModelId.Equals(existing.Target.ModelId)));
+
+            //// finally remove the relationship if ist is still there
+            //existing = ExistingEdgeViewModel(e => e.ModelId.Equals(relationshipId));
+            //if (existing is null)
+            //    return;
         }
 
         private EdgeViewModel NewEdgeViewModel(Relationship relationship, VertexViewModel source, VertexViewModel target) => new EdgeViewModel(source, target)

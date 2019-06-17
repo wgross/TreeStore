@@ -50,7 +50,7 @@ namespace Kosmograph.Desktop.Graph.View
             //Lets create logic core and filled data graph with edges and vertices
             var logicCore = new GraphXGraphLogic()
             {
-                Graph = this.SetupGraph()
+                Graph = this.SetupGrapViewModel()
             };
             logicCore.DefaultLayoutAlgorithm = LayoutAlgorithmTypeEnum.KK;
             logicCore.DefaultLayoutAlgorithmParams = logicCore.AlgorithmFactory.CreateLayoutParameters(LayoutAlgorithmTypeEnum.KK);
@@ -70,7 +70,7 @@ namespace Kosmograph.Desktop.Graph.View
             this.graphArea.SetVerticesDrag(true);
         }
 
-        private GraphViewModel SetupGraph()
+        private GraphViewModel SetupGrapViewModel()
         {
             //Lets make new data graph instance
 
@@ -128,9 +128,16 @@ namespace Kosmograph.Desktop.Graph.View
             this.Dispatcher.Invoke(() =>
             {
                 this.graphArea.RemoveVertexAndEdges(vertex);
-                this.graphArea.RelayoutGraph(true);
+                this.RelayoutGraphSafe();
                 this.zoomctrl.ZoomToFill();
             });
+        }
+
+        private void RelayoutGraphSafe()
+        {
+            if (this.ViewModel.GraphViewModel.VertexCount == 1)
+                return; // there seems to be a bug if only one vertex remains.
+            this.graphArea.RelayoutGraph(true);
         }
 
         public void Add(EdgeViewModel edge)
