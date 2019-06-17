@@ -7,37 +7,39 @@ namespace Kosmograph.LiteDb
 {
     public class KosmographLiteDbPersistence : IKosmographPersistence
     {
-        private readonly LiteRepository db;
-        private readonly IKosmographMessageBus messageBus;
+        private LiteRepository db;
 
         public KosmographLiteDbPersistence(IKosmographMessageBus messageBus)
-            : this(new MemoryStream())
+            : this(messageBus, new MemoryStream())
         {
-            this.messageBus = messageBus;
+            this.MessageBus = messageBus;
         }
 
-        public KosmographLiteDbPersistence(Stream storageStream)
-           : this(new LiteRepository(storageStream))
+        public KosmographLiteDbPersistence(IKosmographMessageBus messageBus, Stream storageStream)
+           : this(messageBus, new LiteRepository(storageStream))
         {
         }
 
-        public KosmographLiteDbPersistence(LiteRepository db)
+        private KosmographLiteDbPersistence(IKosmographMessageBus messageBus, LiteRepository db)
         {
             this.db = db;
             this.Categories = new CategoryRepository(db);
         }
 
-        public ITagRepository Tags => new TagRepository(db, messageBus.Tags);
+        public IKosmographMessageBus MessageBus { get; }
+
+        public ITagRepository Tags => new TagRepository(db, MessageBus.Tags);
 
         public ICategoryRepository Categories { get; private set; }
 
-        public IEntityRepository Entities => new EntityRepository(db, this.messageBus.Entities);
+        public IEntityRepository Entities => new EntityRepository(db, this.MessageBus.Entities);
 
-        public IRelationshipRepository Relationships => new RelationshipRepository(db, this.messageBus.Relationships);
+        public IRelationshipRepository Relationships => new RelationshipRepository(db, this.MessageBus.Relationships);
 
         public void Dispose()
         {
-            this.db.Dispose();
+            this.db?.Dispose();
+            this.db = null;
         }
     }
 }

@@ -1,9 +1,12 @@
-﻿using System;
+﻿using Kosmograph.Messaging;
+using System;
 
 namespace Kosmograph.Model
 {
     public interface IKosmographPersistence : IDisposable
     {
+        IKosmographMessageBus MessageBus { get; }
+
         ITagRepository Tags { get; }
 
         ICategoryRepository Categories { get; }

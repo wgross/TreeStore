@@ -16,18 +16,18 @@ namespace Kosmograph.Model.Test
         {
             this.MessageBus = new KosmographMessageBus();
             this.Persistence = this.Mocks.Create<IKosmographPersistence>();
+            
         }
 
-        public void Dispose()
-        {
-            this.Mocks.VerifyAll();
-        }
+        public void Dispose() => this.Mocks.VerifyAll();
 
         protected T Setup<T>(T t, Action<T> setup = null)
         {
             setup?.Invoke(t);
             return t;
         }
+
+        protected KosmographModel NewModel() => new KosmographModel(this.Persistence.Object);
 
         protected Tag DefaultTag(Action<Tag> setup = null) => Setup(new Tag("t", new Facet("f", new FacetProperty("p"))), setup);
 
