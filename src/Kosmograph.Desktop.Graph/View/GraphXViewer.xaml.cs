@@ -2,8 +2,8 @@
 using GraphX.PCL.Common.Enums;
 using GraphX.PCL.Logic.Algorithms.LayoutAlgorithms;
 using Kosmograph.Desktop.Graph.ViewModel;
+using Kosmograph.Model;
 using System;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -22,7 +22,6 @@ namespace Kosmograph.Desktop.Graph.View
             this.InitializeComponent();
             this.CommandBindings.Add(new CommandBinding(GraphXViewerCommands.ClearCommand, this.ClearCommandExecuted));
             ZoomControl.SetViewFinderVisibility(this.zoomctrl, Visibility.Visible);
-
         }
 
         private void ClearCommandExecuted(object sender, ExecutedRoutedEventArgs e)
@@ -51,7 +50,7 @@ namespace Kosmograph.Desktop.Graph.View
             //Lets create logic core and filled data graph with edges and vertices
             var logicCore = new GraphXGraphLogic()
             {
-                Graph = this.SetupGraph()
+                Graph = this.SetupGrapViewModel()
             };
             logicCore.DefaultLayoutAlgorithm = LayoutAlgorithmTypeEnum.KK;
             logicCore.DefaultLayoutAlgorithmParams = logicCore.AlgorithmFactory.CreateLayoutParameters(LayoutAlgorithmTypeEnum.KK);
@@ -71,7 +70,7 @@ namespace Kosmograph.Desktop.Graph.View
             this.graphArea.SetVerticesDrag(true);
         }
 
-        private GraphViewModel SetupGraph()
+        private GraphViewModel SetupGrapViewModel()
         {
             //Lets make new data graph instance
 
@@ -90,17 +89,17 @@ namespace Kosmograph.Desktop.Graph.View
             //    });
             //}
 
-            var vertices = visualModel.Vertices.ToDictionary(v => v.ModelId);
+            //var vertices = visualModel.Vertices.ToDictionary(v => v.ModelId);
 
-            foreach (var edge in this.ViewModel.Relationships)
-            {
-                var visualEdge = new EdgeViewModel(vertices[edge.From.Id], vertices[edge.To.Id])
-                {
-                    ModelId = edge.Id,
-                    Label = edge.Name
-                };
-                visualModel.AddEdge(visualEdge);
-            }
+            //foreach (var edge in this.ViewModel.Relationships)
+            //{
+            //    var visualEdge = new EdgeViewModel(vertices[edge.From.Id], vertices[edge.To.Id])
+            //    {
+            //        ModelId = edge.Id,
+            //        Label = edge.Name
+            //    };
+            //    visualModel.AddEdge(visualEdge);
+            //}
 
             return visualModel;
         }
@@ -129,9 +128,16 @@ namespace Kosmograph.Desktop.Graph.View
             this.Dispatcher.Invoke(() =>
             {
                 this.graphArea.RemoveVertexAndEdges(vertex);
-                this.graphArea.RelayoutGraph(true);
+                this.RelayoutGraphSafe();
                 this.zoomctrl.ZoomToFill();
             });
+        }
+
+        private void RelayoutGraphSafe()
+        {
+            if (this.ViewModel.GraphViewModel.VertexCount == 1)
+                return; // there seems to be a bug if only one vertex remains.
+            this.graphArea.RelayoutGraph(true);
         }
 
         public void Add(EdgeViewModel edge)
@@ -141,7 +147,7 @@ namespace Kosmograph.Desktop.Graph.View
                 var sourceVertex = this.graphArea.VertexList[edge.Source];
                 var targetVertax = this.graphArea.VertexList[edge.Target];
 
-                this.graphArea.AddEdgeAndData(edge, this.graphArea.ControlFactory.CreateEdgeControl(sourceVertex, targetVertax, edge), generateLabel:true);
+                this.graphArea.AddEdgeAndData(edge, this.graphArea.ControlFactory.CreateEdgeControl(sourceVertex, targetVertax, edge), generateLabel: true);
             });
         }
 
@@ -155,8 +161,19 @@ namespace Kosmograph.Desktop.Graph.View
             });
         }
 
-      
-
         #endregion IGraphCallback Members
+
+        #region Drag&Drop
+
+        private void graphXViewer_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(typeof(Tag)))
+            {
+                this.ViewModel.ShowTag((Tag)e.Data.GetData(typeof(Tag)));
+            }
+            e.Handled = true;
+        }
+
+        #endregion Drag&Drop
     }
 }

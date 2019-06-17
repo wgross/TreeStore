@@ -274,5 +274,27 @@ namespace Kosmograph.LiteDb.Test
 
             Assert.False(result);
         }
+
+        [Fact]
+        public void EntityRepositiry_find_entites_by_tag()
+        {
+            // ARRANGE
+            this.eventSource
+              .Setup(s => s.Modified(It.IsAny<Entity>()));
+            
+            var tag1 = this.tagRepository.Upsert(new Tag("t1"));
+            var tag2 = this.tagRepository.Upsert(new Tag("t2"));
+            var entity1 = this.entityRepository.Upsert(new Entity("entity1",tag1));
+            var entity2 = this.entityRepository.Upsert(new Entity("entity2", tag2));
+
+            // ACT
+
+            var result = this.entityRepository.FindByTag(tag1);
+
+            // ASSERT
+
+            Assert.Single(result);
+            Assert.Equal(entity1, result.Single());
+        }
     }
 }

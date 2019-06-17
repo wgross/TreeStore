@@ -6,6 +6,8 @@ namespace Kosmograph.Model
     {
         IEnumerable<Relationship> FindByEntity(Entity entity);
 
+        IEnumerable<Relationship> FindByTag(Tag tag);
+
         void Delete(IEnumerable<Relationship> relationships);
     }
 }

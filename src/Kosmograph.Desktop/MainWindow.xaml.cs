@@ -44,14 +44,14 @@ namespace Kosmograph.Desktop
         private void CreateNewModel()
         {
             var model = new KosmographModel(new KosmographLiteDbPersistence(KosmographMessageBus.Default));
-            var tag1 = model.Tags.Upsert(new Tag("tag1", new Facet("facet", new FacetProperty("p1"))));
-            var tag2 = model.Tags.Upsert(new Tag("tag2", new Facet("facet", new FacetProperty("p2"))));
-            var entity1 = model.Entities.Upsert(new Entity("entity1", tag1));
-            var entity2 = model.Entities.Upsert(new Entity("entity2", tag2));
-            var entity3 = model.Entities.Upsert(new Entity("entity3", tag1));
-            var entity4 = model.Entities.Upsert(new Entity("entity4", tag1));
-            var relationship1 = model.Relationships.Upsert(new Relationship("relationship1", entity1, entity2, tag1));
-            var relationship2 = model.Relationships.Upsert(new Relationship("relationship2", entity2, entity3, tag1));
+            var tag1 = model.Tags.Upsert(new Tag("t1", new Facet("facet", new FacetProperty("p1"))));
+            var tag2 = model.Tags.Upsert(new Tag("t2", new Facet("facet", new FacetProperty("p2"))));
+            var entity1 = model.Entities.Upsert(new Entity("e1", tag1));
+            var entity2 = model.Entities.Upsert(new Entity("e2"));
+            //var entity3 = model.Entities.Upsert(new Entity("entity3"));
+            //var entity4 = model.Entities.Upsert(new Entity("entity4", tag1));
+            var relationship1 = model.Relationships.Upsert(new Relationship("relationship1", entity1, entity2, tag2));
+            // var relationship2 = model.Relationships.Upsert(new Relationship("relationship2", entity2, entity3, tag2));
             var viewModel = new KosmographViewModel(model);
             viewModel.FillAll();
             this.ViewModel = viewModel;

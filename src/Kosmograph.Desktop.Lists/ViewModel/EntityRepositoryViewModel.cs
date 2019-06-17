@@ -9,8 +9,8 @@ namespace Kosmograph.Desktop.Lists.ViewModel
     public class EntityRepositoryViewModel : TaggedRepositoryViewModelBase<EntityViewModel, Entity, IEntity>, IObserver<ChangedMessage<ITag>>
     {
         private readonly IEntityRepository repository;
-        private readonly IChangedMessageBus<ITag> tagChanges;
-        private readonly IDisposable tagSubscriptions;
+        //private readonly IChangedMessageBus<ITag> tagChanges;
+        //private readonly IDisposable tagSubscriptions;
 
         public EntityRepositoryViewModel(IEntityRepository repository, IChangedMessageBus<IEntity> entityChanges, IChangedMessageBus<ITag> tagChanges)
             : base(entityChanges, tagChanges)

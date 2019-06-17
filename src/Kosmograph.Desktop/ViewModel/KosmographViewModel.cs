@@ -19,7 +19,7 @@ namespace Kosmograph.Desktop.ViewModel
             this.Tags = new Lists.ViewModel.TagRepositoryViewModel(this.model.Tags, KosmographMessageBus.Default.Tags);
             this.Entities = new Lists.ViewModel.EntityRepositoryViewModel(this.model.Entities, KosmographMessageBus.Default.Entities, KosmographMessageBus.Default.Tags);
             this.Relationships = new Lists.ViewModel.RelationshipRepositoryViewModel(this.model.Relationships, KosmographMessageBus.Default.Relationships, KosmographMessageBus.Default.Tags);
-            this.Graph = new GraphXViewerViewModel(KosmographMessageBus.Default);
+            this.Graph = new GraphXViewerViewModel(kosmographModel, KosmographMessageBus.Default);
             //this.Entities = new EntityRepositoryViewModel(this.model.Entities, this.Tags.GetViewModel);
             //this.Relationships = new RelationshipRepositoryViewModel(this.model.Relationships, this.Entities.GetViewModel, this.Tags.GetViewModel);
             this.EditTagCommand = new RelayCommand<Lists.ViewModel.TagViewModel>(this.EditTagExecuted);
@@ -38,8 +38,8 @@ namespace Kosmograph.Desktop.ViewModel
             this.Tags.FillAll();
             this.Entities.FillAll();
             this.Relationships.FillAll();
-            this.Graph.Show(this.Entities.Select(e => e.Model));
-            this.Graph.Show(this.Relationships.Select(r => r.Model));
+            //this.Graph.Show(this.Entities.Select(e => e.Model));
+            //this.Graph.Show(this.Relationships.Select(r => r.Model));
         }
 
         public KosmographModel Model => this.model;

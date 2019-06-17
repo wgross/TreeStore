@@ -1,18 +1,27 @@
 ﻿using Kosmograph.Messaging;
 using Moq;
+using System;
 
 namespace Kosmograph.LiteDb.Test
 {
-    public class RepositoryTestBase
+    public class LiteDbTestBase
     {
-        protected readonly MockRepository mocks = new MockRepository(MockBehavior.Strict);
-        private readonly Mock<IKosmographMessageBus> messageBus;
-        protected readonly KosmographLiteDbPersistence persistence;
+        protected MockRepository mocks { get; } = new MockRepository(MockBehavior.Strict);
 
-        public RepositoryTestBase()
+        protected KosmographMessageBus MessageBus { get; }
+
+        protected KosmographLiteDbPersistence Persistence { get; }
+
+        public LiteDbTestBase()
         {
-            this.messageBus = this.mocks.Create<IKosmographMessageBus>();
-            this.persistence = new KosmographLiteDbPersistence(this.messageBus.Object);
+            this.MessageBus = new KosmographMessageBus();
+            this.Persistence = new KosmographLiteDbPersistence(this.MessageBus);
+        }
+
+        protected T Setup<T>(T t, Action<T> setup = null)
+        {
+            setup?.Invoke(t);
+            return t;
         }
     }
 }

@@ -8,7 +8,7 @@ namespace Kosmograph.LiteDb
     {
         public const string CollectionName = "tags";
 
-        private readonly FacetRepository facets;
+        // private readonly FacetRepository facets;
         private readonly IChangedMessageBus<ITag> eventSource;
 
         public TagRepository(LiteRepository repo, IChangedMessageBus<Messaging.ITag> eventSource) : base(repo, CollectionName)
