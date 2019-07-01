@@ -127,5 +127,11 @@ namespace Kosmograph.Desktop
                 storageStream: File.Open(openFileDialog.FileName, FileMode.Open))));
             this.ViewModel.FillAll();
         }
+
+        private void MainWindow_EditTag(object sender, RoutedEventArgs e)
+        {
+            //this.ViewModel.EditTagCommand.Execute()
+            return;
+        }
     }
 }

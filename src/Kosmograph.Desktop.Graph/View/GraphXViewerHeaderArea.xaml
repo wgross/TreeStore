@@ -19,7 +19,10 @@
                                     Header="Remove from Graph" 
                                     Command="{Binding Path=DataContext.RemoveTagCommand, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type UserControl}}}" 
                                     CommandParameter="{Binding}"/>
-                                <MenuItem Header="Edit.."/>
+                                <MenuItem 
+                                    Header="Edit"
+                                    Command="local:GraphXViewerCommands.EditTagCommand"
+                                    CommandParameter="{Binding}"/>
                             </MenuItem>
                         </Menu>
                         <!--<TextBlock 

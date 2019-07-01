@@ -1,17 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Kosmograph.Desktop.Graph.View
 {
@@ -22,7 +12,33 @@ namespace Kosmograph.Desktop.Graph.View
     {
         public GraphXViewerHeaderArea()
         {
-            InitializeComponent();
+            this.InitializeComponent();
+            this.CommandBindings.Add(new CommandBinding(GraphXViewerCommands.EditTagCommand, this.EditTagCommandExecuted));
         }
+
+        private void EditTagCommandExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            this.RaiseEditTagEvent();
+        }
+
+        #region Request editing of a Tag
+
+        public static readonly RoutedEvent EditTagEvent = EventManager.RegisterRoutedEvent(nameof(EditTag), RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(GraphXViewer));
+
+        public event RoutedEventHandler EditTag
+        {
+            add
+            {
+                this.AddHandler(EditTagEvent, value);
+            }
+            remove
+            {
+                this.RemoveHandler(EditTagEvent, value);
+            }
+        }
+
+        private void RaiseEditTagEvent() => this.RaiseEvent(new RoutedEventArgs(EditTagEvent));
+
+        #endregion Request editing of a Tag
     }
 }
