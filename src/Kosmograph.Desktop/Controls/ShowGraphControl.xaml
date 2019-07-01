@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:Kosmograph.Desktop.Controls"
              xmlns:kdgv="clr-namespace:Kosmograph.Desktop.Graph.View;assembly=Kosmograph.Desktop.Graph"
              kdgv:GraphXViewer.EditEntity="graphViewer_EditEntity"
+             kdgv:GraphXViewer.EditRelationship="graphViewer_EditRelationship"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <DockPanel

@@ -96,6 +96,7 @@
     <Compile Include="ViewModel\IdentityMap.cs" />
     <Compile Include="ViewModel\IGraphCallback.cs" />
     <Compile Include="ViewModel\TagQueryViewModel.cs" />
+    <Compile Include="View\EditRelationshipByIdRoutedEventArgs.cs" />
     <Compile Include="View\EditEntityByIdRoutedEventArgs.cs" />
     <Compile Include="View\Extensions.cs" />
     <Compile Include="View\GraphXViewer.xaml.cs">

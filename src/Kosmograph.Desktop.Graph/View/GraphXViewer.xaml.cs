@@ -126,9 +126,17 @@ namespace Kosmograph.Desktop.Graph.View
             {
                 var sourceVertex = this.graphArea.VertexList[edge.Source];
                 var targetVertax = this.graphArea.VertexList[edge.Target];
+                var edgeControl = this.graphArea.ControlFactory.CreateEdgeControl(sourceVertex, targetVertax, edge);
+                edgeControl.EventOptions.MouseClickEnabled = true;
+                edgeControl.MouseDoubleClick += this.EdgeControl_MouseDoubleClick;
 
                 this.graphArea.AddEdgeAndData(edge, this.graphArea.ControlFactory.CreateEdgeControl(sourceVertex, targetVertax, edge), generateLabel: true);
             });
+        }
+
+        private void EdgeControl_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            this.RaiseEditRelationshipEvent(sender.AsType<EdgeControl>()?.Edge.AsType<EdgeViewModel>()?.ModelId);
         }
 
         public void Remove(EdgeViewModel edge)
@@ -179,5 +187,29 @@ namespace Kosmograph.Desktop.Graph.View
         }
 
         #endregion Request editing of an entity
+
+        #region Request editing of a relationship
+
+        public static readonly RoutedEvent EditRelationshipEvent = EventManager.RegisterRoutedEvent(nameof(EditRelationship), RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(GraphXViewer));
+
+        public event RoutedEventHandler EditRelationship
+        {
+            add
+            {
+                this.AddHandler(EditRelationshipEvent, value);
+            }
+            remove
+            {
+                this.RemoveHandler(EditRelationshipEvent, value);
+            }
+        }
+
+        private void RaiseEditRelationshipEvent(Guid? relationshipId)
+        {
+            if (relationshipId != null)
+                this.RaiseEvent(new EditRelationshipByIdRoutedEventArgs(EditRelationshipEvent, relationshipId.Value));
+        }
+
+        #endregion Request editing of a relationship
     }
 }

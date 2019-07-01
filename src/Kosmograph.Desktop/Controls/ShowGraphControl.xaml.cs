@@ -21,5 +21,10 @@ namespace Kosmograph.Desktop.Controls
         {
             this.ViewModel.EditEntityByIdCommand.Execute(((EditEntityByIdRoutedEventArgs)e).EntityId);
         }
+
+        private void graphViewer_EditRelationship(object sender, RoutedEventArgs e)
+        {
+            this.ViewModel.EditEntityByIdCommand.Execute(((EditEntityByIdRoutedEventArgs)e).EntityId);
+        }
     }
 }
