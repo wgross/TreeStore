@@ -22,15 +22,9 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
-    <DockPanel LastChildFill="True">
-        <local:GraphXViewerHeaderArea DockPanel.Dock="Top"/>
-        <!--
-        Popup solution for overlapping expander
-        https://stackoverflow.com/questions/42513749/can-you-have-an-expander-do-an-overlay-overtop-of-other-visual-tree-elements-in
-        -->
+    <Grid>
         <controls:ZoomControl x:Name="zoomctrl">
             <local:GraphXViewerGraphArea x:Name="graphArea" />
         </controls:ZoomControl>
-    </DockPanel>
-    
+    </Grid>
 </UserControl>

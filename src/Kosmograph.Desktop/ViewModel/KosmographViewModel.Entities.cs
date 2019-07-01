@@ -1,4 +1,5 @@
 ﻿using Kosmograph.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
@@ -56,6 +57,8 @@ namespace Kosmograph.Desktop.ViewModel
         //    }
         //}
 
+        public ICommand EditEntityByIdCommand { get; }
+
         public ICommand EditEntityCommand { get; }
 
         private Editors.ViewModel.EntityEditModel editedEntity;
@@ -64,6 +67,11 @@ namespace Kosmograph.Desktop.ViewModel
         {
             get => this.editedEntity;
             set => this.Set(nameof(EditedEntity), ref this.editedEntity, value);
+        }
+
+        private void EditEntityByIdExecuted(Guid obj)
+        {
+            return;
         }
 
         private void EditEntityExecuted(Lists.ViewModel.EntityViewModel entity) => this.EditedEntity = new Editors.ViewModel.EntityEditModel(entity.Model, this.EditEntityCommitted, this.EditEntityRollback);

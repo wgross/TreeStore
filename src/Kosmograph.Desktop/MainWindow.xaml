@@ -5,8 +5,6 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:kdev="clr-namespace:Kosmograph.Desktop.Editors.View;assembly=Kosmograph.Desktop.Editor"
         xmlns:kdc="clr-namespace:Kosmograph.Desktop.Controls"
-        xmlns:kdgv="clr-namespace:Kosmograph.Desktop.Graph.View;assembly=Kosmograph.Desktop.Graph"
-        
         mc:Ignorable="d"
         Title="Kosmograph" Height="900" Width="900">
     <!--kdgv:GraphXViewer.EditTag="MainWindow_EditTag"-->
@@ -41,9 +39,13 @@
             <!--
             Graph Viewer in the upper area
             -->
-            <kdgv:GraphXViewer Grid.Column="0" Grid.Row="0"  Grid.ColumnSpan="3"
+            <kdc:ShowGraphControl 
+                Grid.Column="0" 
+                Grid.Row="0"  
+                Grid.ColumnSpan="3"/>
+            <!--<kdgv:GraphXViewer 
                 DataContext="{Binding Graph}"
-                Margin="0,0,0,5"/>
+                Margin="0,0,0,5"/>-->
             <!--
             Splitter between graph and tags/entities/relationships
             -->
