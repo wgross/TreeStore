@@ -73,27 +73,6 @@ namespace Kosmograph.Desktop
             }
         }
 
-        //private void Value_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        //{
-        //    if (e.PropertyName.Equals(nameof(KosmographViewModel.DeletingEntity)))
-        //    {
-        //        if (this.ViewModel.DeletingEntity is null)
-        //        {
-        //            this.DeleteEntityWithRelationshipsDialog?.Close();
-        //            this.DeleteEntityWithRelationshipsDialog = null;
-        //        }
-        //        else
-        //        {
-        //            this.DeleteEntityWithRelationshipsDialog = new DeleteEntityWithRelationshipsDialog
-        //            {
-        //                DataContext = this.ViewModel.DeletingEntity,
-        //                Owner = this
-        //            };
-        //            this.DeleteEntityWithRelationshipsDialog.ShowDialog();
-        //        }
-        //    }
-        //}
-
         private void NewGraph_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             var openFileDialog = new OpenFileDialog();

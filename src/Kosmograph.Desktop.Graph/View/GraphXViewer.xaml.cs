@@ -72,36 +72,8 @@ namespace Kosmograph.Desktop.Graph.View
 
         private GraphViewModel SetupGrapViewModel()
         {
-            //Lets make new data graph instance
-
             this.ViewModel.GraphCallback = this;
-            var visualModel = this.ViewModel.GraphViewModel;
-
-            //Now we need to create edges and vertices to fill data graph
-            //This edges and vertices will represent graph structure and connections
-            //Lets make some vertices
-            //foreach (var entity in this.ViewModel.Entities)
-            //{
-            //    this.ViewModel.GraphViewModel.AddVertex(new VertexViewModel()
-            //    {
-            //        ModelId = entity.Id,
-            //        Label = entity.Name
-            //    });
-            //}
-
-            //var vertices = visualModel.Vertices.ToDictionary(v => v.ModelId);
-
-            //foreach (var edge in this.ViewModel.Relationships)
-            //{
-            //    var visualEdge = new EdgeViewModel(vertices[edge.From.Id], vertices[edge.To.Id])
-            //    {
-            //        ModelId = edge.Id,
-            //        Label = edge.Name
-            //    };
-            //    visualModel.AddEdge(visualEdge);
-            //}
-
-            return visualModel;
+            return this.ViewModel.GraphViewModel;
         }
 
         #endregion Setup graph from view model
@@ -117,10 +89,18 @@ namespace Kosmograph.Desktop.Graph.View
         {
             this.Dispatcher.Invoke(() =>
             {
-                this.graphArea.AddVertexAndData(vertexData, this.graphArea.ControlFactory.CreateVertexControl(vertexData));
+                var vertexControl = this.graphArea.ControlFactory.CreateVertexControl(vertexData);
+                vertexControl.EventOptions.MouseDoubleClickEnabled = true;
+                vertexControl.MouseDoubleClick += this.VertexControl_MouseDoubleClick;
+                this.graphArea.AddVertexAndData(vertexData, vertexControl);
                 this.graphArea.RelayoutGraph(true);
                 this.zoomctrl.ZoomToFill();
             });
+        }
+
+        private void VertexControl_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            this.RaiseEditEntityEvent(sender.AsType<VertexControl>()?.Vertex.AsType<VertexViewModel>()?.ModelId);
         }
 
         public void Remove(VertexViewModel vertex)
@@ -175,5 +155,29 @@ namespace Kosmograph.Desktop.Graph.View
         }
 
         #endregion Drag&Drop
+
+        #region Request editing of an entity
+
+        public static readonly RoutedEvent EditEntityEvent = EventManager.RegisterRoutedEvent(nameof(EditEntity), RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(GraphXViewer));
+
+        public event RoutedEventHandler EditEntity
+        {
+            add
+            {
+                this.AddHandler(EditEntityEvent, value);
+            }
+            remove
+            {
+                this.RemoveHandler(EditEntityEvent, value);
+            }
+        }
+
+        private void RaiseEditEntityEvent(Guid? entityId)
+        {
+            if (entityId != null)
+                this.RaiseEvent(new EditEntityByIdRoutedEventArgs(EditEntityEvent, entityId.Value));
+        }
+
+        #endregion Request editing of an entity
     }
 }
