@@ -16,18 +16,22 @@ namespace Kosmograph.Desktop.Test.ViewModel
         {
             // ARRANGE
 
-            var relationshipViewModel = DefaultRelationhipViewModel();
+            var relationship = DefaultRelationship();
+
+            this.RelationshipRepository
+                .Setup(r => r.FindById(relationship.Id))
+                .Returns(relationship);
 
             // ACT
             // start editing of relationship
 
-            this.ViewModel.EditRelationshipCommand.Execute(relationshipViewModel);
+            this.ViewModel.EditRelationshipByIdCommand.Execute(relationship.Id);
 
             // ASSERT
             // editor weas created
 
             Assert.NotNull(this.ViewModel.EditedRelationship);
-            Assert.Equal(relationshipViewModel.Model, this.ViewModel.EditedRelationship.Model);
+            Assert.Equal(relationship, this.ViewModel.EditedRelationship.Model);
         }
 
         [Fact]
@@ -36,11 +40,17 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // ARRANGE
             // edit a relationship
 
-            var relationshipViewModel = DefaultRelationhipViewModel();
-            this.ViewModel.EditRelationshipCommand.Execute(relationshipViewModel);
+            var relationship = DefaultRelationship();
+
             this.RelationshipRepository
-                .Setup(r => r.Upsert(relationshipViewModel.Model))
-                .Returns(relationshipViewModel.Model);
+                .Setup(r => r.FindById(relationship.Id))
+                .Returns(relationship);
+
+            this.ViewModel.EditRelationshipByIdCommand.Execute(relationship.Id);
+
+            this.RelationshipRepository
+                .Setup(r => r.Upsert(relationship))
+                .Returns(relationship);
 
             // ACT
             // committing the relationship upserts the relationship to the db
@@ -59,8 +69,13 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // ARRANGE
             // edit a relationship
 
-            var relationshipViewModel = DefaultRelationhipViewModel();
-            this.ViewModel.EditRelationshipCommand.Execute(relationshipViewModel);
+            var relationship = DefaultRelationship();
+
+            this.RelationshipRepository
+                .Setup(r => r.FindById(relationship.Id))
+                .Returns(relationship);
+
+            this.ViewModel.EditRelationshipByIdCommand.Execute(relationship.Id);
 
             // ACT
             // rollback the relationship
@@ -94,6 +109,7 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // edit a relationship
 
             this.ViewModel.CreateRelationshipCommand.Execute(null);
+
             this.RelationshipRepository
                 .Setup(r => r.Upsert(It.IsAny<Relationship>()))
                 .Returns<Relationship>(r => r);
@@ -130,18 +146,23 @@ namespace Kosmograph.Desktop.Test.ViewModel
         }
 
         [Fact]
-        public void KosmographVIewModel_deletes_relationship_at_model()
+        public void KosmographViewModel_deletes_relationship_at_model()
         {
             // ARRANGE
 
             var relationship = DefaultRelationship();
+
+            this.RelationshipRepository
+               .Setup(r => r.FindById(relationship.Id))
+               .Returns(relationship);
+
             this.RelationshipRepository
                 .Setup(r => r.Delete(relationship))
                 .Returns(true);
 
             // ACT
 
-            this.ViewModel.DeleteRelationshipCommand.Execute(new RelationshipViewModel(relationship));
+            this.ViewModel.DeleteRelationshipByIdCommand.Execute(relationship.Id);
         }
     }
 }

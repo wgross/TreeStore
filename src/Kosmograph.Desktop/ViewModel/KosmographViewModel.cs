@@ -21,13 +21,13 @@ namespace Kosmograph.Desktop.ViewModel
             this.Graph = new GraphXViewerViewModel(kosmographModel);
             this.EditTagByIdCommand = new RelayCommand<Guid>(this.EditTagByIdExecuted);
             this.EditEntityByIdCommand = new RelayCommand<Guid>(this.EditEntityByIdExecuted);
-            this.EditRelationshipCommand = new RelayCommand<Lists.ViewModel.RelationshipViewModel>(this.EditRelationshipExecuted);
+            this.EditRelationshipByIdCommand = new RelayCommand<Guid>(this.EditRelationshipByIdExecuted);
             this.CreateTagCommand = new RelayCommand(this.CreateTagExecuted);
             this.CreateEntityCommand = new RelayCommand(this.CreateEntityExecuted);
             this.CreateRelationshipCommand = new RelayCommand(this.CreateRelationshipExecuted);
             this.DeleteTagByIdCommand = new RelayCommand<Guid>(this.DeleteTagByIdExecuted);
             this.DeleteEntityByIdCommand = new RelayCommand<Guid>(this.DeleteEntityByIdExecuted);
-            this.DeleteRelationshipCommand = new RelayCommand<RelationshipViewModel>(this.DeleteRelationshipExecuted);
+            this.DeleteRelationshipByIdCommand = new RelayCommand<Guid>(this.DeleteRelationshipByIdExecuted);
         }
 
         public void FillAll()
