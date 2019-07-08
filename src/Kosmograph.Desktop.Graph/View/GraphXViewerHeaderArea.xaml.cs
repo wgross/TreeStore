@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Kosmograph.Desktop.Graph.ViewModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -40,5 +40,16 @@ namespace Kosmograph.Desktop.Graph.View
         private void RaiseEditTagEvent() => this.RaiseEvent(new RoutedEventArgs(EditTagEvent));
 
         #endregion Request editing of a Tag
+
+        private void EditTag_Clicked(object sender, RoutedEventArgs e)
+        {
+            e.Handled = true;
+
+            var tag = sender.AsType<FrameworkElement>()?.DataContext.AsType<TagQueryViewModel>()?.TagQuery.Tag;
+            if (tag is null)
+                return;
+
+            // this.RaiseEditTagEvent(tag);
+        }
     }
 }

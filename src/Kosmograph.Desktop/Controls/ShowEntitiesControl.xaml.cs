@@ -1,8 +1,6 @@
 ﻿using Kosmograph.Desktop.ViewModel;
-using Kosmograph.Model;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 
 namespace Kosmograph.Desktop.Controls
 {
@@ -32,12 +30,12 @@ namespace Kosmograph.Desktop.Controls
         //}
 
         private void entityRepositoryView_EditEntity(object sender, RoutedEventArgs e)
-            => this.ViewModel.EditEntityCommand.Execute(this.entityRepositoryView.SelectedItem);
+            => this.ViewModel.EditEntityByIdCommand.Execute(this.entityRepositoryView.SelectedItem.Model.Id);
 
         private void entityRepositoryView_CreateEntity(object sender, RoutedEventArgs e)
             => this.ViewModel.CreateEntityCommand.Execute(null);
 
         private void entitRepositoryView_DeleteEntity(object sender, RoutedEventArgs e)
-            => this.ViewModel.DeleteEntityCommand.Execute(this.entityRepositoryView.SelectedItem);
+            => this.ViewModel.DeleteEntityByIdCommand.Execute(this.entityRepositoryView.SelectedItem.Model.Id);
     }
 }

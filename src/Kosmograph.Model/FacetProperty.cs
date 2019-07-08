@@ -36,7 +36,6 @@ namespace Kosmograph.Model
                 default:
                     return true;
             }
-            return false;
         }
 
         #endregion Construction and initialization of this instance
