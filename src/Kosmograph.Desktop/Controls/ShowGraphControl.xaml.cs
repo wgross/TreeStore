@@ -10,10 +10,7 @@ namespace Kosmograph.Desktop.Controls
     /// </summary>
     public partial class ShowGraphControl : UserControl
     {
-        public ShowGraphControl()
-        {
-            InitializeComponent();
-        }
+        public ShowGraphControl() => InitializeComponent();
 
         private KosmographViewModel ViewModel => this.DataContext as KosmographViewModel;
 
@@ -25,6 +22,11 @@ namespace Kosmograph.Desktop.Controls
         private void graphViewer_EditRelationship(object sender, RoutedEventArgs e)
         {
             this.ViewModel.EditEntityByIdCommand.Execute(((EditEntityByIdRoutedEventArgs)e).EntityId);
+        }
+
+        private void graphViewer_EditTag(object sender, RoutedEventArgs e)
+        {
+            this.ViewModel.EditTagByIdCommand.Execute(((EditTagByIdRoutedEventArgs)e).TagId);
         }
     }
 }
