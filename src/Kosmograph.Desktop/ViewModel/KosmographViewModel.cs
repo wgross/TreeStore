@@ -19,13 +19,13 @@ namespace Kosmograph.Desktop.ViewModel
             this.Entities = new Lists.ViewModel.EntityRepositoryViewModel(this.model.Entities, KosmographMessageBus.Default.Entities, KosmographMessageBus.Default.Tags);
             this.Relationships = new Lists.ViewModel.RelationshipRepositoryViewModel(this.model.Relationships, KosmographMessageBus.Default.Relationships, KosmographMessageBus.Default.Tags);
             this.Graph = new GraphXViewerViewModel(kosmographModel);
-            this.EditTagCommand = new RelayCommand<Lists.ViewModel.TagViewModel>(this.EditTagExecuted);
+            this.EditTagByIdCommand = new RelayCommand<Guid>(this.EditTagByIdExecuted);
             this.EditEntityByIdCommand = new RelayCommand<Guid>(this.EditEntityByIdExecuted);
             this.EditRelationshipCommand = new RelayCommand<Lists.ViewModel.RelationshipViewModel>(this.EditRelationshipExecuted);
             this.CreateTagCommand = new RelayCommand(this.CreateTagExecuted);
             this.CreateEntityCommand = new RelayCommand(this.CreateEntityExecuted);
             this.CreateRelationshipCommand = new RelayCommand(this.CreateRelationshipExecuted);
-            this.DeleteTagCommand = new RelayCommand<TagViewModel>(this.DeleteTagExecuted);
+            this.DeleteTagByIdCommand = new RelayCommand<Guid>(this.DeleteTagByIdExecuted);
             this.DeleteEntityByIdCommand = new RelayCommand<Guid>(this.DeleteEntityByIdExecuted);
             this.DeleteRelationshipCommand = new RelayCommand<RelationshipViewModel>(this.DeleteRelationshipExecuted);
         }

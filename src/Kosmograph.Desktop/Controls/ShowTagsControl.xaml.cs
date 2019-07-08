@@ -14,12 +14,12 @@ namespace Kosmograph.Desktop.Controls
         private KosmographViewModel ViewModel => this.DataContext as KosmographViewModel;
 
         private void tagRepositoryView_EditTag(object sender, RoutedEventArgs e)
-            => this.ViewModel.EditTagCommand.Execute(this.tagRepositoryView.SelectedItem);
+            => this.ViewModel.EditTagByIdCommand.Execute(this.tagRepositoryView.SelectedItem.Model.Id);
 
         private void tagRepositoryView_CreateTag(object sender, RoutedEventArgs e)
             => this.ViewModel.CreateTagCommand.Execute(null);
 
         private void tagRepositoryView_DeleteTag(object sender, RoutedEventArgs e)
-            => this.ViewModel.DeleteTagCommand.Execute(this.tagRepositoryView.SelectedItem);
+            => this.ViewModel.DeleteTagByIdCommand.Execute(this.tagRepositoryView.SelectedItem.Model.Id);
     }
 }
