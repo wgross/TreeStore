@@ -1,4 +1,5 @@
 ﻿using Kosmograph.Model.Base;
+using System;
 
 namespace Kosmograph.Model
 {
@@ -31,10 +32,19 @@ namespace Kosmograph.Model
             {
                 case FacetPropertyTypeValues.Integer:
                     return long.TryParse(v, out var _);
+                case FacetPropertyTypeValues.Double:
+                    return double.TryParse(v, out var _);
+                case FacetPropertyTypeValues.Decimal:
+                    return decimal.TryParse(v, out var _);
+                case FacetPropertyTypeValues.Guid:
+                    return Guid.TryParse(v, out var _);
+                case FacetPropertyTypeValues.DateTime:
+                    return DateTime.TryParse(v, out var _);
                 // string values are always possible
                 case FacetPropertyTypeValues.String:
-                default:
                     return true;
+                default:
+                    return false;
             }
         }
 
