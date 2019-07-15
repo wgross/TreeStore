@@ -11,11 +11,11 @@ namespace Kosmograph.Model.Test
         }
 
         [Fact]
-        public void FacetProperty_int_rejects_incompatible_value()
+        public void FacetProperty_long_rejects_incompatible_value()
         {
             // ARRANGE
 
-            var entity = DefaultEntity(e => e.Tags.Single().Facet.Properties.Single().Type = FacetPropertyTypeValues.Integer);
+            var entity = DefaultEntity(e => e.Tags.Single().Facet.Properties.Single().Type = FacetPropertyTypeValues.Long);
 
             // ACT
 
@@ -27,15 +27,47 @@ namespace Kosmograph.Model.Test
         }
 
         [Fact]
-        public void FacetProperty_int_accepts_compatible_value()
+        public void FacetProperty_long_accepts_compatible_value()
         {
             // ARRANGE
 
-            var entity = DefaultEntity(e => e.Tags.Single().Facet.Properties.Single().Type = FacetPropertyTypeValues.Integer);
+            var entity = DefaultEntity(e => e.Tags.Single().Facet.Properties.Single().Type = FacetPropertyTypeValues.Long);
 
             // ACT
 
             var result = entity.Tags.Single().Facet.Properties.Single().CanAssignValue("1");
+
+            // ASSERT
+
+            Assert.True(result);
+        }
+
+        [Fact]
+        public void FacetProperty_bool_rejects_incompatible_value()
+        {
+            // ARRANGE
+
+            var entity = DefaultEntity(e => e.Tags.Single().Facet.Properties.Single().Type = FacetPropertyTypeValues.Bool);
+
+            // ACT
+
+            var result = entity.Tags.Single().Facet.Properties.Single().CanAssignValue("text");
+
+            // ASSERT
+
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void FacetProperty_bool_accepts_compatible_value()
+        {
+            // ARRANGE
+
+            var entity = DefaultEntity(e => e.Tags.Single().Facet.Properties.Single().Type = FacetPropertyTypeValues.Bool);
+
+            // ACT
+
+            var result = entity.Tags.Single().Facet.Properties.Single().CanAssignValue(true.ToString());
 
             // ASSERT
 

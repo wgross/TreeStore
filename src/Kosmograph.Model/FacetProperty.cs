@@ -30,7 +30,7 @@ namespace Kosmograph.Model
         {
             switch (this.Type)
             {
-                case FacetPropertyTypeValues.Integer:
+                case FacetPropertyTypeValues.Long:
                     return long.TryParse(v, out var _);
                 case FacetPropertyTypeValues.Double:
                     return double.TryParse(v, out var _);
@@ -40,6 +40,8 @@ namespace Kosmograph.Model
                     return Guid.TryParse(v, out var _);
                 case FacetPropertyTypeValues.DateTime:
                     return DateTime.TryParse(v, out var _);
+                case FacetPropertyTypeValues.Bool:
+                    return bool.TryParse(v, out var _);
                 // string values are always possible
                 case FacetPropertyTypeValues.String:
                     return true;
