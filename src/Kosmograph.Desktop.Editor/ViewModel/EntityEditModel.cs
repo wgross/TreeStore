@@ -2,6 +2,7 @@
 using Kosmograph.Desktop.Editors.ViewModel.Base;
 using Kosmograph.Model;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
 
@@ -69,7 +70,9 @@ namespace Kosmograph.Desktop.Editors.ViewModel
             this.MessengerInstance.Send(new EditModelCommitted(model: this.Model));
         }
 
-        protected override bool CanCommit() => !this.HasErrors;
+        protected override bool CanCommit() => !this.HasErrors && this.AllProperties.Aggregate(true, (ok, p) => !p.HasErrors && ok);
+
+        private IEnumerable<AssignedFacetPropertyEditModel> AllProperties => this.Tags.SelectMany(t => t.Properties);
 
         private void CommitRemovedTag(AssignedTagEditModel tag)
         {

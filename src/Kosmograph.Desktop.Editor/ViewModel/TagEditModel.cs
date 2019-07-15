@@ -15,9 +15,7 @@ namespace Kosmograph.Desktop.Editors.ViewModel
         {
             this.editCallback = editCallback;
 
-            this.Properties =
-                new CommitableObservableCollection<FacetPropertyEditModel>(edited.Facet.Properties.Select(p => new FacetPropertyEditModel(this, p)));
-
+            this.Properties = new CommitableObservableCollection<FacetPropertyEditModel>(edited.Facet.Properties.Select(CreateFacetPropertyEditModel));
             this.CreatePropertyCommand = new RelayCommand(this.CreatePropertyExecuted);
             this.RemovePropertyCommand = new RelayCommand<FacetPropertyEditModel>(this.RemovePropertyExecuted);
         }
@@ -25,6 +23,19 @@ namespace Kosmograph.Desktop.Editors.ViewModel
         #region Facet has observable collection of facet properties
 
         public CommitableObservableCollection<FacetPropertyEditModel> Properties { get; private set; }
+
+        private FacetPropertyEditModel CreateFacetPropertyEditModel(FacetProperty property)
+        {
+            var tmp = new FacetPropertyEditModel(this, property);
+            tmp.PropertyChanged += this.FacetPropertyEditModel_PropertyChanged;
+            return tmp;
+        }
+
+        private void FacetPropertyEditModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName.Equals(nameof(FacetPropertyEditModel.HasErrors)))
+                this.CommitCommand.RaiseCanExecuteChanged();
+        }
 
         #endregion Facet has observable collection of facet properties
 

@@ -18,14 +18,10 @@ namespace Kosmograph.Desktop.Editors.ViewModel
 
         public CommitableObservableCollection<AssignedFacetPropertyEditModel> Properties { get; }
 
-        protected override void Commit()
-        {
-            this.Properties.ForEach(p => p.CommitCommand.Execute(null));
-        }
+        protected override bool CanCommit() => this.Properties.Aggregate(true, (ok, p) => !p.HasErrors && ok);
 
-        protected override void Rollback()
-        {
-            this.Properties.ForEach(p => p.RollbackCommand.Execute(null));
-        }
+        protected override void Commit() => this.Properties.ForEach(p => p.CommitCommand.Execute(null));
+
+        protected override void Rollback() => this.Properties.ForEach(p => p.RollbackCommand.Execute(null));
     }
 }

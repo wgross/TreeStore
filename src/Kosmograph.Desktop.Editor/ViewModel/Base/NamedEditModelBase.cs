@@ -48,7 +48,13 @@ namespace Kosmograph.Desktop.Editors.ViewModel.Base
 
         protected abstract void Validate();
 
-        public bool HasErrors { get; protected set; }
+        public bool HasErrors
+        {
+            get => this.hasErrors;
+            protected set => this.Set(nameof(HasErrors), ref this.hasErrors, value);
+        }
+
+        private bool hasErrors;
 
         #endregion Validate data and indicate error
     }

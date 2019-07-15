@@ -165,7 +165,6 @@
     <Compile Include="ViewModel\Base\EditNamedViewModelBase.cs" />
     <Compile Include="ViewModel\Base\NamedEditModelBase.cs" />
     <Compile Include="ViewModel\DeleteEntityWithRelationshipsEditModel.cs" />
-    <Compile Include="ViewModel\EditFacetViewModel.cs" />
     <Compile Include="ViewModel\EditModelCommitted.cs" />
     <Compile Include="ViewModel\EntityEditModel.cs" />
     <Compile Include="ViewModel\FacetPropertyEditModel.cs" />
