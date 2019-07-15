@@ -7,15 +7,9 @@ namespace Kosmograph.Desktop.Editors.View
     {
         public static readonly DependencyProperty ErrorTextProperty;
 
-        static EditItemNameControl()
-        {
-            ErrorTextProperty = DependencyProperty.Register(nameof(ErrorText), typeof(string), typeof(EditorHeaderControl));
-        }
+        static EditItemNameControl() => ErrorTextProperty = DependencyProperty.Register(nameof(ErrorText), typeof(string), typeof(EditorHeaderControl));
 
-        public EditItemNameControl()
-        {
-            this.InitializeComponent();
-        }
+        public EditItemNameControl() => this.InitializeComponent();
 
         public string ErrorText
         {

@@ -42,6 +42,7 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
 
             Assert.Equal("p", result.Name);
             Assert.Equal(FacetPropertyTypeValues.String, result.Type);
+            Assert.Equal(Enum.GetValues(typeof(FacetPropertyTypeValues)), result.Types.ToArray());
         }
 
         [Fact]

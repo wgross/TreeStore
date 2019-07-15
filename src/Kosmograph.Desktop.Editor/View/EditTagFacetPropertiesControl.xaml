@@ -16,7 +16,8 @@
                 <Setter Property="ItemTemplate">
                     <Setter.Value>
                         <DataTemplate DataType="{x:Type kem:FacetPropertyEditModel}">
-                            <local:EditItemNameControl/>
+                            <!--<local:EditItemNameControl/>-->
+                            <local:EditTagFacetPropertyControl/>
                         </DataTemplate>
                     </Setter.Value>
                 </Setter>

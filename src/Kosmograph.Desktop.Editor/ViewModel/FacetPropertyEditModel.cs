@@ -1,5 +1,7 @@
 ﻿using Kosmograph.Desktop.Editors.ViewModel.Base;
 using Kosmograph.Model;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Kosmograph.Desktop.Editors.ViewModel
@@ -23,6 +25,8 @@ namespace Kosmograph.Desktop.Editors.ViewModel
                     this.Validate();
             }
         }
+
+        public IEnumerable<FacetPropertyTypeValues> Types => Enum.GetValues(typeof(FacetPropertyTypeValues)).OfType<FacetPropertyTypeValues>();
 
         private FacetPropertyTypeValues? type;
 

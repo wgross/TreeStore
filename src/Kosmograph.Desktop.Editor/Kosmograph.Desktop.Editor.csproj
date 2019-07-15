@@ -64,6 +64,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ViewModel\CommitableObservableCollection.cs" />
+    <Compile Include="View\EditTagFacetPropertyControl.xaml.cs">
+      <DependentUpon>EditTagFacetPropertyControl.xaml</DependentUpon>
+    </Compile>
     <Page Include="View\CommonResources.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -166,6 +169,10 @@
     <Compile Include="View\EditorControl.xaml.cs">
       <DependentUpon>EditorControl.xaml</DependentUpon>
     </Compile>
+    <Page Include="View\EditTagFacetPropertyControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
