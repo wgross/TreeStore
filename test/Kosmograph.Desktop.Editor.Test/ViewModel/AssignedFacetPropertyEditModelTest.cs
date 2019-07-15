@@ -1,5 +1,6 @@
 ﻿using Kosmograph.Desktop.Editors.ViewModel;
 using Kosmograph.Model;
+using System;
 using System.Collections.Generic;
 using Xunit;
 
@@ -7,10 +8,17 @@ namespace Kosmograph.Desktop.Editor.Test.ViewModel
 {
     public class AssignedFacetPropertyEditModelTest
     {
-        private (FacetProperty, Dictionary<string, object>) DefaultFacetProperty()
+        private FacetProperty DefaultFacetProperty(Action<FacetProperty> setup = null)
         {
             var tmp = new FacetProperty("p");
-            return (tmp, new Dictionary<string, object> { { tmp.Id.ToString(), 1 } });
+            setup?.Invoke(tmp);
+            return tmp;
+        }
+
+        private (FacetProperty model, Dictionary<string, object> values) DefaultAssignedFacetPropertyValue(FacetProperty p = null)
+        {
+            var tmp = p ?? DefaultFacetProperty();
+            return (tmp, new Dictionary<string, object> { { tmp.Id.ToString(), "string" } });
         }
 
         [Fact]
@@ -18,7 +26,7 @@ namespace Kosmograph.Desktop.Editor.Test.ViewModel
         {
             // ARRANGE
 
-            var (model, values) = DefaultFacetProperty();
+            var (model, values) = DefaultAssignedFacetPropertyValue();
 
             // ACT
 
@@ -27,7 +35,7 @@ namespace Kosmograph.Desktop.Editor.Test.ViewModel
             // ASSERT
 
             Assert.Equal("p", result.Model.Name);
-            Assert.Equal(1, result.Value);
+            Assert.Equal("string", result.Value);
         }
 
         [Fact]
@@ -35,7 +43,7 @@ namespace Kosmograph.Desktop.Editor.Test.ViewModel
         {
             // ARRANGE
 
-            var (model, values) = DefaultFacetProperty();
+            var (model, values) = DefaultAssignedFacetPropertyValue();
             var editModel = new AssignedFacetPropertyEditModel(model, values);
 
             // ACT
@@ -45,7 +53,29 @@ namespace Kosmograph.Desktop.Editor.Test.ViewModel
             // ASSERT
 
             Assert.Equal("value", editModel.Value);
-            Assert.Equal(1, values[model.Id.ToString()]);
+            Assert.Equal("string", values[model.Id.ToString()]);
+        }
+
+        [Fact]
+        public void AssigedFacetPropertyEditModel_invalidates_incompatible_value()
+        {
+            // ARRANGE
+
+            var (model, values) = DefaultAssignedFacetPropertyValue(DefaultFacetProperty(p => p.Type = FacetPropertyTypeValues.Bool));
+            var editModel = new AssignedFacetPropertyEditModel(model, values);
+
+            // ACT
+            // not parsable to bool
+
+            editModel.Value = "value";
+            var result = editModel.CommitCommand.CanExecute(null);
+
+            // ASSERT
+
+            Assert.False(result);
+            Assert.Equal("value", editModel.Value);
+            Assert.Equal("Value must be of type 'Bool'", editModel.ValueError);
+            Assert.Equal("string", values[model.Id.ToString()]);
         }
 
         [Fact]
@@ -53,16 +83,22 @@ namespace Kosmograph.Desktop.Editor.Test.ViewModel
         {
             // ARRANGE
 
-            var (model, values) = DefaultFacetProperty();
+            var (model, values) = DefaultAssignedFacetPropertyValue();
             var editModel = new AssignedFacetPropertyEditModel(model, values);
             editModel.Value = "value";
 
             // ACT
 
+            // var result = editModel.CommitCommand;
+
+            var result = editModel.CommitCommand.CanExecute(null);
             editModel.CommitCommand.Execute(null);
 
             // ASSERT
 
+            Assert.True(result);
+            Assert.False(editModel.HasErrors);
+            Assert.True(string.IsNullOrEmpty(editModel.ValueError));
             Assert.Equal("value", editModel.Value);
             Assert.Equal("value", values[model.Id.ToString()]);
         }
@@ -72,7 +108,7 @@ namespace Kosmograph.Desktop.Editor.Test.ViewModel
         {
             // ARRANGE
 
-            var (model, values) = DefaultFacetProperty();
+            var (model, values) = DefaultAssignedFacetPropertyValue();
             var editModel = new AssignedFacetPropertyEditModel(model, values);
             editModel.Value = "value";
 
@@ -83,8 +119,8 @@ namespace Kosmograph.Desktop.Editor.Test.ViewModel
 
             // ASSERT
 
-            Assert.Equal(1, editModel.Value);
-            Assert.Equal(1, values[model.Id.ToString()]);
+            Assert.Equal("string", editModel.Value);
+            Assert.Equal("string", values[model.Id.ToString()]);
         }
     }
 }

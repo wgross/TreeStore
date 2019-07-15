@@ -23,8 +23,8 @@ namespace Kosmograph.Desktop.Editors.ViewModel
 
         private object ResolvePropertyValue()
         {
-            if (this.Values.TryGetValue(this.Model.Id.ToString(), out var value))
-                return value;
+            if (this.Values.TryGetValue(this.Model.Id.ToString(), out var resolvedValue))
+                return resolvedValue;
             return null;
         }
 
@@ -42,5 +42,35 @@ namespace Kosmograph.Desktop.Editors.ViewModel
         {
             this.value = null;
         }
+
+        protected override bool CanCommit()
+        {
+            this.Validate();
+            return (!this.HasErrors && base.CanCommit());
+        }
+
+        #region Validate data and indicate error
+
+        public string ValueError
+        {
+            get => this.valueError;
+            protected set => this.Set(nameof(ValueError), ref this.valueError, value?.Trim());
+        }
+
+        private string valueError;
+
+        protected void Validate()
+        {
+            this.HasErrors = false;
+            if (!this.Model.CanAssignValue(this.Value.ToString()))
+                this.ValueError = $"Value must be of type '{this.Model.Type.ToString()}'";
+            else
+                this.ValueError = null;
+            this.HasErrors = !string.IsNullOrEmpty(this.ValueError);
+        }
+
+        public bool HasErrors { get; protected set; }
+
+        #endregion Validate data and indicate error
     }
 }
