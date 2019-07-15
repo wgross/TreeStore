@@ -18,7 +18,11 @@ namespace Kosmograph.Desktop.Editors.ViewModel
         public object Value
         {
             get => this.value ?? this.ResolvePropertyValue();
-            set => this.Set(nameof(Value), ref this.value, value);
+            set
+            {
+                if (this.Set(nameof(Value), ref this.value, value))
+                    this.Validate();
+            }
         }
 
         private object ResolvePropertyValue()
