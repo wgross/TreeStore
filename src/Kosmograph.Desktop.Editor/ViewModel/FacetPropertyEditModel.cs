@@ -14,6 +14,18 @@ namespace Kosmograph.Desktop.Editors.ViewModel
 
         public TagEditModel Tag { get; }
 
+        public FacetPropertyTypeValues Type
+        {
+            get => this.type ?? this.Model.Type;
+            set
+            {
+                if (this.Set(nameof(Type), ref this.type, value))
+                    this.Validate();
+            }
+        }
+
+        private FacetPropertyTypeValues? type;
+
         #region Implement Validate
 
         protected override void Validate()
@@ -40,6 +52,19 @@ namespace Kosmograph.Desktop.Editors.ViewModel
         protected override bool CanCommit()
         {
             return !this.HasErrors && base.CanCommit();
+        }
+
+        protected override void Commit()
+        {
+            this.Model.Type = this.Type;
+            base.Commit();
+            this.type = null;
+        }
+
+        protected override void Rollback()
+        {
+            this.type = null;
+            base.Rollback();
         }
     }
 }

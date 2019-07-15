@@ -38,7 +38,9 @@
                 <!-- Move input focus to the ListBox under the mouse cursor -->
                 <Style.Triggers>
                     <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="FocusManager.FocusedElement" Value="{Binding RelativeSource={RelativeSource Self}}" />
+                        <Setter 
+                            Property="FocusManager.FocusedElement" 
+                            Value="{Binding RelativeSource={RelativeSource Self}}" />
                     </Trigger>
                 </Style.Triggers>
             </Style>

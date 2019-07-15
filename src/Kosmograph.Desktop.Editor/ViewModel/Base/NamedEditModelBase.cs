@@ -15,12 +15,13 @@ namespace Kosmograph.Desktop.Editors.ViewModel.Base
         protected override void Commit()
         {
             this.Model.Name = this.Name;
+            this.name = null;
         }
 
         protected override void Rollback()
         {
             // nullifying the name avoid validating in case of rollback
-            this.Name = null;
+            this.name = null;
         }
 
         public string Name

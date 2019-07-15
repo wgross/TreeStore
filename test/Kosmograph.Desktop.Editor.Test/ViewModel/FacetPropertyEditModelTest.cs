@@ -41,6 +41,7 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
             // ASSERT
 
             Assert.Equal("p", result.Name);
+            Assert.Equal(FacetPropertyTypeValues.String, result.Type);
         }
 
         [Fact]
@@ -54,11 +55,14 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
             // ACT
 
             editModel.Properties.Single().Name = "changed";
+            editModel.Properties.Single().Type = FacetPropertyTypeValues.Bool;
 
             // ASSERT
 
             Assert.Equal("changed", editModel.Properties.Single().Name);
+            Assert.Equal(FacetPropertyTypeValues.Bool, editModel.Properties.Single().Type);
             Assert.Equal("p", model.Facet.Properties.Single().Name);
+            Assert.Equal(FacetPropertyTypeValues.String, model.Facet.Properties.Single().Type);
         }
 
         [Fact]
@@ -125,6 +129,7 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
             var editModel = new TagEditModel(model, this.tagEditCallback.Object);
 
             editModel.Properties.Single().Name = "changed";
+            editModel.Properties.Single().Type = FacetPropertyTypeValues.Bool;
 
             // ACT
 
@@ -133,7 +138,9 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
             // ASSERT
 
             Assert.Equal("changed", editModel.Properties.Single().Name);
+            Assert.Equal(FacetPropertyTypeValues.Bool, editModel.Properties.Single().Type);
             Assert.Equal("changed", model.Facet.Properties.Single().Name);
+            Assert.Equal(FacetPropertyTypeValues.Bool, model.Facet.Properties.Single().Type);
         }
 
         [Fact]
@@ -145,6 +152,7 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
             var editModel = new TagEditModel(model, this.tagEditCallback.Object);
 
             editModel.Properties.Single().Name = "changed";
+            editModel.Properties.Single().Type = FacetPropertyTypeValues.Bool;
 
             // ACT
 
@@ -154,7 +162,9 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
             // ASSERT
 
             Assert.Equal("p", editModel.Properties.Single().Name);
+            Assert.Equal(FacetPropertyTypeValues.String, editModel.Properties.Single().Type);
             Assert.Equal("p", model.Facet.Properties.Single().Name);
+            Assert.Equal(FacetPropertyTypeValues.String, model.Facet.Properties.Single().Type);
         }
     }
 }
