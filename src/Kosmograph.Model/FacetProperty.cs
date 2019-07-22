@@ -5,14 +5,12 @@ namespace Kosmograph.Model
 {
     public class FacetProperty : NamedBase
     {
-        private string value;
-
         public FacetPropertyTypeValues Type { get; set; }
 
         #region Construction and initialization of this instance
 
         public FacetProperty(string name)
-            : base(name)
+            : this(name, FacetPropertyTypeValues.String)
         { }
 
         public FacetProperty()
@@ -20,36 +18,46 @@ namespace Kosmograph.Model
         {
         }
 
-        public FacetProperty(string v, FacetPropertyTypeValues type)
+        public FacetProperty(string name, FacetPropertyTypeValues type)
+            : base(name)
+
         {
-            this.value = v;
             this.Type = type;
         }
 
-        public bool CanAssignValue(string v)
+        #endregion Construction and initialization of this instance
+
+        public bool CanAssignValue(string value)
         {
+            if (value is null)
+                return true;
+
             switch (this.Type)
             {
                 case FacetPropertyTypeValues.Long:
-                    return long.TryParse(v, out var _);
+                    return long.TryParse(value, out var _);
+
                 case FacetPropertyTypeValues.Double:
-                    return double.TryParse(v, out var _);
+                    return double.TryParse(value, out var _);
+
                 case FacetPropertyTypeValues.Decimal:
-                    return decimal.TryParse(v, out var _);
+                    return decimal.TryParse(value, out var _);
+
                 case FacetPropertyTypeValues.Guid:
-                    return Guid.TryParse(v, out var _);
+                    return Guid.TryParse(value, out var _);
+
                 case FacetPropertyTypeValues.DateTime:
-                    return DateTime.TryParse(v, out var _);
+                    return DateTime.TryParse(value, out var _);
+
                 case FacetPropertyTypeValues.Bool:
-                    return bool.TryParse(v, out var _);
+                    return bool.TryParse(value, out var _);
                 // string values are always possible
                 case FacetPropertyTypeValues.String:
                     return true;
+
                 default:
                     return false;
             }
         }
-
-        #endregion Construction and initialization of this instance
     }
 }

@@ -70,7 +70,7 @@ namespace Kosmograph.Desktop.Editors.ViewModel
             this.MessengerInstance.Send(new EditModelCommitted(model: this.Model));
         }
 
-        protected override bool CanCommit() => !this.HasErrors && this.AllProperties.Aggregate(true, (ok, p) => !p.HasErrors && ok);
+        protected override bool CanCommit() => this.AllProperties.Aggregate(true, (ok, p) => !p.HasErrors && ok) && base.CanCommit();
 
         private IEnumerable<AssignedFacetPropertyEditModel> AllProperties => this.Tags.SelectMany(t => t.Properties);
 

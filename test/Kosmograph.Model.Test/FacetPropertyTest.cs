@@ -11,6 +11,42 @@ namespace Kosmograph.Model.Test
         }
 
         [Fact]
+        public void FacetProperty_created_with_name_and_type()
+        {
+            // ACT
+
+            var result = new FacetProperty("facet", FacetPropertyTypeValues.DateTime);
+
+            // ASSERT
+
+            Assert.Equal("facet", result.Name);
+            Assert.Equal(FacetPropertyTypeValues.DateTime, result.Type);
+        }
+
+        [Theory]
+        [InlineData(FacetPropertyTypeValues.Bool)]
+        [InlineData(FacetPropertyTypeValues.DateTime)]
+        [InlineData(FacetPropertyTypeValues.Decimal)]
+        [InlineData(FacetPropertyTypeValues.Double)]
+        [InlineData(FacetPropertyTypeValues.Guid)]
+        [InlineData(FacetPropertyTypeValues.Long)]
+        [InlineData(FacetPropertyTypeValues.String)]
+        public void FacetProperty_accepts_null_value(FacetPropertyTypeValues facetPropertyType)
+        {
+            // ARRANGE
+
+            var entity = DefaultEntity(e => e.Tags.Single().Facet.Properties.Single().Type = facetPropertyType);
+
+            // ACT
+
+            var result = entity.Tags.Single().Facet.Properties.Single().CanAssignValue(null);
+
+            // ASSERT
+
+            Assert.True(result);
+        }
+
+        [Fact]
         public void FacetProperty_long_rejects_incompatible_value()
         {
             // ARRANGE

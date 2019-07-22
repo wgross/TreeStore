@@ -98,7 +98,7 @@ namespace Kosmograph.Desktop.Editors.ViewModel
             this.MessengerInstance.Send(new EditModelCommitted(model: this.Model));
         }
 
-        protected override bool CanCommit() => this.HasEntities && this.AllProperties.Aggregate(true, (ok, p) => !p.HasErrors && ok);
+        protected override bool CanCommit() => this.HasEntities && this.AllProperties.Aggregate(true, (ok, p) => !p.HasErrors && ok) && base.CanCommit();
 
         private bool HasEntities => !(this.From is null || this.To is null);
 

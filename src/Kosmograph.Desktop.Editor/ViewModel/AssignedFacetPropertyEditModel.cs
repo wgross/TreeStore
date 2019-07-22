@@ -66,7 +66,7 @@ namespace Kosmograph.Desktop.Editors.ViewModel
         protected void Validate()
         {
             this.HasErrors = false;
-            if (!this.Model.CanAssignValue(this.Value.ToString()))
+            if (!this.Model.CanAssignValue(this.Value?.ToString()))
                 this.ValueError = $"Value must be of type '{this.Model.Type.ToString()}'";
             else
                 this.ValueError = null;

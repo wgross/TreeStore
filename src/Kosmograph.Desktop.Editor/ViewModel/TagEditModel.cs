@@ -69,8 +69,6 @@ namespace Kosmograph.Desktop.Editors.ViewModel
 
         protected override bool CanCommit()
         {
-            if (this.HasErrors)
-                return false;
             if (base.CanCommit())
                 if (this.Properties.All(p => p.CommitCommand.CanExecute(null)))
                     return this.editCallback.CanCommit(this);
