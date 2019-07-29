@@ -139,6 +139,10 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
             var model = DefaultTag();
             var editModel = new TagEditModel(model, this.tagEditCallback.Object);
 
+            this.tagEditCallback
+                .Setup(cb => cb.Validate(editModel))
+                .Returns((string)null);
+
             // ACT
 
             editModel.CreatePropertyCommand.Execute(null);
@@ -190,21 +194,17 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
             this.tagEditCallback
                 .Setup(cb => cb.Rollback(model));
 
-            this.tagEditCallback
-                .Setup(cb => cb.Commit(model));
-
             var editModel = new TagEditModel(model, this.tagEditCallback.Object);
 
             this.tagEditCallback
-                .Setup(cb => cb.CanCommit(editModel))
-                .Returns(true);
+                .Setup(cb => cb.Validate(editModel))
+                .Returns((string)null);
 
             editModel.CreatePropertyCommand.Execute(null);
 
             // ACT
 
             editModel.RollbackCommand.Execute(null);
-            editModel.CommitCommand.Execute(null);
 
             // ASSERT
 
@@ -235,7 +235,7 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
 
             Assert.False(result);
             Assert.True(editModel.HasErrors);
-            Assert.Equal("Tag name must not be empty", editModel.NameError); ;
+            Assert.Equal("Name must not be empty", editModel.NameError); ;
         }
 
         [Fact]
@@ -245,6 +245,10 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
 
             var model = DefaultTag();
             var editModel = new TagEditModel(model, this.tagEditCallback.Object);
+
+            this.tagEditCallback
+              .Setup(cb => cb.Validate(editModel))
+              .Returns((string)null);
 
             // ACT
 
@@ -264,8 +268,16 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
             var model = DefaultTag();
             var editModel = new TagEditModel(model, this.tagEditCallback.Object);
 
+            this.tagEditCallback
+                .Setup(cb => cb.Validate(editModel))
+                .Returns((string)null);
+
             editModel.CreatePropertyCommand.Execute(null);
             editModel.Properties.ElementAt(1).Name = "p";
+
+            this.tagEditCallback
+                .Setup(cb => cb.CanCommit(editModel))
+                .Returns(true);
 
             // ACT
 
@@ -295,7 +307,7 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
         }
 
         [Fact]
-        public void TagEditModel_commits_remove_property_to_Model()
+        public void TagEditModel_commits_remove_property_from_Model()
         {
             // ARRANGE
 
@@ -330,23 +342,19 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
             var model = DefaultTag();
 
             this.tagEditCallback
-               .Setup(cb => cb.Commit(model));
-
-            this.tagEditCallback
                .Setup(cb => cb.Rollback(model));
 
             var editModel = new TagEditModel(model, this.tagEditCallback.Object);
 
             this.tagEditCallback
-                .Setup(cb => cb.CanCommit(editModel))
-                .Returns(true);
+               .Setup(cb => cb.Validate(editModel))
+               .Returns((string)null);
 
             editModel.CreatePropertyCommand.Execute(null);
 
             // ACT
 
             editModel.RollbackCommand.Execute(null);
-            editModel.CommitCommand.Execute(null);
 
             // ASSERT
 

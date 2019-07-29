@@ -63,7 +63,7 @@ namespace Kosmograph.Desktop.Editors.ViewModel
 
         private string valueError;
 
-        protected void Validate()
+        public void Validate()
         {
             this.HasErrors = false;
             if (!this.Model.CanAssignValue(this.Value?.ToString()))
@@ -72,8 +72,6 @@ namespace Kosmograph.Desktop.Editors.ViewModel
                 this.ValueError = null;
             this.HasErrors = !string.IsNullOrEmpty(this.ValueError);
         }
-
-        public bool HasErrors { get; protected set; }
 
         #endregion Validate data and indicate error
     }

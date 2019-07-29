@@ -70,7 +70,7 @@ namespace Kosmograph.Desktop.Editors.ViewModel
             this.MessengerInstance.Send(new EditModelCommitted(model: this.Model));
         }
 
-        protected override bool CanCommit() => this.AllProperties.Aggregate(true, (ok, p) => !p.HasErrors && ok) && base.CanCommit();
+        // protected override bool CanCommit() => this.AllProperties.Aggregate(true, (ok, p) => !p.HasErrors && ok) && base.CanCommit();
 
         private IEnumerable<AssignedFacetPropertyEditModel> AllProperties => this.Tags.SelectMany(t => t.Properties);
 
@@ -101,17 +101,13 @@ namespace Kosmograph.Desktop.Editors.ViewModel
 
         #region Implement Validate
 
-        protected override void Validate()
+        public override void Validate()
         {
-            this.HasErrors = false;
-
-            if (string.IsNullOrEmpty(this.Name))
-            {
-                this.NameError = "Name must not be empty";
-                this.HasErrors = true;
-            }
-            else this.NameError = null;
-
+           base.Validate();
+            // validate all assigned properties
+            this.AllProperties.ForEach(p => p.Validate());
+            // and collect there state into this objects state
+            this.HasErrors = this.AllProperties.Aggregate(this.HasErrors, (hasErrors, p) => p.HasErrors || hasErrors);
             // this has side effect to the editor
             this.CommitCommand.RaiseCanExecuteChanged();
         }

@@ -46,7 +46,16 @@ namespace Kosmograph.Desktop.Editors.ViewModel.Base
 
         #region Validate data and indicate error
 
-        protected abstract void Validate();
+        public virtual void Validate()
+        {
+            this.HasErrors = false;
+            if (string.IsNullOrEmpty(this.Name))
+            {
+                this.NameError = "Name must not be empty";
+                this.HasErrors = true;
+            }
+            else this.NameError = null;
+        }
 
         #endregion Validate data and indicate error
     }

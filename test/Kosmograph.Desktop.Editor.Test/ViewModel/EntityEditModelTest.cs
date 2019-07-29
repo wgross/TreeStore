@@ -183,7 +183,7 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
         {
             // ARRANGE
 
-            var editModel = new EntityEditModel(DefaultEntity(), delegate { }, delegate { });
+            var editModel = new EntityEditModel(DefaultEntity(DefaultTag("t", t => t.Facet.Properties.Single().Type = FacetPropertyTypeValues.Bool)), delegate { }, delegate { });
 
             // ACT
 
@@ -195,6 +195,25 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
             Assert.False(result);
             Assert.True(editModel.HasErrors);
             Assert.Equal("Name must not be empty", editModel.NameError);
+        }
+
+        [Fact]
+        public void EntityEditModel_invalidates_property_value()
+        {
+            // ARRANGE
+
+            var editModel = new EntityEditModel(DefaultEntity(DefaultTag("t", t => t.Facet.Properties.Single().Type = FacetPropertyTypeValues.Bool)), delegate { }, delegate { });
+
+            // ACT
+
+            editModel.Tags.Single().Properties.Single().Value = "not a bool";
+            var result = editModel.CommitCommand.CanExecute(null);
+
+            // ASSERT
+
+            Assert.False(result);
+            Assert.True(editModel.HasErrors);
+            Assert.Equal("Value must be of type 'Bool'", editModel.Tags.Single().Properties.Single().ValueError);
         }
 
         [Fact]

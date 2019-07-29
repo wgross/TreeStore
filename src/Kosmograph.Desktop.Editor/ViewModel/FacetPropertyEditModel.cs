@@ -32,7 +32,7 @@ namespace Kosmograph.Desktop.Editors.ViewModel
 
         #region Implement Validate
 
-        protected override void Validate()
+        public override void Validate()
         {
             this.HasErrors = false;
             if (string.IsNullOrEmpty(this.Name))

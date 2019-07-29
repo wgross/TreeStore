@@ -128,7 +128,7 @@ namespace Kosmograph.Desktop.Editors.ViewModel
 
         #region Implement Validate
 
-        protected override void Validate()
+        public override void Validate()
         {
         }
 
