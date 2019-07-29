@@ -15,12 +15,13 @@ namespace Kosmograph.Desktop.Editors.ViewModel.Base
         protected override void Commit()
         {
             this.Model.Name = this.Name;
+            this.name = null;
         }
 
         protected override void Rollback()
         {
             // nullifying the name avoid validating in case of rollback
-            this.Name = null;
+            this.name = null;
         }
 
         public string Name
@@ -45,9 +46,16 @@ namespace Kosmograph.Desktop.Editors.ViewModel.Base
 
         #region Validate data and indicate error
 
-        protected abstract void Validate();
-
-        public bool HasErrors { get; protected set; }
+        public virtual void Validate()
+        {
+            this.HasErrors = false;
+            if (string.IsNullOrEmpty(this.Name))
+            {
+                this.NameError = "Name must not be empty";
+                this.HasErrors = true;
+            }
+            else this.NameError = null;
+        }
 
         #endregion Validate data and indicate error
     }

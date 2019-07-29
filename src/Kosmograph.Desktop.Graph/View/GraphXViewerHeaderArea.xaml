@@ -21,8 +21,11 @@
                                     CommandParameter="{Binding}"/>
                                 <MenuItem 
                                     Header="Edit"
-                                    Command="local:GraphXViewerCommands.EditTagCommand"
-                                    CommandParameter="{Binding}"/>
+                                    Click="EditTag_Clicked"/>
+                                <!--
+                                Command="local:GraphXViewerCommands.EditTagCommand"
+                                CommandParameter="{Binding}"
+                                -->
                             </MenuItem>
                         </Menu>
                         <!--<TextBlock 

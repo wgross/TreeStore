@@ -58,7 +58,7 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var tag = new Tag("tag", new Facet("facet", new FacetProperty("prop")));
+            var tag = new Tag("tag", new Facet("facet", new FacetProperty("prop", FacetPropertyTypeValues.Long)));
 
             this.eventSource
                 .Setup(s => s.Modified(tag));
@@ -81,7 +81,7 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var tag = new Tag("tag", new Facet("facet", new FacetProperty("prop")));
+            var tag = new Tag("tag", new Facet("facet", new FacetProperty("prop", FacetPropertyTypeValues.Guid)));
 
             this.eventSource
                 .Setup(s => s.Modified(tag));
@@ -91,7 +91,7 @@ namespace Kosmograph.LiteDb.Test
             // ACT
 
             tag.Name = "name2";
-            tag.AssignFacet(new Facet("facet2", new FacetProperty("prop2")));
+            tag.AssignFacet(new Facet("facet2", new FacetProperty("prop2", FacetPropertyTypeValues.Double)));
 
             this.repository.Upsert(tag);
 
@@ -130,7 +130,7 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var tag = new Tag("tag", new Facet("facet", new FacetProperty("prop")));
+            var tag = new Tag("tag", new Facet("facet", new FacetProperty("prop", FacetPropertyTypeValues.Bool)));
 
             this.eventSource
                 .Setup(s => s.Modified(tag));
@@ -209,7 +209,7 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var tag = new Tag("tag", new Facet("facet", new FacetProperty("prop")));
+            var tag = new Tag("tag", new Facet("facet", new FacetProperty("prop", FacetPropertyTypeValues.Decimal)));
 
             this.eventSource
                 .Setup(s => s.Modified(tag));

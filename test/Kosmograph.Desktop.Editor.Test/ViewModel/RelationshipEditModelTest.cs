@@ -9,6 +9,13 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
 {
     public class RelationshipEditModelTest
     {
+        private Tag DefaultTag(string name = "tag", Action<Tag> setup = null)
+        {
+            var tmp = new Tag(name, new Facet("f", new FacetProperty("p")));
+            setup?.Invoke(tmp);
+            return tmp;
+        }
+
         private Tag DefaultTag() => new Tag("tag");
 
         private Entity DefaultEntity() => new Entity();
@@ -16,6 +23,8 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
         private Entity DefaultEntity(string name) => new Entity(name);
 
         private Relationship DefaultRelationship() => new Relationship("r", DefaultEntity("entity1"), DefaultEntity("entity2"), DefaultTag());
+
+        private Relationship DefaultRelationship(Tag tag) => new Relationship("r", DefaultEntity("entity1"), DefaultEntity("entity2"), tag);
 
         [Fact]
         public void RelationshipEditModel_mirrors_Model()
@@ -160,6 +169,26 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
             editModel.To = null;
 
             // ACT
+
+            var result = editModel.CommitCommand.CanExecute(null);
+
+            // ASSERT
+
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void EntityEditModel_cant_commit_with_invalid_property_value()
+        {
+            // ARRANGE
+
+            var editModel = new RelationshipEditModel(DefaultRelationship(
+                tag: DefaultTag("t", t => t.Facet.Properties.Single().Type = FacetPropertyTypeValues.Bool)), delegate { }, delegate { });
+
+            // ACT
+            // assigned invlid value
+
+            editModel.Tags.Single().Properties.Single().Value = "p";
 
             var result = editModel.CommitCommand.CanExecute(null);
 

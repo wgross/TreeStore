@@ -33,12 +33,12 @@ namespace Kosmograph.Desktop.Controls
         }
 
         private void relationshipRepositoryView_EditRelationhip(object sender, RoutedEventArgs e)
-            => this.ViewModel.EditRelationshipCommand.Execute(this.relationshipRepositoryView.SelectedItem);
+            => this.ViewModel.EditRelationshipByIdCommand.Execute(this.relationshipRepositoryView.SelectedItem.Model.Id);
 
         private void relationshipRepositoryView_CreateRelationship(object sender, RoutedEventArgs e)
             => this.ViewModel.CreateRelationshipCommand.Execute(null);
 
         private void relationshipRepositoryView_DeleteRelationship(object sender, RoutedEventArgs e)
-            => this.ViewModel.DeleteRelationshipCommand.Execute(this.relationshipRepositoryView.SelectedItem);
+            => this.ViewModel.DeleteRelationshipByIdCommand.Execute(this.relationshipRepositoryView.SelectedItem.Model.Id);
     }
 }

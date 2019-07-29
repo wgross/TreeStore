@@ -6,7 +6,7 @@ using System.Windows.Input;
 
 namespace Kosmograph.Desktop.Editors.ViewModel
 {
-    public class TagEditModel : NamedEditModelBase<Tag>
+    public sealed class TagEditModel : NamedEditModelBase<Tag>
     {
         private readonly ITagEditCallback editCallback;
 
@@ -15,9 +15,7 @@ namespace Kosmograph.Desktop.Editors.ViewModel
         {
             this.editCallback = editCallback;
 
-            this.Properties =
-                new CommitableObservableCollection<FacetPropertyEditModel>(edited.Facet.Properties.Select(p => new FacetPropertyEditModel(this, p)));
-
+            this.Properties = new CommitableObservableCollection<FacetPropertyEditModel>(edited.Facet.Properties.Select(CreateFacetPropertyEditModel));
             this.CreatePropertyCommand = new RelayCommand(this.CreatePropertyExecuted);
             this.RemovePropertyCommand = new RelayCommand<FacetPropertyEditModel>(this.RemovePropertyExecuted);
         }
@@ -26,6 +24,22 @@ namespace Kosmograph.Desktop.Editors.ViewModel
 
         public CommitableObservableCollection<FacetPropertyEditModel> Properties { get; private set; }
 
+        private FacetPropertyEditModel CreateFacetPropertyEditModel(FacetProperty property)
+        {
+            var tmp = new FacetPropertyEditModel(this, property);
+            tmp.PropertyChanged += this.FacetPropertyEditModel_PropertyChanged;
+
+            return tmp;
+        }
+
+        private void FacetPropertyEditModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName.Equals(nameof(FacetPropertyEditModel.Name)))
+                this.Validate();
+            if (e.PropertyName.Equals(nameof(FacetPropertyEditModel.Type)))
+                this.Validate();
+        }
+
         #endregion Facet has observable collection of facet properties
 
         #region Commands
@@ -33,6 +47,7 @@ namespace Kosmograph.Desktop.Editors.ViewModel
         private void CreatePropertyExecuted()
         {
             this.Properties.Add(new FacetPropertyEditModel(this, new FacetProperty("new property")));
+            this.Validate();
         }
 
         public ICommand CreatePropertyCommand { get; }
@@ -56,15 +71,7 @@ namespace Kosmograph.Desktop.Editors.ViewModel
             this.editCallback.Commit(this.Model);
         }
 
-        protected override bool CanCommit()
-        {
-            if (this.HasErrors)
-                return false;
-            if (base.CanCommit())
-                if (this.Properties.All(p => p.CommitCommand.CanExecute(null)))
-                    return this.editCallback.CanCommit(this);
-            return false;
-        }
+        protected override bool CanCommit() => base.CanCommit() && this.editCallback.CanCommit(this);
 
         protected override void Rollback()
         {
@@ -76,25 +83,21 @@ namespace Kosmograph.Desktop.Editors.ViewModel
 
         #region Implement Validate
 
-        protected override void Validate()
+        public override void Validate()
         {
-            this.HasErrors = false;
-            this.NameError = this.editCallback.Validate(this);
-
-            // validate the repo data
-            if (!string.IsNullOrEmpty(this.NameError))
+            // validate base class rules
+            base.Validate();
+            // validate the facte properties rules
+            this.Properties.ForEach(p => p.Validate());
+            // collect all error states
+            this.HasErrors = this.Properties.Aggregate(this.HasErrors, (hasErrors, p) => p.HasErrors || hasErrors);
+            // and call the extsrnal model validator
+            var result = this.editCallback.Validate(this);
+            if (!string.IsNullOrEmpty(result))
             {
-                this.HasErrors = this.HasErrors || true;
-            }
-
-            // validate the local data
-            if (string.IsNullOrEmpty(this.Name))
-            {
+                this.NameError = result;
                 this.HasErrors = true;
-                this.NameError = "Tag name must not be empty";
             }
-
-            // this has side effect to the editor
             this.CommitCommand.RaiseCanExecuteChanged();
         }
 

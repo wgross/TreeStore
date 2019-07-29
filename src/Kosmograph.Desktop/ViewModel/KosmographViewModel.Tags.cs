@@ -1,5 +1,4 @@
-﻿using Kosmograph.Desktop.Lists.ViewModel;
-using Kosmograph.Model;
+﻿using Kosmograph.Model;
 using System;
 using System.Windows.Input;
 
@@ -56,7 +55,7 @@ namespace Kosmograph.Desktop.ViewModel
             }
         }
 
-        public ICommand EditTagCommand { get; }
+        public ICommand EditTagByIdCommand { get; }
 
         private Editors.ViewModel.TagEditModel editedTag;
 
@@ -66,10 +65,9 @@ namespace Kosmograph.Desktop.ViewModel
             set => this.Set(nameof(EditedTag), ref this.editedTag, value);
         }
 
-        private void EditTagExecuted(Lists.ViewModel.TagViewModel tag)
-        {
-            this.EditedTag = new Editors.ViewModel.TagEditModel(tag.Model, new TagEditCallbackHandler(this.model.Tags, this.OnEditTagCommitted, this.EditTagRollback));
-        }
+        private void EditTagByIdExecuted(Guid tagId) => this.EditTag(this.Model.Tags.FindById(tagId));
+
+        private void EditTag(Tag tag) => this.EditedTag = new Editors.ViewModel.TagEditModel(tag, new TagEditCallbackHandler(this.model.Tags, this.OnEditTagCommitted, this.EditTagRollback));
 
         private void EditTagRollback(Tag obj) => this.EditedTag = null;
 
@@ -102,12 +100,11 @@ namespace Kosmograph.Desktop.ViewModel
 
         #region Delete Tag
 
-        public ICommand DeleteTagCommand { get; }
+        public ICommand DeleteTagByIdCommand { get; }
 
-        private void DeleteTagExecuted(TagViewModel tag)
-        {
-            this.model.Tags.Delete(tag.Model);
-        }
+        private void DeleteTagByIdExecuted(Guid tagId) => this.DeleteTag(this.Model.Tags.FindById(tagId));
+
+        private void DeleteTag(Tag tag) => this.Model.Tags.Delete(tag);
 
         #endregion Delete Tag
     }

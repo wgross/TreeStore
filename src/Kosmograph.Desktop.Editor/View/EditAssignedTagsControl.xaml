@@ -41,21 +41,22 @@
                 </StackPanel>
             </DataTemplate>
 
-            <Style x:Key="editFacetPropertyValueTexBoxStyle" TargetType="{x:Type TextBox}">
+            <!--<Style x:Key="editFacetPropertyValueTexBoxStyle" TargetType="{x:Type TextBox}">
                 <Style.Triggers>
                     <Trigger Property="IsMouseOver" Value="True">
                         <Setter Property="FocusManager.FocusedElement" Value="{Binding RelativeSource={RelativeSource Self}}" />
                     </Trigger>
                 </Style.Triggers>
-            </Style>
+            </Style>-->
 
             <DataTemplate DataType="{x:Type kem:AssignedFacetPropertyEditModel}">
-                <DockPanel LastChildFill="True">
+                <local:EditAssignedFacetPropertyControl/>
+                <!--<DockPanel LastChildFill="True">
                     <Label DockPanel.Dock="Left" Content="{Binding Model.Name}" />
                     <TextBox
                         Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
                         Style="{StaticResource editFacetPropertyValueTexBoxStyle}" />
-                </DockPanel>
+                </DockPanel>-->
             </DataTemplate>
 
             <CollectionViewSource

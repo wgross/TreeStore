@@ -7,9 +7,6 @@ namespace Kosmograph.Desktop.Editors.View
     /// </summary>
     public partial class EditTagFacetPropertiesControl : UserControl
     {
-        public EditTagFacetPropertiesControl()
-        {
-            InitializeComponent();
-        }
+        public EditTagFacetPropertiesControl() => this.InitializeComponent();
     }
 }

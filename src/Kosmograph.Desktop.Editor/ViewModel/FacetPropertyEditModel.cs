@@ -1,5 +1,7 @@
 ﻿using Kosmograph.Desktop.Editors.ViewModel.Base;
 using Kosmograph.Model;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Kosmograph.Desktop.Editors.ViewModel
@@ -14,9 +16,23 @@ namespace Kosmograph.Desktop.Editors.ViewModel
 
         public TagEditModel Tag { get; }
 
+        public FacetPropertyTypeValues Type
+        {
+            get => this.type ?? this.Model.Type;
+            set
+            {
+                if (this.Set(nameof(Type), ref this.type, value))
+                    this.Validate();
+            }
+        }
+
+        public IEnumerable<FacetPropertyTypeValues> Types => Enum.GetValues(typeof(FacetPropertyTypeValues)).OfType<FacetPropertyTypeValues>();
+
+        private FacetPropertyTypeValues? type;
+
         #region Implement Validate
 
-        protected override void Validate()
+        public override void Validate()
         {
             this.HasErrors = false;
             if (string.IsNullOrEmpty(this.Name))
@@ -40,6 +56,19 @@ namespace Kosmograph.Desktop.Editors.ViewModel
         protected override bool CanCommit()
         {
             return !this.HasErrors && base.CanCommit();
+        }
+
+        protected override void Commit()
+        {
+            this.Model.Type = this.Type;
+            base.Commit();
+            this.type = null;
+        }
+
+        protected override void Rollback()
+        {
+            this.type = null;
+            base.Rollback();
         }
     }
 }

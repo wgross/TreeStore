@@ -44,7 +44,9 @@ namespace Kosmograph.Desktop
         private void CreateNewModel()
         {
             var model = new KosmographModel(new KosmographLiteDbPersistence(KosmographMessageBus.Default));
-            var tag1 = model.Tags.Upsert(new Tag("t1", new Facet("facet", new FacetProperty("p1"))));
+            var tag1 = model.Tags.Upsert(new Tag("t1", new Facet("facet", 
+                new FacetProperty("text",FacetPropertyTypeValues.String),
+                new FacetProperty("long", FacetPropertyTypeValues.Long))));
             var tag2 = model.Tags.Upsert(new Tag("t2", new Facet("facet", new FacetProperty("p2"))));
             var entity1 = model.Entities.Upsert(new Entity("e1", tag1));
             var entity2 = model.Entities.Upsert(new Entity("e2"));

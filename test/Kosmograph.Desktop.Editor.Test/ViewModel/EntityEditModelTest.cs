@@ -9,9 +9,16 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
 {
     public class EntityEditModelTest
     {
-        private Tag DefaultTag(string name = "tag") => new Tag(name, new Facet("f", new FacetProperty("p")));
+        private Tag DefaultTag(string name = "tag", Action<Tag> setup = null)
+        {
+            var tmp = new Tag(name, new Facet("f", new FacetProperty("p")));
+            setup?.Invoke(tmp);
+            return tmp;
+        }
 
         private Entity DefaultEntity() => new Entity("entity", DefaultTag());
+
+        private Entity DefaultEntity(Tag tag) => new Entity("entity", tag);
 
         private Entity DefaultEntity(Action<Entity> setup)
         {
@@ -176,7 +183,7 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
         {
             // ARRANGE
 
-            var editModel = new EntityEditModel(DefaultEntity(), delegate { }, delegate { });
+            var editModel = new EntityEditModel(DefaultEntity(DefaultTag("t", t => t.Facet.Properties.Single().Type = FacetPropertyTypeValues.Bool)), delegate { }, delegate { });
 
             // ACT
 
@@ -188,6 +195,45 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
             Assert.False(result);
             Assert.True(editModel.HasErrors);
             Assert.Equal("Name must not be empty", editModel.NameError);
+        }
+
+        [Fact]
+        public void EntityEditModel_invalidates_property_value()
+        {
+            // ARRANGE
+
+            var editModel = new EntityEditModel(DefaultEntity(DefaultTag("t", t => t.Facet.Properties.Single().Type = FacetPropertyTypeValues.Bool)), delegate { }, delegate { });
+
+            // ACT
+
+            editModel.Tags.Single().Properties.Single().Value = "not a bool";
+            var result = editModel.CommitCommand.CanExecute(null);
+
+            // ASSERT
+
+            Assert.False(result);
+            Assert.True(editModel.HasErrors);
+            Assert.Equal("Value must be of type 'Bool'", editModel.Tags.Single().Properties.Single().ValueError);
+        }
+
+        [Fact]
+        public void EntityEditModel_cant_commit_with_invalid_property_value()
+        {
+            // ARRANGE
+
+            var editModel = new EntityEditModel(DefaultEntity(
+                tag: DefaultTag("t", t => t.Facet.Properties.Single().Type = FacetPropertyTypeValues.Bool)), delegate { }, delegate { });
+
+            // ACT
+            // assigne invlid value
+
+            editModel.Tags.Single().Properties.Single().Value = "p";
+
+            var result = editModel.CommitCommand.CanExecute(null);
+
+            // ASSERT
+
+            Assert.False(result);
         }
 
         [Fact]

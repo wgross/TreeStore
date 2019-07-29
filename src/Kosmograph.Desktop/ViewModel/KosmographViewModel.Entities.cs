@@ -59,8 +59,6 @@ namespace Kosmograph.Desktop.ViewModel
 
         public ICommand EditEntityByIdCommand { get; }
 
-        public ICommand EditEntityCommand { get; }
-
         private Editors.ViewModel.EntityEditModel editedEntity;
 
         public Editors.ViewModel.EntityEditModel EditedEntity
@@ -69,12 +67,9 @@ namespace Kosmograph.Desktop.ViewModel
             set => this.Set(nameof(EditedEntity), ref this.editedEntity, value);
         }
 
-        private void EditEntityByIdExecuted(Guid obj)
-        {
-            return;
-        }
+        private void EditEntityByIdExecuted(Guid entityId) => this.EditEntity(this.Model.Entities.FindById(entityId));
 
-        private void EditEntityExecuted(Lists.ViewModel.EntityViewModel entity) => this.EditedEntity = new Editors.ViewModel.EntityEditModel(entity.Model, this.EditEntityCommitted, this.EditEntityRollback);
+        private void EditEntity(Entity entity) => this.EditedEntity = new Editors.ViewModel.EntityEditModel(entity, this.EditEntityCommitted, this.EditEntityRollback);
 
         private void EditEntityRollback(Entity _) => this.EditedEntity = null;
 
@@ -104,20 +99,25 @@ namespace Kosmograph.Desktop.ViewModel
 
         #region Delete Entity with Relationships
 
-        public ICommand DeleteEntityCommand { get; }
+        public ICommand DeleteEntityByIdCommand { get; }
 
-        private void DeleteEntityExecuted(Lists.ViewModel.EntityViewModel entityViewModel)
+        private void DeleteEntityByIdExecuted(Guid entityId) => this.DeleteEntity(this.Model.Entities.FindById(entityId));
+
+        private void DeleteEntity(Entity entity)
         {
+            if (entity is null)
+                return;
+
             // try to delete entity. If the entity has relationships it will fail.
-            var removed = this.model.Entities.Delete(entityViewModel.Model);
+            var removed = this.model.Entities.Delete(entity);
             if (removed)
                 return;
 
-            var relationships = this.model.Relationships.FindByEntity(entityViewModel.Model).ToArray();
+            var relationships = this.model.Relationships.FindByEntity(entity).ToArray();
             if (!relationships.Any())
                 return;
 
-            this.DeletingEntity = new Editors.ViewModel.DeleteEntityWithRelationshipsEditModel(entityViewModel.Model,
+            this.DeletingEntity = new Editors.ViewModel.DeleteEntityWithRelationshipsEditModel(entity,
                 relationships,
                 this.OnDeleteEntityCommited,
                 this.OnDeleteEntityRollback);

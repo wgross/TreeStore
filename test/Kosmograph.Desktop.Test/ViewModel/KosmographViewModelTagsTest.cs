@@ -17,18 +17,22 @@ namespace Kosmograph.Desktop.Test.ViewModel
         {
             // ARRANGE
 
-            var tagViewModel = DefaultTagViewModel();
+            var tag = DefaultTag();
+
+            this.TagRepository
+                .Setup(r => r.FindById(tag.Id))
+                .Returns(tag);
 
             // ACT
             // start editing of a tag
 
-            this.ViewModel.EditTagCommand.Execute(tagViewModel);
+            this.ViewModel.EditTagByIdCommand.Execute(tag.Id);
 
             // ASSERT
             // editor was created
 
             Assert.NotNull(this.ViewModel.EditedTag);
-            Assert.Equal(tagViewModel.Model, this.ViewModel.EditedTag.Model);
+            Assert.Equal(tag, this.ViewModel.EditedTag.Model);
         }
 
         [Fact]
@@ -37,11 +41,17 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // ARRANGE
             // edit a tag
 
-            var tagViewModel = DefaultTagViewModel();
-            this.ViewModel.EditTagCommand.Execute(tagViewModel);
+            var tag = DefaultTag();
+
             this.TagRepository
-                .Setup(r => r.Upsert(tagViewModel.Model))
-                .Returns(tagViewModel.Model);
+                .Setup(r => r.FindById(tag.Id))
+                .Returns(tag);
+
+            this.ViewModel.EditTagByIdCommand.Execute(tag.Id);
+
+            this.TagRepository
+                .Setup(r => r.Upsert(tag))
+                .Returns(tag);
 
             // ACT
             // commit the tag upserts the tag in the DB
@@ -60,8 +70,13 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // ARRANGE
             // edit a tag
 
-            var tagViewModel = DefaultTagViewModel();
-            this.ViewModel.EditTagCommand.Execute(tagViewModel);
+            var tag = DefaultTag();
+
+            this.TagRepository
+                .Setup(r => r.FindById(tag.Id))
+                .Returns(tag);
+
+            this.ViewModel.EditTagByIdCommand.Execute(tag.Id);
 
             // ACT
             // rollback the tag
@@ -79,10 +94,16 @@ namespace Kosmograph.Desktop.Test.ViewModel
         {
             // ARRANGE
             // edit a tag
+
             var tag1 = DefaultTag(t => t.Name = "t1");
             var tag2 = DefaultTag(t => t.Name = "t2");
-            var tagViewModel = DefaultTagViewModel(tag2);
-            this.ViewModel.EditTagCommand.Execute(tagViewModel);
+
+            this.TagRepository
+                .Setup(r => r.FindById(tag2.Id))
+                .Returns(tag2);
+
+            this.ViewModel.EditTagByIdCommand.Execute(tag2.Id);
+
             this.TagRepository
                 .Setup(r => r.FindByName("t1"))
                 .Returns(tag1);
@@ -187,13 +208,18 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // ARRANGE
 
             var tag = DefaultTag(t => t.Name = "t1");
+
+            this.TagRepository
+                .Setup(r => r.FindById(tag.Id))
+                .Returns(tag);
+
             this.TagRepository
                 .Setup(r => r.Delete(tag))
                 .Returns(true);
 
             // ACT
 
-            this.ViewModel.DeleteTagCommand.Execute(new TagViewModel(tag));
+            this.ViewModel.DeleteTagByIdCommand.Execute(tag.Id);
         }
     }
 }

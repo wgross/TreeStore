@@ -19,7 +19,7 @@ namespace Kosmograph.Model.Test
         }
 
         [Fact]
-        public void Facet_adds_Property()
+        public void Facet_adds_property()
         {
             // ARRANGE
 
@@ -36,7 +36,7 @@ namespace Kosmograph.Model.Test
         }
 
         [Fact]
-        public void Facet_removes_Property()
+        public void Facet_removes_property()
         {
             // ARRANGE
 

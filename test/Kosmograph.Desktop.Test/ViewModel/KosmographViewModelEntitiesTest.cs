@@ -9,43 +9,52 @@ namespace Kosmograph.Desktop.Test.ViewModel
 {
     public class KosmographViewModelEntitiesTest : KosmographViewModelTestBase
     {
-        
         private Lists.ViewModel.EntityViewModel DefaultEntityViewModel(Entity entity) => Setup(new Lists.ViewModel.EntityViewModel(entity));
 
         private Lists.ViewModel.EntityViewModel DefaultEntityViewModel(Action<EntityViewModel> setup = null) => Setup(new Lists.ViewModel.EntityViewModel(DefaultEntity()));
 
-        
-
         [Fact]
-        public void KosmographViewModel_provides_editor_for_existing_Entity()
+        public void KosmographViewModel_provides_editor_for_existing_entity()
         {
             // ARRANGE
 
-            var entityViewModel = DefaultEntityViewModel();
+            var entity = DefaultEntity();
+
+            this.EntityRepository
+                .Setup(r => r.FindById(entity.Id))
+                .Returns(entity);
 
             // ACT
             // start editing of a entity
 
-            this.ViewModel.EditEntityCommand.Execute(entityViewModel);
+            this.ViewModel.EditEntityByIdCommand.Execute(entity.Id);
 
             // ASSERT
             // editor was created
 
             Assert.NotNull(this.ViewModel.EditedEntity);
-            Assert.Equal(entityViewModel.Model, this.ViewModel.EditedEntity.Model);
+            Assert.Equal(entity, this.ViewModel.EditedEntity.Model);
         }
 
         [Fact]
         public void KosmographViewModel_saves_entity_on_commit()
         {
             // ARRANGE
-            // edit a entity
+            // edit an entity
 
-            var entityViewModel = DefaultEntityViewModel();
-            this.ViewModel.EditEntityCommand.Execute(entityViewModel);
+            var entity = DefaultEntity();
+
             this.EntityRepository
-                .Setup(r => r.Upsert(entityViewModel.Model))
-                .Returns(entityViewModel.Model);
+                .Setup(r => r.FindById(entity.Id))
+                .Returns(entity);
+
+            this.ViewModel.EditEntityByIdCommand.Execute(entity.Id);
+
+            // save the entity
+
+            this.EntityRepository
+                .Setup(r => r.Upsert(entity))
+                .Returns(entity);
 
             // ACT
             // committing the entity upserts the entity to the DB
@@ -64,8 +73,13 @@ namespace Kosmograph.Desktop.Test.ViewModel
             // ARRANGE
             // edit an entity
 
-            var entityViewModel = DefaultEntityViewModel();
-            this.ViewModel.EditEntityCommand.Execute(entityViewModel);
+            var entity = DefaultEntity();
+
+            this.EntityRepository
+                .Setup(r => r.FindById(entity.Id))
+                .Returns(entity);
+
+            this.ViewModel.EditEntityByIdCommand.Execute(entity.Id);
 
             // ACT
             // rollback the entity
@@ -141,15 +155,19 @@ namespace Kosmograph.Desktop.Test.ViewModel
         {
             // ARRANGE
 
-            var entity = DefaultEntityViewModel();
+            var entity = DefaultEntity();
 
             this.EntityRepository
-                .Setup(r => r.Delete(entity.Model))
+                 .Setup(r => r.FindById(entity.Id))
+                 .Returns(entity);
+
+            this.EntityRepository
+                .Setup(r => r.Delete(entity))
                 .Returns(true);
 
             // ACT
 
-            this.ViewModel.DeleteEntityCommand.Execute(entity);
+            this.ViewModel.DeleteEntityByIdCommand.Execute(entity.Id);
         }
 
         [Fact]
@@ -157,19 +175,15 @@ namespace Kosmograph.Desktop.Test.ViewModel
         {
             // ARRANGE
 
-            var entity = DefaultEntityViewModel();
+            var entity = DefaultEntity();
 
             this.EntityRepository
-                .Setup(r => r.Delete(entity.Model))
-                .Returns(false);
-
-            this.RelationshipRepository
-                .Setup(r => r.FindByEntity(entity.Model))
-                .Returns(new Relationship[0]);
+                 .Setup(r => r.FindById(entity.Id))
+                 .Returns((Entity)null);
 
             // ACT
 
-            this.ViewModel.DeleteEntityCommand.Execute(entity);
+            this.ViewModel.DeleteEntityByIdCommand.Execute(entity.Id);
 
             // ASSERT
 
@@ -181,25 +195,29 @@ namespace Kosmograph.Desktop.Test.ViewModel
         {
             // ARRANGE
 
-            var entity = DefaultEntityViewModel();
+            var entity = DefaultEntity();
 
             this.EntityRepository
-                .Setup(r => r.Delete(entity.Model))
+                 .Setup(r => r.FindById(entity.Id))
+                 .Returns(entity);
+
+            this.EntityRepository
+                .Setup(r => r.Delete(entity))
                 .Returns(false);
 
             var relationship = DefaultRelationship();
             this.RelationshipRepository
-                .Setup(r => r.FindByEntity(entity.Model))
+                .Setup(r => r.FindByEntity(entity))
                 .Returns(relationship.Yield());
 
             // ACT
 
-            this.ViewModel.DeleteEntityCommand.Execute(entity);
+            this.ViewModel.DeleteEntityByIdCommand.Execute(entity.Id);
 
             // ASSERT
 
             Assert.NotNull(this.ViewModel.DeletingEntity);
-            Assert.Same(entity.Model, this.ViewModel.DeletingEntity.Entity);
+            Assert.Same(entity, this.ViewModel.DeletingEntity.Entity);
             Assert.Same(relationship, this.ViewModel.DeletingEntity.Relationships.Single());
         }
 
@@ -210,22 +228,26 @@ namespace Kosmograph.Desktop.Test.ViewModel
 
             var relWasDeleted = false;
 
-            var entity = DefaultEntityViewModel();
+            var entity = DefaultEntity();
 
             this.EntityRepository
-                .Setup(r => r.Delete(entity.Model))
+                 .Setup(r => r.FindById(entity.Id))
+                 .Returns(entity);
+
+            this.EntityRepository
+                .Setup(r => r.Delete(entity))
                 .Returns(relWasDeleted);
 
             var relationship = DefaultRelationship();
             this.RelationshipRepository
-                .Setup(r => r.FindByEntity(entity.Model))
+                .Setup(r => r.FindByEntity(entity))
                 .Returns(relationship.Yield());
 
             this.RelationshipRepository
                 .Setup(r => r.Delete(new[] { relationship }))
                 .Callback(() => relWasDeleted = true);
 
-            this.ViewModel.DeleteEntityCommand.Execute(entity);
+            this.ViewModel.DeleteEntityByIdCommand.Execute(entity.Id);
 
             // ACT
 
@@ -233,7 +255,8 @@ namespace Kosmograph.Desktop.Test.ViewModel
 
             // ASSERT
 
-            this.EntityRepository.Verify(r => r.Delete(entity.Model), Times.Exactly(2));
+            this.EntityRepository.Verify(r => r.Delete(entity), Times.Exactly(2));
+
             Assert.Null(this.ViewModel.DeletingEntity);
         }
 
@@ -242,18 +265,22 @@ namespace Kosmograph.Desktop.Test.ViewModel
         {
             // ARRANGE
 
-            var entity = DefaultEntityViewModel();
+            var entity = DefaultEntity();
 
             this.EntityRepository
-                .Setup(r => r.Delete(entity.Model))
+                 .Setup(r => r.FindById(entity.Id))
+                 .Returns(entity);
+
+            this.EntityRepository
+                .Setup(r => r.Delete(entity))
                 .Returns(false);
 
             var relationship = DefaultRelationship();
             this.RelationshipRepository
-                .Setup(r => r.FindByEntity(entity.Model))
+                .Setup(r => r.FindByEntity(entity))
                 .Returns(relationship.Yield());
 
-            this.ViewModel.DeleteEntityCommand.Execute(entity);
+            this.ViewModel.DeleteEntityByIdCommand.Execute(entity.Id);
 
             // ACT
 

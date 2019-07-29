@@ -1,5 +1,5 @@
-﻿using Kosmograph.Desktop.Lists.ViewModel;
-using Kosmograph.Model;
+﻿using Kosmograph.Model;
+using System;
 using System.Windows.Input;
 
 namespace Kosmograph.Desktop.ViewModel
@@ -18,9 +18,11 @@ namespace Kosmograph.Desktop.ViewModel
 
         #region Edit Relatsionhsip
 
-        public ICommand EditRelationshipCommand { get; }
+        public ICommand EditRelationshipByIdCommand { get; }
 
-        private void EditRelationshipExecuted(Lists.ViewModel.RelationshipViewModel entity) => this.EditedRelationship = new Editors.ViewModel.RelationshipEditModel(entity.Model, this.EditRelationshipCommitted, this.EditRelationshipRollback);
+        private void EditRelationshipByIdExecuted(Guid relationshipId) => this.EditRelationship(this.Model.Relationships.FindById(relationshipId));
+
+        private void EditRelationship(Relationship relationship) => this.EditedRelationship = new Editors.ViewModel.RelationshipEditModel(relationship, this.EditRelationshipCommitted, this.EditRelationshipRollback);
 
         private Editors.ViewModel.RelationshipEditModel editedRelationship;
 
@@ -59,12 +61,11 @@ namespace Kosmograph.Desktop.ViewModel
 
         #region Delete Relationship
 
-        public ICommand DeleteRelationshipCommand { get; set; }
+        public ICommand DeleteRelationshipByIdCommand { get; set; }
 
-        private void DeleteRelationshipExecuted(RelationshipViewModel relationship)
-        {
-            this.model.Relationships.Delete(relationship.Model);
-        }
+        private void DeleteRelationshipByIdExecuted(Guid relationshipId) => this.DeleteRelationship(this.Model.Relationships.FindById(relationshipId));
+
+        private void DeleteRelationship(Relationship relationship) => this.Model.Relationships.Delete(relationship);
 
         #endregion Delete Relationship
     }

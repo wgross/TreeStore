@@ -64,9 +64,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ViewModel\CommitableObservableCollection.cs" />
+    <Compile Include="View\EditAssignedFacetPropertyControl.xaml.cs">
+      <DependentUpon>EditAssignedFacetPropertyControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\EditTagFacetPropertyControl.xaml.cs">
+      <DependentUpon>EditTagFacetPropertyControl.xaml</DependentUpon>
+    </Compile>
     <Page Include="View\CommonResources.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\EditAssignedFacetPropertyControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\EditAssignedTagsControl.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -155,7 +165,6 @@
     <Compile Include="ViewModel\Base\EditNamedViewModelBase.cs" />
     <Compile Include="ViewModel\Base\NamedEditModelBase.cs" />
     <Compile Include="ViewModel\DeleteEntityWithRelationshipsEditModel.cs" />
-    <Compile Include="ViewModel\EditFacetViewModel.cs" />
     <Compile Include="ViewModel\EditModelCommitted.cs" />
     <Compile Include="ViewModel\EntityEditModel.cs" />
     <Compile Include="ViewModel\FacetPropertyEditModel.cs" />
@@ -166,6 +175,10 @@
     <Compile Include="View\EditorControl.xaml.cs">
       <DependentUpon>EditorControl.xaml</DependentUpon>
     </Compile>
+    <Page Include="View\EditTagFacetPropertyControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">

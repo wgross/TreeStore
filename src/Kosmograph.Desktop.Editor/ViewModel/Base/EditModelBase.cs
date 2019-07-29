@@ -14,7 +14,15 @@ namespace Kosmograph.Desktop.Editors.ViewModel.Base
 
         public RelayCommand CommitCommand { get; }
 
-        protected virtual bool CanCommit() => true;
+        public bool HasErrors
+        {
+            get => this.hasErrors;
+            protected set => this.Set(nameof(HasErrors), ref this.hasErrors, value);
+        }
+
+        private bool hasErrors;
+
+        protected virtual bool CanCommit() => !this.HasErrors;
 
         protected abstract void Commit();
 

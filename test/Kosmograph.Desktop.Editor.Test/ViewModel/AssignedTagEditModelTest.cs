@@ -1,5 +1,6 @@
 ﻿using Kosmograph.Desktop.Editors.ViewModel;
 using Kosmograph.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
@@ -8,7 +9,12 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
 {
     public class AssignedTagEditModelTest
     {
-        private Tag DefaultTag() => new Tag("t", new Facet("f", new FacetProperty("p")));
+        private Tag DefaultTag(Action<Tag> setup = null)
+        {
+            var tmp = new Tag("t", new Facet("f", new FacetProperty("p")));
+            setup?.Invoke(tmp);
+            return tmp;
+        }
 
         private (Tag, Dictionary<string, object>) DefaultAssignedTag()
         {
@@ -16,6 +22,14 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
             return (tmp, new Dictionary<string, object>
             {
                 { tmp.Facet.Properties.Single().Id.ToString(), 1 }
+            });
+        }
+
+        private (Tag, Dictionary<string, object>) DefaultAssignedTag(Tag tag)
+        {
+            return (tag, new Dictionary<string, object>
+            {
+                { tag.Facet.Properties.Single().Id.ToString(), 1 }
             });
         }
 
@@ -52,6 +66,25 @@ namespace Kosmograph.Desktop.Editors.Test.ViewModel
 
             Assert.Equal("changed", editModel.Properties[0].Value);
             Assert.Equal(1, values[model.Facet.Properties.Single().Id.ToString()]);
+        }
+
+        [Fact]
+        public void AssigedTagEditModel_cant_commit_with_invalid_property_value()
+        {
+            // ARRANGE
+
+            var (model, values) = DefaultAssignedTag(DefaultTag(t => t.Facet.Properties.Single().Type = FacetPropertyTypeValues.Bool));
+            var editModel = new AssignedTagEditModel(model, values);
+
+            editModel.Properties.ElementAt(0).Value = "v"; // assign invalid value
+
+            // ACT
+
+            var result = editModel.CommitCommand.CanExecute(null);
+
+            // ASSERT
+
+            Assert.False(result);
         }
 
         [Fact]
