@@ -23,7 +23,7 @@ namespace Kosmograph.Model
 
         #region Entity has Categories
 
-        public Category Category { get; private set; }
+        public Category? Category { get; private set; }
 
         public IEnumerable<Facet> Facets()
         {

@@ -27,10 +27,10 @@ namespace Kosmograph.Model
 
         #endregion Construction and initialization of this instance
 
-        public bool CanAssignValue(string value)
+        public bool CanAssignValue(string? value)
         {
             if (value is null)
-                return true;
+                return true; // facet property is nullable
 
             switch (this.Type)
             {

@@ -118,7 +118,8 @@ namespace Kosmograph.LiteDb.Test
             var result = Assert.Throws<LiteException>(() => this.repository.Upsert(new Tag("TAG")));
 
             // ASSERT
-            // notificatoion was sent only once
+            // notification was sent only once
+
             this.eventSource.Verify(s => s.Modified(It.IsAny<Tag>()), Times.Once());
 
             Assert.Equal("Cannot insert duplicate key in unique index 'Name'. The duplicate value is '\"tag\"'.", result.Message);

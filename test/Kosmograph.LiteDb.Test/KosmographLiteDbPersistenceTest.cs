@@ -44,8 +44,8 @@ namespace Kosmograph.LiteDb.Test
                 .Setup(m => m.Relationships)
                 .Returns(relationshipMessaging.Object);
 
-            var entity1 = this.kosmographPersistence.Entities.Upsert(new Entity());
-            var entity2 = this.kosmographPersistence.Entities.Upsert(new Entity()); ;
+            var entity1 = this.kosmographPersistence.Entities.Upsert(new Entity("e1"));
+            var entity2 = this.kosmographPersistence.Entities.Upsert(new Entity("e2"));
             var relationship = this.kosmographPersistence.Relationships.Upsert(new Relationship("r", entity1, entity2));
 
             // ACT

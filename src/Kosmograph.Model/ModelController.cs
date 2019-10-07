@@ -5,9 +5,9 @@ namespace Kosmograph.Model
 {
     public class ModelController : IDisposable, IObserver<ChangedMessage<ITag>>, IObserver<ChangedMessage<IEntity>>, IObserver<ChangedMessage<IRelationship>>
     {
-        private IDisposable tagSubscription;
-        private IDisposable entitySubscription;
-        private IDisposable relationshipSubscription;
+        private IDisposable? tagSubscription;
+        private IDisposable? entitySubscription;
+        private IDisposable? relationshipSubscription;
 
         public ModelController(KosmographModel model)
             : this(model.MessageBus)

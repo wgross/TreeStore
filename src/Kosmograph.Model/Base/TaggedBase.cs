@@ -18,16 +18,12 @@ namespace Kosmograph.Model.Base
             this.Tags = this.Tags.Union(tag.Yield()).ToList();
         }
 
-        public Dictionary<string, object> Values { get; set; } = new Dictionary<string, object>();
+        public Dictionary<string, object?> Values { get; set; } = new Dictionary<string, object>();
 
         public void SetFacetProperty<T>(FacetProperty facetProperty, T value)
-        {
-            this.Values[facetProperty.Id.ToString()] = value;
-        }
+            => this.Values[facetProperty.Id.ToString()] = value;
 
-        public (bool, object) TryGetFacetProperty(FacetProperty facetProperty)
-        {
-            return (this.Values.TryGetValue(facetProperty.Id.ToString(), out var value), value);
-        }
+        public (bool exists, object? value) TryGetFacetProperty(FacetProperty facetProperty)
+            => (this.Values.TryGetValue(facetProperty.Id.ToString(), out var value), value);
     }
 }

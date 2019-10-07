@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Management.Automation" Version="6.2.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Kosmograph.LiteDb\Kosmograph.LiteDb.csproj" />
+    <ProjectReference Include="..\Kosmograph.Messaging\Kosmograph.Messaging.csproj" />
+    <ProjectReference Include="..\Kosmograph.Model\Kosmograph.Model.csproj" />
+    <ProjectReference Include="..\p2f\src\CodeOwls.PowerShell\CodeOwls.PowerShell.Paths\CodeOwls.PowerShell.Paths.csproj" />
+    <ProjectReference Include="..\p2f\src\CodeOwls.PowerShell\CodeOwls.PowerShell.Provider\CodeOwls.PowerShell.Provider.csproj" />
+  </ItemGroup>
+</Project>

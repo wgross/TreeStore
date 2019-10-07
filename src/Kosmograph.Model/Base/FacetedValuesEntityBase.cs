@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Kosmograph.Model.Base
+﻿namespace Kosmograph.Model.Base
 {
     public class FacetedValuesEntityBase : FacetingEntityBase
     {
+        public FacetedValuesEntityBase(string name, Facet facet)
+            : base(name, facet)
+        { }
     }
 }

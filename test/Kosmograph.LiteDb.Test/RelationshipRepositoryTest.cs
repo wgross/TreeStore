@@ -42,8 +42,8 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var entity1 = this.entityRepository.Upsert(new Entity());
-            var entity2 = this.entityRepository.Upsert(new Entity());
+            var entity1 = this.entityRepository.Upsert(new Entity("e1"));
+            var entity2 = this.entityRepository.Upsert(new Entity("e2"));
             var relationship = new Relationship("r", entity1, entity2);
 
             this.eventSource
@@ -70,8 +70,8 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var entity1 = this.entityRepository.Upsert(new Entity());
-            var entity2 = this.entityRepository.Upsert(new Entity());
+            var entity1 = this.entityRepository.Upsert(new Entity("e1"));
+            var entity2 = this.entityRepository.Upsert(new Entity("e2"));
             var relationship = new Relationship("r", entity1, entity2);
 
             this.eventSource
@@ -103,8 +103,8 @@ namespace Kosmograph.LiteDb.Test
             // ARRANGE
 
             var tag = this.tagRepository.Upsert(new Tag("tag", new Facet("facet", new FacetProperty("prop"))));
-            var entity1 = this.entityRepository.Upsert(new Entity());
-            var entity2 = this.entityRepository.Upsert(new Entity());
+            var entity1 = this.entityRepository.Upsert(new Entity("e1"));
+            var entity2 = this.entityRepository.Upsert(new Entity("e2"));
             var relationship = new Relationship("r", entity1, entity2, tag);
 
             this.eventSource
@@ -130,8 +130,8 @@ namespace Kosmograph.LiteDb.Test
             // ARRANGE
 
             var tag = this.tagRepository.Upsert(new Tag("tag", new Facet("facet", new FacetProperty("prop"))));
-            var entity1 = this.entityRepository.Upsert(new Entity());
-            var entity2 = this.entityRepository.Upsert(new Entity());
+            var entity1 = this.entityRepository.Upsert(new Entity("e1"));
+            var entity2 = this.entityRepository.Upsert(new Entity("e2"));
             var relationship = new Relationship("r", entity1, entity2, tag);
 
             this.eventSource
@@ -158,8 +158,8 @@ namespace Kosmograph.LiteDb.Test
             // ARRANGE
 
             var tag = this.tagRepository.Upsert(new Tag("tag", new Facet("facet", new FacetProperty("prop"))));
-            var entity1 = this.entityRepository.Upsert(new Entity());
-            var entity2 = this.entityRepository.Upsert(new Entity());
+            var entity1 = this.entityRepository.Upsert(new Entity("e1"));
+            var entity2 = this.entityRepository.Upsert(new Entity("e2"));
             var relationship = new Relationship("r", entity1, entity2, tag);
 
             // set facet property value
@@ -187,8 +187,8 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var entity1 = this.entityRepository.Upsert(new Entity());
-            var entity2 = this.entityRepository.Upsert(new Entity());
+            var entity1 = this.entityRepository.Upsert(new Entity("e1"));
+            var entity2 = this.entityRepository.Upsert(new Entity("e2"));
             var relationship = new Relationship("r", entity1, entity2);
 
             this.eventSource
@@ -214,8 +214,8 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var entity1 = this.entityRepository.Upsert(new Entity());
-            var entity2 = this.entityRepository.Upsert(new Entity());
+            var entity1 = this.entityRepository.Upsert(new Entity("e1"));
+            var entity2 = this.entityRepository.Upsert(new Entity("e2"));
             var relationship = new Relationship("r", entity1, entity2);
 
             // ACT
@@ -232,8 +232,8 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var entity1 = this.entityRepository.Upsert(new Entity());
-            var entity2 = this.entityRepository.Upsert(new Entity());
+            var entity1 = this.entityRepository.Upsert(new Entity("e1"));
+            var entity2 = this.entityRepository.Upsert(new Entity("e2"));
             var relationship1 = new Relationship("r", entity1, entity2);
             var relationship2 = new Relationship("r", entity2, entity1);
 
@@ -261,8 +261,8 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var entity1 = this.entityRepository.Upsert(new Entity());
-            var entity2 = this.entityRepository.Upsert(new Entity());
+            var entity1 = this.entityRepository.Upsert(new Entity("e1"));
+            var entity2 = this.entityRepository.Upsert(new Entity("e2"));
             var relationship1 = new Relationship("r1", entity1, entity2);
             var relationship2 = new Relationship("r2", entity1, entity2);
 

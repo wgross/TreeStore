@@ -17,17 +17,17 @@ namespace Kosmograph.Model
 
         public IEnumerable<TagQuery> TagQueries => this.tagQueries;
 
-        public Action<Entity> EntityAdded { private get; set; }
+        public Action<Entity>? EntityAdded { private get; set; }
 
-        public Action<Entity> EntityChanged { private get; set; }
+        public Action<Entity>? EntityChanged { private get; set; }
 
-        public Action<Guid> EntityRemoved { private get; set; }
+        public Action<Guid>? EntityRemoved { private get; set; }
 
-        public Action<Relationship> RelationshipAdded { private get; set; }
+        public Action<Relationship>? RelationshipAdded { private get; set; }
 
-        public Action<Relationship> RelationshipChanged { private get; set; }
+        public Action<Relationship>? RelationshipChanged { private get; set; }
 
-        public Action<Guid> RelationshipRemoved { private get; set; }
+        public Action<Guid>? RelationshipRemoved { private get; set; }
 
         #region Add tag query
 

@@ -2,6 +2,6 @@
 {
     public interface ITagRepository : IRepository<Tag>
     {
-        Tag FindByName(string name);
+        Tag? FindByName(string name);
     }
 }

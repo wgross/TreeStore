@@ -21,6 +21,10 @@ namespace Kosmograph.LiteDb
 
         public EntityRepository(LiteRepository db, IChangedMessageBus<IEntity> eventSource) : base(db, CollectionName)
         {
+            db.Database
+                .GetCollection(CollectionName)
+                .EnsureIndex(field: nameof(Entity.Name), expression: $"LOWER($.{nameof(Entity.Name)})", unique: true);
+
             this.eventSource = eventSource;
         }
 
@@ -66,5 +70,7 @@ namespace Kosmograph.LiteDb
                 .Where(e => e.Tags.Contains(tag))
                 .ToArray();
         }
+
+        public Entity FindByName(string name) => this.Repository.Query<Entity>(CollectionName).Where(e => e.Name.Equals(name)).FirstOrDefault();
     }
 }

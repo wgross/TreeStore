@@ -153,7 +153,7 @@ namespace Kosmograph.Model.Test
 
             // ASSERT
 
-            Assert.Equal(1, entity.TryGetFacetProperty(facet.Properties.Single()).Item2);
+            Assert.Equal(1, entity.TryGetFacetProperty(facet.Properties.Single()).value);
         }
 
         [Fact]

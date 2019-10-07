@@ -14,17 +14,13 @@ namespace Kosmograph.Model
             : base(model)
         { }
 
-        public TrackingModelController(IKosmographMessageBus kosmographMessageBus)
-            : base(kosmographMessageBus)
-        { }
-
         #region Track Tags
 
         public IEnumerable<Guid> TrackedTags => this.trackedTags;
 
         public bool ContainsTag(Tag tag) => this.trackedTags.Contains(tag.Id);
 
-        public Action<Tag> TagAdded { private get; set; }
+        public Action<Tag>? TagAdded { private get; set; }
 
         #endregion Track Tags
 
@@ -34,7 +30,7 @@ namespace Kosmograph.Model
 
         public bool ContainsEntity(Guid entityId) => this.trackedEntities.Contains(entityId);
 
-        public Action<Entity> EntityAdded { private get; set; }
+        public Action<Entity>? EntityAdded { private get; set; }
 
         #endregion Track Entities
 
@@ -44,7 +40,7 @@ namespace Kosmograph.Model
 
         public bool ContainsRelationship(Guid relationshipId) => this.trackedRelationships.Contains(relationshipId);
 
-        public Action<Relationship> RelationshipAdded { private get; set; }
+        public Action<Relationship>? RelationshipAdded { private get; set; }
 
         #endregion Track Relationships
 

@@ -5,22 +5,22 @@ namespace Kosmograph.Model
 {
     public class KosmographModel : IDisposable
     {
-        private IKosmographPersistence persistence;
+        private IKosmographPersistence? persistence;
 
         public KosmographModel(IKosmographPersistence persistence)
         {
             this.persistence = persistence;
         }
 
-        public IKosmographMessageBus MessageBus => this.persistence.MessageBus;
+        public IKosmographMessageBus MessageBus => this.persistence!.MessageBus;
 
-        public ITagRepository Tags => this.persistence.Tags;
+        public ITagRepository Tags => this.persistence!.Tags;
 
-        public IEntityRepository Entities => this.persistence.Entities;
+        public IEntityRepository Entities => this.persistence!.Entities;
 
-        public IRelationshipRepository Relationships => this.persistence.Relationships;
+        public IRelationshipRepository Relationships => this.persistence!.Relationships;
 
-        public Category RootCategory() => this.persistence.Categories.Root();
+        public Category RootCategory() => this.persistence!.Categories.Root();
 
         public void Dispose()
         {

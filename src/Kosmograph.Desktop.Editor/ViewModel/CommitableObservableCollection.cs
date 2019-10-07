@@ -81,11 +81,5 @@ namespace Kosmograph.Desktop.Editors.ViewModel
                 this.isRollingBack = false;
             }
         }
-
-        public void ForEach(Action<T> action)
-        {
-            foreach (var item in this)
-                action(item);
-        }
     }
 }

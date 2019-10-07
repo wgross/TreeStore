@@ -15,13 +15,13 @@ namespace Kosmograph.Model
 
         private static readonly object Null = new object();
 
-        public static Func<T> AsFunc<T>(this Func<T> instance)
+        public static Func<T>? AsFunc<T>(this Func<T>? instance)
         {
             object cachedResult = Null;
             return () =>
             {
                 if (cachedResult == Null)
-                    cachedResult = instance.Invoke();
+                    cachedResult = instance!.Invoke();
                 return (T)cachedResult;
             };
         }

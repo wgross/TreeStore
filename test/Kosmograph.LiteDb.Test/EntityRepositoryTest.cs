@@ -1,5 +1,4 @@
-﻿using Elementary.Compare;
-using Kosmograph.Messaging;
+﻿using Kosmograph.Messaging;
 using Kosmograph.Model;
 using LiteDB;
 using Moq;
@@ -58,6 +57,30 @@ namespace Kosmograph.LiteDb.Test
             Assert.NotNull(readEntity);
             Assert.Equal(entity.Id, readEntity.AsDocument["_id"].AsGuid);
             Assert.Equal(entity.Name, readEntity.AsDocument["Name"].AsString);
+        }
+
+        [Fact]
+        public void EntitiyRepository_rejects_duplicate_name()
+        {
+            // ARRANGE
+
+            var entity = new Entity("entity");
+
+            this.eventSource
+                .Setup(s => s.Modified(entity));
+            this.entityRepository.Upsert(entity);
+
+            // ACT
+
+            var result = Assert.Throws<LiteException>(() => this.entityRepository.Upsert(new Entity("entity")));
+
+            // ASSERT
+            // notification was sent only once
+
+            this.eventSource.Verify(s => s.Modified(It.IsAny<Entity>()), Times.Once());
+
+            Assert.Equal("Cannot insert duplicate key in unique index 'Name'. The duplicate value is '\"entity\"'.", result.Message);
+            Assert.Single(this.entities.FindAll());
         }
 
         [Fact]
@@ -276,15 +299,16 @@ namespace Kosmograph.LiteDb.Test
         }
 
         [Fact]
-        public void EntityRepositiry_find_entites_by_tag()
+        public void EntityRepository_finds_entities_by_tag()
         {
             // ARRANGE
+
             this.eventSource
               .Setup(s => s.Modified(It.IsAny<Entity>()));
-            
+
             var tag1 = this.tagRepository.Upsert(new Tag("t1"));
             var tag2 = this.tagRepository.Upsert(new Tag("t2"));
-            var entity1 = this.entityRepository.Upsert(new Entity("entity1",tag1));
+            var entity1 = this.entityRepository.Upsert(new Entity("entity1", tag1));
             var entity2 = this.entityRepository.Upsert(new Entity("entity2", tag2));
 
             // ACT
@@ -295,6 +319,25 @@ namespace Kosmograph.LiteDb.Test
 
             Assert.Single(result);
             Assert.Equal(entity1, result.Single());
+        }
+
+        [Fact]
+        public void EntityRepository_finds_entity_by_name()
+        {
+            // ARRANGE
+
+            this.eventSource
+              .Setup(s => s.Modified(It.IsAny<Entity>()));
+
+            var entity1 = this.entityRepository.Upsert(new Entity("entity"));
+
+            // ACT
+
+            var result = this.entityRepository.FindByName("entity");
+
+            // ASSERT
+
+            Assert.Equal(entity1.Id, result.Id);
         }
     }
 }
