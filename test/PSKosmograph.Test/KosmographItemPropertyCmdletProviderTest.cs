@@ -16,7 +16,7 @@ namespace PSKosmograph.Test
             // ARRANGE
             // provide the top level containers
 
-            var tag = DefaultTag();
+            var tag = DefaultTag(WithDefaultProperty);
 
             this.PersistenceMock
                 .Setup(m => m.Tags)
@@ -54,7 +54,7 @@ namespace PSKosmograph.Test
             // ARRANGE
             // provide the top level containers
 
-            var tag = DefaultTag();
+            var tag = DefaultTag(WithDefaultProperty);
 
             this.PersistenceMock
                 .Setup(m => m.Tags)
@@ -93,7 +93,7 @@ namespace PSKosmograph.Test
             // ARRANGE
             // provide the top level containers
 
-            var tag = DefaultTag();
+            var tag = DefaultTag(WithDefaultProperty);
 
             this.PersistenceMock
                 .Setup(m => m.Tags)
@@ -134,7 +134,7 @@ namespace PSKosmograph.Test
             // ARRANGE
             // provide the top level containers
 
-            var tag = DefaultTag();
+            var tag = DefaultTag(WithDefaultProperty);
 
             this.PersistenceMock
                 .Setup(m => m.Tags)
@@ -172,7 +172,7 @@ namespace PSKosmograph.Test
             // ARRANGE
             // provide the top level containers
 
-            var tag = DefaultTag();
+            var tag = DefaultTag(WithDefaultProperty);
 
             this.PersistenceMock
                 .Setup(m => m.Tags)
@@ -211,7 +211,7 @@ namespace PSKosmograph.Test
             // ARRANGE
             // provide the top level containers
 
-            var tag = DefaultTag();
+            var tag = DefaultTag(WithDefaultProperty);
 
             this.PersistenceMock
                 .Setup(m => m.Tags)
@@ -491,7 +491,7 @@ namespace PSKosmograph.Test
             // ARRANGE
             // provide the top level containers
 
-            var tag = DefaultTag();
+            var tag = DefaultTag(WithDefaultProperty);
 
             this.PersistenceMock
                 .Setup(m => m.Tags)
@@ -534,7 +534,7 @@ namespace PSKosmograph.Test
             // ARRANGE
             // provide the top level containers
 
-            var tag = DefaultTag();
+            var tag = DefaultTag(WithDefaultProperty);
 
             this.PersistenceMock
                 .Setup(m => m.Tags)
@@ -566,7 +566,7 @@ namespace PSKosmograph.Test
             // ARRANGE
             // provide the top level containers
 
-            var tag = DefaultTag();
+            var tag = DefaultTag(WithDefaultProperty);
 
             this.PersistenceMock
                 .Setup(m => m.Tags)

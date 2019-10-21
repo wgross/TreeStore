@@ -194,5 +194,84 @@ namespace PSKosmograph.Test.PathNodes
             Assert.Equal("p", result!.Name);
             Assert.Equal(FacetPropertyTypeValues.Bool, ((FacetPropertyNode.Item)result.Item).ValueType);
         }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void TagNode_removes_itself(bool recurse)
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(NoProperty);
+
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.PersistenceMock
+                .Setup(m => m.Tags)
+                .Returns(this.TagRepositoryMock.Object);
+
+            this.TagRepositoryMock
+                .Setup(r => r.Delete(tag))
+                .Returns(true);
+
+            // ACT
+
+            var node = new TagNode(this.PersistenceMock.Object, tag);
+            node.RemoveItem(this.ProviderContextMock.Object, "t", recurse);
+
+            // ASSERT
+
+            Assert.Null(node.RemoveItemParameters);
+        }
+
+        [Fact]
+        public void TagNode_removes_itself_with_properties()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(NoProperty);
+
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.PersistenceMock
+                .Setup(m => m.Tags)
+                .Returns(this.TagRepositoryMock.Object);
+
+            this.TagRepositoryMock
+                .Setup(r => r.Delete(tag))
+                .Returns(true);
+
+            // ACT
+
+            var node = new TagNode(this.PersistenceMock.Object, tag);
+            node.RemoveItem(this.ProviderContextMock.Object, "t", recurse: true);
+
+            // ASSERT
+
+            Assert.Empty(tag.Facet.Properties);
+            Assert.Null(node.RemoveItemParameters);
+        }
+
+        [Fact]
+        public void TagNode_removing_itself_with_properties_fails_gracefully_if_recurse_false()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(SingleDefaultProperty);
+
+            // ACT
+
+            var node = new TagNode(this.PersistenceMock.Object, tag);
+            node.RemoveItem(this.ProviderContextMock.Object, "t", recurse: false);
+
+            // ASSERT
+
+            Assert.Single(tag.Facet.Properties);
+            Assert.Null(node.RemoveItemParameters);
+        }
     }
 }

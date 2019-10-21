@@ -57,7 +57,7 @@ namespace PSKosmograph.Test.PathNodes
         {
             // ARRANGE
 
-            var e = DefaultEntity();
+            var e = DefaultEntity(WithDefaultTag);
 
             this.ProviderContextMock
                .Setup(p => p.Persistence)
@@ -77,7 +77,7 @@ namespace PSKosmograph.Test.PathNodes
         {
             // ARRANGE
 
-            var e = DefaultEntity();
+            var e = DefaultEntity(WithDefaultTag);
 
             this.ProviderContextMock
                 .Setup(c => c.Persistence)
@@ -113,7 +113,7 @@ namespace PSKosmograph.Test.PathNodes
         {
             // ARRANGE
 
-            var e = DefaultEntity();
+            var e = DefaultEntity(WithDefaultTag);
 
             this.ProviderContextMock
                 .Setup(p => p.Persistence)
@@ -126,6 +126,83 @@ namespace PSKosmograph.Test.PathNodes
             // ASSERT
 
             Assert.Single(result);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void EntityNode_removes_itself(bool recurse)
+        {
+            // ARRANGE
+
+            var entity = DefaultEntity(WithoutTags);
+
+            this.ProviderContextMock
+              .Setup(c => c.Persistence)
+              .Returns(this.PersistenceMock.Object);
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.Delete(entity))
+                .Returns(true);
+
+            // ACT
+
+            var node = new EntityNode(this.PersistenceMock.Object, entity);
+            node.RemoveItem(this.ProviderContextMock.Object, "t", recurse);
+
+            // ASSERT
+
+            Assert.Null(node.RemoveItemParameters);
+        }
+
+        [Fact]
+        public void EntityNode_removes_itself_with_assigend_tags()
+        {
+            // ARRANGE
+
+            var entity = DefaultEntity(WithDefaultTag);
+
+            this.ProviderContextMock
+              .Setup(c => c.Persistence)
+              .Returns(this.PersistenceMock.Object);
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.Delete(entity))
+                .Returns(true);
+
+            // ACT
+
+            var node = new EntityNode(this.PersistenceMock.Object, entity);
+            node.RemoveItem(this.ProviderContextMock.Object, "t", recurse: true);
+
+            // ASSERT
+
+            Assert.Null(node.RemoveItemParameters);
+        }
+
+        [Fact]
+        public void EntityNode_removing_itself_with_assigned_tags_fails_gracefully_if_recurse_false()
+        {
+            // ARRANGE
+
+            var entity = DefaultEntity(WithDefaultTag);
+
+            // ACT
+
+            var node = new EntityNode(this.PersistenceMock.Object, entity);
+            node.RemoveItem(this.ProviderContextMock.Object, "t", recurse: false);
+
+            // ASSERT
+
+            Assert.Null(node.RemoveItemParameters);
         }
 
         [Fact]

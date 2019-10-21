@@ -11,17 +11,16 @@ namespace PSKosmograph.Test.PathNodes
         {
             // ARRANGE
 
-            var tag = DefaultTag();
+            var tag = DefaultTag(SingleDefaultProperty);
 
             // ACT
 
-            var result = new FacetPropertyNode(tag.Facet.Properties.Single());
+            var result = new FacetPropertyNode(tag, tag.Facet.Properties.Single());
 
             // ASSERT
 
             Assert.Equal("p", result.Name);
             Assert.Equal("+", result.ItemMode);
-            Assert.Null(result.GetNodeChildrenParameters);
         }
 
         [Fact]
@@ -29,11 +28,11 @@ namespace PSKosmograph.Test.PathNodes
         {
             // ARRANGE
 
-            var tag = DefaultTag();
+            var tag = DefaultTag(SingleDefaultProperty);
 
             // ACT
 
-            var result = new FacetPropertyNode(tag.Facet.Properties.Single()).GetNodeValue();
+            var result = new FacetPropertyNode(tag, tag.Facet.Properties.Single()).GetNodeValue();
 
             // ASSERT
 
@@ -47,11 +46,11 @@ namespace PSKosmograph.Test.PathNodes
         {
             // ARRANGE
 
-            var tag = DefaultTag();
+            var tag = DefaultTag(SingleDefaultProperty);
 
             // ACT
 
-            var result = new FacetPropertyNode(tag.Facet.Properties.Single()).GetNodeValue().Item as FacetPropertyNode.Item;
+            var result = new FacetPropertyNode(tag, tag.Facet.Properties.Single()).GetNodeValue().Item as FacetPropertyNode.Item;
 
             // ASSERT
 
@@ -61,15 +60,66 @@ namespace PSKosmograph.Test.PathNodes
         }
 
         [Fact]
+        public void FacetPropertyNode_has_no_children()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(SingleDefaultProperty);
+
+            // ACT
+
+            var node = new FacetPropertyNode(tag, tag.Facet.Properties.Single());
+            var result = (
+                children: node.GetNodeChildren(this.ProviderContextMock.Object),
+                parameters: node.GetNodeChildrenParameters
+            );
+
+            // ASSERT
+
+            Assert.Empty(result.children);
+            Assert.Null(result.parameters);
+        }
+
+        [Fact]
+        public void FacetPropertyMode_removes_itself_from_Tag()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(SingleDefaultProperty);
+
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.PersistenceMock
+                .Setup(m => m.Tags)
+                .Returns(this.TagRepositoryMock.Object);
+
+            this.TagRepositoryMock
+                .Setup(r => r.Upsert(tag))
+                .Returns(tag);
+
+            // ACT
+
+            var node = new FacetPropertyNode(tag, tag.Facet.Properties.Single());
+            node.RemoveItem(this.ProviderContextMock.Object, "p", true);
+
+            // ASSERT
+
+            Assert.Null(node.RemoveItemParameters);
+            Assert.Empty(tag.Facet.Properties);
+        }
+
+        [Fact]
         public void FacetPropertyNodeItem_set_FacetProperty_name()
         {
             // ARRANGE
 
-            var tag = DefaultTag();
+            var tag = DefaultTag(SingleDefaultProperty);
 
             // ACT
 
-            var item = new FacetPropertyNode(tag.Facet.Properties.Single()).GetNodeValue().Item as FacetPropertyNode.Item;
+            var item = new FacetPropertyNode(tag, tag.Facet.Properties.Single()).GetNodeValue().Item as FacetPropertyNode.Item;
             item!.Name = "changed";
 
             // ASSERT
@@ -82,11 +132,11 @@ namespace PSKosmograph.Test.PathNodes
         {
             // ARRANGE
 
-            var tag = DefaultTag();
+            var tag = DefaultTag(SingleDefaultProperty);
 
             // ACT
 
-            var item = new FacetPropertyNode(tag.Facet.Properties.Single()).GetNodeValue().Item as FacetPropertyNode.Item;
+            var item = new FacetPropertyNode(tag, tag.Facet.Properties.Single()).GetNodeValue().Item as FacetPropertyNode.Item;
             item!.ValueType = Kosmograph.Model.FacetPropertyTypeValues.Bool;
 
             // ASSERT

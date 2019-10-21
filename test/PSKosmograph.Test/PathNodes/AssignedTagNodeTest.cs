@@ -14,7 +14,7 @@ namespace PSKosmograph.Test.PathNodes
         {
             // ARRANGE
 
-            var e = DefaultEntity();
+            var e = DefaultEntity(WithDefaultTag);
 
             // ACT
 
@@ -31,7 +31,7 @@ namespace PSKosmograph.Test.PathNodes
         {
             // ARRANGE
 
-            var e = DefaultEntity();
+            var e = DefaultEntity(WithDefaultTag);
 
             // ACT
 
@@ -40,25 +40,28 @@ namespace PSKosmograph.Test.PathNodes
             // ASSERT
 
             Assert.Equal("t", result.Name);
-            Assert.True(result.IsCollection);
+            Assert.False(result.IsCollection);
         }
 
         [Fact]
-        public void AssignedTagNodeValue_provides_Item()
+        public void AssignedTagNode_has_no_children()
         {
             // ARRANGE
 
-            var e = DefaultEntity();
+            var e = DefaultEntity(WithDefaultTag);
 
             // ACT
 
-            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).GetNodeValue().Item as AssignedTagNode.Item;
+            var node = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single());
+            var result = (
+                children: node.GetNodeChildren(this.ProviderContextMock.Object),
+                parameters: node.GetNodeChildrenParameters
+            );
 
             // ASSERT
 
-            Assert.NotNull(result);
-            Assert.Equal(e.Tags.Single().Name, result!.Name);
-            Assert.Equal(e.Tags.Single().Id, result!.Id);
+            Assert.Empty(result.children);
+            Assert.Null(result.parameters);
         }
 
         [Fact]
@@ -66,7 +69,7 @@ namespace PSKosmograph.Test.PathNodes
         {
             // ARRANGE
 
-            var e = DefaultEntity();
+            var e = DefaultEntity(WithDefaultTag);
             e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), 1);
 
             // ACT
@@ -80,11 +83,11 @@ namespace PSKosmograph.Test.PathNodes
         }
 
         [Fact]
-        public void AssignedTagNode_provides_single_assigned_propertiy_with_value()
+        public void AssignedTagNode_provides_single_assigned_property_with_value()
         {
             // ARRANGE
 
-            var e = DefaultEntity();
+            var e = DefaultEntity(WithDefaultTag);
             e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), 1);
 
             // ACT
@@ -102,7 +105,7 @@ namespace PSKosmograph.Test.PathNodes
         {
             // ARRANGE
 
-            var e = DefaultEntity();
+            var e = DefaultEntity(WithDefaultTag);
 
             // ACT
 
@@ -114,12 +117,95 @@ namespace PSKosmograph.Test.PathNodes
             Assert.Null(result.Single().Value);
         }
 
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void AssignedTagNode_removes_itself(bool recurse)
+        {
+            // ARRANGE
+
+            var e = DefaultEntity(WithDefaultTag);
+
+            this.ProviderContextMock
+                .Setup(p => p.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.PersistenceMock
+                .Setup(p => p.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.Upsert(e))
+                .Returns(e);
+
+            // ACT
+
+            var node = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single());
+            node.RemoveItem(this.ProviderContextMock.Object, "t", recurse);
+
+            // ARRANGE
+
+            Assert.Empty(e.Tags);
+            Assert.Null(node.RemoveItemParameters);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void AssignedTagNode_removes_itself_with_values(bool recurse)
+        {
+            // ARRANGE
+
+            var e = DefaultEntity(WithDefaultTag, WithDefaultPropertySet(value: "test"));
+
+            this.ProviderContextMock
+                .Setup(p => p.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.PersistenceMock
+                .Setup(p => p.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.Upsert(e))
+                .Returns(e);
+
+            // ACT
+
+            var node = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single());
+            node.RemoveItem(this.ProviderContextMock.Object, "t", recurse);
+
+            // ARRANGE
+            // property values aren't child items.
+
+            Assert.Empty(e.Tags);
+            Assert.Null(node.RemoveItemParameters);
+        }
+
+        [Fact]
+        public void AssignedTagNodeValue_provides_Item()
+        {
+            // ARRANGE
+
+            var e = DefaultEntity(WithDefaultTag);
+
+            // ACT
+
+            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).GetNodeValue().Item as AssignedTagNode.Item;
+
+            // ASSERT
+
+            Assert.NotNull(result);
+            Assert.Equal(e.Tags.Single().Name, result!.Name);
+            Assert.Equal(e.Tags.Single().Id, result!.Id);
+        }
+
         [Fact]
         public void AssignedTagNodeValue_sets_facet_property_value()
         {
             // ARRANGE
 
-            var e = DefaultEntity();
+            var e = DefaultEntity(WithDefaultTag);
 
             this.PersistenceMock
                 .Setup(p => p.Entities)
@@ -143,7 +229,7 @@ namespace PSKosmograph.Test.PathNodes
         {
             // ARRANGE
 
-            var e = DefaultEntity(e => e.Tags.Single().Facet.Properties.Single().Type = FacetPropertyTypeValues.Bool);
+            var e = DefaultEntity(WithDefaultTag, e => e.Tags.Single().Facet.Properties.Single().Type = FacetPropertyTypeValues.Bool);
 
             // ACT
 

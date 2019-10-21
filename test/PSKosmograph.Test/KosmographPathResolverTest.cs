@@ -50,7 +50,7 @@ namespace PSKosmograph.Test
 
             this.TagRepositoryMock
                 .Setup(r => r.FindByName("t"))
-                .Returns(DefaultTag(t => t.Name = "t"));
+                .Returns(DefaultTag(WithDefaultProperty));
 
             // ACT
 

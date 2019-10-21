@@ -11,7 +11,7 @@ namespace PSKosmograph.Test.PathNodes
         {
             // ARRANGE
 
-            var e = DefaultEntity();
+            var e = DefaultEntity(WithDefaultTag);
 
             // ACT
 
@@ -29,7 +29,7 @@ namespace PSKosmograph.Test.PathNodes
         {
             // ARRANGE
 
-            var e = DefaultEntity();
+            var e = DefaultEntity(WithDefaultTag);
 
             // ACT
 
@@ -46,7 +46,7 @@ namespace PSKosmograph.Test.PathNodes
         {
             // ARRANGE
 
-            var e = DefaultEntity();
+            var e = DefaultEntity(WithDefaultTag);
             e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), 2);
 
             // ACT

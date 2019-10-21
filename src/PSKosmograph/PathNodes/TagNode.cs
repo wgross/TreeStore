@@ -9,7 +9,7 @@ using System.Management.Automation;
 
 namespace PSKosmograph.PathNodes
 {
-    public class TagNode : IPathNode, INewItem
+    public class TagNode : IPathNode, INewItem, IRemoveItem
     {
         public class Item
         {
@@ -71,7 +71,7 @@ namespace PSKosmograph.PathNodes
         public string ItemMode => "+";
 
         public IEnumerable<IPathNode> GetNodeChildren(IProviderContext providerContext)
-            => this.tag.Facet.Properties.Select(p => new FacetPropertyNode(p));
+            => this.tag.Facet.Properties.Select(p => new FacetPropertyNode(this.tag, p));
 
         public IPathValue GetNodeValue() => new Value(this.model, this.tag);
 
@@ -84,7 +84,7 @@ namespace PSKosmograph.PathNodes
             if (facetProperty is null)
                 return Enumerable.Empty<IPathNode>();
 
-            return new[] { new FacetPropertyNode(facetProperty) };
+            return new[] { new FacetPropertyNode(tag, facetProperty) };
         }
 
         #endregion IPathNode Members
@@ -101,7 +101,7 @@ namespace PSKosmograph.PathNodes
 
         public object? NewItemParameters => new NewFacetPropertyParameters();
 
-        public IPathValue? NewItem(IProviderContext providerContext, string newItemChildPath, string? itemTypeName, object? newItemValue)
+        public IPathValue? NewItem(IProviderContext providerContext, string newItemChildPath, string itemTypeName, object? newItemValue)
         {
             var facetProperty = providerContext.DynamicParameters switch
             {
@@ -116,5 +116,19 @@ namespace PSKosmograph.PathNodes
         }
 
         #endregion INewItem Members
+
+        #region IRemoveItem
+
+        public object? RemoveItemParameters => null;
+
+        public void RemoveItem(IProviderContext providerContext, string name, bool recurse)
+        {
+            if (recurse)
+                providerContext.Persistence().Tags.Delete(this.tag);
+            else if (!this.tag.Facet.Properties.Any())
+                providerContext.Persistence().Tags.Delete(this.tag);
+        }
+
+        #endregion IRemoveItem
     }
 }

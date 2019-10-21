@@ -8,7 +8,7 @@ using System.Management.Automation;
 
 namespace PSKosmograph.PathNodes
 {
-    public class AssignedTagNode : IPathNode
+    public class AssignedTagNode : IPathNode, IRemoveItem
     {
         private readonly IKosmographPersistence model;
         private readonly Entity entity;
@@ -36,7 +36,7 @@ namespace PSKosmograph.PathNodes
 
             public string Name => this.assignedTag.Name;
 
-            public bool IsCollection => true;
+            public bool IsCollection => false;
 
             public object Item => new Item(this.assignedTag);
 
@@ -84,16 +84,13 @@ namespace PSKosmograph.PathNodes
             public string Name => this.assignedTag.Name;
         }
 
-        public object GetNodeChildrenParameters => throw new System.NotImplementedException();
+        public object? GetNodeChildrenParameters => null;
 
         public string Name => this.assignedTag.Name;
 
         public string ItemMode => "+";
 
-        public IEnumerable<IPathNode> GetNodeChildren(IProviderContext providerContext)
-        {
-            throw new System.NotImplementedException();
-        }
+        public IEnumerable<IPathNode> GetNodeChildren(IProviderContext providerContext) => Enumerable.Empty<IPathNode>();
 
         public IPathValue GetNodeValue() => new Value(this.model, this.entity, this.assignedTag);
 
@@ -101,5 +98,17 @@ namespace PSKosmograph.PathNodes
         {
             throw new System.NotImplementedException();
         }
+
+        #region IRemoveItem Members
+
+        public object? RemoveItemParameters => null;
+
+        public void RemoveItem(IProviderContext providerContext, string path, bool recurse)
+        {
+            this.entity.Tags.Remove(this.assignedTag);
+            providerContext.Persistence().Entities.Upsert(this.entity);
+        }
+
+        #endregion IRemoveItem Members
     }
 }

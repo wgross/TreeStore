@@ -72,18 +72,34 @@ namespace PSKosmograph.Test
             return model;
         }
 
-        protected Tag DefaultTag(Action<Tag>? setup = null)
+        #region Default Tag
+
+        protected static Tag DefaultTag(params Action<Tag>[] setup)
         {
-            var tmp = new Tag("t", new Facet("f", new FacetProperty("p")));
-            setup?.Invoke(tmp);
+            var tmp = new Tag("t", new Facet("f"));
+            setup.ForEach(s => s.Invoke(tmp));
             return tmp;
         }
 
-        protected Entity DefaultEntity(Action<Entity>? setup = null)
+        protected static void WithDefaultProperty(Tag tag) => tag.Facet.AddProperty(new FacetProperty("p", FacetPropertyTypeValues.String));
+
+        protected static void WithoutProperty(Tag tag) => tag.Facet.Properties.Clear();
+
+        #endregion Default Tag
+
+        #region Default Entity
+
+        protected static Entity DefaultEntity(Action<Entity>? setup = null)
         {
-            var tmp = new Entity("e", DefaultTag());
-            setup?.Invoke(tmp);
+            var tmp = new Entity("e");
+            (setup ?? WithDefaultTag)?.Invoke(tmp);
             return tmp;
         }
+
+        protected static void WithDefaultTag(Entity e) => e.AddTag(DefaultTag(WithDefaultProperty));
+
+        protected static void WithoutTag(Entity e) => e.Tags.Clear();
+
+        #endregion Default Entity
     }
 }

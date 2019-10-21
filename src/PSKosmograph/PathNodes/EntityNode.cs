@@ -8,7 +8,7 @@ using System.Management.Automation;
 
 namespace PSKosmograph.PathNodes
 {
-    public class EntityNode : IPathNode, INewItem
+    public class EntityNode : IPathNode, INewItem, IRemoveItem
     {
         public sealed class Value : ContainerPathValue, IPathValue
         {
@@ -94,5 +94,19 @@ namespace PSKosmograph.PathNodes
         }
 
         #endregion INewItem Members
+
+        #region IRemoveItem members
+
+        public object? RemoveItemParameters => null;
+
+        public void RemoveItem(IProviderContext providerContext, string path, bool recurse)
+        {
+            if (recurse)
+                providerContext.Persistence().Entities.Delete(this.entity);
+            else if (!this.entity.Tags.Any())
+                providerContext.Persistence().Entities.Delete(this.entity);
+        }
+
+        #endregion IRemoveItem members
     }
 }
