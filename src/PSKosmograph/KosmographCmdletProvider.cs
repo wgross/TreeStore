@@ -13,7 +13,7 @@ namespace PSKosmograph
     {
         public const string Id = "Kosmograph";
 
-        public static Func<IKosmographPersistence>? NewKosmographService { get; set; }
+        public static Func<string, IKosmographPersistence>? NewKosmographService { get; set; }
 
         private KosmographDriveInfo KosmographDriveInfo => (KosmographDriveInfo)this.PSDriveInfo;
 
@@ -32,7 +32,11 @@ namespace PSKosmograph
 
         protected override PSDriveInfo NewDrive(PSDriveInfo drive)
         {
-            return new KosmographDriveInfo(drive, NewKosmographService?.Invoke());
+            var persistence = NewKosmographService?.Invoke(drive.Root);
+            if (persistence is null)
+                throw new ArgumentNullException(nameof(NewKosmographService));
+
+            return new KosmographDriveInfo(new PSDriveInfo(drive.Name, drive.Provider, $@"{drive.Name}:\", drive.Description, drive.Credential), persistence);
         }
 
         public ProviderInfo GetProviderInfo() => this.ProviderInfo;
@@ -99,7 +103,7 @@ namespace PSKosmograph
 
         //protected override string GetChildName(string path)
         //{
-        //    return base.GetChildName(path);
+        //    return base.GetChildName(this.EnsureOa path);
         //}
 
         //protected override string GetParentPath(string path, string root)

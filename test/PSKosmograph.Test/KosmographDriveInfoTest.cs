@@ -1,21 +1,25 @@
-﻿namespace PSKosmograph.Test
+﻿using System.Management.Automation;
+using Xunit;
+
+namespace PSKosmograph.Test
 {
     public class KosmographDriveInfoTest : KosmographCmdletProviderTestBase
     {
-        //[Fact]
-        //public void KosmographDriveInfo_recplicates_PSDriveInfo()
-        //{
-        //    // ARRANGE
+        [Fact]
+        public void KosmographDriveInfo_recplicates_PSDriveInfo()
+        {
+            // ARRANGE
 
-        //    var provider = new KosmographCmdletProvider();
+            var provider = new KosmographCmdletProvider();
 
-        //    // ACT
+            // ACT
 
-        //    var result = new KosmographDriveInfo(new PSDriveInfo("kg", provider.GetProviderInfo(), "", null, null), this.Service.Object);
+            //var result = new KosmographDriveInfo(
+            //    new PSDriveInfo("kg", provider.GetProviderInfo(), @"kg:\", strimngh., null), this.PersistenceMock.Object);
 
-        //    // ASSERT
+            // ASSERT
 
-        //    Assert.Same(this.Service.Object, result.Service);
-        //}
+            // Assert.Same(this.Service.Object, result.Service);
+        }
     }
 }

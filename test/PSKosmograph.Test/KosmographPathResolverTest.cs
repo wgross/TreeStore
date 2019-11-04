@@ -2,6 +2,7 @@
 using PSKosmograph.PathNodes;
 using System;
 using System.Linq;
+using System.Management.Automation;
 using Xunit;
 
 namespace PSKosmograph.Test
@@ -15,6 +16,9 @@ namespace PSKosmograph.Test
         {
             this.pathResolver = new KosmographPathResolver();
             this.providerContextMock = this.Mocks.Create<IKosmographProviderContext>();
+            this.providerContextMock
+                 .Setup(c => c.Drive)
+                 .Returns((PSDriveInfo?)null);
         }
 
         [Theory]

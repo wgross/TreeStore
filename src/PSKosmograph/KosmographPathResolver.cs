@@ -13,8 +13,15 @@ namespace PSKosmograph
     {
         public IEnumerable<IPathNode> ResolvePath(IProviderContext providerContext, string path)
         {
+            var normalizedPath = path;
+            if (providerContext.Drive is { })
+                if (normalizedPath.StartsWith(providerContext.Drive.Root))
+                {
+                    normalizedPath = normalizedPath.Remove(0, providerContext.Drive.Root.Length);
+                }
+
             IPathNode node = new RootNode();
-            foreach (var pathItem in path.Split("\\/".ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
+            foreach (var pathItem in normalizedPath.Split("\\/".ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
             {
                 node = node.Resolve(providerContext, pathItem).SingleOrDefault();
                 if (node is null)

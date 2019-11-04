@@ -20,6 +20,7 @@ namespace PSKosmograph.Test
         public Mock<ITagRepository> TagRepositoryMock { get; }
 
         public Mock<IEntityRepository> EntityRepositoryMock { get; }
+
         public Mock<IRelationshipRepository> RelationshipRepositoryMock { get; }
 
         public PowerShell PowerShell { get; }
@@ -33,7 +34,7 @@ namespace PSKosmograph.Test
             this.EntityRepositoryMock = this.Mocks.Create<IEntityRepository>();
             this.RelationshipRepositoryMock = this.Mocks.Create<IRelationshipRepository>();
 
-            KosmographCmdletProvider.NewKosmographService = () => this.PersistenceMock.Object;
+            KosmographCmdletProvider.NewKosmographService = _ => this.PersistenceMock.Object;
 
             this.PowerShell = PowerShell.Create();
 
@@ -48,7 +49,7 @@ namespace PSKosmograph.Test
                     .AddCommand("New-PsDrive")
                         .AddParameter("Name", "kg")
                         .AddParameter("PsProvider", "Kosmograph")
-                        .AddParameter("Root", @"")
+                        .AddParameter("Root", @"kg:\")
                         .Invoke();
 
             this.PowerShell.Commands.Clear();

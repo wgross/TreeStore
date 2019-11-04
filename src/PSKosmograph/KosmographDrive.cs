@@ -1,5 +1,6 @@
 ﻿using CodeOwls.PowerShell.Provider;
 using Kosmograph.Model;
+using System.Collections.Generic;
 using System.Management.Automation;
 
 namespace PSKosmograph
@@ -12,5 +13,7 @@ namespace PSKosmograph
         }
 
         public IKosmographPersistence Persistence { get; }
+        
+        public string Database { get; set; }
     }
 }

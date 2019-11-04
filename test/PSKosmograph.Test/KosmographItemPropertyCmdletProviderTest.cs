@@ -43,7 +43,7 @@ namespace PSKosmograph.Test
             Assert.IsType<ProviderInfo>(result[0].Property<ProviderInfo>("PSProvider"));
             Assert.Equal("Kosmograph", result[0].Property<ProviderInfo>("PSProvider").Name);
             Assert.Equal("PSKosmograph", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
-            Assert.Equal(@"PSKosmograph\Kosmograph::Tags\t", ((string)result[0].Properties["PSPath"].Value));
+            Assert.Equal(@"PSKosmograph\Kosmograph::kg:\Tags\t", ((string)result[0].Properties["PSPath"].Value));
             Assert.Equal(tag.Id, result[0].Property<Guid>("Id"));
             Assert.Equal(tag.Name, result[0].Property<string>("Name"));
         }
@@ -82,7 +82,7 @@ namespace PSKosmograph.Test
             Assert.IsType<ProviderInfo>(result[0].Property<ProviderInfo>("PSProvider"));
             Assert.Equal("Kosmograph", result[0].Property<ProviderInfo>("PSProvider").Name);
             Assert.Equal("PSKosmograph", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
-            Assert.Equal(@"PSKosmograph\Kosmograph::Tags\t", ((string)result[0].Properties["PSPath"].Value));
+            Assert.Equal(@"PSKosmograph\Kosmograph::kg:\Tags\t", ((string)result[0].Properties["PSPath"].Value));
             Assert.Equal(tag.Id, result[0].Property<Guid>("Id"));
             Assert.False(result.Single().PropertyContains(nameof(Tag.Name)));
         }
@@ -121,7 +121,7 @@ namespace PSKosmograph.Test
             Assert.IsType<ProviderInfo>(result[0].Property<ProviderInfo>("PSProvider"));
             Assert.Equal("Kosmograph", result[0].Property<ProviderInfo>("PSProvider").Name);
             Assert.Equal("PSKosmograph", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
-            Assert.Equal(@"PSKosmograph\Kosmograph::Tags\t", ((string)result[0].Properties["PSPath"].Value));
+            Assert.Equal(@"PSKosmograph\Kosmograph::kg:\Tags\t", ((string)result[0].Properties["PSPath"].Value));
         }
 
         #endregion Get-ItemProperty /Tags/<name>
@@ -160,7 +160,7 @@ namespace PSKosmograph.Test
             Assert.IsType<ProviderInfo>(result[0].Property<ProviderInfo>("PSProvider"));
             Assert.Equal("Kosmograph", result[0].Property<ProviderInfo>("PSProvider").Name);
             Assert.Equal("PSKosmograph", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
-            Assert.Equal(@"PSKosmograph\Kosmograph::Tags\t\p", ((string)result[0].Properties["PSPath"].Value));
+            Assert.Equal(@"PSKosmograph\Kosmograph::kg:\Tags\t\p", ((string)result[0].Properties["PSPath"].Value));
             Assert.Equal(tag.Facet.Properties.Single().Id, result[0].Property<Guid>("Id"));
             Assert.Equal(tag.Facet.Properties.Single().Name, result[0].Property<string>("Name"));
             Assert.Equal(tag.Facet.Properties.Single().Type, result[0].Property<FacetPropertyTypeValues>("ValueType"));
@@ -199,7 +199,7 @@ namespace PSKosmograph.Test
             Assert.IsType<ProviderInfo>(result[0].Property<ProviderInfo>("PSProvider"));
             Assert.Equal("Kosmograph", result[0].Property<ProviderInfo>("PSProvider").Name);
             Assert.Equal("PSKosmograph", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
-            Assert.Equal(@"PSKosmograph\Kosmograph::Tags\t\p", ((string)result[0].Properties["PSPath"].Value));
+            Assert.Equal(@"PSKosmograph\Kosmograph::kg:\Tags\t\p", ((string)result[0].Properties["PSPath"].Value));
             Assert.Equal(tag.Facet.Properties.Single().Id, result[0].Property<Guid>("Id"));
             Assert.False(result.Single().PropertyContains(nameof(FacetProperty.Name)));
             Assert.False(result.Single().PropertyContains(nameof(FacetProperty.Type)));
@@ -238,7 +238,7 @@ namespace PSKosmograph.Test
             Assert.IsType<ProviderInfo>(result[0].Property<ProviderInfo>("PSProvider"));
             Assert.Equal("Kosmograph", result[0].Property<ProviderInfo>("PSProvider").Name);
             Assert.Equal("PSKosmograph", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
-            Assert.Equal(@"PSKosmograph\Kosmograph::Tags\t\p", ((string)result[0].Properties["PSPath"].Value));
+            Assert.Equal(@"PSKosmograph\Kosmograph::kg:\Tags\t\p", ((string)result[0].Properties["PSPath"].Value));
         }
 
         #endregion Get-ItemProperty /Tags/<name>/<property-name>
@@ -278,7 +278,7 @@ namespace PSKosmograph.Test
             Assert.IsType<ProviderInfo>(result[0].Property<ProviderInfo>("PSProvider"));
             Assert.Equal("Kosmograph", result[0].Property<ProviderInfo>("PSProvider").Name);
             Assert.Equal("PSKosmograph", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
-            Assert.Equal(@"PSKosmograph\Kosmograph::Entities\e", ((string)result[0].Properties["PSPath"].Value));
+            Assert.Equal(@"PSKosmograph\Kosmograph::kg:\Entities\e", ((string)result[0].Properties["PSPath"].Value));
             Assert.Equal(entity.Id, result[0].Property<Guid>("Id"));
             Assert.Equal(entity.Name, result[0].Property<string>("Name"));
         }
@@ -317,7 +317,7 @@ namespace PSKosmograph.Test
             Assert.IsType<ProviderInfo>(result[0].Property<ProviderInfo>("PSProvider"));
             Assert.Equal("Kosmograph", result[0].Property<ProviderInfo>("PSProvider").Name);
             Assert.Equal("PSKosmograph", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
-            Assert.Equal(@"PSKosmograph\Kosmograph::Entities\e", ((string)result[0].Properties["PSPath"].Value));
+            Assert.Equal(@"PSKosmograph\Kosmograph::kg:\Entities\e", ((string)result[0].Properties["PSPath"].Value));
             Assert.False(result[0].PropertyContains("Id"));
             Assert.Equal(entity.Name, result[0].Property<string>("Name"));
         }
@@ -356,7 +356,7 @@ namespace PSKosmograph.Test
             Assert.IsType<ProviderInfo>(result[0].Property<ProviderInfo>("PSProvider"));
             Assert.Equal("Kosmograph", result[0].Property<ProviderInfo>("PSProvider").Name);
             Assert.Equal("PSKosmograph", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
-            Assert.Equal(@"PSKosmograph\Kosmograph::Entities\e", ((string)result[0].Properties["PSPath"].Value));
+            Assert.Equal(@"PSKosmograph\Kosmograph::kg:\Entities\e", ((string)result[0].Properties["PSPath"].Value));
         }
 
         #endregion Get-ItemProperty /Entities/<name>
@@ -397,7 +397,7 @@ namespace PSKosmograph.Test
             Assert.IsType<ProviderInfo>(result[0].Property<ProviderInfo>("PSProvider"));
             Assert.Equal("Kosmograph", result[0].Property<ProviderInfo>("PSProvider").Name);
             Assert.Equal("PSKosmograph", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
-            Assert.Equal(@"PSKosmograph\Kosmograph::Entities\e\t", ((string)result[0].Properties["PSPath"].Value));
+            Assert.Equal(@"PSKosmograph\Kosmograph::kg:\Entities\e\t", ((string)result[0].Properties["PSPath"].Value));
             Assert.Equal(tag.Id, result[0].Property<Guid>("Id"));
             Assert.Equal(tag.Name, result[0].Property<string>("Name"));
             Assert.Equal(entity.TryGetFacetProperty(tag.Facet.Properties.Single()).Item2, result[0].Property<int>(tag.Facet.Properties.Single().Name));
@@ -438,7 +438,7 @@ namespace PSKosmograph.Test
             Assert.IsType<ProviderInfo>(result[0].Property<ProviderInfo>("PSProvider"));
             Assert.Equal("Kosmograph", result[0].Property<ProviderInfo>("PSProvider").Name);
             Assert.Equal("PSKosmograph", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
-            Assert.Equal(@"PSKosmograph\Kosmograph::Entities\e\t", ((string)result[0].Properties["PSPath"].Value));
+            Assert.Equal(@"PSKosmograph\Kosmograph::kg:\Entities\e\t", ((string)result[0].Properties["PSPath"].Value));
             Assert.Equal(entity.TryGetFacetProperty(tag.Facet.Properties.Single()).Item2, result[0].Property<int>(tag.Facet.Properties.Single().Name));
             Assert.False(result[0].PropertyContains("id"));
         }
@@ -478,7 +478,7 @@ namespace PSKosmograph.Test
             Assert.IsType<ProviderInfo>(result[0].Property<ProviderInfo>("PSProvider"));
             Assert.Equal("Kosmograph", result[0].Property<ProviderInfo>("PSProvider").Name);
             Assert.Equal("PSKosmograph", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
-            Assert.Equal(@"PSKosmograph\Kosmograph::Entities\e\t", ((string)result[0].Properties["PSPath"].Value));
+            Assert.Equal(@"PSKosmograph\Kosmograph::kg:\Entities\e\t", ((string)result[0].Properties["PSPath"].Value));
         }
 
         #endregion Get-ItemProperty /Entities/<name>/<tag-name>

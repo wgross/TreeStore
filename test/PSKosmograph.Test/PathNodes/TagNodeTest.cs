@@ -202,7 +202,7 @@ namespace PSKosmograph.Test.PathNodes
         {
             // ARRANGE
 
-            var tag = DefaultTag(NoProperty);
+            var tag = DefaultTag(WithoutProperty);
 
             this.ProviderContextMock
                 .Setup(c => c.Persistence)
@@ -231,7 +231,7 @@ namespace PSKosmograph.Test.PathNodes
         {
             // ARRANGE
 
-            var tag = DefaultTag(NoProperty);
+            var tag = DefaultTag(WithoutProperty);
 
             this.ProviderContextMock
                 .Setup(c => c.Persistence)
@@ -261,7 +261,7 @@ namespace PSKosmograph.Test.PathNodes
         {
             // ARRANGE
 
-            var tag = DefaultTag(SingleDefaultProperty);
+            var tag = DefaultTag(WithDefaultProperty);
 
             // ACT
 

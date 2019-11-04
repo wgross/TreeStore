@@ -43,7 +43,7 @@ namespace PSKosmograph.Test
             Assert.IsType<ProviderInfo>(result[0].Property<ProviderInfo>("PSProvider"));
             Assert.Equal("Kosmograph", result[0].Property<ProviderInfo>("PSProvider").Name);
             Assert.Equal("PSKosmograph", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
-            Assert.Equal(@"PSKosmograph\Kosmograph::Tags\tag", ((string)result[0].Properties["PSPath"].Value));
+            Assert.Equal(@"PSKosmograph\Kosmograph::kg:\Tags\tag", ((string)result[0].Properties["PSPath"].Value));
             Assert.NotEqual(Guid.Empty, result[0].Property<Guid>("Id"));
             Assert.Equal("tag", result[0].Property<string>("Name"));
         }
@@ -87,7 +87,7 @@ namespace PSKosmograph.Test
             Assert.IsType<ProviderInfo>(result[0].Property<ProviderInfo>("PSProvider"));
             Assert.Equal("Kosmograph", result[0].Property<ProviderInfo>("PSProvider").Name);
             Assert.Equal("PSKosmograph", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
-            Assert.Equal(@"PSKosmograph\Kosmograph::Tags\t\p", ((string)result[0].Properties["PSPath"].Value));
+            Assert.Equal(@"PSKosmograph\Kosmograph::kg:\Tags\t\p", ((string)result[0].Properties["PSPath"].Value));
             Assert.NotEqual(Guid.Empty, result[0].Property<Guid>("Id"));
             Assert.Equal("p", result[0].Property<string>("Name"));
         }
@@ -128,7 +128,7 @@ namespace PSKosmograph.Test
             Assert.IsType<ProviderInfo>(result[0].Property<ProviderInfo>("PSProvider"));
             Assert.Equal("Kosmograph", result[0].Property<ProviderInfo>("PSProvider").Name);
             Assert.Equal("PSKosmograph", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
-            Assert.Equal(@"PSKosmograph\Kosmograph::Entities\e", ((string)result[0].Properties["PSPath"].Value));
+            Assert.Equal(@"PSKosmograph\Kosmograph::kg:\Entities\e", ((string)result[0].Properties["PSPath"].Value));
             Assert.NotEqual(Guid.Empty, result[0].Property<Guid>("Id"));
             Assert.Equal("e", result[0].Property<string>("Name"));
         }

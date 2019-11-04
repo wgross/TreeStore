@@ -1,27 +1,28 @@
+using Kosmograph.LiteDb;
+using Kosmograph.Messaging;
 using System.Linq;
 using System.Management.Automation;
 using Xunit;
 
 namespace PSKosmograph.Test
 {
-
     [Collection("UsesPowershell")]
     public class KosmographFileSystemProviderTest
     {
-        private readonly KosmographCmdletProvider provider;
-        private readonly PowerShell powershell;
-
         public KosmographFileSystemProviderTest()
         {
-            provider = new KosmographCmdletProvider();
-            powershell = PowerShell.Create();
+            KosmographCmdletProvider.NewKosmographService = _ => new KosmographLiteDbPersistence(KosmographMessageBus.Default);
 
-            this.powershell
-                .AddStatement()
-                    .AddCommand("Import-Module")
-                    .AddArgument("./PSKosmograph.dll")
-                    .Invoke();
+            this.PowerShell = PowerShell.Create();
+
+            this.PowerShell
+              .AddStatement()
+                  .AddCommand("Import-Module")
+                  .AddArgument("./PSKosmograph.dll")
+                  .Invoke();
         }
+
+        public PowerShell PowerShell { get; }
 
         [Fact]
         public void Powershell_creates_new_drive()
@@ -29,21 +30,21 @@ namespace PSKosmograph.Test
             // ACT
             // create a drive with the treesor provider and give it the url
 
-            this.powershell
+            this.PowerShell
                 .AddStatement()
                     .AddCommand("New-PsDrive")
                         .AddParameter("Name", "kg")
                         .AddParameter("PsProvider", "Kosmograph")
-                        .AddParameter("Root", @"");
+                        .AddParameter("Root", @"c:\in\memory\db");
 
-            var result = this.powershell.Invoke();
+            var result = this.PowerShell.Invoke();
 
             // ASSERT
             // drive was created
 
-            Assert.False(this.powershell.HadErrors);
+            Assert.False(this.PowerShell.HadErrors);
 
-            var drive = this.powershell
+            var drive = this.PowerShell
                 .AddStatement()
                     .AddCommand("Get-PsDrive")
                         .AddParameter("Name", "kg")
@@ -51,7 +52,10 @@ namespace PSKosmograph.Test
 
             Assert.NotNull(drive);
             Assert.Equal("kg", ((PSDriveInfo)drive.ImmediateBaseObject).Name);
-            Assert.Equal("", ((PSDriveInfo)drive.ImmediateBaseObject).Root);
+            Assert.Equal(@"kg:\", ((PSDriveInfo)drive.ImmediateBaseObject).Root);
+            Assert.Null(((PSDriveInfo)drive.ImmediateBaseObject).Description);
+            Assert.Equal("", ((PSDriveInfo)drive.ImmediateBaseObject).CurrentLocation);
+            Assert.Null(((PSDriveInfo)drive.ImmediateBaseObject).DisplayRoot);
         }
 
         [Fact]
@@ -60,7 +64,7 @@ namespace PSKosmograph.Test
             // ARRANGE
             // import the module and create a drive
 
-            this.powershell
+            this.PowerShell
                 .AddStatement()
                     .AddCommand("New-PsDrive")
                         .AddParameter("Name", "kg")
@@ -70,31 +74,31 @@ namespace PSKosmograph.Test
             // ACT
             // remove the drive
 
-            this.powershell
+            this.PowerShell
                 .AddStatement()
                     .AddCommand("Remove-PsDrive")
                     .AddParameter("Name", "kg");
 
-            var result = this.powershell.Invoke().Single();
+            var result = this.PowerShell.Invoke().Single();
 
             // ASSERT
             // drive is no longer there and service was called.
 
-            Assert.False(this.powershell.HadErrors);
+            Assert.False(this.PowerShell.HadErrors);
 
             Assert.NotNull(result);
             Assert.Equal("kg", ((PSDriveInfo)result.ImmediateBaseObject).Name);
-            Assert.Equal("", ((PSDriveInfo)result.ImmediateBaseObject).Root);
+            Assert.Equal(@"kg:\", ((PSDriveInfo)result.ImmediateBaseObject).Root);
 
             // fectcing drive fails
 
-            var drive = this.powershell
+            var drive = this.PowerShell
                 .AddStatement()
                     .AddCommand("Get-PsDrive")
                         .AddParameter("Name", "kg")
                         .Invoke().Single();
 
-            Assert.True(this.powershell.HadErrors);
+            Assert.True(this.PowerShell.HadErrors);
         }
     }
 }
