@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Xunit;
 
 namespace Kosmograph.Model.Test
@@ -37,6 +38,22 @@ namespace Kosmograph.Model.Test
             // ASSERT
 
             Assert.Equal(tag, entity.Tags.Single());
+        }
+
+        [Fact]
+        public void Entity_adding_null_Tag_fails()
+        {
+            // ARRANGE
+
+            var entity = new Entity();
+
+            // ACT
+
+            var result = Assert.Throws<ArgumentNullException>(() => entity.AddTag((Tag)null));
+
+            // ASSERT
+
+            Assert.Equal("tag", result.ParamName);
         }
 
         [Fact]

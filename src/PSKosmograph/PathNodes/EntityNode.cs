@@ -84,13 +84,24 @@ namespace PSKosmograph.PathNodes
 
         #region INewItem Members
 
-        public IEnumerable<string> NewItemTypeNames => throw new NotImplementedException();
+        public IEnumerable<string> NewItemTypeNames => "AssignedTag".Yield();
 
-        public object NewItemParameters => throw new NotImplementedException();
+        public object? NewItemParameters => null;
 
-        public IPathValue NewItem(IProviderContext providerContext, string newItemChildPath, string itemTypeName, object newItemValue)
+        public IPathValue NewItem(IProviderContext providerContext, string newItemChildPath, string? itemTypeName, object? newItemValue)
         {
-            throw new NotImplementedException();
+            var tag = providerContext.Persistence().Tags.FindByName(newItemChildPath);
+            if (tag is null)
+                throw new InvalidOperationException($"tag(name='{newItemChildPath}') doesn't exist.");
+
+            if (this.entity.Tags.Contains(tag))
+                return new AssignedTagNode(providerContext.Persistence(), this.entity, tag).GetNodeValue();
+
+            this.entity.AddTag(tag);
+
+            providerContext.Persistence().Entities.Upsert(this.entity);
+
+            return new AssignedTagNode(providerContext.Persistence(), this.entity, tag).GetNodeValue();
         }
 
         #endregion INewItem Members

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Kosmograph.Model.Base
@@ -15,6 +16,9 @@ namespace Kosmograph.Model.Base
 
         public void AddTag(Tag tag)
         {
+            if (tag is null)
+                throw new ArgumentNullException(nameof(tag));
+
             this.Tags = this.Tags.Union(tag.Yield()).ToList();
         }
 

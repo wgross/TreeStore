@@ -1,5 +1,6 @@
 ﻿using Kosmograph.Model;
 using PSKosmograph.PathNodes;
+using System;
 using System.Linq;
 using System.Management.Automation;
 using Xunit;
@@ -227,6 +228,115 @@ namespace PSKosmograph.Test.PathNodes
             // ASSERT
 
             Assert.Equal("changed", e.Name);
+        }
+
+        [Fact]
+        public void EntityNode_provides_NewItemTypesNames()
+        {
+            // ARRANGE
+
+            var e = DefaultEntity();
+
+            // ACT
+
+            var result = new EntityNode(this.PersistenceMock.Object, e).NewItemTypeNames;
+
+            // ASSERT
+
+            Assert.Equal("AssignedTag".Yield(), result);
+        }
+
+        [Fact]
+        public void EntityNode_adds_tag_by_name()
+        {
+            // ARRANGE
+
+            var e = DefaultEntity(WithoutTags);
+
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.PersistenceMock
+                .Setup(p => p.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.Upsert(e))
+                .Returns(e);
+
+            this.PersistenceMock
+                .Setup(p => p.Tags)
+                .Returns(this.TagRepositoryMock.Object);
+
+            this.TagRepositoryMock
+                .Setup(r => r.FindByName("t"))
+                .Returns(DefaultTag());
+
+            // ACT
+
+            var result = new EntityNode(this.PersistenceMock.Object, e).NewItem(this.ProviderContextMock.Object, "t", itemTypeName: null, newItemValue: null);
+
+            // ASSERT
+
+            Assert.IsType<AssignedTagNode.Value>(result);
+        }
+
+        [Fact]
+        public void EntityNode_adding_tag_by_name_fails_for_unknown_tag()
+        {
+            // ARRANGE
+
+            var e = DefaultEntity(WithoutTags);
+
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.PersistenceMock
+                .Setup(p => p.Tags)
+                .Returns(this.TagRepositoryMock.Object);
+
+            this.TagRepositoryMock
+                .Setup(r => r.FindByName("t"))
+                .Returns((Tag?)null);
+
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(() => new EntityNode(this.PersistenceMock.Object, e).NewItem(this.ProviderContextMock.Object, "t", itemTypeName: null, newItemValue: null));
+
+            // ASSERT
+
+            Assert.Equal($"tag(name='t') doesn't exist.", result.Message);
+        }
+
+        [Fact]
+        public void EntityNode_adding_tag_twice_by_name_fails_gracefully()
+        {
+            // ARRANGE
+
+            var e = DefaultEntity(WithDefaultTag);
+            var tag = e.Tags.Single();
+
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.PersistenceMock
+                .Setup(p => p.Tags)
+                .Returns(this.TagRepositoryMock.Object);
+
+            this.TagRepositoryMock
+                .Setup(r => r.FindByName("t"))
+                .Returns(tag);
+
+            // ACT
+
+            var result = new EntityNode(this.PersistenceMock.Object, e).NewItem(this.ProviderContextMock.Object, "t", itemTypeName: null, newItemValue: null);
+
+            // ASSERT
+
+            Assert.IsType<AssignedTagNode.Value>(result);
         }
     }
 }

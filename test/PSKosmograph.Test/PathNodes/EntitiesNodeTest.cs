@@ -173,7 +173,7 @@ namespace PSKosmograph.Test.PathNodes
             // ACT
 
             var result = new EntitiesNode()
-                .NewItem(this.ProviderContextMock.Object, newItemName: "Entity", itemTypeName: itemTypeName, newItemValue: null);
+                .NewItem(this.ProviderContextMock.Object, newItemName: "Entity", itemTypeName: itemTypeName, newItemValue: null!);
 
             // ASSERT
 
