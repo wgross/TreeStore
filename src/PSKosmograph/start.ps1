@@ -1,0 +1,1 @@
+﻿& "C:\Program Files\PowerShell\7-preview\pwsh.exe" -c "Import-Module ./PsKosmograph.Dll"

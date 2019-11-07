@@ -7,6 +7,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Management.Automation" Version="6.2.2" />
+    <PackageReference Include="System.Reactive" Version="4.2.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Kosmograph.LiteDb\Kosmograph.LiteDb.csproj" />
@@ -14,5 +15,10 @@
     <ProjectReference Include="..\Kosmograph.Model\Kosmograph.Model.csproj" />
     <ProjectReference Include="..\p2f\src\CodeOwls.PowerShell\CodeOwls.PowerShell.Paths\CodeOwls.PowerShell.Paths.csproj" />
     <ProjectReference Include="..\p2f\src\CodeOwls.PowerShell\CodeOwls.PowerShell.Provider\CodeOwls.PowerShell.Provider.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="start.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

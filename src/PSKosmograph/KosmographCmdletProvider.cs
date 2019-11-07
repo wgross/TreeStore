@@ -1,6 +1,8 @@
 ﻿using CodeOwls.PowerShell.Paths.Processors;
 using CodeOwls.PowerShell.Provider;
 using CodeOwls.PowerShell.Provider.PathNodeProcessors;
+using Kosmograph.LiteDb;
+using Kosmograph.Messaging;
 using Kosmograph.Model;
 using System;
 using System.Management.Automation;
@@ -11,6 +13,11 @@ namespace PSKosmograph
     [CmdletProvider(KosmographCmdletProvider.Id, ProviderCapabilities.None)]
     public class KosmographCmdletProvider : Provider
     {
+        static KosmographCmdletProvider()
+        {
+            NewKosmographService = _ => new KosmographLiteDbPersistence(new KosmographMessageBus());
+        }
+
         public const string Id = "Kosmograph";
 
         public static Func<string, IKosmographPersistence>? NewKosmographService { get; set; }
