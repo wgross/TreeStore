@@ -5,6 +5,7 @@ using Kosmograph.LiteDb;
 using Kosmograph.Messaging;
 using Kosmograph.Model;
 using System;
+using System.Linq;
 using System.Management.Automation;
 using System.Management.Automation.Provider;
 
@@ -18,27 +19,46 @@ namespace PSKosmograph
             NewKosmographService = _ => new KosmographLiteDbPersistence(new KosmographMessageBus());
         }
 
+        public KosmographCmdletProvider()
+        {
+        }
+
         public const string Id = "Kosmograph";
 
-        public static Func<string, IKosmographPersistence>? NewKosmographService { get; set; }
+        public static Func<string, IKosmographPersistence> NewKosmographService { get; set; }
+            = _ => throw new InvalidOperationException($"{NewKosmographService} is uninitalized");
 
         private KosmographDriveInfo KosmographDriveInfo => (KosmographDriveInfo)this.PSDriveInfo;
 
-        internal IKosmographPersistence Persistence => this.KosmographDriveInfo.Persistence;
+        public KosmographDriveInfo GetKosmographDriveInfo(string path)
+        {
+            if (this.PSDriveInfo is { })
+                return (KosmographDriveInfo)this.PSDriveInfo;
+
+            var driveName = Drive.GetDriveName(path);
+            return this.ProviderInfo
+                .Drives
+                .OfType<KosmographDriveInfo>()
+                .Where(d => d.Name.Equals(driveName, StringComparison.OrdinalIgnoreCase))
+                .FirstOrDefault();
+        }
 
         protected override IPathResolver PathResolver => new KosmographPathResolver();
 
         protected override IProviderContext CreateContext(string path, bool recurse, bool resolveFinalNodeFilterItems)
         {
-            var context = new KosmographProviderContext(this, path, this.PSDriveInfo, this.PathResolver, this.DynamicParameters, recurse);
-            context.ResolveFinalNodeFilterItems = resolveFinalNodeFilterItems;
-            return context;
+            return new KosmographProviderContext(this, path, this.GetKosmographDriveInfo(path), new KosmographPathResolver(), this.DynamicParameters, recurse)
+            {
+                ResolveFinalNodeFilterItems = resolveFinalNodeFilterItems
+            };
         }
 
         #region DriveCmdletProvider
 
         protected override PSDriveInfo NewDrive(PSDriveInfo drive)
         {
+            //return new KosmographDriveInfo(drive, NewKosmographService(drive.Root));
+
             var persistence = NewKosmographService?.Invoke(drive.Root);
             if (persistence is null)
                 throw new ArgumentNullException(nameof(NewKosmographService));

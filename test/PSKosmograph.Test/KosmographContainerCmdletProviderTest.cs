@@ -12,7 +12,7 @@ namespace PSKosmograph.Test
         #region New-Item /Tags/<name>
 
         [Fact]
-        public void Powershell_creates_Tag()
+        public void Powershell_creates_Tag_by_path()
         {
             // ARRANGE
 
@@ -33,6 +33,44 @@ namespace PSKosmograph.Test
             this.PowerShell
                 .AddCommand("New-Item")
                 .AddParameter("Path", $@"kg:\Tags\tag");
+
+            var result = this.PowerShell.Invoke().ToArray();
+
+            // ASSERT
+
+            Assert.False(this.PowerShell.HadErrors);
+            Assert.Single(result);
+            Assert.IsType<ProviderInfo>(result[0].Property<ProviderInfo>("PSProvider"));
+            Assert.Equal("Kosmograph", result[0].Property<ProviderInfo>("PSProvider").Name);
+            Assert.Equal("PSKosmograph", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
+            Assert.Equal(@"PSKosmograph\Kosmograph::kg:\Tags\tag", ((string)result[0].Properties["PSPath"].Value));
+            Assert.NotEqual(Guid.Empty, result[0].Property<Guid>("Id"));
+            Assert.Equal("tag", result[0].Property<string>("Name"));
+        }
+
+        [Fact]
+        public void Powershell_creates_Tag_by_name()
+        {
+            // ARRANGE
+
+            this.PersistenceMock
+                .Setup(m => m.Tags)
+                .Returns(this.TagRepositoryMock.Object);
+
+            this.TagRepositoryMock
+                .Setup(r => r.FindByName("tag"))
+                .Returns((Tag?)null);
+
+            this.TagRepositoryMock
+                .Setup(r => r.Upsert(It.Is<Tag>(t => t.Name.Equals("tag"))))
+                .Returns<Tag>(t => t);
+
+            // ACT
+
+            this.PowerShell
+                .AddCommand("New-Item")
+                .AddParameter("Path", $@"kg:\Tags")
+                .AddParameter("Name", "tag");
 
             var result = this.PowerShell.Invoke().ToArray();
 
@@ -97,7 +135,7 @@ namespace PSKosmograph.Test
         #region New-Item /Entities/<name>
 
         [Fact]
-        public void PowerShell_creates_Entity()
+        public void PowerShell_creates_Entity_by_path()
         {
             // ARRANGE
 
@@ -131,6 +169,122 @@ namespace PSKosmograph.Test
             Assert.Equal(@"PSKosmograph\Kosmograph::kg:\Entities\e", ((string)result[0].Properties["PSPath"].Value));
             Assert.NotEqual(Guid.Empty, result[0].Property<Guid>("Id"));
             Assert.Equal("e", result[0].Property<string>("Name"));
+        }
+
+        [Fact]
+        public void PowerShell_creates_entity_by_name()
+        {
+            // ARRANGE
+
+            this.PersistenceMock
+                .Setup(p => p.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByName("e"))
+                .Returns((Entity?)null);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.Upsert(It.Is<Entity>(e => e.Name.Equals("e"))))
+                .Returns<Entity>(e => e);
+
+            // ACT
+
+            this.PowerShell
+                .AddCommand("New-Item")
+                    .AddParameter("Path", @"kg:\Entities")
+                    .AddParameter("Name", @"e");
+
+            var result = this.PowerShell.Invoke().ToArray();
+
+            // ASSERT
+
+            Assert.False(this.PowerShell.HadErrors);
+            Assert.Single(result);
+            Assert.IsType<ProviderInfo>(result[0].Property<ProviderInfo>("PSProvider"));
+            Assert.Equal("Kosmograph", result[0].Property<ProviderInfo>("PSProvider").Name);
+            Assert.Equal("PSKosmograph", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
+            Assert.Equal(@"PSKosmograph\Kosmograph::kg:\Entities\e", ((string)result[0].Properties["PSPath"].Value));
+            Assert.NotEqual(Guid.Empty, result[0].Property<Guid>("Id"));
+            Assert.Equal("e", result[0].Property<string>("Name"));
+        }
+
+        [Fact]
+        public void PowerShell_creating_duplicate_entity_fails()
+        {
+            // ARRANGE
+
+            var entity = DefaultEntity();
+
+            this.PersistenceMock
+                .Setup(p => p.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByName("e"))
+                .Returns(entity);
+
+            // ACT
+
+            this.PowerShell
+                .AddCommand("New-Item")
+                    .AddParameter("Path", @"kg:\Entities\e");
+
+            var result = this.PowerShell.Invoke().ToArray();
+
+            // ASSERT
+
+            Assert.True(this.PowerShell.HadErrors);
+        }
+
+        [Fact]
+        public void PowerShell_creates_Entity_with_Tag_attached()
+        {
+            // ARRANGE
+
+            this.PersistenceMock
+                .Setup(p => p.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByName("e"))
+                .Returns((Entity?)null);
+
+            Entity? entity = null;
+            this.EntityRepositoryMock
+                .Setup(r => r.Upsert(It.Is<Entity>(e => e.Name.Equals("e"))))
+                .Callback<Entity>(e => entity = e)
+                .Returns<Entity>(e => e);
+
+            this.PersistenceMock
+                .Setup(p => p.Tags)
+                .Returns(this.TagRepositoryMock.Object);
+
+            this.TagRepositoryMock
+                .Setup(r => r.FindByName("t"))
+                .Returns(DefaultTag());
+
+            // ACT
+
+            this.PowerShell
+                .AddCommand("New-Item")
+                    .AddParameter("Path", @"kg:\Entities\e")
+                    .AddParameter("Tags", "t");
+
+            var result = this.PowerShell.Invoke().ToArray();
+
+            // ASSERT
+
+            Assert.False(this.PowerShell.HadErrors);
+            Assert.Single(result);
+            Assert.IsType<ProviderInfo>(result[0].Property<ProviderInfo>("PSProvider"));
+            Assert.Equal("Kosmograph", result[0].Property<ProviderInfo>("PSProvider").Name);
+            Assert.Equal("PSKosmograph", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
+            Assert.Equal(@"PSKosmograph\Kosmograph::kg:\Entities\e", ((string)result[0].Properties["PSPath"].Value));
+            Assert.NotEqual(Guid.Empty, result[0].Property<Guid>("Id"));
+            Assert.Equal("e", result[0].Property<string>("Name"));
+
+            Assert.Equal("t", entity!.Tags.Single().Name);
         }
 
         #endregion New-Item /Entities/<name>

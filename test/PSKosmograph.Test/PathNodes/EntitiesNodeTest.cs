@@ -179,5 +179,118 @@ namespace PSKosmograph.Test.PathNodes
 
             Assert.IsType<EntityNode.Value>(result);
         }
+
+        [Fact]
+        public void EntitiesNode_provides_new_item_parameters()
+        {
+            // ARRANGE
+
+            var e = DefaultEntity(WithDefaultTag);
+
+            // ACT
+
+            var result = new EntitiesNode().NewItemParameters;
+
+            // ASSERT
+
+            Assert.IsType<EntitiesNode.NewItemParametersDefinition>(result);
+            Assert.Empty(((EntitiesNode.NewItemParametersDefinition)result!).Tags);
+        }
+
+        [Fact]
+        public void EntitiesNode_creates_EntityNodeValue_with_tags_attached()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag();
+
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.ProviderContextMock
+                .Setup(c => c.DynamicParameters)
+                .Returns(new EntitiesNode.NewItemParametersDefinition
+                {
+                    Tags = new[] { "t" }
+                });
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            Entity entity = null;
+            this.EntityRepositoryMock
+                .Setup(r => r.Upsert(It.Is<Entity>(t => t.Name.Equals("ee"))))
+                .Callback<Entity>(e => entity = e)
+                .Returns<Entity>(e => e);
+
+            this.PersistenceMock
+                .Setup(m => m.Tags)
+                .Returns(this.TagRepositoryMock.Object);
+
+            this.TagRepositoryMock
+                .Setup(r => r.FindByName("t"))
+                .Returns(tag);
+
+            // ACT
+
+            var result = new EntitiesNode()
+                .NewItem(this.ProviderContextMock.Object, newItemName: "ee", itemTypeName: "any", newItemValue: null!);
+
+            // ASSERT
+
+            Assert.Equal(tag, entity!.Tags.Single());
+        }
+
+        [Fact]
+        public void EntitiesNode_creatîng_EntityNodeValue_with_tags_attached_ignores_unkown_tags()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag();
+
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.ProviderContextMock
+                .Setup(c => c.DynamicParameters)
+                .Returns(new EntitiesNode.NewItemParametersDefinition
+                {
+                    Tags = new[] { "t", "unknown" }
+                });
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            Entity entity = null;
+            this.EntityRepositoryMock
+                .Setup(r => r.Upsert(It.Is<Entity>(t => t.Name.Equals("ee"))))
+                .Callback<Entity>(e => entity = e)
+                .Returns<Entity>(e => e);
+
+            this.PersistenceMock
+                .Setup(m => m.Tags)
+                .Returns(this.TagRepositoryMock.Object);
+
+            this.TagRepositoryMock
+                .Setup(r => r.FindByName("t"))
+                .Returns(tag);
+
+            this.TagRepositoryMock
+                .Setup(r => r.FindByName("unknown"))
+                .Returns((Tag?)null);
+
+            // ACT
+
+            var result = new EntitiesNode()
+                .NewItem(this.ProviderContextMock.Object, newItemName: "ee", itemTypeName: "any", newItemValue: null!);
+
+            // ASSERT
+
+            Assert.Equal(tag, entity!.Tags.Single());
+        }
     }
 }
