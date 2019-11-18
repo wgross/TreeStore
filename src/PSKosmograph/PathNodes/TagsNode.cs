@@ -23,8 +23,6 @@ namespace PSKosmograph.PathNodes
 
         #region IPathNode Members
 
-        public object? GetNodeChildrenParameters => null;
-
         public string Name => "Tags";
 
         public string ItemMode => "+";
@@ -57,8 +55,6 @@ namespace PSKosmograph.PathNodes
         #region INewItem Members
 
         public IEnumerable<string> NewItemTypeNames => "Tag".Yield();
-
-        public object? NewItemParameters => null;
 
         public IPathValue NewItem(IProviderContext providerContext, string newItemChildPath, string? itemTypeName, object? newItemValue)
             => new TagNode(providerContext.Persistence(), providerContext.Persistence().Tags.Upsert(new Tag(Path.GetFileName(newItemChildPath)))).GetNodeValue();

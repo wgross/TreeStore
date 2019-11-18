@@ -8,7 +8,7 @@ using System.Management.Automation;
 
 namespace PSKosmograph.PathNodes
 {
-    public class EntityNode : IPathNode, INewItem, IRemoveItem
+    public class EntityNode : IPathNode, INewItem, IRemoveItem, ICopyItem
     {
         public sealed class Value : ContainerPathValue, IPathValue
         {
@@ -60,8 +60,6 @@ namespace PSKosmograph.PathNodes
 
         public string Name => this.entity.Name;
 
-        public object? GetNodeChildrenParameters => null;
-
         public string ItemMode => "+";
 
         public IEnumerable<IPathNode> GetNodeChildren(IProviderContext providerContext)
@@ -86,8 +84,6 @@ namespace PSKosmograph.PathNodes
 
         public IEnumerable<string> NewItemTypeNames => "AssignedTag".Yield();
 
-        public object? NewItemParameters => null;
-
         public IPathValue NewItem(IProviderContext providerContext, string newItemChildPath, string? itemTypeName, object? newItemValue)
         {
             var tag = providerContext.Persistence().Tags.FindByName(newItemChildPath);
@@ -106,9 +102,7 @@ namespace PSKosmograph.PathNodes
 
         #endregion INewItem Members
 
-        #region IRemoveItem members
-
-        public object? RemoveItemParameters => null;
+        #region IRemoveItem Members
 
         public void RemoveItem(IProviderContext providerContext, string path, bool recurse)
         {
@@ -118,6 +112,26 @@ namespace PSKosmograph.PathNodes
                 providerContext.Persistence().Entities.Delete(this.entity);
         }
 
-        #endregion IRemoveItem members
+        #endregion IRemoveItem Members
+
+        #region ICopyItem Members
+
+        public void CopyItem(IProviderContext providerContext, string sourceItemName, string destinationItemName, IPathValue destinationContainer, bool recurse)
+        {
+            var newEntity = new Entity(destinationItemName, this.entity.Tags.ToArray());
+
+            this.entity.Tags.ForEach(t =>
+            {
+                t.Facet.Properties.ForEach(p =>
+                {
+                    (var hasValue, var value) = this.entity.TryGetFacetProperty(p);
+                    if (hasValue)
+                        newEntity.SetFacetProperty(p, value);
+                });
+            });
+            providerContext.Persistence().Entities.Upsert(newEntity);
+        }
+
+        #endregion ICopyItem Members
     }
 }

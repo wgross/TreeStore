@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace PSKosmograph.PathNodes
 {
-    public class FacetPropertyNode : IPathNode, IRemoveItem
+    public class FacetPropertyNode : IPathNode, IRemoveItem, ICopyItem
     {
         public sealed class Value : LeafPathValue
         {
@@ -67,8 +67,6 @@ namespace PSKosmograph.PathNodes
 
         #region IRemoveItem members
 
-        public object? RemoveItemParameters => null;
-
         public void RemoveItem(IProviderContext providerContext, string path, bool recurse)
         {
             this.tag.Facet.RemoveProperty(this.facetProperty);
@@ -76,5 +74,17 @@ namespace PSKosmograph.PathNodes
         }
 
         #endregion IRemoveItem members
+
+        #region ICopyItem Members
+
+        public void CopyItem(IProviderContext providerContext, string sourceItemName, string? destinationItemName, IPathValue destinationContainer, bool recurse)
+        {
+            if (destinationContainer is TagNode.Value destinationContainerNodeValue)
+            {
+                destinationContainerNodeValue.AddProperty(providerContext, destinationItemName ?? this.facetProperty.Name, this.facetProperty.Type);
+            }
+        }
+
+        #endregion ICopyItem Members
     }
 }

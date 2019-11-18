@@ -21,7 +21,6 @@ namespace PSKosmograph.Test.PathNodes
 
             Assert.Equal("p", result.Name);
             Assert.Equal(".", result.ItemMode);
-            Assert.Null(result.GetNodeChildrenParameters);
         }
 
         [Fact]

@@ -9,7 +9,7 @@ using System.Management.Automation;
 
 namespace PSKosmograph.PathNodes
 {
-    public class TagNode : IPathNode, INewItem, IRemoveItem
+    public class TagNode : IPathNode, INewItem, IRemoveItem, ICopyItem
     {
         public class Item
         {
@@ -51,6 +51,13 @@ namespace PSKosmograph.PathNodes
                 IPathValue.SetItemProperties(this, properties);
                 this.model.Tags.Upsert(tag);
             }
+
+            internal void AddProperty(IProviderContext providerContext, string name, FacetPropertyTypeValues type)
+            {
+                this.tag.Facet.AddProperty(new FacetProperty(name, type));
+
+                providerContext.Persistence().Tags.Upsert(this.tag);
+            }
         }
 
         private readonly IKosmographPersistence model;
@@ -63,8 +70,6 @@ namespace PSKosmograph.PathNodes
         }
 
         #region IPathNode Members
-
-        public object? GetNodeChildrenParameters => null;
 
         public string Name => this.tag.Name;
 
@@ -99,7 +104,7 @@ namespace PSKosmograph.PathNodes
 
         public IEnumerable<string> NewItemTypeNames => "FacetProperty".Yield();
 
-        public object? NewItemParameters => new NewFacetPropertyParameters();
+        public object NewItemParameters => new NewFacetPropertyParameters();
 
         public IPathValue? NewItem(IProviderContext providerContext, string newItemChildPath, string itemTypeName, object? newItemValue)
         {
@@ -119,8 +124,6 @@ namespace PSKosmograph.PathNodes
 
         #region IRemoveItem
 
-        public object? RemoveItemParameters => null;
-
         public void RemoveItem(IProviderContext providerContext, string name, bool recurse)
         {
             if (recurse)
@@ -130,5 +133,17 @@ namespace PSKosmograph.PathNodes
         }
 
         #endregion IRemoveItem
+
+        #region ICopyItem
+
+        public void CopyItem(IProviderContext providerContext, string sourceItemName, string destinationItemName, IPathValue destinationContainer, bool recurse)
+        {
+            var newTag = new Tag(destinationItemName);
+            this.tag.Facet.Properties.ForEach(p => newTag.Facet.AddProperty(new FacetProperty(p.Name, p.Type)));
+
+            providerContext.Persistence().Tags.Upsert(newTag);
+        }
+
+        #endregion ICopyItem
     }
 }

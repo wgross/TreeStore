@@ -22,8 +22,6 @@ namespace PSKosmograph.PathNodes
 
         #region IPathNode Members
 
-        public object? GetNodeChildrenParameters => null;
-
         public string Name => "Entities";
 
         public string ItemMode => "+";
@@ -59,7 +57,7 @@ namespace PSKosmograph.PathNodes
             public string[] Tags { get; set; } = new string[0];
         }
 
-        public object? NewItemParameters => new NewItemParametersDefinition();
+        public object NewItemParameters => new NewItemParametersDefinition();
 
         public IPathValue NewItem(IProviderContext providerContext, string newItemName, string itemTypeName, object newItemValue)
         {

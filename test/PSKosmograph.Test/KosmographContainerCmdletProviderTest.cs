@@ -95,7 +95,7 @@ namespace PSKosmograph.Test
         {
             // ARRANGE
 
-            var tag = DefaultTag(t => t.Facet.Properties.Clear());
+            var tag = DefaultTag(WithoutProperty);
 
             this.PersistenceMock
                 .Setup(m => m.Tags)
@@ -135,7 +135,7 @@ namespace PSKosmograph.Test
         #region New-Item /Entities/<name>
 
         [Fact]
-        public void PowerShell_creates_Entity_by_path()
+        public void Powershell_creates_Entity_by_path()
         {
             // ARRANGE
 
@@ -172,7 +172,7 @@ namespace PSKosmograph.Test
         }
 
         [Fact]
-        public void PowerShell_creates_entity_by_name()
+        public void Powershell_creates_entity_by_name()
         {
             // ARRANGE
 
@@ -210,7 +210,7 @@ namespace PSKosmograph.Test
         }
 
         [Fact]
-        public void PowerShell_creating_duplicate_entity_fails()
+        public void Powershell_creating_duplicate_entity_fails()
         {
             // ARRANGE
 
@@ -238,7 +238,7 @@ namespace PSKosmograph.Test
         }
 
         [Fact]
-        public void PowerShell_creates_Entity_with_Tag_attached()
+        public void Powershell_creates_Entity_with_Tag_attached()
         {
             // ARRANGE
 
@@ -339,6 +339,137 @@ namespace PSKosmograph.Test
         }
 
         #endregion New-Item /Entities/<name>/<tag-name>
+
+        #region Copy-Item /Tags/<name>
+
+        [Fact]
+        public void Powershell_copies_Tag()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty);
+
+            this.PersistenceMock
+                .Setup(m => m.Tags)
+                .Returns(this.TagRepositoryMock.Object);
+
+            this.TagRepositoryMock
+                .Setup(r => r.FindByName("t"))
+                .Returns(tag);
+
+            this.TagRepositoryMock
+                .Setup(r => r.FindByName("tt"))
+                .Returns((Tag?)null);
+
+            Tag? createdTag = null;
+            this.TagRepositoryMock
+                .Setup(r => r.Upsert(It.IsAny<Tag>()))
+                .Callback<Tag>(t => createdTag = t)
+                .Returns<Tag>(t => t);
+
+            // ACT
+
+            this.PowerShell
+                .AddCommand("Copy-Item")
+                .AddParameter("Path", $@"kg:\Tags\t")
+                .AddParameter("Destination", $@"kg:\Tags\tt");
+
+            var result = this.PowerShell.Invoke().ToArray();
+
+            // ASSERT
+
+            Assert.False(this.PowerShell.HadErrors);
+            Assert.Empty(result);
+        }
+
+        #endregion Copy-Item /Tags/<name>
+
+        #region Copy-Item /Tags/<name>/<property-name>
+
+        [Fact]
+        public void Powershell_copies_facet_property()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty);
+            var tag2 = DefaultTag(WithoutProperty, t => t.Name = "tt");
+
+            this.PersistenceMock
+                .Setup(m => m.Tags)
+                .Returns(this.TagRepositoryMock.Object);
+
+            this.TagRepositoryMock
+                .Setup(r => r.FindByName("t"))
+                .Returns(tag);
+
+            this.TagRepositoryMock
+                .Setup(r => r.FindByName("tt"))
+                .Returns(tag2);
+
+            this.TagRepositoryMock
+                .Setup(r => r.Upsert(tag2))
+                .Returns(tag2);
+
+            // ACT
+
+            this.PowerShell
+                .AddCommand("Copy-Item")
+                .AddParameter("Path", $@"kg:\Tags\t\p")
+                .AddParameter("Destination", $@"kg:\Tags\tt");
+
+            var result = this.PowerShell.Invoke().ToArray();
+
+            // ASSERT
+
+            Assert.False(this.PowerShell.HadErrors);
+            Assert.Empty(result);
+        }
+
+        #endregion Copy-Item /Tags/<name>/<property-name>
+
+        #region Copy-Item /Entities/<name>
+
+        [Fact]
+        public void Powershell_copies_Entity()
+        {
+            // ARRANGE
+
+            var tag = DefaultEntity();
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByName("t"))
+                .Returns(tag);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByName("tt"))
+                .Returns((Entity?)null);
+
+            Entity? createdEntity = null;
+            this.EntityRepositoryMock
+                .Setup(r => r.Upsert(It.IsAny<Entity>()))
+                .Callback<Entity>(t => createdEntity = t)
+                .Returns<Entity>(t => t);
+
+            // ACT
+
+            this.PowerShell
+                .AddCommand("Copy-Item")
+                .AddParameter("Path", $@"kg:\Entities\e")
+                .AddParameter("Destination", $@"kg:\Entities\ee");
+
+            var result = this.PowerShell.Invoke().ToArray();
+
+            // ASSERT
+
+            Assert.False(this.PowerShell.HadErrors);
+            Assert.Empty(result);
+        }
+
+        #endregion Copy-Item /Entities/<name>
 
         #region Remove-Item /Tags/<name>
 

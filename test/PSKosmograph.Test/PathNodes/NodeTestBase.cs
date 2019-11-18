@@ -32,14 +32,18 @@ namespace PSKosmograph.Test.PathNodes
 
         #region Default Tag
 
-        protected Tag DefaultTag(Action<Tag>? setup = null)
+        protected Tag DefaultTag(params Action<Tag>[] setup)
         {
-            var tmp = new Tag("t", new Facet("f"));
-            (setup ?? WithDefaultProperty)?.Invoke(tmp);
+            var tmp = new Tag("t", new Facet("f", new FacetProperty("p", FacetPropertyTypeValues.String)));
+            setup.ForEach(s => s(tmp));
             return tmp;
         }
 
-        protected static void WithDefaultProperty(Tag tag) => tag.Facet.AddProperty(new FacetProperty("p", FacetPropertyTypeValues.String));
+        protected static void WithDefaultProperty(Tag tag)
+        {
+            tag.Facet.Properties.Clear();
+            tag.Facet.AddProperty(new FacetProperty("p", FacetPropertyTypeValues.String));
+        }
 
         protected static void WithoutProperty(Tag tag) => tag.Facet.Properties.Clear();
 
@@ -50,7 +54,7 @@ namespace PSKosmograph.Test.PathNodes
         protected Entity DefaultEntity(params Action<Entity>[] setup)
         {
             var tmp = new Entity("e");
-            setup.ForEach(s => s.Invoke(tmp));
+            setup.ForEach(s => s(tmp));
             return tmp;
         }
 

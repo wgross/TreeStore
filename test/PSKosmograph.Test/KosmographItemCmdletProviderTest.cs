@@ -63,7 +63,7 @@ namespace PSKosmograph.Test
         }
 
         [Fact]
-        public void Powershell_retrieves_unknown_top_level_container_as_empty_result()
+        public void Powershell_retrieving_unknown_top_level_container_by_name_fails()
         {
             // ACT
 
@@ -77,8 +77,7 @@ namespace PSKosmograph.Test
             // ASSERT
             // no result was returned
 
-            Assert.False(this.PowerShell.HadErrors);
-            Assert.Empty(result);
+            Assert.True(this.PowerShell.HadErrors);
         }
 
         #endregion Get-Item Tags/Entities/Relationships
@@ -124,7 +123,7 @@ namespace PSKosmograph.Test
         }
 
         [Fact]
-        public void Powershell_retrieves_unknown_tag_name_as_empty_result()
+        public void Powershell_retrieving_unknown_tag_by_name_fails()
         {
             // ARRANGE
             // model is missing the tag t
@@ -148,8 +147,7 @@ namespace PSKosmograph.Test
 
             // ASSERT
 
-            Assert.False(this.PowerShell.HadErrors);
-            Assert.Empty(result);
+            Assert.True(this.PowerShell.HadErrors);
         }
 
         #endregion Get-Item Tags/<name>
@@ -196,7 +194,7 @@ namespace PSKosmograph.Test
         }
 
         [Fact]
-        public void Powershell_retrieves_unknown_facet_property_name_as_empty_result()
+        public void Powershell_retrieving_unknown_facet_property_by_name_fails()
         {
             // ARRANGE
 
@@ -222,8 +220,7 @@ namespace PSKosmograph.Test
 
             // ASSERT
 
-            Assert.False(this.PowerShell.HadErrors);
-            Assert.Empty(result);
+            Assert.True(this.PowerShell.HadErrors);
         }
 
         #endregion Get-Item Tags/<name>, Tags/<name>/<property>
@@ -269,7 +266,7 @@ namespace PSKosmograph.Test
         }
 
         [Fact]
-        public void Powershell_retrieves_unknown_entity_name_as_null()
+        public void Powershell_retrieving_unknown_entity_by_name_fails()
         {
             // ARRANGE
             // provide a tag and an entity using this tag
@@ -296,8 +293,7 @@ namespace PSKosmograph.Test
 
             // ASSERT
 
-            Assert.False(this.PowerShell.HadErrors);
-            Assert.Empty(result);
+            Assert.True(this.PowerShell.HadErrors);
         }
 
         [Fact]
@@ -369,8 +365,7 @@ namespace PSKosmograph.Test
 
             // ASSERT
 
-            Assert.False(this.PowerShell.HadErrors);
-            Assert.Empty(result);
+            Assert.True(this.PowerShell.HadErrors);
         }
 
         #endregion Get-Item /Entities/<name>, /Entities/<name>/<tag-name>

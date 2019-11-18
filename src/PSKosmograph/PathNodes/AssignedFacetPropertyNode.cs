@@ -39,9 +39,7 @@ namespace PSKosmograph.PathNodes
             this.entity = entity;
             this.assignedProperty = property;
         }
-
-        public object? GetNodeChildrenParameters => null;
-
+        
         public string Name => this.assignedProperty.Name;
 
         public string ItemMode => ".";

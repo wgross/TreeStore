@@ -84,8 +84,6 @@ namespace PSKosmograph.PathNodes
             public string Name => this.assignedTag.Name;
         }
 
-        public object? GetNodeChildrenParameters => null;
-
         public string Name => this.assignedTag.Name;
 
         public string ItemMode => "+";
@@ -100,8 +98,6 @@ namespace PSKosmograph.PathNodes
         }
 
         #region IRemoveItem Members
-
-        public object? RemoveItemParameters => null;
 
         public void RemoveItem(IProviderContext providerContext, string path, bool recurse)
         {

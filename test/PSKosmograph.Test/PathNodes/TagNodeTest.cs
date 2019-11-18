@@ -1,5 +1,7 @@
 ﻿using Kosmograph.Model;
+using Moq;
 using PSKosmograph.PathNodes;
+using System.Linq;
 using System.Management.Automation;
 using Xunit;
 
@@ -18,7 +20,6 @@ namespace PSKosmograph.Test.PathNodes
 
             Assert.Equal("t", result.Name);
             Assert.Equal("+", result.ItemMode);
-            Assert.Null(result.GetNodeChildrenParameters);
         }
 
         [Fact]
@@ -218,12 +219,8 @@ namespace PSKosmograph.Test.PathNodes
 
             // ACT
 
-            var node = new TagNode(this.PersistenceMock.Object, tag);
-            node.RemoveItem(this.ProviderContextMock.Object, "t", recurse);
-
-            // ASSERT
-
-            Assert.Null(node.RemoveItemParameters);
+            new TagNode(this.PersistenceMock.Object, tag)
+                .RemoveItem(this.ProviderContextMock.Object, "t", recurse);
         }
 
         [Fact]
@@ -253,7 +250,6 @@ namespace PSKosmograph.Test.PathNodes
             // ASSERT
 
             Assert.Empty(tag.Facet.Properties);
-            Assert.Null(node.RemoveItemParameters);
         }
 
         [Fact]
@@ -265,13 +261,47 @@ namespace PSKosmograph.Test.PathNodes
 
             // ACT
 
-            var node = new TagNode(this.PersistenceMock.Object, tag);
-            node.RemoveItem(this.ProviderContextMock.Object, "t", recurse: false);
+            new TagNode(this.PersistenceMock.Object, tag)
+                .RemoveItem(this.ProviderContextMock.Object, "t", recurse: false);
 
             // ASSERT
 
             Assert.Single(tag.Facet.Properties);
-            Assert.Null(node.RemoveItemParameters);
+        }
+
+        [Fact]
+        public void TagNode_copies_itself_as_new_tag()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty);
+
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.PersistenceMock
+                .Setup(m => m.Tags)
+                .Returns(this.TagRepositoryMock.Object);
+
+            Tag? createdTag = null;
+            this.TagRepositoryMock
+                .Setup(r => r.Upsert(It.IsAny<Tag>()))
+                .Callback<Tag>(t => createdTag = t)
+                .Returns(tag);
+
+            var tagsContainer = new TagsNode();
+
+            // ACT
+
+            new TagNode(this.PersistenceMock.Object, tag)
+                .CopyItem(this.ProviderContextMock.Object, "t", "tt", tagsContainer.GetNodeValue(), recurse: false);
+
+            // ASSERT
+
+            Assert.Equal("tt", createdTag!.Name);
+            Assert.Equal("p", createdTag!.Facet.Properties.Single().Name);
+            Assert.Equal(tag.Facet.Properties.Single().Type, createdTag!.Facet.Properties.Single().Type);
         }
     }
 }

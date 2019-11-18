@@ -159,6 +159,10 @@ namespace PSKosmograph.Test.PathNodes
             var entity = DefaultEntity();
 
             this.ProviderContextMock
+                .Setup(c => c.DynamicParameters)
+                .Returns((object?)null);
+
+            this.ProviderContextMock
                 .Setup(c => c.Persistence)
                 .Returns(this.PersistenceMock.Object);
 

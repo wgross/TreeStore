@@ -1,4 +1,5 @@
 ﻿using Kosmograph.Model;
+using Moq;
 using PSKosmograph.PathNodes;
 using System;
 using System.Linq;
@@ -20,7 +21,6 @@ namespace PSKosmograph.Test.PathNodes
 
             Assert.Equal("e", result.Name);
             Assert.Equal("+", result.ItemMode);
-            Assert.Null(result.GetNodeChildrenParameters);
         }
 
         [Fact]
@@ -152,12 +152,7 @@ namespace PSKosmograph.Test.PathNodes
 
             // ACT
 
-            var node = new EntityNode(this.PersistenceMock.Object, entity);
-            node.RemoveItem(this.ProviderContextMock.Object, "t", recurse);
-
-            // ASSERT
-
-            Assert.Null(node.RemoveItemParameters);
+            new EntityNode(this.PersistenceMock.Object, entity).RemoveItem(this.ProviderContextMock.Object, "t", recurse);
         }
 
         [Fact]
@@ -181,12 +176,8 @@ namespace PSKosmograph.Test.PathNodes
 
             // ACT
 
-            var node = new EntityNode(this.PersistenceMock.Object, entity);
-            node.RemoveItem(this.ProviderContextMock.Object, "t", recurse: true);
-
-            // ASSERT
-
-            Assert.Null(node.RemoveItemParameters);
+            new EntityNode(this.PersistenceMock.Object, entity)
+                .RemoveItem(this.ProviderContextMock.Object, "t", recurse: true);
         }
 
         [Fact]
@@ -198,12 +189,8 @@ namespace PSKosmograph.Test.PathNodes
 
             // ACT
 
-            var node = new EntityNode(this.PersistenceMock.Object, entity);
-            node.RemoveItem(this.ProviderContextMock.Object, "t", recurse: false);
-
-            // ASSERT
-
-            Assert.Null(node.RemoveItemParameters);
+            new EntityNode(this.PersistenceMock.Object, entity)
+                .RemoveItem(this.ProviderContextMock.Object, "t", recurse: false);
         }
 
         [Fact]
@@ -337,6 +324,43 @@ namespace PSKosmograph.Test.PathNodes
             // ASSERT
 
             Assert.IsType<AssignedTagNode.Value>(result);
+        }
+
+        [Fact]
+        public void EntityNode_copies_itself_as_new_entity()
+        {
+            // ARRANGE
+
+            var entity = DefaultEntity(WithDefaultTag);
+            entity.SetFacetProperty(entity.Tags.Single().Facet.Properties.Single(), 1);
+
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            Entity? createdEntity = null;
+            this.EntityRepositoryMock
+                .Setup(r => r.Upsert(It.IsAny<Entity>()))
+                .Callback<Entity>(e => createdEntity = e)
+                .Returns(entity);
+
+            var entityContainer = new EntitiesNode();
+
+            // ACT
+
+            new EntityNode(this.PersistenceMock.Object, entity)
+                .CopyItem(this.ProviderContextMock.Object, "e", "ee", entityContainer.GetNodeValue(), recurse: false);
+
+            // ASSERT
+
+            Assert.Equal("ee", createdEntity!.Name);
+            Assert.Equal(entity.Tags.Single(), createdEntity!.Tags.Single());
+            Assert.Equal(entity.Values.Single().Value, createdEntity!.Values.Single().Value);
+            Assert.Equal(entity.Values.Single().Key, createdEntity!.Values.Single().Key);
         }
     }
 }

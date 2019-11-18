@@ -53,15 +53,11 @@ namespace PSKosmograph.Test.PathNodes
             // ACT
 
             var node = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single());
-            var result = (
-                children: node.GetNodeChildren(this.ProviderContextMock.Object),
-                parameters: node.GetNodeChildrenParameters
-            );
+            var result = node.GetNodeChildren(this.ProviderContextMock.Object);
 
             // ASSERT
 
-            Assert.Empty(result.children);
-            Assert.Null(result.parameters);
+            Assert.Empty(result);
         }
 
         [Fact]
@@ -146,7 +142,6 @@ namespace PSKosmograph.Test.PathNodes
             // ARRANGE
 
             Assert.Empty(e.Tags);
-            Assert.Null(node.RemoveItemParameters);
         }
 
         [Theory]
@@ -179,7 +174,6 @@ namespace PSKosmograph.Test.PathNodes
             // property values aren't child items.
 
             Assert.Empty(e.Tags);
-            Assert.Null(node.RemoveItemParameters);
         }
 
         [Fact]

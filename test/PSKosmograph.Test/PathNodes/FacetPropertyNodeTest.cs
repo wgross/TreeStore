@@ -1,4 +1,5 @@
 ﻿using PSKosmograph.PathNodes;
+using System;
 using System.Linq;
 using Xunit;
 
@@ -101,12 +102,11 @@ namespace PSKosmograph.Test.PathNodes
 
             // ACT
 
-            var node = new FacetPropertyNode(tag, tag.Facet.Properties.Single());
-            node.RemoveItem(this.ProviderContextMock.Object, "p", true);
+            new FacetPropertyNode(tag, tag.Facet.Properties.Single())
+                .RemoveItem(this.ProviderContextMock.Object, "p", true);
 
             // ASSERT
 
-            Assert.Null(node.RemoveItemParameters);
             Assert.Empty(tag.Facet.Properties);
         }
 
@@ -142,6 +142,89 @@ namespace PSKosmograph.Test.PathNodes
             // ASSERT
 
             Assert.Equal(Kosmograph.Model.FacetPropertyTypeValues.Bool, tag.Facet.Properties.Single().Type);
+        }
+
+        [Fact]
+        public void FacetPropertyNode_copies_to_tag_with_same_name()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty);
+            var tag2 = DefaultTag(WithoutProperty, t => t.Name = "tt");
+
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.PersistenceMock
+                .Setup(m => m.Tags)
+                .Returns(this.TagRepositoryMock.Object);
+
+            this.TagRepositoryMock
+                .Setup(r => r.Upsert(tag2))
+                .Returns(tag2);
+
+            // ACT
+
+            new FacetPropertyNode(tag, tag.Facet.Properties.Single())
+                .CopyItem(this.ProviderContextMock.Object, "p", null, new TagNode(this.PersistenceMock.Object, tag2).GetNodeValue(), false);
+
+            // ASSERT
+
+            Assert.Single(tag2.Facet.Properties);
+            Assert.Equal(tag.Facet.Properties.Single().Name, tag2.Facet.Properties.Single().Name);
+            Assert.Equal(tag.Facet.Properties.Single().Type, tag2.Facet.Properties.Single().Type);
+        }
+
+        [Fact]
+        public void FacetPropertyNode_copies_to_tag_with_new_name()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty);
+            var tag2 = DefaultTag(WithoutProperty, t => t.Name = "tt");
+
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.PersistenceMock
+                .Setup(m => m.Tags)
+                .Returns(this.TagRepositoryMock.Object);
+
+            this.TagRepositoryMock
+                .Setup(r => r.Upsert(tag2))
+                .Returns(tag2);
+
+            // ACT
+
+            new FacetPropertyNode(tag, tag.Facet.Properties.Single())
+                .CopyItem(this.ProviderContextMock.Object, "p", "pp", new TagNode(this.PersistenceMock.Object, tag2).GetNodeValue(), false);
+
+            // ASSERT
+
+            Assert.Single(tag2.Facet.Properties);
+            Assert.Equal("pp", tag2.Facet.Properties.Single().Name);
+            Assert.Equal(tag.Facet.Properties.Single().Type, tag2.Facet.Properties.Single().Type);
+        }
+
+        [Fact]
+        public void FacetPropertyNode_copying_to_tag_fails_on_duplicate_property_name()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty);
+            var tag2 = DefaultTag(WithDefaultProperty, t => t.Name = "tt");
+
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(()
+                => new FacetPropertyNode(tag, tag.Facet.Properties.Single()).CopyItem(this.ProviderContextMock.Object,
+                    "p", "p", new TagNode(this.PersistenceMock.Object, tag2).GetNodeValue(), false));
+
+            // ASSERT
+
+            Assert.Equal("duplicate property name: p", result.Message);
         }
     }
 }
