@@ -9,7 +9,7 @@ using System.Management.Automation;
 
 namespace PSKosmograph.PathNodes
 {
-    public class TagNode : IPathNode, INewItem, IRemoveItem, ICopyItem
+    public class TagNode : IPathNode, INewItem, IRemoveItem, ICopyItem, IRenameItem
     {
         public class Item
         {
@@ -122,7 +122,7 @@ namespace PSKosmograph.PathNodes
 
         #endregion INewItem Members
 
-        #region IRemoveItem
+        #region IRemoveItem Members
 
         public void RemoveItem(IProviderContext providerContext, string name, bool recurse)
         {
@@ -132,9 +132,9 @@ namespace PSKosmograph.PathNodes
                 providerContext.Persistence().Tags.Delete(this.tag);
         }
 
-        #endregion IRemoveItem
+        #endregion IRemoveItem Members
 
-        #region ICopyItem
+        #region ICopyItem Members
 
         public void CopyItem(IProviderContext providerContext, string sourceItemName, string destinationItemName, IPathValue destinationContainer, bool recurse)
         {
@@ -144,6 +144,19 @@ namespace PSKosmograph.PathNodes
             providerContext.Persistence().Tags.Upsert(newTag);
         }
 
-        #endregion ICopyItem
+        #endregion ICopyItem Members
+
+        #region IRenameItem Members
+
+        public void RenameItem(IProviderContext providerContext, string path, string newName)
+        {
+            if (this.tag.Name.Equals(newName))
+                return;
+
+            this.tag.Name = newName;
+            providerContext.Persistence().Tags.Upsert(this.tag);
+        }
+
+        #endregion IRenameItem Members
     }
 }

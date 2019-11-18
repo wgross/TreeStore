@@ -303,5 +303,51 @@ namespace PSKosmograph.Test.PathNodes
             Assert.Equal("p", createdTag!.Facet.Properties.Single().Name);
             Assert.Equal(tag.Facet.Properties.Single().Type, createdTag!.Facet.Properties.Single().Type);
         }
+
+        [Fact]
+        public void TagNode_renames_itself()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag();
+
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.PersistenceMock
+                .Setup(m => m.Tags)
+                .Returns(this.TagRepositoryMock.Object);
+
+            Tag? renamedTag = null;
+            this.TagRepositoryMock
+                .Setup(r => r.Upsert(It.IsAny<Tag>()))
+                .Callback<Tag>(t => renamedTag = t)
+                .Returns(tag);
+
+            // ACT
+
+            new TagNode(this.PersistenceMock.Object, tag).RenameItem(this.ProviderContextMock.Object, "t", "tt");
+
+            // ASSERT
+
+            Assert.Equal("tt", renamedTag!.Name);
+        }
+
+        [Fact]
+        public void TagNode_renaming_doesnt_store_identical_name()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag();
+
+            // ACT
+
+            new TagNode(this.PersistenceMock.Object, tag).RenameItem(this.ProviderContextMock.Object, "t", "t");
+
+            // ASSERT
+
+            Assert.Equal("t", tag.Name);
+        }
     }
 }

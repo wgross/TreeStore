@@ -78,7 +78,7 @@ namespace PSKosmograph.Test
         protected static Tag DefaultTag(params Action<Tag>[] setup)
         {
             var tmp = new Tag("t", new Facet("f"));
-            setup.ForEach(s => s.Invoke(tmp));
+            setup.ForEach(s => s(tmp));
             return tmp;
         }
 
@@ -93,7 +93,7 @@ namespace PSKosmograph.Test
         protected static Entity DefaultEntity(Action<Entity>? setup = null)
         {
             var tmp = new Entity("e");
-            (setup ?? WithDefaultTag)?.Invoke(tmp);
+            (setup ?? WithDefaultTag)(tmp);
             return tmp;
         }
 

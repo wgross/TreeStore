@@ -362,5 +362,51 @@ namespace PSKosmograph.Test.PathNodes
             Assert.Equal(entity.Values.Single().Value, createdEntity!.Values.Single().Value);
             Assert.Equal(entity.Values.Single().Key, createdEntity!.Values.Single().Key);
         }
+
+        [Fact]
+        public void EntityNode_renames_itself()
+        {
+            // ARRANGE
+
+            var entity = DefaultEntity();
+
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            Entity? renamedEntity = null;
+            this.EntityRepositoryMock
+                .Setup(r => r.Upsert(It.IsAny<Entity>()))
+                .Callback<Entity>(t => renamedEntity = t)
+                .Returns(entity);
+
+            // ACT
+
+            new EntityNode(this.PersistenceMock.Object, entity).RenameItem(this.ProviderContextMock.Object, "e", "ee");
+
+            // ASSERT
+
+            Assert.Equal("ee", renamedEntity!.Name);
+        }
+
+        [Fact]
+        public void EntityNode_renaming_doesnt_store_identical_name()
+        {
+            // ARRANGE
+
+            var entity = DefaultEntity();
+
+            // ACT
+
+            new EntityNode(this.PersistenceMock.Object, entity).RenameItem(this.ProviderContextMock.Object, "e", "e");
+
+            // ASSERT
+
+            Assert.Equal("e", entity.Name);
+        }
     }
 }

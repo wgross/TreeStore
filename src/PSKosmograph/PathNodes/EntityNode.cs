@@ -8,7 +8,7 @@ using System.Management.Automation;
 
 namespace PSKosmograph.PathNodes
 {
-    public class EntityNode : IPathNode, INewItem, IRemoveItem, ICopyItem
+    public class EntityNode : IPathNode, INewItem, IRemoveItem, ICopyItem, IRenameItem
     {
         public sealed class Value : ContainerPathValue, IPathValue
         {
@@ -133,5 +133,19 @@ namespace PSKosmograph.PathNodes
         }
 
         #endregion ICopyItem Members
+
+        #region IRenameItem Members
+
+        public void RenameItem(IProviderContext providerContext, string path, string newName)
+        {
+            if (this.entity.Name.Equals(newName))
+                return;
+
+            this.entity.Name = newName;
+
+            providerContext.Persistence().Entities.Upsert(this.entity);
+        }
+
+        #endregion IRenameItem Members
     }
 }

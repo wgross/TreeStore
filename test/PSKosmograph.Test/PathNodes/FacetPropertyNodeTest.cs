@@ -1,4 +1,6 @@
-﻿using PSKosmograph.PathNodes;
+﻿using Kosmograph.Model;
+using Moq;
+using PSKosmograph.PathNodes;
 using System;
 using System.Linq;
 using Xunit;
@@ -225,6 +227,70 @@ namespace PSKosmograph.Test.PathNodes
             // ASSERT
 
             Assert.Equal("duplicate property name: p", result.Message);
+        }
+
+        [Fact]
+        public void FacetPropertyNode_renames_itself()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty);
+
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.PersistenceMock
+                .Setup(m => m.Tags)
+                .Returns(this.TagRepositoryMock.Object);
+
+            Tag? renamedTag = null;
+            this.TagRepositoryMock
+                .Setup(r => r.Upsert(It.IsAny<Tag>()))
+                .Callback<Tag>(t => renamedTag = t)
+                .Returns(tag);
+
+            // ACT
+
+            new FacetPropertyNode(tag, tag.Facet.Properties.Single()).RenameItem(this.ProviderContextMock.Object, "p", "pp");
+
+            // ASSERT
+
+            Assert.Equal("pp", renamedTag!.Facet.Properties.Single().Name);
+        }
+
+        [Fact]
+        public void FacetPropertyNode_renaming_doesnt_store_identical_name()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty);
+
+            // ACT
+
+            new FacetPropertyNode(tag, tag.Facet.Properties.Single()).RenameItem(this.ProviderContextMock.Object, "p", "p");
+
+            // ASSERT
+
+            Assert.Equal("p", tag.Facet.Properties.Single().Name);
+        }
+
+        [Fact]
+        public void FacetPropertyNode_renaming_fails_on_duplicate_name()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithoutProperty, WithProperty("p", FacetPropertyTypeValues.String), WithProperty("pp", FacetPropertyTypeValues.Long));
+
+            // ACT
+            // rename with already used name (different casing)
+
+            var result = Assert.Throws<InvalidOperationException>(() => 
+                new FacetPropertyNode(tag, tag.Facet.Properties.First()).RenameItem(this.ProviderContextMock.Object, "p", "PP"));
+
+            // ASSERT
+
+            Assert.Equal("rename failed: property name 'PP' must be unique.", result.Message);
         }
     }
 }

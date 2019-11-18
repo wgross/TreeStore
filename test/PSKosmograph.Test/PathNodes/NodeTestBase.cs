@@ -47,6 +47,12 @@ namespace PSKosmograph.Test.PathNodes
 
         protected static void WithoutProperty(Tag tag) => tag.Facet.Properties.Clear();
 
+        protected static Action<Tag> WithProperty(string name, FacetPropertyTypeValues type)
+        {
+            return tag => tag.Facet.AddProperty(new FacetProperty(name, type));
+
+        }
+
         #endregion Default Tag
 
         #region Default Entity

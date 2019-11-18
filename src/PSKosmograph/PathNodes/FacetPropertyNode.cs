@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace PSKosmograph.PathNodes
 {
-    public class FacetPropertyNode : IPathNode, IRemoveItem, ICopyItem
+    public class FacetPropertyNode : IPathNode, IRemoveItem, ICopyItem, IRenameItem
     {
         public sealed class Value : LeafPathValue
         {
@@ -86,5 +86,22 @@ namespace PSKosmograph.PathNodes
         }
 
         #endregion ICopyItem Members
+
+        #region IRenameItem
+
+        public void RenameItem(IProviderContext providerContext, string path, string newName)
+        {
+            if (this.facetProperty.Name.Equals(newName))
+                return;
+
+            if (this.tag.Facet.Properties.Any(p => p.Name.Equals(newName, StringComparison.OrdinalIgnoreCase)))
+                throw new InvalidOperationException($"rename failed: property name '{newName}' must be unique.");
+
+            this.facetProperty.Name = newName;
+
+            providerContext.Persistence().Tags.Upsert(this.tag);
+        }
+
+        #endregion IRenameItem
     }
 }

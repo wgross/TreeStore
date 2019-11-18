@@ -471,6 +471,120 @@ namespace PSKosmograph.Test
 
         #endregion Copy-Item /Entities/<name>
 
+        #region Rename-Item /Tags/<name>
+
+        [Fact]
+        public void Powershell_renames_Tag()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag();
+
+            this.PersistenceMock
+                .Setup(m => m.Tags)
+                .Returns(this.TagRepositoryMock.Object);
+
+            this.TagRepositoryMock
+                .Setup(r => r.FindByName("t"))
+                .Returns(tag);
+
+            this.TagRepositoryMock
+                .Setup(r => r.Upsert(It.Is<Tag>(t => "tt".Equals(t.Name))))
+                .Returns<Tag>(t => t);
+
+            // ACT
+
+            this.PowerShell
+               .AddCommand("Rename-Item")
+               .AddParameter("Path", $@"kg:\Tags\t")
+               .AddParameter("NewName", "tt");
+
+            var result = this.PowerShell.Invoke().ToArray();
+
+            // ASSERT
+
+            Assert.False(this.PowerShell.HadErrors);
+            Assert.Empty(result);
+        }
+
+        #endregion Rename-Item /Tags/<name>
+
+        #region Rename-Item /Tags/<name>/<property-name>
+
+        [Fact]
+        public void Powershell_renames_facet_property()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty);
+
+            this.PersistenceMock
+                .Setup(m => m.Tags)
+                .Returns(this.TagRepositoryMock.Object);
+
+            this.TagRepositoryMock
+                .Setup(r => r.FindByName("t"))
+                .Returns(tag);
+
+            this.TagRepositoryMock
+                .Setup(r => r.Upsert(It.Is<Tag>(t => "pp".Equals(t.Facet.Properties.Single().Name))))
+                .Returns<Tag>(t => t);
+
+            // ACT
+
+            this.PowerShell
+               .AddCommand("Rename-Item")
+               .AddParameter("Path", $@"kg:\Tags\t\p")
+               .AddParameter("NewName", "pp");
+
+            var result = this.PowerShell.Invoke().ToArray();
+
+            // ASSERT
+
+            Assert.False(this.PowerShell.HadErrors);
+            Assert.Empty(result);
+        }
+
+        #endregion Rename-Item /Tags/<name>/<property-name>
+
+        #region Rename-Item /Entities/<name>
+
+        [Fact]
+        public void Powershell_renames_Entity()
+        {
+            // ARRANGE
+
+            var entity = DefaultEntity();
+
+            this.PersistenceMock
+                .Setup(m => m.Tags)
+                .Returns(this.TagRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByName("t"))
+                .Returns(entity);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.Upsert(It.Is<Entity>(e => "tt".Equals(e.Name))))
+                .Returns<Entity>(e => e);
+
+            // ACT
+
+            this.PowerShell
+               .AddCommand("Rename-Item")
+               .AddParameter("Path", $@"kg:\Tags\e")
+               .AddParameter("NewName", "ee");
+
+            var result = this.PowerShell.Invoke().ToArray();
+
+            // ASSERT
+
+            Assert.False(this.PowerShell.HadErrors);
+            Assert.Empty(result);
+        }
+
+        #endregion Rename-Item /Entities/<name>
+
         #region Remove-Item /Tags/<name>
 
         [Fact]
