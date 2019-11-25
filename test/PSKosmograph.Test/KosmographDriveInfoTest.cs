@@ -1,25 +1,43 @@
-﻿using System.Management.Automation;
+﻿using Kosmograph.LiteDb;
+using Kosmograph.Messaging;
+using System.IO;
+using System.Linq;
 using Xunit;
 
 namespace PSKosmograph.Test
 {
     public class KosmographDriveInfoTest : KosmographCmdletProviderTestBase
     {
-        [Fact]
-        public void KosmographDriveInfo_recplicates_PSDriveInfo()
+        public KosmographDriveInfoTest()
         {
-            // ARRANGE
+            var path = Path.GetTempFileName();
+            KosmographCmdletProvider.NewKosmographService = path => new KosmographLiteDbPersistence(new KosmographMessageBus(), File.Open(path, FileMode.OpenOrCreate));
 
-            var provider = new KosmographCmdletProvider();
+            this.PowerShell
+                .AddStatement()
+                    .AddCommand("New-PsDrive")
+                        .AddParameter("Name", "kgl")
+                        .AddParameter("PsProvider", "Kosmograph")
+                        .AddParameter("Root", path)
+                        .Invoke();
 
+            this.PowerShell.Commands.Clear();
+        }
+
+        [Fact]
+        public void KosmographCmdletProvider_create_LiteDb_file()
+        {
             // ACT
 
-            //var result = new KosmographDriveInfo(
-            //    new PSDriveInfo("kg", provider.GetProviderInfo(), @"kg:\", strimngh., null), this.PersistenceMock.Object);
+            var result = this.PowerShell
+                .AddCommand("New-Item")
+                .AddParameter("Name", "e")
+                .Invoke()
+                .Single();
 
             // ASSERT
 
-            // Assert.Same(this.Service.Object, result.Service);
+            Assert.NotNull(result);
         }
     }
 }

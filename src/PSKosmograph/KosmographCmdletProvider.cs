@@ -70,6 +70,10 @@ namespace PSKosmograph
 
         protected override PSDriveInfo RemoveDrive(PSDriveInfo drive)
         {
+            if (drive is KosmographDriveInfo kgdrive)
+            {
+                kgdrive.Dispose();
+            }
             return base.RemoveDrive(drive);
         }
 

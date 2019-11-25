@@ -561,11 +561,11 @@ namespace PSKosmograph.Test
                 .Returns(this.TagRepositoryMock.Object);
 
             this.EntityRepositoryMock
-                .Setup(r => r.FindByName("t"))
+                .Setup(r => r.FindByName("e"))
                 .Returns(entity);
 
             this.EntityRepositoryMock
-                .Setup(r => r.Upsert(It.Is<Entity>(e => "tt".Equals(e.Name))))
+                .Setup(r => r.Upsert(It.Is<Entity>(e => "ee".Equals(e.Name))))
                 .Returns<Entity>(e => e);
 
             // ACT

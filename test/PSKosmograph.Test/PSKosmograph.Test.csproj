@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="LiteDB" Version="4.1.4" />
     <PackageReference Include="Microsoft.PowerShell.SDK" Version="6.2.3" />
   </ItemGroup>
   <ItemGroup>

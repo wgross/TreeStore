@@ -1,5 +1,5 @@
-using Kosmograph.LiteDb;
-using Kosmograph.Messaging;
+using Kosmograph.Model;
+using Moq;
 using System.Linq;
 using System.Management.Automation;
 using Xunit;
@@ -9,9 +9,16 @@ namespace PSKosmograph.Test
     [Collection("UsesPowershell")]
     public class KosmographFileSystemProviderTest
     {
+        public MockRepository Mocks { get; } = new MockRepository(MockBehavior.Strict);
+
+        public PowerShell PowerShell { get; }
+
+        public Mock<IKosmographPersistence> PersistenceMock { get; }
+
         public KosmographFileSystemProviderTest()
         {
-            KosmographCmdletProvider.NewKosmographService = _ => new KosmographLiteDbPersistence(KosmographMessageBus.Default);
+            this.PersistenceMock = this.Mocks.Create<IKosmographPersistence>();
+            KosmographCmdletProvider.NewKosmographService = _ => this.PersistenceMock.Object;
 
             this.PowerShell = PowerShell.Create();
 
@@ -21,8 +28,6 @@ namespace PSKosmograph.Test
                   .AddArgument("./PSKosmograph.dll")
                   .Invoke();
         }
-
-        public PowerShell PowerShell { get; }
 
         [Fact]
         public void Powershell_creates_new_drive()
@@ -59,7 +64,7 @@ namespace PSKosmograph.Test
         }
 
         [Fact]
-        public void Powershell_removes_drive()
+        public void Powershell_removing_drive_disposes_persistence()
         {
             // ARRANGE
             // import the module and create a drive
@@ -70,6 +75,8 @@ namespace PSKosmograph.Test
                         .AddParameter("Name", "kg")
                         .AddParameter("PsProvider", "Kosmograph")
                         .AddParameter("Root", @"");
+
+            this.PersistenceMock.Setup(p => p.Dispose());
 
             // ACT
             // remove the drive
@@ -90,7 +97,7 @@ namespace PSKosmograph.Test
             Assert.Equal("kg", ((PSDriveInfo)result.ImmediateBaseObject).Name);
             Assert.Equal(@"kg:\", ((PSDriveInfo)result.ImmediateBaseObject).Root);
 
-            // fectcing drive fails
+            // fecthing drive fails
 
             var drive = this.PowerShell
                 .AddStatement()
