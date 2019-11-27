@@ -18,7 +18,7 @@ namespace PSKosmograph.Test
         public KosmographFileSystemProviderTest()
         {
             this.PersistenceMock = this.Mocks.Create<IKosmographPersistence>();
-            KosmographCmdletProvider.NewKosmographService = _ => this.PersistenceMock.Object;
+            KosmographCmdletProvider.NewKosmographPersistence = _ => this.PersistenceMock.Object;
 
             this.PowerShell = PowerShell.Create();
 

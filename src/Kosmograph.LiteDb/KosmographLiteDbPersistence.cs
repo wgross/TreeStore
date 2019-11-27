@@ -2,6 +2,7 @@
 using Kosmograph.Model;
 using LiteDB;
 using System.IO;
+using FileMode = System.IO.FileMode;
 
 namespace Kosmograph.LiteDb
 {
@@ -9,13 +10,17 @@ namespace Kosmograph.LiteDb
     {
         private LiteRepository db;
 
-        public KosmographLiteDbPersistence(IKosmographMessageBus messageBus)
+        public static KosmographLiteDbPersistence InMemory(IKosmographMessageBus messageBus) => new KosmographLiteDbPersistence(messageBus);
+
+        private KosmographLiteDbPersistence(IKosmographMessageBus messageBus)
             : this(messageBus, new MemoryStream())
         {
             this.MessageBus = messageBus;
         }
 
-        public KosmographLiteDbPersistence(IKosmographMessageBus messageBus, Stream storageStream)
+        public static KosmographLiteDbPersistence InFile(IKosmographMessageBus messageBus, string path) => new KosmographLiteDbPersistence(messageBus, File.Open(path, FileMode.OpenOrCreate));
+
+        private KosmographLiteDbPersistence(IKosmographMessageBus messageBus, Stream storageStream)
            : this(messageBus, new LiteRepository(storageStream))
         {
         }
@@ -24,6 +29,7 @@ namespace Kosmograph.LiteDb
         {
             this.db = db;
             this.Categories = new CategoryRepository(db);
+            this.MessageBus = messageBus;
         }
 
         public IKosmographMessageBus MessageBus { get; }

@@ -15,7 +15,7 @@ namespace Kosmograph.LiteDb.Test
         public KosmographLiteDbPersistenceTest()
         {
             this.kosmographMessaging = this.mocks.Create<IKosmographMessageBus>();
-            this.kosmographPersistence = new KosmographLiteDbPersistence(this.kosmographMessaging.Object);
+            this.kosmographPersistence = KosmographLiteDbPersistence.InMemory(this.kosmographMessaging.Object);
         }
 
         public void Dispose()

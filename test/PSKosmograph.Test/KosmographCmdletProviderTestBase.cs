@@ -34,7 +34,7 @@ namespace PSKosmograph.Test
             this.EntityRepositoryMock = this.Mocks.Create<IEntityRepository>();
             this.RelationshipRepositoryMock = this.Mocks.Create<IRelationshipRepository>();
 
-            KosmographCmdletProvider.NewKosmographService = _ => this.PersistenceMock.Object;
+            KosmographCmdletProvider.NewKosmographPersistence = _ => this.PersistenceMock.Object;
 
             this.PowerShell = PowerShell.Create();
 
@@ -59,7 +59,7 @@ namespace PSKosmograph.Test
 
         protected KosmographModel CreateModel()
         {
-            var model = new KosmographModel(new KosmographLiteDbPersistence(KosmographMessageBus.Default));
+            var model = new KosmographModel(KosmographLiteDbPersistence.InMemory(KosmographMessageBus.Default));
             var tag1 = model.Tags.Upsert(new Tag("t1", new Facet("facet",
                 new FacetProperty("text", FacetPropertyTypeValues.String),
                 new FacetProperty("long", FacetPropertyTypeValues.Long))));

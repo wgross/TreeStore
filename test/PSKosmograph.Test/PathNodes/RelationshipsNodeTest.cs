@@ -19,6 +19,32 @@ namespace PSKosmograph.Test.PathNodes
         }
 
         [Fact]
+        public void RelationshipsNode_provides_Value()
+        {
+            // ACT
+
+            var result = new RelationshipsNode().GetNodeValue();
+
+            // ASSERT
+
+            Assert.Equal("Relationships", result.Name);
+            Assert.True(result.IsCollection);
+        }
+
+        [Fact]
+        public void RelationshipsNode_provides_Item()
+        {
+            // ACT
+
+            var result = new RelationshipsNode().GetNodeValue().Item as RelationshipsNode.Item;
+
+            // ASSERT
+
+            Assert.Equal("Relationships", result!.Name);
+            Assert.NotNull(result);
+        }
+
+        [Fact]
         public void RelationshipsNode_provides_RelationshipsNodeValue()
         {
             // ACT

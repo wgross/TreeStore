@@ -28,7 +28,7 @@ namespace PSKosmograph.PathNodes
 
             public string Name => this.assignedProperty.Name;
 
-            public object Value => this.entity.TryGetFacetProperty(this.assignedProperty).Item2;
+            public object? Value => this.entity.TryGetFacetProperty(this.assignedProperty).Item2;
         }
 
         private readonly Entity entity;

@@ -71,6 +71,10 @@ namespace Kosmograph.LiteDb
                 .ToArray();
         }
 
-        public Entity FindByName(string name) => this.Repository.Query<Entity>(CollectionName).Where(e => e.Name.Equals(name)).FirstOrDefault();
+        public Entity FindByName(string name) => this.Repository
+            .Query<Entity>(CollectionName)
+            .Include(e => e.Tags)
+            .Where(e => e.Name.Equals(name))
+            .FirstOrDefault();
     }
 }

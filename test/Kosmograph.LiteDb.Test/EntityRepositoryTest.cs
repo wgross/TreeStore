@@ -6,6 +6,7 @@ using System;
 using System.IO;
 using System.Linq;
 using Xunit;
+using static Kosmograph.LiteDb.Test.TestDataSources;
 
 namespace Kosmograph.LiteDb.Test
 {
@@ -133,7 +134,7 @@ namespace Kosmograph.LiteDb.Test
         }
 
         [Fact]
-        public void EntityRepository_reads_entity_with_tag()
+        public void EntityRepository_reads_entity_with_tag_by_Id()
         {
             // ARRANGE
 
@@ -149,6 +150,39 @@ namespace Kosmograph.LiteDb.Test
             // ACT
 
             var readById = this.entityRepository.FindById(entity.Id);
+            var readByAll = this.entityRepository.FindAll().Single();
+
+            // ASSERT
+
+            Assert.All(new[] { readByAll, readById }, e =>
+            {
+                Assert.Equal(entity, e);
+                Assert.NotSame(entity, e);
+                Assert.Equal(entity.Name, e.Name);
+                Assert.Equal(entity.Tags.Single().Id, e.Tags.Single().Id);
+                Assert.Equal(entity.Tags.Single().Name, e.Tags.Single().Name);
+                Assert.Equal(entity.Tags.Single().Facet.Name, e.Tags.Single().Facet.Name);
+                Assert.Equal(entity.Tags.Single().Facet.Properties.Single().Name, e.Tags.Single().Facet.Properties.Single().Name);
+            });
+        }
+
+        [Fact]
+        public void EntityRepository_reads_entity_with_tag_by_Name()
+        {
+            // ARRANGE
+
+            var tag = this.tagRepository.Upsert(DefaultTag(WithDefaultProperty));
+
+            var entity = new Entity("entity", tag);
+
+            this.eventSource
+                .Setup(s => s.Modified(entity));
+
+            this.entityRepository.Upsert(entity);
+
+            // ACT
+
+            var readById = this.entityRepository.FindByName(entity.Name);
             var readByAll = this.entityRepository.FindAll().Single();
 
             // ASSERT

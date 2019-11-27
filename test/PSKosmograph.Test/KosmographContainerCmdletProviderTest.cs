@@ -340,6 +340,74 @@ namespace PSKosmograph.Test
 
         #endregion New-Item /Entities/<name>/<tag-name>
 
+        #region Get-ChildItem /Tags/<name>
+
+        [Fact]
+        public void PowerShell_reads_facet_property_as_tag_child()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty);
+
+            this.PersistenceMock
+                .Setup(p => p.Tags)
+                .Returns(this.TagRepositoryMock.Object);
+
+            this.TagRepositoryMock
+                .Setup(r => r.FindByName("t"))
+                .Returns(tag);
+
+            // ACT
+
+            this.PowerShell
+                .AddCommand("Get-ChildItem")
+                .AddParameter("Path", @"kg:\Tags\t");
+
+            var result = this.PowerShell.Invoke().ToArray();
+
+            // ASSERT
+
+            Assert.False(this.PowerShell.HadErrors);
+            Assert.Equal("p", result.Single().Property<string>("Name"));
+            Assert.Equal(FacetPropertyTypeValues.String, result.Single().Property<FacetPropertyTypeValues>("ValueType"));
+        }
+
+        #endregion Get-ChildItem /Tags/<name>
+
+        #region Get-ChildItem /Entities/<name>
+
+        [Fact]
+        public void PowerShell_reads_assigned_tags_as_entity_children()
+        {
+            // ARRANGE
+
+            var entity = DefaultEntity(WithDefaultTag);
+
+            this.PersistenceMock
+                .Setup(p => p.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByName("e"))
+                .Returns(entity);
+
+            // ACT
+
+            this.PowerShell
+                .AddCommand("Get-ChildItem")
+                    .AddParameter("Path", @"kg:\Entities\e");
+
+            var result = this.PowerShell.Invoke();
+
+            // ASSERT
+
+            Assert.False(this.PowerShell.HadErrors);
+            Assert.Equal("t", result.Single().Property<string>("Name"));
+            Assert.Equal(entity.Tags.Single().Id, result.Single().Property<Guid>("Id"));
+        }
+
+        #endregion Get-ChildItem /Entities/<name>
+
         #region Copy-Item /Tags/<name>
 
         [Fact]
@@ -441,11 +509,11 @@ namespace PSKosmograph.Test
                 .Returns(this.EntityRepositoryMock.Object);
 
             this.EntityRepositoryMock
-                .Setup(r => r.FindByName("t"))
+                .Setup(r => r.FindByName("e"))
                 .Returns(tag);
 
             this.EntityRepositoryMock
-                .Setup(r => r.FindByName("tt"))
+                .Setup(r => r.FindByName("ee"))
                 .Returns((Entity?)null);
 
             Entity? createdEntity = null;
@@ -557,8 +625,8 @@ namespace PSKosmograph.Test
             var entity = DefaultEntity();
 
             this.PersistenceMock
-                .Setup(m => m.Tags)
-                .Returns(this.TagRepositoryMock.Object);
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
 
             this.EntityRepositoryMock
                 .Setup(r => r.FindByName("e"))
@@ -572,7 +640,7 @@ namespace PSKosmograph.Test
 
             this.PowerShell
                .AddCommand("Rename-Item")
-               .AddParameter("Path", $@"kg:\Tags\e")
+               .AddParameter("Path", $@"kg:\Entities\e")
                .AddParameter("NewName", "ee");
 
             var result = this.PowerShell.Invoke().ToArray();

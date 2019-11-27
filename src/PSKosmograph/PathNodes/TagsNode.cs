@@ -19,6 +19,7 @@ namespace PSKosmograph.PathNodes
 
         public sealed class Item
         {
+            public string Name => "Tags";
         }
 
         #region IPathNode Members

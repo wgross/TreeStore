@@ -11,7 +11,7 @@ namespace PSKosmograph.Test
         public KosmographDriveInfoTest()
         {
             var path = Path.GetTempFileName();
-            KosmographCmdletProvider.NewKosmographService = path => new KosmographLiteDbPersistence(new KosmographMessageBus(), File.Open(path, FileMode.OpenOrCreate));
+            KosmographCmdletProvider.NewKosmographPersistence = path => KosmographLiteDbPersistence.InFile(new KosmographMessageBus(), path);
 
             this.PowerShell
                 .AddStatement()
@@ -25,18 +25,19 @@ namespace PSKosmograph.Test
         }
 
         [Fact]
-        public void KosmographCmdletProvider_create_LiteDb_file()
+        public void KosmographCmdletProvider_creates_LiteDb_file()
         {
             // ACT
 
-            var result = this.PowerShell
+            this.PowerShell
                 .AddCommand("New-Item")
-                .AddParameter("Name", "e")
-                .Invoke()
-                .Single();
+                    .AddParameter("Path", @"kgl:\Entities\e");
+
+            var result = this.PowerShell.Invoke().Single();
 
             // ASSERT
 
+            Assert.False(this.PowerShell.HadErrors);
             Assert.NotNull(result);
         }
     }

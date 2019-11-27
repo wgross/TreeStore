@@ -16,6 +16,7 @@ namespace PSKosmograph.PathNodes
 
         public sealed class Item
         {
+            public string Name => "Relationships";
         }
 
         public object GetNodeChildrenParameters => throw new NotImplementedException();

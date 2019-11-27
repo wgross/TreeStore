@@ -15,7 +15,7 @@ namespace Kosmograph.LiteDb.Test
         public LiteDbTestBase()
         {
             this.MessageBus = new KosmographMessageBus();
-            this.Persistence = new KosmographLiteDbPersistence(this.MessageBus);
+            this.Persistence = KosmographLiteDbPersistence.InMemory(this.MessageBus);
         }
 
         protected T Setup<T>(T t, Action<T> setup = null)

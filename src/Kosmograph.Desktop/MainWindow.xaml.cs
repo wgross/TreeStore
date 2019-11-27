@@ -3,7 +3,6 @@ using Kosmograph.LiteDb;
 using Kosmograph.Messaging;
 using Kosmograph.Model;
 using Microsoft.Win32;
-using System.IO;
 using System.Windows;
 using System.Windows.Input;
 
@@ -43,9 +42,9 @@ namespace Kosmograph.Desktop
 
         private void CreateNewModel()
         {
-            var model = new KosmographModel(new KosmographLiteDbPersistence(KosmographMessageBus.Default));
-            var tag1 = model.Tags.Upsert(new Tag("t1", new Facet("facet", 
-                new FacetProperty("text",FacetPropertyTypeValues.String),
+            var model = new KosmographModel(KosmographLiteDbPersistence.InMemory(KosmographMessageBus.Default));
+            var tag1 = model.Tags.Upsert(new Tag("t1", new Facet("facet",
+                new FacetProperty("text", FacetPropertyTypeValues.String),
                 new FacetProperty("long", FacetPropertyTypeValues.Long))));
             var tag2 = model.Tags.Upsert(new Tag("t2", new Facet("facet", new FacetProperty("p2"))));
             var entity1 = model.Entities.Upsert(new Entity("e1", tag1));
@@ -84,7 +83,7 @@ namespace Kosmograph.Desktop
             if (!(openFileDialog.ShowDialog() ?? false))
                 return;
 
-            this.ViewModel = new KosmographViewModel(new KosmographModel(new KosmographLiteDbPersistence(Kosmograph.Messaging.KosmographMessageBus.Default, File.Create(openFileDialog.FileName))));
+            this.ViewModel = new KosmographViewModel(new KosmographModel(KosmographLiteDbPersistence.InFile(Kosmograph.Messaging.KosmographMessageBus.Default, openFileDialog.FileName)));
             this.ViewModel.FillAll();
 
             //using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
@@ -103,9 +102,9 @@ namespace Kosmograph.Desktop
             if (!(openFileDialog.ShowDialog() ?? false))
                 return;
 
-            this.ViewModel = new KosmographViewModel(new KosmographModel(new KosmographLiteDbPersistence(
+            this.ViewModel = new KosmographViewModel(new KosmographModel(KosmographLiteDbPersistence.InFile(
                 messageBus: KosmographMessageBus.Default,
-                storageStream: File.Open(openFileDialog.FileName, FileMode.Open))));
+                path: openFileDialog.FileName)));
             this.ViewModel.FillAll();
         }
 

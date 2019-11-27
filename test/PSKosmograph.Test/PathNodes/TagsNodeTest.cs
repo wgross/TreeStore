@@ -50,6 +50,7 @@ namespace PSKosmograph.Test.PathNodes
 
             // ASSERT
 
+            Assert.Equal("Tags", result!.Name);
             Assert.NotNull(result);
         }
 
