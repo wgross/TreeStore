@@ -29,6 +29,10 @@ namespace PSKosmograph.PathNodes
             public string Name => this.assignedProperty.Name;
 
             public object? Value => this.entity.TryGetFacetProperty(this.assignedProperty).Item2;
+
+            public FacetPropertyTypeValues ValueType => this.assignedProperty.Type;
+
+            public KosmographItemType ItemType => KosmographItemType.AssignedFacetProperty;
         }
 
         private readonly Entity entity;
@@ -39,7 +43,7 @@ namespace PSKosmograph.PathNodes
             this.entity = entity;
             this.assignedProperty = property;
         }
-        
+
         public string Name => this.assignedProperty.Name;
 
         public string ItemMode => ".";

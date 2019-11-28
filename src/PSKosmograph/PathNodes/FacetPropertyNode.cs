@@ -39,6 +39,8 @@ namespace PSKosmograph.PathNodes
                 get => this.facetProperty.Type;
                 set => this.facetProperty.Type = value;
             }
+
+            public KosmographItemType ItemType => KosmographItemType.FacetProperty;
         }
 
         private readonly FacetProperty facetProperty;

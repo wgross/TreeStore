@@ -50,6 +50,7 @@ namespace PSKosmograph.Test.PathNodes
 
             Assert.Equal("t", result!.Name);
             Assert.Equal(tag.Id, result!.Id);
+            Assert.Equal(KosmographItemType.Tag, result!.ItemType);
         }
 
         [Fact]

@@ -25,6 +25,7 @@
             <Name>DefaultDisplayPropertySet</Name>
             <ReferencedProperties>
               <Name>Name</Name>
+              <Name>ItemType</Name>
               <Name>Id</Name>
             </ReferencedProperties>
           </PropertySet>
@@ -58,6 +59,7 @@
             <Name>DefaultDisplayPropertySet</Name>
             <ReferencedProperties>
               <Name>Name</Name>
+              <Name>ItemType</Name>
               <Name>Id</Name>
             </ReferencedProperties>
           </PropertySet>
@@ -75,6 +77,7 @@
             <Name>DefaultDisplayPropertySet</Name>
             <ReferencedProperties>
               <Name>Name</Name>
+              <Name>ItemType</Name>
               <Name>ValueType</Name>
             </ReferencedProperties>
           </PropertySet>
@@ -92,6 +95,7 @@
             <Name>DefaultDisplayPropertySet</Name>
             <ReferencedProperties>
               <Name>Name</Name>
+              <Name>ItemType</Name>
               <Name>Id</Name>
             </ReferencedProperties>
           </PropertySet>
@@ -109,6 +113,7 @@
             <Name>DefaultDisplayPropertySet</Name>
             <ReferencedProperties>
               <Name>Name</Name>
+              <Name>ItemType</Name>
               <Name>ValueType</Name>
               <Name>Value</Name>
             </ReferencedProperties>

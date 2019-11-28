@@ -27,6 +27,8 @@ namespace PSKosmograph.PathNodes
             }
 
             public Guid Id => this.tag.Id;
+
+            public KosmographItemType ItemType => KosmographItemType.Tag;
         }
 
         public class Value : IPathValue

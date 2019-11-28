@@ -36,7 +36,7 @@ namespace PSKosmograph.PathNodes
 
             public string Name => this.assignedTag.Name;
 
-            public bool IsCollection => false;
+            public bool IsCollection => true;
 
             public object Item => new Item(this.assignedTag);
 
@@ -82,13 +82,16 @@ namespace PSKosmograph.PathNodes
             public Guid Id => this.assignedTag.Id;
 
             public string Name => this.assignedTag.Name;
+
+            public KosmographItemType ItemType => KosmographItemType.AssignedTag;
         }
 
         public string Name => this.assignedTag.Name;
 
         public string ItemMode => "+";
 
-        public IEnumerable<IPathNode> GetNodeChildren(IProviderContext providerContext) => Enumerable.Empty<IPathNode>();
+        public IEnumerable<IPathNode> GetNodeChildren(IProviderContext providerContext)
+            => this.assignedTag.Facet.Properties.Select(p => new AssignedFacetPropertyNode(this.entity, p));
 
         public IPathValue GetNodeValue() => new Value(this.model, this.entity, this.assignedTag);
 

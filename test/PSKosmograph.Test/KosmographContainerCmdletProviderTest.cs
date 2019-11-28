@@ -1,5 +1,6 @@
 ﻿using Kosmograph.Model;
 using Moq;
+using PSKosmograph.PathNodes;
 using System;
 using System.Linq;
 using System.Management.Automation;
@@ -46,6 +47,7 @@ namespace PSKosmograph.Test
             Assert.Equal(@"PSKosmograph\Kosmograph::kg:\Tags\tag", ((string)result[0].Properties["PSPath"].Value));
             Assert.NotEqual(Guid.Empty, result[0].Property<Guid>("Id"));
             Assert.Equal("tag", result[0].Property<string>("Name"));
+            Assert.Equal(KosmographItemType.Tag, result[0].Property<KosmographItemType>("ItemType"));
         }
 
         [Fact]
@@ -84,6 +86,7 @@ namespace PSKosmograph.Test
             Assert.Equal(@"PSKosmograph\Kosmograph::kg:\Tags\tag", ((string)result[0].Properties["PSPath"].Value));
             Assert.NotEqual(Guid.Empty, result[0].Property<Guid>("Id"));
             Assert.Equal("tag", result[0].Property<string>("Name"));
+            Assert.Equal(KosmographItemType.Tag, result[0].Property<KosmographItemType>("ItemType"));
         }
 
         #endregion New-Item /Tags/<name>
@@ -128,6 +131,7 @@ namespace PSKosmograph.Test
             Assert.Equal(@"PSKosmograph\Kosmograph::kg:\Tags\t\p", ((string)result[0].Properties["PSPath"].Value));
             Assert.NotEqual(Guid.Empty, result[0].Property<Guid>("Id"));
             Assert.Equal("p", result[0].Property<string>("Name"));
+            Assert.Equal(KosmographItemType.FacetProperty, result[0].Property<KosmographItemType>("ItemType"));
         }
 
         #endregion New-Item /Tags/<name>/<property-name>
@@ -169,6 +173,7 @@ namespace PSKosmograph.Test
             Assert.Equal(@"PSKosmograph\Kosmograph::kg:\Entities\e", ((string)result[0].Properties["PSPath"].Value));
             Assert.NotEqual(Guid.Empty, result[0].Property<Guid>("Id"));
             Assert.Equal("e", result[0].Property<string>("Name"));
+            Assert.Equal(KosmographItemType.Entity, result[0].Property<KosmographItemType>("ItemType"));
         }
 
         [Fact]
@@ -207,6 +212,7 @@ namespace PSKosmograph.Test
             Assert.Equal(@"PSKosmograph\Kosmograph::kg:\Entities\e", ((string)result[0].Properties["PSPath"].Value));
             Assert.NotEqual(Guid.Empty, result[0].Property<Guid>("Id"));
             Assert.Equal("e", result[0].Property<string>("Name"));
+            Assert.Equal(KosmographItemType.Entity, result[0].Property<KosmographItemType>("ItemType"));
         }
 
         [Fact]
@@ -336,6 +342,7 @@ namespace PSKosmograph.Test
             Assert.Equal(@"PSKosmograph\Kosmograph::kg:\Entities\e\t", ((string)result[0].Properties["PSPath"].Value));
             Assert.NotEqual(Guid.Empty, result[0].Property<Guid>("Id"));
             Assert.Equal("t", result[0].Property<string>("Name"));
+            Assert.Equal(KosmographItemType.AssignedTag, result[0].Property<KosmographItemType>("ItemType"));
         }
 
         #endregion New-Item /Entities/<name>/<tag-name>
@@ -407,6 +414,40 @@ namespace PSKosmograph.Test
         }
 
         #endregion Get-ChildItem /Entities/<name>
+
+        #region Get-ChildItem /Entities/<name>/<tag-name>
+
+        [Fact]
+        public void PowerShell_reads_assigned_properties_as_assigned_tag_children()
+        {
+            // ARRANGE
+
+            var entity = DefaultEntity(WithDefaultTag);
+
+            this.PersistenceMock
+                .Setup(p => p.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByName("e"))
+                .Returns(entity);
+
+            // ACT
+
+            this.PowerShell
+                .AddCommand("Get-ChildItem")
+                .AddParameter("Path", @"kg:\Entities\e\t");
+
+            var result = this.PowerShell.Invoke().ToArray();
+
+            // ASSERT
+
+            Assert.False(this.PowerShell.HadErrors);
+            Assert.Single(result);
+            Assert.Equal("p", result.Single().Property<string>("Name"));
+        }
+
+        #endregion Get-ChildItem /Entities/<name>/<tag-name>
 
         #region Copy-Item /Tags/<name>
 

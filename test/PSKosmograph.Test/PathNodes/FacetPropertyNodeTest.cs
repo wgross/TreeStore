@@ -60,6 +60,7 @@ namespace PSKosmograph.Test.PathNodes
             Assert.Equal(tag.Facet.Properties.Single().Id, result!.Id);
             Assert.Equal("p", result!.Name);
             Assert.Equal(tag.Facet.Properties.Single().Type, result!.ValueType);
+            Assert.Equal(KosmographItemType.FacetProperty, result!.ItemType);
         }
 
         [Fact]

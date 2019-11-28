@@ -40,11 +40,11 @@ namespace PSKosmograph.Test.PathNodes
             // ASSERT
 
             Assert.Equal("t", result.Name);
-            Assert.False(result.IsCollection);
+            Assert.True(result.IsCollection);
         }
 
         [Fact]
-        public void AssignedTagNode_has_no_children()
+        public void AssignedTagNode_retrieves_assigned_facet_properties_as_child_nodes()
         {
             // ARRANGE
 
@@ -57,7 +57,7 @@ namespace PSKosmograph.Test.PathNodes
 
             // ASSERT
 
-            Assert.Empty(result);
+            Assert.Single(result);
         }
 
         [Fact]
@@ -192,6 +192,7 @@ namespace PSKosmograph.Test.PathNodes
             Assert.NotNull(result);
             Assert.Equal(e.Tags.Single().Name, result!.Name);
             Assert.Equal(e.Tags.Single().Id, result!.Id);
+            Assert.Equal(KosmographItemType.AssignedTag, result!.ItemType);
         }
 
         [Fact]

@@ -45,6 +45,8 @@ namespace PSKosmograph.PathNodes
             }
 
             public Guid Id => this.entitiy.Id;
+
+            public KosmographItemType ItemType => KosmographItemType.Entity;
         }
 
         private readonly Entity entity;
