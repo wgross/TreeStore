@@ -1,24 +1,26 @@
 ﻿using Kosmograph.LiteDb;
 using Kosmograph.Messaging;
+using Kosmograph.Model;
 using System.IO;
-using System.Linq;
 using Xunit;
 
 namespace PSKosmograph.Test
 {
     public class KosmographDriveInfoTest : KosmographCmdletProviderTestBase
     {
+        private readonly string _liteDbPath;
+
         public KosmographDriveInfoTest()
         {
-            var path = Path.GetTempFileName();
+            _liteDbPath = Path.GetTempFileName();
             KosmographCmdletProvider.NewKosmographPersistence = path => KosmographLiteDbPersistence.InFile(new KosmographMessageBus(), path);
 
             this.PowerShell
                 .AddStatement()
                     .AddCommand("New-PsDrive")
-                        .AddParameter("Name", "kgl")
+                        .AddParameter("Name", "kgf")
                         .AddParameter("PsProvider", "Kosmograph")
-                        .AddParameter("Root", path)
+                        .AddParameter("Root", _liteDbPath)
                         .Invoke();
 
             this.PowerShell.Commands.Clear();
@@ -29,16 +31,19 @@ namespace PSKosmograph.Test
         {
             // ACT
 
-            this.PowerShell
-                .AddCommand("New-Item")
-                    .AddParameter("Path", @"kgl:\Entities\e");
-
-            var result = this.PowerShell.Invoke().Single();
+            this.PowerShell.AddCommand("New-Item").AddParameter("Path", @"kgf:\Tags\t").Invoke();
+            this.PowerShell.Commands.Clear();
+            this.PowerShell.AddCommand("New-Item").AddParameter("Path", @"kgf:\Tags\t\p").AddParameter("ValueType", FacetPropertyTypeValues.Long).Invoke();
+            this.PowerShell.Commands.Clear();
+            this.PowerShell.AddCommand("New-Item").AddParameter("Path", @"kgf:\Entities\e").Invoke();
+            this.PowerShell.Commands.Clear();
+            this.PowerShell.AddCommand("New-Item").AddParameter("Path", @"kgf:\Entities\e\t").Invoke();
+            this.PowerShell.Commands.Clear();
 
             // ASSERT
 
             Assert.False(this.PowerShell.HadErrors);
-            Assert.NotNull(result);
+            Assert.True(File.Exists(_liteDbPath));
         }
     }
 }
