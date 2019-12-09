@@ -26,13 +26,13 @@ namespace PSKosmograph.Test.PathNodes
         {
             // ACT
 
-            var result = new RootNode().GetNodeValue();
+            var result = new RootNode().GetItemProvider();
 
             // ASSERT
 
             Assert.Equal(string.Empty, result.Name);
-            Assert.True(result.IsCollection);
-            Assert.IsType<RootNode.Item>(result.Item);
+            Assert.True(result.IsContainer);
+            Assert.IsType<RootNode.Item>(result.GetItem());
         }
 
         [Fact]
@@ -40,7 +40,7 @@ namespace PSKosmograph.Test.PathNodes
         {
             // ACT
 
-            var result = new RootNode().GetNodeValue().Item as RootNode.Item;
+            var result = new RootNode().GetItemProvider().GetItem() as RootNode.Item;
 
             // ASSERT
 

@@ -1,5 +1,5 @@
 ﻿using CodeOwls.PowerShell.Provider.PathNodeProcessors;
-using CodeOwls.PowerShell.Provider.PathNodes;
+using CodeOwls.PowerShell.Provider.Paths;
 using Kosmograph.Model;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +8,7 @@ namespace PSKosmograph.PathNodes
 {
     public sealed class RootNode : IPathNode
     {
-        private class Value : ContainerPathValue
+        private class Value : ContainerItemProvider
         {
             public Value()
                : base(new Item(), string.Empty)
@@ -29,7 +29,7 @@ namespace PSKosmograph.PathNodes
         public IEnumerable<IPathNode> GetNodeChildren(IProviderContext providerContext)
             => new IPathNode[] { new TagsNode(), new EntitiesNode(), new RelationshipsNode() };
 
-        public IPathValue GetNodeValue() => new Value();
+        public IItemProvider GetItemProvider() => new Value();
 
         public IEnumerable<IPathNode> Resolve(IProviderContext providerContext, string? name)
         {

@@ -1,5 +1,5 @@
 ﻿using CodeOwls.PowerShell.Provider.PathNodeProcessors;
-using CodeOwls.PowerShell.Provider.PathNodes;
+using CodeOwls.PowerShell.Provider.Paths;
 using System;
 using System.Collections.Generic;
 
@@ -7,9 +7,9 @@ namespace PSKosmograph.PathNodes
 {
     public sealed class RelationshipsNode : IPathNode
     {
-        public sealed class Value : ContainerPathValue
+        public sealed class ItemProvider : ContainerItemProvider
         {
-            public Value()
+            public ItemProvider()
                 : base(new Item(), "Relationships")
             { }
         }
@@ -30,7 +30,7 @@ namespace PSKosmograph.PathNodes
             throw new NotImplementedException();
         }
 
-        public IPathValue GetNodeValue() => new Value();
+        public IItemProvider GetItemProvider() => new ItemProvider();
 
         public IEnumerable<IPathNode> Resolve(IProviderContext providerContext, string name)
         {

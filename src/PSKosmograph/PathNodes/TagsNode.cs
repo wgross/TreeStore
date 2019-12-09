@@ -1,5 +1,5 @@
 ﻿using CodeOwls.PowerShell.Provider.PathNodeProcessors;
-using CodeOwls.PowerShell.Provider.PathNodes;
+using CodeOwls.PowerShell.Provider.Paths;
 using Kosmograph.Model;
 using System.Collections.Generic;
 using System.IO;
@@ -9,7 +9,7 @@ namespace PSKosmograph.PathNodes
 {
     public sealed class TagsNode : IPathNode, INewItem
     {
-        private class Value : ContainerPathValue
+        private class Value : ContainerItemProvider
         {
             public Value()
                  : base(new Item(), "Tags")
@@ -36,7 +36,7 @@ namespace PSKosmograph.PathNodes
                 .Select(t => new TagNode(providerContext.Persistence(), t));
         }
 
-        public IPathValue GetNodeValue() => new Value();
+        public IItemProvider GetItemProvider() => new Value();
 
         public IEnumerable<IPathNode> Resolve(IProviderContext providerContext, string? name)
         {
@@ -57,8 +57,8 @@ namespace PSKosmograph.PathNodes
 
         public IEnumerable<string> NewItemTypeNames => "Tag".Yield();
 
-        public IPathValue NewItem(IProviderContext providerContext, string newItemChildPath, string? itemTypeName, object? newItemValue)
-            => new TagNode(providerContext.Persistence(), providerContext.Persistence().Tags.Upsert(new Tag(Path.GetFileName(newItemChildPath)))).GetNodeValue();
+        public IItemProvider NewItem(IProviderContext providerContext, string newItemChildPath, string? itemTypeName, object? newItemValue)
+            => new TagNode(providerContext.Persistence(), providerContext.Persistence().Tags.Upsert(new Tag(Path.GetFileName(newItemChildPath)))).GetItemProvider();
 
         #endregion INewItem Members
     }

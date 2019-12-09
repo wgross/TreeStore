@@ -898,7 +898,8 @@ namespace PSKosmograph.Test
 
             this.PowerShell
                 .AddCommand("Remove-Item")
-                .AddParameter("Path", $@"kg:\Entities\e\t");
+                .AddParameter("Path", $@"kg:\Entities\e\t")
+                .AddParameter("Recurse");
 
             var result = this.PowerShell.Invoke().ToArray();
 

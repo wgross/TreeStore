@@ -1,5 +1,5 @@
 ﻿using CodeOwls.PowerShell.Provider.PathNodeProcessors;
-using CodeOwls.PowerShell.Provider.PathNodes;
+using CodeOwls.PowerShell.Provider.Paths;
 using Kosmograph.Model;
 using System;
 using System.Collections.Generic;
@@ -9,9 +9,9 @@ namespace PSKosmograph.PathNodes
 {
     public class FacetPropertyNode : IPathNode, IRemoveItem, ICopyItem, IRenameItem
     {
-        public sealed class Value : LeafPathValue
+        public sealed class ItemProvider : LeafItemProvider
         {
-            public Value(FacetPropertyNode node)
+            public ItemProvider(FacetPropertyNode node)
                 : base(new Item(node.facetProperty), node.Name)
             {
             }
@@ -60,7 +60,7 @@ namespace PSKosmograph.PathNodes
 
         public IEnumerable<IPathNode> GetNodeChildren(IProviderContext providerContext) => Enumerable.Empty<IPathNode>();
 
-        public IPathValue GetNodeValue() => new Value(this);
+        public IItemProvider GetItemProvider() => new ItemProvider(this);
 
         public IEnumerable<IPathNode> Resolve(IProviderContext providerContext, string name)
         {
@@ -79,9 +79,9 @@ namespace PSKosmograph.PathNodes
 
         #region ICopyItem Members
 
-        public void CopyItem(IProviderContext providerContext, string sourceItemName, string? destinationItemName, IPathValue destinationContainer, bool recurse)
+        public void CopyItem(IProviderContext providerContext, string sourceItemName, string? destinationItemName, IItemProvider destinationContainer, bool recurse)
         {
-            if (destinationContainer is TagNode.Value destinationContainerNodeValue)
+            if (destinationContainer is TagNode.ItemProvider destinationContainerNodeValue)
             {
                 destinationContainerNodeValue.AddProperty(providerContext, destinationItemName ?? this.facetProperty.Name, this.facetProperty.Type);
             }

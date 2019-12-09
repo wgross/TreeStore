@@ -1,6 +1,7 @@
-﻿using CodeOwls.PowerShell.Paths.Extensions;
+﻿using CodeOwls.PowerShell.Paths;
+using CodeOwls.PowerShell.Paths.Extensions;
 using CodeOwls.PowerShell.Provider.PathNodeProcessors;
-using CodeOwls.PowerShell.Provider.PathNodes;
+using CodeOwls.PowerShell.Provider.Paths;
 using Kosmograph.Model;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,11 @@ using System.Management.Automation;
 
 namespace PSKosmograph.PathNodes
 {
-    public class TagNode : IPathNode, INewItem, IRemoveItem, ICopyItem, IRenameItem
+    public class TagNode : IPathNode,
+        // Item capabilities
+        INewItem, IRemoveItem, ICopyItem, IRenameItem,
+        // Property capabilities
+        INewItemProperty, IRenameItemProperty, IRemoveItemProperty, ICopyItemPropertySource, ICopyItemPropertyDestination, IMoveItemPropertySource, IMoveItemPropertyDestination
     {
         public class Item
         {
@@ -31,12 +36,12 @@ namespace PSKosmograph.PathNodes
             public KosmographItemType ItemType => KosmographItemType.Tag;
         }
 
-        public class Value : IPathValue
+        public class ItemProvider : IItemProvider
         {
             private readonly IKosmographPersistence model;
             private readonly Tag tag;
 
-            public Value(IKosmographPersistence model, Tag tag)
+            public ItemProvider(IKosmographPersistence model, Tag tag)
             {
                 this.model = model;
                 this.tag = tag;
@@ -44,13 +49,34 @@ namespace PSKosmograph.PathNodes
 
             public string Name => this.tag.Name.MakeSafeForPath();
 
-            public bool IsCollection => true;
+            public bool IsContainer => true;
 
-            public object Item => new Item(this.tag);
+            public object GetItem() => new Item(this.tag);
+
+            #region IGetItemProperties
+
+            public IEnumerable<PSPropertyInfo> GetItemProperties(IEnumerable<string> propertyNames)
+            {
+                IEnumerable<PSNoteProperty> tagProperties()
+                {
+                    yield return new PSNoteProperty(nameof(Item.Id), this.tag.Id);
+                    yield return new PSNoteProperty(nameof(Item.Name), this.tag.Name);
+                }
+
+                var facetProperties = this.tag.Facet.Properties.Select(p => new PSFacetProperty(p.Name, p.Type, null));
+
+                if (propertyNames.Any())
+                    return tagProperties().Union(facetProperties).Where(p => propertyNames.Contains(p.Name, StringComparer.OrdinalIgnoreCase));
+                else
+                    return tagProperties().Union(facetProperties);
+            }
+
+            #endregion IGetItemProperties
 
             public void SetItemProperties(IEnumerable<PSPropertyInfo> properties)
+
             {
-                IPathValue.SetItemProperties(this, properties);
+                IItemProvider.SetItemProperties(this, properties);
                 this.model.Tags.Upsert(tag);
             }
 
@@ -80,7 +106,7 @@ namespace PSKosmograph.PathNodes
         public IEnumerable<IPathNode> GetNodeChildren(IProviderContext providerContext)
             => this.tag.Facet.Properties.Select(p => new FacetPropertyNode(this.tag, p));
 
-        public IPathValue GetNodeValue() => new Value(this.model, this.tag);
+        public IItemProvider GetItemProvider() => new ItemProvider(this.model, this.tag);
 
         public IEnumerable<IPathNode> Resolve(IProviderContext providerContext, string? name)
         {
@@ -108,7 +134,7 @@ namespace PSKosmograph.PathNodes
 
         public object NewItemParameters => new NewFacetPropertyParameters();
 
-        public IPathValue? NewItem(IProviderContext providerContext, string newItemChildPath, string itemTypeName, object? newItemValue)
+        public IItemProvider? NewItem(IProviderContext providerContext, string newItemChildPath, string itemTypeName, object? newItemValue)
         {
             var facetProperty = providerContext.DynamicParameters switch
             {
@@ -119,7 +145,7 @@ namespace PSKosmograph.PathNodes
             this.tag.Facet.AddProperty(facetProperty);
             providerContext.Persistence().Tags.Upsert(this.tag);
 
-            return this.GetNodeChildren(providerContext).Single(fp => fp.Name.Equals(newItemChildPath))?.GetNodeValue();
+            return this.GetNodeChildren(providerContext).Single(fp => fp.Name.Equals(newItemChildPath))?.GetItemProvider();
         }
 
         #endregion INewItem Members
@@ -138,7 +164,7 @@ namespace PSKosmograph.PathNodes
 
         #region ICopyItem Members
 
-        public void CopyItem(IProviderContext providerContext, string sourceItemName, string destinationItemName, IPathValue destinationContainer, bool recurse)
+        public void CopyItem(IProviderContext providerContext, string sourceItemName, string destinationItemName, IItemProvider destinationContainer, bool recurse)
         {
             var newTag = new Tag(destinationItemName);
             this.tag.Facet.Properties.ForEach(p => newTag.Facet.AddProperty(new FacetProperty(p.Name, p.Type)));
@@ -160,5 +186,68 @@ namespace PSKosmograph.PathNodes
         }
 
         #endregion IRenameItem Members
+
+        #region INewItemProperty Members
+
+        public void NewItemProperty(IProviderContext providerContext, string propertyName, string propertyTypeName, object newItemValue)
+        {
+            this.tag.Facet.AddProperty(new FacetProperty(propertyName, FacetPropertyTypeValue(propertyTypeName)));
+
+            providerContext.Persistence().Tags.Upsert(this.tag);
+        }
+
+        private static FacetPropertyTypeValues FacetPropertyTypeValue(string facetProperyTypeName)
+        {
+            if (Enum.TryParse(typeof(FacetPropertyTypeValues), facetProperyTypeName, out var type))
+                return (FacetPropertyTypeValues)(type ?? FacetPropertyTypeValues.String);
+            else return FacetPropertyTypeValues.String;
+        }
+
+        #endregion INewItemProperty Members
+
+        #region IRenameItemProperty Members
+
+        public void RenameItemProperty(IProviderContext providerContext, string sourcePropertyName, string destinationPropertyName)
+        {
+            this.tag.Facet.Properties.Single(p => p.Name.Equals("p", StringComparison.OrdinalIgnoreCase)).Name = destinationPropertyName;
+
+            providerContext.Persistence().Tags.Upsert(this.tag);
+        }
+
+        #endregion IRenameItemProperty Members
+
+        #region IRemoveItemPropery Members
+
+        public void RemoveItemProperty(IProviderContext providerContext, string propertyName)
+        {
+            this.tag.Facet.RemoveProperty(
+                this.tag.Facet.Properties.Single(p => p.Name.Equals("p", StringComparison.OrdinalIgnoreCase)));
+
+            providerContext.Persistence().Tags.Upsert(this.tag);
+        }
+
+        #endregion IRemoveItemPropery Members
+
+        #region ICopyItemProperty
+
+        public void CopyItemProperty(IProviderContext providerContext, string sourceProperty, string destinationProperty, IItemProvider sourceItemProvider)
+        {
+            var sourcePSFacetProperty = sourceItemProvider.GetItemProperties(sourceProperty.Yield()).First();
+
+            this.NewItemProperty(providerContext, destinationProperty, sourcePSFacetProperty.TypeNameOfValue, sourcePSFacetProperty.Value);
+        }
+
+        #endregion ICopyItemProperty
+
+        #region IMoveItemProperty
+
+        public void MoveItemProperty(IProviderContext providerContext, string sourceProperty, string destinationProperty, IItemProvider sourceItemProvider)
+        {
+            var sourcePSFacetProperty = sourceItemProvider.GetItemProperties(sourceProperty.Yield()).First();
+
+            this.NewItemProperty(providerContext, destinationProperty, sourcePSFacetProperty.TypeNameOfValue, sourcePSFacetProperty.Value);
+        }
+
+        #endregion IMoveItemProperty
     }
 }

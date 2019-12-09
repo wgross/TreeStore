@@ -15,7 +15,7 @@ namespace PSKosmograph.Test.PathNodes
 
             // ACT
 
-            var result = new AssignedFacetPropertyNode(e, e.Tags.Single().Facet.Properties.Single());
+            var result = new AssignedFacetPropertyNode(this.PersistenceMock.Object, e, e.Tags.Single().Facet.Properties.Single());
 
             // ASSERT
 
@@ -32,12 +32,12 @@ namespace PSKosmograph.Test.PathNodes
 
             // ACT
 
-            var result = new AssignedFacetPropertyNode(e, e.Tags.Single().Facet.Properties.Single()).GetNodeValue();
+            var result = new AssignedFacetPropertyNode(this.PersistenceMock.Object, e, e.Tags.Single().Facet.Properties.Single()).GetItemProvider();
 
             // ASSERT
 
             Assert.Equal("p", result.Name);
-            Assert.False(result.IsCollection);
+            Assert.False(result.IsContainer);
         }
 
         [Fact]
@@ -50,8 +50,9 @@ namespace PSKosmograph.Test.PathNodes
 
             // ACT
 
-            var result = new AssignedFacetPropertyNode(e,
-                e.Tags.Single().Facet.Properties.Single()).GetNodeValue().Item as AssignedFacetPropertyNode.Item;
+            var result = new AssignedFacetPropertyNode(this.PersistenceMock.Object, e, e.Tags.Single().Facet.Properties.Single())
+                .GetItemProvider()
+                .GetItem() as AssignedFacetPropertyNode.Item;
 
             // ASSERT
 

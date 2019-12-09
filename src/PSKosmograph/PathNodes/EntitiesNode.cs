@@ -1,5 +1,5 @@
 ﻿using CodeOwls.PowerShell.Provider.PathNodeProcessors;
-using CodeOwls.PowerShell.Provider.PathNodes;
+using CodeOwls.PowerShell.Provider.Paths;
 using Kosmograph.Model;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +9,9 @@ namespace PSKosmograph.PathNodes
 {
     public sealed class EntitiesNode : IPathNode, INewItem
     {
-        public sealed class Value : ContainerPathValue
+        public sealed class ItemProvider : ContainerItemProvider
         {
-            public Value()
+            public ItemProvider()
                 : base(new Item(), name: "Entities")
             { }
         }
@@ -32,7 +32,7 @@ namespace PSKosmograph.PathNodes
             .Entities.FindAll()
             .Select(e => new EntityNode(providerContext.Persistence(), e));
 
-        public IPathValue GetNodeValue() => new Value();
+        public IItemProvider GetItemProvider() => new ItemProvider();
 
         public IEnumerable<IPathNode> Resolve(IProviderContext providerContext, string? name)
         {
@@ -60,7 +60,7 @@ namespace PSKosmograph.PathNodes
 
         public object NewItemParameters => new NewItemParametersDefinition();
 
-        public IPathValue NewItem(IProviderContext providerContext, string newItemName, string itemTypeName, object newItemValue)
+        public IItemProvider NewItem(IProviderContext providerContext, string newItemName, string itemTypeName, object newItemValue)
         {
             var entity = new Entity(newItemName);
 
@@ -74,7 +74,7 @@ namespace PSKosmograph.PathNodes
                     break;
             }
 
-            return new EntityNode(providerContext.Persistence(), providerContext.Persistence().Entities.Upsert(entity)).GetNodeValue();
+            return new EntityNode(providerContext.Persistence(), providerContext.Persistence().Entities.Upsert(entity)).GetItemProvider();
         }
 
         #endregion NewItem Members

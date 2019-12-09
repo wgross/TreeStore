@@ -35,12 +35,12 @@ namespace PSKosmograph.Test.PathNodes
 
             // ACT
 
-            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).GetNodeValue();
+            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).GetItemProvider();
 
             // ASSERT
 
             Assert.Equal("t", result.Name);
-            Assert.True(result.IsCollection);
+            Assert.True(result.IsContainer);
         }
 
         [Fact]
@@ -60,6 +60,8 @@ namespace PSKosmograph.Test.PathNodes
             Assert.Single(result);
         }
 
+        #region IGetItemProperties
+
         [Fact]
         public void AssignedTagNode_provides_assigned_properties_with_values()
         {
@@ -70,7 +72,7 @@ namespace PSKosmograph.Test.PathNodes
 
             // ACT
 
-            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).GetNodeValue().GetItemProperties(propertyNames: null);
+            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).GetItemProvider().GetItemProperties(propertyNames: null);
 
             // ASSERT
 
@@ -88,7 +90,7 @@ namespace PSKosmograph.Test.PathNodes
 
             // ACT
 
-            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).GetNodeValue().GetItemProperties(propertyNames: new[] { "p" });
+            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).GetItemProvider().GetItemProperties(propertyNames: new[] { "p" });
 
             // ASSERT
 
@@ -97,7 +99,7 @@ namespace PSKosmograph.Test.PathNodes
         }
 
         [Fact]
-        public void AssignedTagNode_provides_assigned_properties_without_with_null_value()
+        public void AssignedTagNode_provides_assigned_properties_without_value()
         {
             // ARRANGE
 
@@ -105,12 +107,69 @@ namespace PSKosmograph.Test.PathNodes
 
             // ACT
 
-            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).GetNodeValue().GetItemProperties(propertyNames: null);
+            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).GetItemProvider().GetItemProperties(propertyNames: null);
 
             // ASSERT
 
             Assert.Equal("p", result.Single().Name);
             Assert.Null(result.Single().Value);
+        }
+
+        #endregion IGetItemProperties
+
+        [Theory]
+
+        [InlineData("p")]
+        [InlineData("P")]
+        public void AssignedTageNode_resolves_property_name_as_AssignedFacetPropertyNode(string name)
+        {
+            // ARRANGE
+
+            var e = DefaultEntity(WithDefaultTag);
+
+            this.ProviderContextMock
+                .Setup(p => p.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            // ACT
+
+            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).Resolve(this.ProviderContextMock.Object, name).Single();
+
+            // ASSERT
+
+            Assert.IsType<AssignedFacetPropertyNode>(result);
+        }
+
+        [Fact]
+        public void AssignedTagNode_resolves_unkown_property_name_as_empty_result()
+        {
+            // ARRANGE
+
+            var e = DefaultEntity(WithDefaultTag);
+
+            // ACT
+
+            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).Resolve(this.ProviderContextMock.Object, "unknown");
+
+            // ASSERT
+
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public void AssignedTagNode_resolves_null_tag_name_as_all_child_nodes()
+        {
+            // ARRANGE
+
+            var e = DefaultEntity(WithDefaultTag);
+
+            // ACT
+
+            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).Resolve(this.ProviderContextMock.Object, null);
+
+            // ASSERT
+
+            Assert.Single(result);
         }
 
         [Theory]
@@ -185,7 +244,7 @@ namespace PSKosmograph.Test.PathNodes
 
             // ACT
 
-            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).GetNodeValue().Item as AssignedTagNode.Item;
+            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).GetItemProvider().GetItem() as AssignedTagNode.Item;
 
             // ASSERT
 
@@ -212,7 +271,7 @@ namespace PSKosmograph.Test.PathNodes
 
             // ACT
 
-            new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).GetNodeValue().SetItemProperties(new PSNoteProperty("p", 2).Yield());
+            new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).GetItemProvider().SetItemProperties(new PSNoteProperty("p", 2).Yield());
 
             // ASSERT
 
@@ -229,7 +288,7 @@ namespace PSKosmograph.Test.PathNodes
             // ACT
 
             var result = Assert.Throws<InvalidOperationException>(
-                () => new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).GetNodeValue().SetItemProperties(new PSNoteProperty("p", 2).Yield()));
+                () => new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).GetItemProvider().SetItemProperties(new PSNoteProperty("p", 2).Yield()));
 
             // ASSERT
 

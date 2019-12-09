@@ -33,12 +33,12 @@ namespace PSKosmograph.Test.PathNodes
         {
             // ACT
 
-            var result = new EntitiesNode().GetNodeValue();
+            var result = new EntitiesNode().GetItemProvider();
 
             // ASSERT
 
             Assert.Equal("Entities", result.Name);
-            Assert.True(result.IsCollection);
+            Assert.True(result.IsContainer);
         }
 
         [Fact]
@@ -46,7 +46,7 @@ namespace PSKosmograph.Test.PathNodes
         {
             // ACT
 
-            var result = new EntitiesNode().GetNodeValue().Item as EntitiesNode.Item;
+            var result = new EntitiesNode().GetItemProvider().GetItem() as EntitiesNode.Item;
 
             // ASSERT
 
@@ -54,8 +54,10 @@ namespace PSKosmograph.Test.PathNodes
             Assert.NotNull(result);
         }
 
-        [Fact]
-        public void EntitiesNodeValue_retrieves_EntityNode_by_name()
+        [Theory]
+        [InlineData("e")]
+        [InlineData("E")]
+        public void EntitiesNodeValue_retrieves_EntityNode_by_name(string name)
         {
             // ARRANGE
 
@@ -68,13 +70,13 @@ namespace PSKosmograph.Test.PathNodes
                 .Returns(this.entitesRepository.Object);
 
             this.entitesRepository
-                .Setup(r => r.FindByName("e"))
+                .Setup(r => r.FindByName(name))
                 .Returns(DefaultEntity());
 
             // ACT
 
             var result = new EntitiesNode()
-                .Resolve(this.ProviderContextMock.Object, "e")
+                .Resolve(this.ProviderContextMock.Object, name)
                 .ToArray();
 
             // ASSERT
@@ -182,7 +184,7 @@ namespace PSKosmograph.Test.PathNodes
 
             // ASSERT
 
-            Assert.IsType<EntityNode.Value>(result);
+            Assert.IsType<EntityNode.ItemProvider>(result);
         }
 
         [Fact]

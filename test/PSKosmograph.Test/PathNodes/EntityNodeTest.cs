@@ -28,12 +28,12 @@ namespace PSKosmograph.Test.PathNodes
         {
             // ACT
 
-            var result = new EntityNode(this.PersistenceMock.Object, DefaultEntity()).GetNodeValue();
+            var result = new EntityNode(this.PersistenceMock.Object, DefaultEntity()).GetItemProvider();
 
             // ASSERT
 
             Assert.Equal("e", result.Name);
-            Assert.True(result.IsCollection);
+            Assert.True(result.IsContainer);
         }
 
         [Fact]
@@ -45,7 +45,7 @@ namespace PSKosmograph.Test.PathNodes
 
             // ACT
 
-            var result = new EntityNode(this.PersistenceMock.Object, e).GetNodeValue().Item as EntityNode.Item;
+            var result = new EntityNode(this.PersistenceMock.Object, e).GetItemProvider().GetItem() as EntityNode.Item;
 
             // ASSERT
 
@@ -74,8 +74,10 @@ namespace PSKosmograph.Test.PathNodes
             Assert.Single(result);
         }
 
-        [Fact]
-        public void EntityNode_resolves_tag_name_as_AssignedTagNode()
+        [Theory]
+        [InlineData("t")]
+        [InlineData("T")]
+        public void EntityNode_resolves_tag_name_as_AssignedTagNode(string name)
         {
             // ARRANGE
 
@@ -87,7 +89,7 @@ namespace PSKosmograph.Test.PathNodes
 
             // ACT
 
-            var result = new EntityNode(this.PersistenceMock.Object, e).Resolve(this.ProviderContextMock.Object, "t").Single();
+            var result = new EntityNode(this.PersistenceMock.Object, e).Resolve(this.ProviderContextMock.Object, name).Single();
 
             // ASSERT
 
@@ -211,7 +213,7 @@ namespace PSKosmograph.Test.PathNodes
 
             // ACT
 
-            new EntityNode(this.PersistenceMock.Object, e).GetNodeValue().SetItemProperties(new PSNoteProperty("Name", "changed").Yield());
+            new EntityNode(this.PersistenceMock.Object, e).GetItemProvider().SetItemProperties(new PSNoteProperty("Name", "changed").Yield());
 
             // ASSERT
 
@@ -267,7 +269,7 @@ namespace PSKosmograph.Test.PathNodes
 
             // ASSERT
 
-            Assert.IsType<AssignedTagNode.Value>(result);
+            Assert.IsType<AssignedTagNode.ItemProvider>(result);
         }
 
         [Fact]
@@ -324,7 +326,7 @@ namespace PSKosmograph.Test.PathNodes
 
             // ASSERT
 
-            Assert.IsType<AssignedTagNode.Value>(result);
+            Assert.IsType<AssignedTagNode.ItemProvider>(result);
         }
 
         [Fact]
@@ -354,7 +356,7 @@ namespace PSKosmograph.Test.PathNodes
             // ACT
 
             new EntityNode(this.PersistenceMock.Object, entity)
-                .CopyItem(this.ProviderContextMock.Object, "e", "ee", entityContainer.GetNodeValue(), recurse: false);
+                .CopyItem(this.ProviderContextMock.Object, "e", "ee", entityContainer.GetItemProvider(), recurse: false);
 
             // ASSERT
 
@@ -409,5 +411,121 @@ namespace PSKosmograph.Test.PathNodes
 
             Assert.Equal("e", entity.Name);
         }
+
+        #region Set facet property value
+
+        [Fact]
+        public void EntityNode_sets_facet_property_value()
+        {
+            // ARRANGE
+
+            var e = DefaultEntity(WithDefaultTag);
+
+            this.PersistenceMock
+                .Setup(p => p.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.Upsert(e))
+                .Returns(e);
+
+            // ACT
+
+            new EntityNode(this.PersistenceMock.Object, e).GetItemProvider().SetItemProperties(new PSNoteProperty("T.P", 2).Yield());
+
+            // ASSERT
+
+            Assert.Equal(2, e.TryGetFacetProperty(e.Tags.Single().Facet.Properties.Single()).value);
+        }
+
+        [Theory]
+        [InlineData("X.p")]
+        [InlineData("t.X")]
+        [InlineData(".p")]
+        [InlineData("t.")]
+        [InlineData("t.p.X")]
+        [InlineData("p")]
+        [InlineData("t")]
+        //[InlineData((string?)null)]// blocked by powershell
+        //[InlineData("")]// blocked by powershell
+        public void EntityNode_setting_facet_property_value_ignores_invalid_name(string propertyName)
+        {
+            // ARRANGE
+
+            var e = DefaultEntity(WithDefaultTag);
+
+            this.PersistenceMock
+                .Setup(p => p.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.Upsert(e))
+                .Returns(e);
+
+            // ACT
+
+            new EntityNode(this.PersistenceMock.Object, e).GetItemProvider().SetItemProperties(new PSNoteProperty(propertyName, 2).Yield());
+
+            // ASSERT
+
+            Assert.False(e.TryGetFacetProperty(e.Tags.Single().Facet.Properties.Single()).exists);
+        }
+
+        #endregion Set facet property value
+
+        #region Get dynamic properties
+
+        [Fact]
+        public void EntityValue_retrieves_entity_and_assigned_tags_properties()
+        {
+            // ARRANGE
+
+            var e = DefaultEntity(WithDefaultTag);
+
+            // ACT
+
+            var result = new EntityNode(this.PersistenceMock.Object, e).GetItemProvider().GetItemProperties(Enumerable.Empty<string>()).ToArray();
+
+            // ASSERT
+
+            Assert.Equal(new[] { "Name", "t.p" }, result.Select(r => r.Name));
+            Assert.Equal(new object[] { "e", (object?)null }, result.Select(r => r.Value));
+        }
+
+        [Theory]
+        [InlineData("NAME")]
+        [InlineData("T.P")]
+        public void EntityValue_retrieves_entity_and_assigned_tags_properties_by_name(string propertyName)
+        {
+            // ARRANGE
+
+            var e = DefaultEntity(WithDefaultTag);
+
+            // ACT
+
+            var result = new EntityNode(this.PersistenceMock.Object, e).GetItemProvider().GetItemProperties(propertyName.Yield()).ToArray();
+
+            // ASSERT
+
+            Assert.Equal(propertyName, result.Single().Name, StringComparer.OrdinalIgnoreCase);
+        }
+
+        [Fact]
+        public void EntityValue_retrieves_entity_and_assigned_tags_properties_by_name_ignores_unknown_names()
+        {
+            // ARRANGE
+
+            var e = DefaultEntity(WithDefaultTag);
+
+            // ACT
+
+            var result = new EntityNode(this.PersistenceMock.Object, e).GetItemProvider().GetItemProperties(new[] { "Name", "unknown" }).ToArray();
+
+            // ASSERT
+
+            Assert.Equal("Name", result.Single().Name);
+        }
+
+        #endregion Get dynamic properties
     }
 }

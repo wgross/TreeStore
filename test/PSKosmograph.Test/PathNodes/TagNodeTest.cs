@@ -27,12 +27,12 @@ namespace PSKosmograph.Test.PathNodes
         {
             // ACT
 
-            var result = new TagNode(this.PersistenceMock.Object, DefaultTag()).GetNodeValue();
+            var result = new TagNode(this.PersistenceMock.Object, DefaultTag()).GetItemProvider();
 
             // ASSERT
 
             Assert.Equal("t", result.Name);
-            Assert.True(result.IsCollection);
+            Assert.True(result.IsContainer);
         }
 
         [Fact]
@@ -44,7 +44,7 @@ namespace PSKosmograph.Test.PathNodes
 
             // ACT
 
-            var result = new TagNode(this.PersistenceMock.Object, tag).GetNodeValue().Item as TagNode.Item;
+            var result = new TagNode(this.PersistenceMock.Object, tag).GetItemProvider().GetItem() as TagNode.Item;
 
             // ASSERT
 
@@ -101,6 +101,91 @@ namespace PSKosmograph.Test.PathNodes
             Assert.Empty(result);
         }
 
+        #region IGetItemProperty
+
+        [Fact]
+        public void TagNode_retrieves_FacetProperties_and_Csharp_properties()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty);
+
+            // ACT
+
+            var result = new TagNode(this.PersistenceMock.Object, tag)
+                .GetItemProvider().GetItemProperties(Enumerable.Empty<string>())
+                .ToArray();
+
+            // ASSERT
+
+            Assert.Equal(3, result.Length);
+        }
+
+        [Theory]
+        [InlineData("NAME")]
+        [InlineData(nameof(Tag.Name))]
+        public void TagNode_retrieves_single_Csharp_property_by_name(string propertyName)
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty);
+
+            // ACT
+
+            var result = new TagNode(this.PersistenceMock.Object, tag)
+                .GetItemProvider().GetItemProperties(propertyName.Yield())
+                .Single();
+
+            // ASSERT
+
+            Assert.Equal(nameof(Tag.Name), result.Name);
+            Assert.Equal(tag.Name, result.Value);
+            Assert.Equal("System.String", result.TypeNameOfValue);
+        }
+
+        [Theory]
+        [InlineData("P")]
+        [InlineData("p")]
+        public void TagNode_retrieves_single_FacetProperty_by_name(string propertyName)
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty);
+
+            // ACT
+
+            var result = new TagNode(this.PersistenceMock.Object, tag)
+                .GetItemProvider().GetItemProperties(propertyName.Yield())
+                .Single();
+
+            // ASSERT
+
+            Assert.Equal(tag.Facet.Properties.Single().Name, result.Name);
+            Assert.Null(result.Value);
+            Assert.Equal(tag.Facet.Properties.Single().Type.ToString(), result.TypeNameOfValue);
+        }
+
+        [Fact]
+        public void TagNode_retrieveing_single_FacetProperty_by_name_ignores_unknown_name()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty);
+
+            // ACT
+
+            var result = new TagNode(this.PersistenceMock.Object, tag)
+                .GetItemProvider().GetItemProperties("unknown".Yield());
+
+            // ASSERT
+
+            Assert.Empty(result);
+        }
+
+        #endregion IGetItemProperty
+
+        #region ISetItemProperty
+
         [Fact]
         public void TagNodeValue_sets_Tag_name()
         {
@@ -118,12 +203,16 @@ namespace PSKosmograph.Test.PathNodes
 
             // ACT
 
-            new TagNode(this.PersistenceMock.Object, tag).GetNodeValue().SetItemProperties(new PSNoteProperty("Name", "changed").Yield());
+            new TagNode(this.PersistenceMock.Object, tag).GetItemProvider().SetItemProperties(new PSNoteProperty("Name", "changed").Yield());
 
             // ASSERT
 
             Assert.Equal("changed", tag.Name);
         }
+
+        #endregion ISetItemProperty
+
+        #region INewItem - replace with INewItemProperty!
 
         [Fact]
         public void TagNode_provides_NewItemTypeNames()
@@ -192,10 +281,14 @@ namespace PSKosmograph.Test.PathNodes
 
             // ASSERT
 
-            Assert.IsType<FacetPropertyNode.Value>(result);
+            Assert.IsType<FacetPropertyNode.ItemProvider>(result);
             Assert.Equal("p", result!.Name);
-            Assert.Equal(FacetPropertyTypeValues.Bool, ((FacetPropertyNode.Item)result.Item).ValueType);
+            Assert.Equal(FacetPropertyTypeValues.Bool, ((FacetPropertyNode.Item)result.GetItem()).ValueType);
         }
+
+        #endregion INewItem - replace with INewItemProperty!
+
+        #region IRemoveItem
 
         [Theory]
         [InlineData(true)]
@@ -270,6 +363,10 @@ namespace PSKosmograph.Test.PathNodes
             Assert.Single(tag.Facet.Properties);
         }
 
+        #endregion IRemoveItem
+
+        #region ICopyItem
+
         [Fact]
         public void TagNode_copies_itself_as_new_tag()
         {
@@ -296,7 +393,7 @@ namespace PSKosmograph.Test.PathNodes
             // ACT
 
             new TagNode(this.PersistenceMock.Object, tag)
-                .CopyItem(this.ProviderContextMock.Object, "t", "tt", tagsContainer.GetNodeValue(), recurse: false);
+                .CopyItem(this.ProviderContextMock.Object, "t", "tt", tagsContainer.GetItemProvider(), recurse: false);
 
             // ASSERT
 
@@ -304,6 +401,10 @@ namespace PSKosmograph.Test.PathNodes
             Assert.Equal("p", createdTag!.Facet.Properties.Single().Name);
             Assert.Equal(tag.Facet.Properties.Single().Type, createdTag!.Facet.Properties.Single().Type);
         }
+
+        #endregion ICopyItem
+
+        #region IRenameItem
 
         [Fact]
         public void TagNode_renames_itself()
@@ -350,5 +451,187 @@ namespace PSKosmograph.Test.PathNodes
 
             Assert.Equal("t", tag.Name);
         }
+
+        #endregion IRenameItem
+
+        #region INewItemProperty
+
+        [Fact]
+        public void TagsNode_creates_FacetProperty()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithoutProperty);
+
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.PersistenceMock
+                .Setup(m => m.Tags)
+                .Returns(this.TagRepositoryMock.Object);
+
+            this.TagRepositoryMock
+                .Setup(r => r.Upsert(It.Is<Tag>(t => t.Name.Equals("t"))))
+                .Returns<Tag>(t => t);
+
+            // ACT
+
+            new TagNode(this.PersistenceMock.Object, tag)
+                .NewItemProperty(this.ProviderContextMock.Object, propertyName: "p", propertyTypeName: "bool", newItemValue: null);
+        }
+
+        #endregion INewItemProperty
+
+        #region IRenameItemProperty
+
+        [Theory]
+        [InlineData("p")]
+        [InlineData("P")]
+        public void TagNode_renames_FacetProperty(string sourcePropertyName)
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty);
+
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.PersistenceMock
+                .Setup(m => m.Tags)
+                .Returns(this.TagRepositoryMock.Object);
+
+            this.TagRepositoryMock
+                .Setup(r => r.Upsert(It.Is<Tag>(t => t.Name.Equals("t"))))
+                .Returns<Tag>(t => t);
+
+            // ACT
+
+            new TagNode(this.PersistenceMock.Object, tag)
+                .RenameItemProperty(this.ProviderContextMock.Object, sourcePropertyName: sourcePropertyName, destinationPropertyName: "q");
+
+            // ASSERT
+
+            Assert.Equal("q", tag.Facet.Properties.Single().Name);
+        }
+
+        #endregion IRenameItemProperty
+
+        #region IRemoveItemProperty
+
+        [Theory]
+        [InlineData("p")]
+        [InlineData("P")]
+        public void TagNode_removes_FacetProperty(string propertyName)
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty);
+
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.PersistenceMock
+                .Setup(m => m.Tags)
+                .Returns(this.TagRepositoryMock.Object);
+
+            this.TagRepositoryMock
+                .Setup(r => r.Upsert(It.Is<Tag>(t => t.Name.Equals("t"))))
+                .Returns<Tag>(t => t);
+
+            // ACT
+
+            new TagNode(this.PersistenceMock.Object, tag)
+                .RemoveItemProperty(this.ProviderContextMock.Object, propertyName);
+
+            // ASSERT
+
+            Assert.Empty(tag.Facet.Properties);
+        }
+
+        #endregion IRemoveItemProperty
+
+        #region ICopyItemProperty
+
+        [Theory]
+        [InlineData("p")]
+        [InlineData("P")]
+        public void TagNode_copies_facet_property_to_other_tag(string propertyName)
+        {
+            // ARRANGE
+
+            var sourceTag = DefaultTag(WithDefaultProperty);
+            var destinationTag = DefaultTag(WithoutProperty);
+
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.PersistenceMock
+                .Setup(m => m.Tags)
+                .Returns(this.TagRepositoryMock.Object);
+
+            this.TagRepositoryMock
+                .Setup(r => r.Upsert(destinationTag))
+                .Returns<Tag>(t => t);
+
+            var sourceTagNode = new TagNode(this.PersistenceMock.Object, sourceTag);
+
+            // ACT
+
+            new TagNode(this.PersistenceMock.Object, destinationTag)
+                .CopyItemProperty(this.ProviderContextMock.Object, propertyName, "pp", sourceTagNode.GetItemProvider());
+
+            // ASSERT
+
+            Assert.Equal("pp", destinationTag.Facet.Properties.Single().Name);
+            Assert.Equal(sourceTag.Facet.Properties.Single().Type, destinationTag.Facet.Properties.Single().Type);
+            Assert.NotEqual(sourceTag.Facet.Properties.Single().Id, destinationTag.Facet.Properties.Single().Id);
+        }
+
+        #endregion ICopyItemProperty
+
+        #region IMoveItemProperty
+
+        [Theory]
+        [InlineData("p")]
+        [InlineData("P")]
+        public void TagNode_moves_facet_property_to_other_tag(string propertyName)
+        {
+            // ARRANGE
+
+            var sourceTag = DefaultTag(WithDefaultProperty);
+            var destinationTag = DefaultTag(WithoutProperty);
+
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.PersistenceMock
+                .Setup(m => m.Tags)
+                .Returns(this.TagRepositoryMock.Object);
+
+            this.TagRepositoryMock
+                .Setup(r => r.Upsert(destinationTag))
+                .Returns<Tag>(t => t);
+
+            var sourceTagNode = new TagNode(this.PersistenceMock.Object, sourceTag);
+
+            // ACT
+
+            new TagNode(this.PersistenceMock.Object, destinationTag)
+                .MoveItemProperty(this.ProviderContextMock.Object, propertyName, "pp", sourceTagNode.GetItemProvider());
+
+            // ASSERT
+            // move implements only the destination logic. The removal of the source property is implemented by the provider
+
+            Assert.Equal("pp", destinationTag.Facet.Properties.Single().Name);
+            Assert.Equal(FacetPropertyTypeValues.String, destinationTag.Facet.Properties.Single().Type);
+            Assert.NotEqual(sourceTag.Facet.Properties.Single().Id, destinationTag.Facet.Properties.Single().Id);
+        }
+
+        #endregion IMoveItemProperty
     }
 }

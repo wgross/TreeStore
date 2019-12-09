@@ -8,10 +8,49 @@ namespace PSKosmograph.Test
 {
     public class KosmographItemPropertyCmdletProviderTest : KosmographCmdletProviderTestBase
     {
+        #region New-ItemProperty /Tags/<name> -Name <property-name>
+
+        [Fact]
+        public void Powershell_creates_FacetProperty()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithoutProperty);
+
+            this.PersistenceMock
+                .Setup(m => m.Tags)
+                .Returns(this.TagRepositoryMock.Object);
+
+            this.TagRepositoryMock
+                .Setup(r => r.FindByName("t"))
+                .Returns(tag);
+
+            this.TagRepositoryMock
+                .Setup(r => r.Upsert(tag))
+                .Returns(tag);
+
+            // ACT
+
+            this.PowerShell
+                .AddCommand("New-ItemProperty")
+                .AddParameter("Path", $@"kg:\Tags\t")
+                .AddParameter("Name", "p")
+                .AddParameter("PropertyType", FacetPropertyTypeValues.Bool);
+
+            var result = this.PowerShell.Invoke();
+
+            // ASSERT
+
+            Assert.False(this.PowerShell.HadErrors);
+            Assert.Equal("p", tag.Facet.Properties.Single().Name);
+        }
+
+        #endregion New-ItemProperty /Tags/<name> -Name <property-name>
+
         #region Get-ItemProperty /Tags/<name>
 
         [Fact]
-        public void Powershell_retrieves_Tag_properties()
+        public void PowerShell_retrieves_Tag_properties()
         {
             // ARRANGE
             // provide the top level containers
@@ -49,7 +88,7 @@ namespace PSKosmograph.Test
         }
 
         [Fact]
-        public void Powershell_retrieves_Tag_Csharp_property_only()
+        public void PowerShell_retrieves_Tag_Csharp_property_only()
         {
             // ARRANGE
             // provide the top level containers
@@ -88,7 +127,7 @@ namespace PSKosmograph.Test
         }
 
         [Fact]
-        public void Powershell_retrieving_Tag_properties_returns_null_for_unknown_property()
+        public void PowerShell_retrieving_Tag_properties_returns_null_for_unknown_property()
         {
             // ARRANGE
             // provide the top level containers
@@ -129,7 +168,7 @@ namespace PSKosmograph.Test
         #region Get-ItemProperty /Tags/<name>/<property-name>
 
         [Fact]
-        public void Powershell_retrieves_FacetProperty_properties()
+        public void PowerShell_retrieves_FacetProperty_properties()
         {
             // ARRANGE
             // provide the top level containers
@@ -167,7 +206,7 @@ namespace PSKosmograph.Test
         }
 
         [Fact]
-        public void Powershell_retrieves_FacetProperty_Csharp_property_only()
+        public void PowerShell_retrieves_FacetProperty_Csharp_property_only()
         {
             // ARRANGE
             // provide the top level containers
@@ -206,7 +245,7 @@ namespace PSKosmograph.Test
         }
 
         [Fact]
-        public void Powershell_retrieving_FacetProperty_property_returns_null_for_unknown_property()
+        public void PowerShell_retrieving_FacetProperty_property_returns_null_for_unknown_property()
         {
             // ARRANGE
             // provide the top level containers
@@ -246,12 +285,12 @@ namespace PSKosmograph.Test
         #region Get-ItemProperty /Entities/<name>
 
         [Fact]
-        public void Powershell_retrieves_Entity_properties()
+        public void PowerShell_retrieves_Entity_properties()
         {
             // ARRANGE
             // provide a tag and an entity using this tag
 
-            var entity = DefaultEntity();
+            var entity = DefaultEntity(WithDefaultTag);
             var tag = entity.Tags.Single();
 
             this.PersistenceMock
@@ -281,10 +320,11 @@ namespace PSKosmograph.Test
             Assert.Equal(@"PSKosmograph\Kosmograph::kg:\Entities\e", ((string)result[0].Properties["PSPath"].Value));
             Assert.Equal(entity.Id, result[0].Property<Guid>("Id"));
             Assert.Equal(entity.Name, result[0].Property<string>("Name"));
+            Assert.Null(result[0].Property<long?>("t.p"));
         }
 
         [Fact]
-        public void Powershell_retrieves_Entity_Csharp_property_only()
+        public void PowerShell_retrieves_Entity_Csharp_property_only()
         {
             // ARRANGE
             // provide a tag and an entity using this tag
@@ -323,7 +363,7 @@ namespace PSKosmograph.Test
         }
 
         [Fact]
-        public void Powershell_retrieving_Entity_property_returns_null_fort_unkown_property()
+        public void PowerShell_retrieving_Entity_property_returns_null_fort_unkown_property()
         {
             // ARRANGE
             // provide a tag and an entity using this tag
@@ -364,7 +404,7 @@ namespace PSKosmograph.Test
         #region Get-ItemProperty /Entities/<name>/<tag-name>
 
         [Fact]
-        public void Powershell_retrieves_AssignedTag_properties()
+        public void PowerShell_retrieves_AssignedTag_properties()
         {
             // ARRANGE
             // provide a tag and an entity using this tag
@@ -404,7 +444,7 @@ namespace PSKosmograph.Test
         }
 
         [Fact]
-        public void Powershell_retrieves_single_AssignedTag_property_by_name()
+        public void PowerShell_retrieves_single_AssignedTag_property_by_name()
         {
             // ARRANGE
             // provide a tag and an entity using this tag
@@ -441,10 +481,11 @@ namespace PSKosmograph.Test
             Assert.Equal(@"PSKosmograph\Kosmograph::kg:\Entities\e\t", ((string)result[0].Properties["PSPath"].Value));
             Assert.Equal(entity.TryGetFacetProperty(tag.Facet.Properties.Single()).Item2, result[0].Property<int>(tag.Facet.Properties.Single().Name));
             Assert.False(result[0].PropertyContains("id"));
+            Assert.False(result[0].PropertyContains("name"));
         }
 
         [Fact]
-        public void Powershell_retrieving_AssignedTag_property_returns_null_for_unknown_property()
+        public void PowerShell_retrieves_single_AssignedTag_property_by_unknown_name_returns_null()
         {
             // ARRANGE
             // provide a tag and an entity using this tag
@@ -483,10 +524,139 @@ namespace PSKosmograph.Test
 
         #endregion Get-ItemProperty /Entities/<name>/<tag-name>
 
+        #region Get-ItemProperty /Entities/<name>/<tag-name>/<property-name>
+
+        [Fact]
+        public void PowerShell_retrieves_AssignedFacetProperty_properties()
+        {
+            // ARRANGE
+            // provide a tag and an entity using this tag
+
+            var entity = DefaultEntity(WithDefaultTag);
+            var tag = entity.Tags.Single();
+            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByName("e"))
+                .Returns(entity);
+
+            // ACT
+
+            this.PowerShell
+               .AddStatement()
+                   .AddCommand("Get-ItemProperty")
+                   .AddParameter("Path", @"kg:\Entities\e\t\p");
+
+            var result = this.PowerShell.Invoke().ToArray();
+
+            // ASSERT
+
+            Assert.False(this.PowerShell.HadErrors);
+            Assert.Single(result);
+            Assert.IsType<ProviderInfo>(result[0].Property<ProviderInfo>("PSProvider"));
+            Assert.Equal("Kosmograph", result[0].Property<ProviderInfo>("PSProvider").Name);
+            Assert.Equal("PSKosmograph", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
+            Assert.Equal(@"PSKosmograph\Kosmograph::kg:\Entities\e\t\p", ((string)result[0].Properties["PSPath"].Value));
+            Assert.Equal(tag.Facet.Properties.Single().Id, result[0].Property<Guid>("Id"));
+            Assert.Equal(tag.Facet.Properties.Single().Name, result[0].Property<string>("Name"));
+            Assert.Equal(tag.Facet.Properties.Single().Type, result[0].Property<FacetPropertyTypeValues>("ValueType"));
+            Assert.Equal(1, result[0].Property<int>("Value"));
+        }
+
+        [Fact]
+        public void PowerShell_retrieves_single_AssignedFacetProperty_property_by_name()
+        {
+            // ARRANGE
+            // provide a tag and an entity using this tag
+
+            var entity = DefaultEntity(WithDefaultTag);
+            var tag = entity.Tags.Single();
+            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByName("e"))
+                .Returns(entity);
+
+            // ACT
+
+            this.PowerShell
+               .AddStatement()
+                   .AddCommand("Get-ItemProperty")
+                   .AddParameter("Path", @"kg:\Entities\e\t\p")
+                   .AddParameter("Name", "Value");
+
+            var result = this.PowerShell.Invoke().ToArray();
+
+            // ASSERT
+
+            Assert.False(this.PowerShell.HadErrors);
+            Assert.Single(result);
+            Assert.IsType<ProviderInfo>(result[0].Property<ProviderInfo>("PSProvider"));
+            Assert.Equal("Kosmograph", result[0].Property<ProviderInfo>("PSProvider").Name);
+            Assert.Equal("PSKosmograph", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
+            Assert.Equal(@"PSKosmograph\Kosmograph::kg:\Entities\e\t\p", ((string)result[0].Properties["PSPath"].Value));
+            Assert.Equal(1, result[0].Property<int>("Value"));
+            Assert.False(result[0].PropertyContains("name"));
+            Assert.False(result[0].PropertyContains("id"));
+            Assert.False(result[0].PropertyContains("valueType"));
+        }
+
+        [Fact]
+        public void PowerShell_retrieving_single_AssignedFacetProperty_property_by_unknown_name_returns_null()
+        {
+            // ARRANGE
+            // provide a tag and an entity using this tag
+
+            var entity = DefaultEntity(WithDefaultTag);
+            var tag = entity.Tags.Single();
+            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByName("e"))
+                .Returns(entity);
+
+            // ACT
+
+            this.PowerShell
+               .AddStatement()
+                   .AddCommand("Get-ItemProperty")
+                   .AddParameter("Path", @"kg:\Entities\e\t\p")
+                   .AddParameter("Name", "unknown");
+
+            var result = this.PowerShell.Invoke().ToArray();
+
+            // ASSERT
+
+            Assert.False(this.PowerShell.HadErrors);
+            Assert.Single(result);
+            Assert.IsType<ProviderInfo>(result[0].Property<ProviderInfo>("PSProvider"));
+            Assert.Equal("Kosmograph", result[0].Property<ProviderInfo>("PSProvider").Name);
+            Assert.Equal("PSKosmograph", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
+            Assert.Equal(@"PSKosmograph\Kosmograph::kg:\Entities\e\t\p", ((string)result[0].Properties["PSPath"].Value));
+            Assert.False(result[0].PropertyContains("Value"));
+            Assert.False(result[0].PropertyContains("name"));
+            Assert.False(result[0].PropertyContains("id"));
+            Assert.False(result[0].PropertyContains("valueType"));
+        }
+
+        #endregion Get-ItemProperty /Entities/<name>/<tag-name>/<property-name>
+
         #region Set-ItemProperty /Tags/<name>
 
         [Fact]
-        public void Powershell_sets_Tag_name()
+        public void PowerShell_sets_Tag_name()
         {
             // ARRANGE
             // provide the top level containers
@@ -529,7 +699,7 @@ namespace PSKosmograph.Test
         #region Set-ItemProperty /Tags/<name>/<property-name>
 
         [Fact]
-        public void Powershell_sets_FacetProperty_name()
+        public void PowerShell_sets_FacetProperty_name()
         {
             // ARRANGE
             // provide the top level containers
@@ -561,7 +731,7 @@ namespace PSKosmograph.Test
         }
 
         [Fact]
-        public void Powershell_sets_FacetProperty_type()
+        public void PowerShell_sets_FacetProperty_type()
         {
             // ARRANGE
             // provide the top level containers
@@ -594,10 +764,10 @@ namespace PSKosmograph.Test
 
         #endregion Set-ItemProperty /Tags/<name>/<property-name>
 
-        #region Set-ItemProperty /Entities/<name>
+        #region Set-ItemProperty /Entities/<name> -Name name
 
         [Fact]
-        public void Powershell_sets_Entity_name()
+        public void PowerShell_sets_Entity_name()
         {
             // ARRANGE
             // provide a tag and an entity using this tag
@@ -635,17 +805,60 @@ namespace PSKosmograph.Test
             Assert.Empty(result);
         }
 
-        #endregion Set-ItemProperty /Entities/<name>
+        #endregion Set-ItemProperty /Entities/<name> -Name name
 
-        #region Set-ItemProperty /Entities/<name>/<tag-name>
+        #region Set-ItemProperty /Entities/<name>/<tag-name> -Name <property-name>, Set-ItemProperty /Entities/<name> -Name <tag-name>.<property-name>
 
         [Fact]
-        public void Powershell_sets_AssignedTag_property()
+        public void PowerShell_sets_AssignedFacetProperty_at_entity()
+        {
+            // ARRANGE
+
+            var entity = DefaultEntity(WithDefaultTag);
+            var tag = entity.Tags.Single();
+            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.Upsert(entity))
+                .Returns(entity);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByName("e"))
+                .Returns(entity);
+
+            // ACT
+
+            this.PowerShell
+               .AddStatement()
+                   .AddCommand("Set-ItemProperty")
+                   .AddParameter("Path", @"kg:\Entities\e")
+                   .AddParameter("Name", "t.p")
+                   .AddParameter("Value", 2);
+
+            var result = this.PowerShell.Invoke().ToArray();
+
+            // ASSERT
+
+            Assert.Equal(2, entity.TryGetFacetProperty(tag.Facet.Properties.Single()).Item2);
+            Assert.False(this.PowerShell.HadErrors);
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public void PowerShell_sets_AssignedFacetProperty_at_assigned_tag()
         {
             // ARRANGE
             // provide a tag and an entity using this tag
 
-            var entity = DefaultEntity();
+            var entity = DefaultEntity(WithDefaultTag);
             var tag = entity.Tags.Single();
             entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
 
@@ -683,6 +896,218 @@ namespace PSKosmograph.Test
             Assert.Empty(result);
         }
 
-        #endregion Set-ItemProperty /Entities/<name>/<tag-name>
+        [Fact]
+        public void PowerShell_sets_AssignedFacetProperty_at_property()
+        {
+            // ARRANGE
+            // provide a tag and an entity using this tag
+
+            var entity = DefaultEntity(WithDefaultTag);
+            var tag = entity.Tags.Single();
+            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.Upsert(entity))
+                .Returns(entity);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByName("e"))
+                .Returns(entity);
+
+            // ACT
+
+            this.PowerShell
+               .AddStatement()
+                   .AddCommand("Set-ItemProperty")
+                   .AddParameter("Path", @"kg:\Entities\e\t\p")
+                   .AddParameter("Name", "Value")
+                   .AddParameter("Value", 2);
+
+            var result = this.PowerShell.Invoke().ToArray();
+
+            // ASSERT
+
+            Assert.Equal(2, entity.TryGetFacetProperty(tag.Facet.Properties.Single()).Item2);
+            Assert.False(this.PowerShell.HadErrors);
+            Assert.Empty(result);
+        }
+
+        #endregion Set-ItemProperty /Entities/<name>/<tag-name> -Name <property-name>, Set-ItemProperty /Entities/<name> -Name <tag-name>.<property-name>
+
+        #region Rename-ItemProperty /Tags/<name> -Name <property-name>
+
+        [Fact]
+        public void Powershell_renames_FacetProperty()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty);
+
+            this.PersistenceMock
+                .Setup(m => m.Tags)
+                .Returns(this.TagRepositoryMock.Object);
+
+            this.TagRepositoryMock
+                .Setup(r => r.FindByName("t"))
+                .Returns(tag);
+
+            this.TagRepositoryMock
+                .Setup(r => r.Upsert(tag))
+                .Returns(tag);
+
+            // ACT
+
+            this.PowerShell
+                .AddCommand("Rename-ItemProperty")
+                .AddParameter("Path", $@"kg:\Tags\t")
+                .AddParameter("Name", "p")
+                .AddParameter("NewName", "q");
+
+            var result = this.PowerShell.Invoke();
+
+            // ASSERT
+
+            Assert.False(this.PowerShell.HadErrors);
+            Assert.Equal("q", tag.Facet.Properties.Single().Name);
+        }
+
+        #endregion Rename-ItemProperty /Tags/<name> -Name <property-name>
+
+        #region Remove-ItemProperty /Tags/<name> -Name <property-name>
+
+        [Fact]
+        public void Powershell_removes_FacetProperty()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty);
+
+            this.PersistenceMock
+                .Setup(m => m.Tags)
+                .Returns(this.TagRepositoryMock.Object);
+
+            this.TagRepositoryMock
+                .Setup(r => r.FindByName("t"))
+                .Returns(tag);
+
+            this.TagRepositoryMock
+                .Setup(r => r.Upsert(tag))
+                .Returns(tag);
+
+            // ACT
+
+            this.PowerShell
+                .AddCommand("Remove-ItemProperty")
+                .AddParameter("Path", $@"kg:\Tags\t")
+                .AddParameter("Name", "p");
+
+            var result = this.PowerShell.Invoke();
+
+            // ASSERT
+
+            Assert.False(this.PowerShell.HadErrors);
+            Assert.Empty(tag.Facet.Properties);
+        }
+
+        #endregion Remove-ItemProperty /Tags/<name> -Name <property-name>
+
+        #region Copy-ItemProperty /Tags/<name1> -Name <property-name> -Destination /Tags/<name2>
+
+        [Fact]
+        public void PowerShell_copies_FacetProperty_to_other_tag()
+        {
+            // ARRANGE
+
+            var sourceTag = DefaultTag(WithDefaultProperty);
+            var destinationTag = DefaultTag(WithoutProperty, t => t.Name = "tt");
+
+            this.PersistenceMock
+                .Setup(m => m.Tags)
+                .Returns(this.TagRepositoryMock.Object);
+
+            this.TagRepositoryMock
+                .Setup(r => r.FindByName("t"))
+                .Returns(sourceTag);
+
+            this.TagRepositoryMock
+                .Setup(r => r.FindByName("tt"))
+                .Returns(destinationTag);
+
+            this.TagRepositoryMock
+                .Setup(r => r.Upsert(destinationTag))
+                .Returns(destinationTag);
+
+            // ACT
+
+            this.PowerShell
+                .AddCommand("Copy-ItemProperty")
+                .AddParameter("Path", $@"kg:\Tags\t")
+                .AddParameter("Name", "p")
+                .AddParameter("Destination", $@"kg:\Tags\tt");
+
+            var result = this.PowerShell.Invoke();
+
+            // ASSERT
+
+            Assert.False(this.PowerShell.HadErrors);
+            Assert.Equal("p", destinationTag.Facet.Properties.Single().Name);
+            Assert.Equal(FacetPropertyTypeValues.String, destinationTag.Facet.Properties.Single().Type);
+        }
+
+        #endregion Copy-ItemProperty /Tags/<name1> -Name <property-name> -Destination /Tags/<name2>
+
+        #region Move-ItemProperty /Tags/<name1> -Name <property-name> -Destination /Tags/<name2>
+
+        [Fact]
+        public void PowerShell_moves_FacetProperty_to_other_tag()
+        {
+            // ARRANGE
+
+            var sourceTag = DefaultTag(WithDefaultProperty);
+            var destinationTag = DefaultTag(WithoutProperty, t => t.Name = "tt");
+
+            this.PersistenceMock
+                .Setup(m => m.Tags)
+                .Returns(this.TagRepositoryMock.Object);
+
+            this.TagRepositoryMock
+                .Setup(r => r.FindByName("t"))
+                .Returns(sourceTag);
+
+            this.TagRepositoryMock
+                .Setup(r => r.FindByName("tt"))
+                .Returns(destinationTag);
+
+            this.TagRepositoryMock
+                .Setup(r => r.Upsert(destinationTag))
+                .Returns(destinationTag);
+
+            // ACT
+
+            this.PowerShell
+                .AddCommand("Copy-ItemProperty")
+                .AddParameter("Path", $@"kg:\Tags\t")
+                .AddParameter("Name", "p")
+                .AddParameter("Destination", $@"kg:\Tags\tt");
+
+            var result = this.PowerShell.Invoke();
+
+            // ASSERT
+
+            Assert.False(this.PowerShell.HadErrors);
+            Assert.Equal("p", destinationTag.Facet.Properties.Single().Name);
+            Assert.Equal(FacetPropertyTypeValues.String, destinationTag.Facet.Properties.Single().Type);
+            Assert.Empty(sourceTag.Facet.Properties);
+        }
+
+        #endregion Move-ItemProperty /Tags/<name1> -Name <property-name> -Destination /Tags/<name2>
     }
 }

@@ -1,5 +1,5 @@
 ﻿using CodeOwls.PowerShell.Provider.PathNodeProcessors;
-using CodeOwls.PowerShell.Provider.PathNodes;
+using CodeOwls.PowerShell.Provider.Paths;
 using Kosmograph.Model;
 using System;
 using System.Collections.Generic;
@@ -10,22 +10,78 @@ namespace PSKosmograph.PathNodes
 {
     public class EntityNode : IPathNode, INewItem, IRemoveItem, ICopyItem, IRenameItem
     {
-        public sealed class Value : ContainerPathValue, IPathValue
+        public sealed class ItemProvider : ContainerItemProvider, IItemProvider
         {
             private readonly Entity entity;
             private readonly IKosmographPersistence model;
 
-            public Value(IKosmographPersistence model, Entity entity)
+            public ItemProvider(IKosmographPersistence model, Entity entity)
                 : base(new Item(entity), entity.Name)
             {
                 this.entity = entity;
                 this.model = model;
             }
 
+            public IEnumerable<PSPropertyInfo> GetItemProperties(IEnumerable<string> propertyNames)
+            {
+                IEnumerable<PSNoteProperty> staticProperties(Item item)
+                {
+                    yield return new PSNoteProperty(nameof(Name), item.Name);
+                }
+
+                IEnumerable<PSNoteProperty> dynamicProperties()
+                {
+                    return this.entity.Tags
+                        // make tuple <tag-name>, <property>
+                        .SelectMany(t => t.Facet.Properties.AsEnumerable().Select(p => (t.Name, p)))
+                        // map tuple to PSNoteProperty(<tag-name>.<property-name>,p.Value)
+                        .Select(tnp =>
+                        {
+                            var (hasValue, value) = this.entity.TryGetFacetProperty(tnp.p);
+                            if (hasValue)
+                                return new PSNoteProperty($"{tnp.Name}.{tnp.p.Name}", value);
+                            else
+                                return new PSNoteProperty($"{tnp.Name}.{tnp.p.Name}", null);
+                        });
+                }
+
+                var allProperties = staticProperties((Item)this.GetItem()).Union(dynamicProperties());
+                if (propertyNames.Any())
+                    return allProperties.Where(p => propertyNames.Contains(p.Name, StringComparer.OrdinalIgnoreCase));
+                else
+                    return allProperties;
+            }
+
             public void SetItemProperties(IEnumerable<PSPropertyInfo> properties)
             {
-                IPathValue.SetItemProperties(this, properties);
+                foreach (var property in properties)
+                {
+                    if (nameof(Name).Equals(property.Name, StringComparison.OrdinalIgnoreCase))
+                    {
+                        this.entity.Name = (string)property.Value;
+                    }
+                    else this.SetAssignedFacetProperty(property.Name, property.Value);
+                }
                 this.model.Entities.Upsert(entity);
+            }
+
+            private void SetAssignedFacetProperty(string name, object value)
+            {
+                if (string.IsNullOrEmpty(name))
+                    return;
+                var splittedName = name.Split(".", 2, StringSplitOptions.RemoveEmptyEntries);
+                if (splittedName.Length != 2)
+                    return;
+
+                var assignedTag = this.entity.Tags.FirstOrDefault(t => t.Name.Equals(splittedName[0], StringComparison.OrdinalIgnoreCase));
+                if (assignedTag is null)
+                    return;
+
+                var facetProperty = assignedTag.Facet.Properties.FirstOrDefault(p => p.Name.Equals(splittedName[1], StringComparison.OrdinalIgnoreCase));
+                if (facetProperty is null)
+                    return;
+
+                this.entity.SetFacetProperty(facetProperty, value);
             }
         }
 
@@ -67,14 +123,14 @@ namespace PSKosmograph.PathNodes
         public IEnumerable<IPathNode> GetNodeChildren(IProviderContext providerContext)
             => this.entity.Tags.Select(t => new AssignedTagNode(providerContext.Persistence(), this.entity, t));
 
-        public IPathValue GetNodeValue() => new Value(this.model, this.entity);
+        public IItemProvider GetItemProvider() => new ItemProvider(this.model, this.entity);
 
         public IEnumerable<IPathNode> Resolve(IProviderContext providerContext, string? name)
         {
             if (name is null)
                 return this.GetNodeChildren(providerContext);
 
-            var tag = this.entity.Tags.SingleOrDefault(t => t.Name.Equals(name));
+            var tag = this.entity.Tags.SingleOrDefault(t => t.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
             if (tag is null)
                 return Enumerable.Empty<IPathNode>();
             return new AssignedTagNode(providerContext.Persistence(), this.entity, tag).Yield();
@@ -86,20 +142,20 @@ namespace PSKosmograph.PathNodes
 
         public IEnumerable<string> NewItemTypeNames => "AssignedTag".Yield();
 
-        public IPathValue NewItem(IProviderContext providerContext, string newItemChildPath, string? itemTypeName, object? newItemValue)
+        public IItemProvider NewItem(IProviderContext providerContext, string newItemChildPath, string? itemTypeName, object? newItemValue)
         {
             var tag = providerContext.Persistence().Tags.FindByName(newItemChildPath);
             if (tag is null)
                 throw new InvalidOperationException($"tag(name='{newItemChildPath}') doesn't exist.");
 
             if (this.entity.Tags.Contains(tag))
-                return new AssignedTagNode(providerContext.Persistence(), this.entity, tag).GetNodeValue();
+                return new AssignedTagNode(providerContext.Persistence(), this.entity, tag).GetItemProvider();
 
             this.entity.AddTag(tag);
 
             providerContext.Persistence().Entities.Upsert(this.entity);
 
-            return new AssignedTagNode(providerContext.Persistence(), this.entity, tag).GetNodeValue();
+            return new AssignedTagNode(providerContext.Persistence(), this.entity, tag).GetItemProvider();
         }
 
         #endregion INewItem Members
@@ -118,7 +174,7 @@ namespace PSKosmograph.PathNodes
 
         #region ICopyItem Members
 
-        public void CopyItem(IProviderContext providerContext, string sourceItemName, string destinationItemName, IPathValue destinationContainer, bool recurse)
+        public void CopyItem(IProviderContext providerContext, string sourceItemName, string destinationItemName, IItemProvider destinationContainer, bool recurse)
         {
             var newEntity = new Entity(destinationItemName, this.entity.Tags.ToArray());
 

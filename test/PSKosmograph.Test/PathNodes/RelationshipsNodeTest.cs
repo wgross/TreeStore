@@ -23,12 +23,12 @@ namespace PSKosmograph.Test.PathNodes
         {
             // ACT
 
-            var result = new RelationshipsNode().GetNodeValue();
+            var result = new RelationshipsNode().GetItemProvider();
 
             // ASSERT
 
             Assert.Equal("Relationships", result.Name);
-            Assert.True(result.IsCollection);
+            Assert.True(result.IsContainer);
         }
 
         [Fact]
@@ -36,7 +36,7 @@ namespace PSKosmograph.Test.PathNodes
         {
             // ACT
 
-            var result = new RelationshipsNode().GetNodeValue().Item as RelationshipsNode.Item;
+            var result = new RelationshipsNode().GetItemProvider().GetItem() as RelationshipsNode.Item;
 
             // ASSERT
 
@@ -49,13 +49,13 @@ namespace PSKosmograph.Test.PathNodes
         {
             // ACT
 
-            var result = new RelationshipsNode().GetNodeValue();
+            var result = new RelationshipsNode().GetItemProvider();
 
             // ASSERT
 
             Assert.Equal("Relationships", result.Name);
-            Assert.True(result.IsCollection);
-            Assert.IsType<RelationshipsNode.Item>(result.Item);
+            Assert.True(result.IsContainer);
+            Assert.IsType<RelationshipsNode.Item>(result.GetItem());
         }
     }
 }

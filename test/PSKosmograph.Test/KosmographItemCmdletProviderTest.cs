@@ -225,7 +225,7 @@ namespace PSKosmograph.Test
 
         #endregion Get-Item Tags/<name>, Tags/<name>/<property>
 
-        #region Get-Item /Entities/<name>, /Entities/<name>/<tag-name>
+        #region Get-Item /Entities/<name>, /Entities/<name>/<tag-name>, /Entiites/<name>/<tag-name>/<property-name>
 
         [Fact]
         public void Powershell_retrieves_single_Entity_by_name()
@@ -342,7 +342,7 @@ namespace PSKosmograph.Test
             // ARRANGE
             // provide a tag and an entity using this tag
 
-            var entity = DefaultEntity();
+            var entity = DefaultEntity(WithDefaultTag);
             var tag = entity.Tags.Single();
             entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
 
@@ -368,6 +368,46 @@ namespace PSKosmograph.Test
             Assert.True(this.PowerShell.HadErrors);
         }
 
-        #endregion Get-Item /Entities/<name>, /Entities/<name>/<tag-name>
+        [Fact]
+        public void PowerShell_retrieves_single_AssignedFacetProperty_by_name()
+        {
+            // ARRANGE
+            // provide a tag and an entity using this tag
+
+            var entity = DefaultEntity(WithDefaultTag);
+            var tag = entity.Tags.Single();
+            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByName("e"))
+                .Returns(entity);
+
+            // ACT
+
+            this.PowerShell
+               .AddStatement()
+                   .AddCommand("Get-Item")
+                   .AddParameter("Path", @"kg:\Entities\e\t\p");
+
+            var result = this.PowerShell.Invoke().ToArray();
+
+            // ASSERT
+
+            Assert.False(this.PowerShell.HadErrors);
+            Assert.Single(result);
+            Assert.IsType<ProviderInfo>(result[0].Property<ProviderInfo>("PSProvider"));
+            Assert.Equal("Kosmograph", result[0].Property<ProviderInfo>("PSProvider").Name);
+            Assert.Equal("PSKosmograph", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
+            Assert.Equal(@"PSKosmograph\Kosmograph::kg:\Entities\e\t\p", ((string)result[0].Properties["PSPath"].Value));
+            Assert.Equal(tag.Facet.Properties.Single().Id, result[0].Property<Guid>("Id"));
+            Assert.Equal(tag.Facet.Properties.Single().Name, result[0].Property<string>("Name"));
+            Assert.Equal(1, result[0].Property<int>("Value"));
+        }
+
+        #endregion Get-Item /Entities/<name>, /Entities/<name>/<tag-name>, /Entiites/<name>/<tag-name>/<property-name>
     }
 }

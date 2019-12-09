@@ -98,7 +98,7 @@ namespace PSKosmograph.Test
 
         #endregion Test-Path /Tags/<name>, /Tags/<name>/<property-name>
 
-        #region Test-Path /Entities/<name>
+        #region Test-Path /Entities/<name>, /Entities/<name>/<tag-name>, /Entities/<name>/<tag-name>/<property-name>
 
         [Fact]
         public void Powershell_tests_Entity_container_by_name()
@@ -132,7 +132,7 @@ namespace PSKosmograph.Test
         }
 
         [Fact]
-        public void Powershell_tests_entities_AssignedTag_leaf_by_name()
+        public void Powershell_tests_entities_AssignedTag_container_by_name()
         {
             // ARRANGE
 
@@ -152,6 +152,37 @@ namespace PSKosmograph.Test
                 .AddStatement()
                     .AddCommand("Test-Path")
                     .AddParameter("Path", @"kg:\Entities\e\t")
+                    .AddParameter("PathType", "Container");
+
+            var result = this.PowerShell.Invoke().Single();
+
+            // ASSERT
+
+            Assert.False(this.PowerShell.HadErrors);
+            Assert.True(result.As<bool>());
+        }
+
+        [Fact]
+        public void Powershell_tests_entities_AssignedFacetProperty_leaf_by_name()
+        {
+            // ARRANGE
+
+            var entity = DefaultEntity();
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByName("e"))
+                .Returns(entity);
+
+            // ACT
+
+            this.PowerShell
+                .AddStatement()
+                    .AddCommand("Test-Path")
+                    .AddParameter("Path", @"kg:\Entities\e\t\p")
                     .AddParameter("PathType", "Leaf");
 
             var result = this.PowerShell.Invoke().Single();
@@ -163,5 +194,5 @@ namespace PSKosmograph.Test
         }
     }
 
-    #endregion Test-Path /Entities/<name>
+    #endregion Test-Path /Entities/<name>, /Entities/<name>/<tag-name>, /Entities/<name>/<tag-name>/<property-name>
 }

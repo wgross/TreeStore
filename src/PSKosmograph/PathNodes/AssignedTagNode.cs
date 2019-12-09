@@ -1,5 +1,5 @@
 ﻿using CodeOwls.PowerShell.Provider.PathNodeProcessors;
-using CodeOwls.PowerShell.Provider.PathNodes;
+using CodeOwls.PowerShell.Provider.Paths;
 using Kosmograph.Model;
 using System;
 using System.Collections.Generic;
@@ -21,13 +21,13 @@ namespace PSKosmograph.PathNodes
             this.assignedTag = tag;
         }
 
-        public class Value : IPathValue
+        public class ItemProvider : IItemProvider
         {
             private readonly IKosmographPersistence model;
             private readonly Entity entity;
             private readonly Tag assignedTag;
 
-            public Value(IKosmographPersistence model, Entity entity, Tag assignedTag)
+            public ItemProvider(IKosmographPersistence model, Entity entity, Tag assignedTag)
             {
                 this.model = model;
                 this.entity = entity;
@@ -36,9 +36,9 @@ namespace PSKosmograph.PathNodes
 
             public string Name => this.assignedTag.Name;
 
-            public bool IsCollection => true;
+            public bool IsContainer => true;
 
-            public object Item => new Item(this.assignedTag);
+            public object GetItem() => new Item(this.assignedTag);
 
             public IEnumerable<PSPropertyInfo> GetItemProperties(IEnumerable<string> propertyNames)
             {
@@ -91,13 +91,20 @@ namespace PSKosmograph.PathNodes
         public string ItemMode => "+";
 
         public IEnumerable<IPathNode> GetNodeChildren(IProviderContext providerContext)
-            => this.assignedTag.Facet.Properties.Select(p => new AssignedFacetPropertyNode(this.entity, p));
+            => this.assignedTag.Facet.Properties.Select(p => new AssignedFacetPropertyNode(this.model, this.entity, p));
 
-        public IPathValue GetNodeValue() => new Value(this.model, this.entity, this.assignedTag);
+        public IItemProvider GetItemProvider() => new ItemProvider(this.model, this.entity, this.assignedTag);
 
-        public IEnumerable<IPathNode> Resolve(IProviderContext providerContext, string name)
+        public IEnumerable<IPathNode> Resolve(IProviderContext providerContext, string? name)
         {
-            throw new System.NotImplementedException();
+            if (name is null)
+                return this.GetNodeChildren(providerContext);
+
+            var property = this.assignedTag.Facet.Properties.SingleOrDefault(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            if (property is null)
+                return Enumerable.Empty<IPathNode>();
+
+            return new AssignedFacetPropertyNode(providerContext.Persistence(), this.entity, property).Yield();
         }
 
         #region IRemoveItem Members

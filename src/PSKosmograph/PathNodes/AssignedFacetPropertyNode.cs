@@ -1,18 +1,31 @@
 ﻿using CodeOwls.PowerShell.Provider.PathNodeProcessors;
-using CodeOwls.PowerShell.Provider.PathNodes;
+using CodeOwls.PowerShell.Provider.Paths;
 using Kosmograph.Model;
 using System;
 using System.Collections.Generic;
+using System.Management.Automation;
 
 namespace PSKosmograph.PathNodes
 {
     public class AssignedFacetPropertyNode : IPathNode
     {
-        public class Value : LeafPathValue
+        public class ItemProvider : LeafItemProvider, IItemProvider
         {
-            public Value(Entity entity, FacetProperty property)
+            private readonly IKosmographPersistence model;
+            private readonly Entity entity;
+
+            public ItemProvider(IKosmographPersistence model, Entity entity, FacetProperty property)
                 : base(new Item(entity, property), property.Name)
-            { }
+            {
+                this.model = model;
+                this.entity = entity;
+            }
+
+            public void SetItemProperties(IEnumerable<PSPropertyInfo> properties)
+            {
+                IItemProvider.SetItemProperties(this, properties);
+                this.model.Entities.Upsert(this.entity);
+            }
         }
 
         public class Item
@@ -26,20 +39,28 @@ namespace PSKosmograph.PathNodes
                 this.assignedProperty = property;
             }
 
+            public Guid Id => this.assignedProperty.Id;
+
             public string Name => this.assignedProperty.Name;
 
-            public object? Value => this.entity.TryGetFacetProperty(this.assignedProperty).Item2;
+            public object? Value
+            {
+                get => this.entity.TryGetFacetProperty(this.assignedProperty).Item2;
+                set => this.entity.SetFacetProperty<object?>(this.assignedProperty, value);
+            }
 
             public FacetPropertyTypeValues ValueType => this.assignedProperty.Type;
 
             public KosmographItemType ItemType => KosmographItemType.AssignedFacetProperty;
         }
 
+        private readonly IKosmographPersistence model;
         private readonly Entity entity;
         private readonly FacetProperty assignedProperty;
 
-        public AssignedFacetPropertyNode(Entity entity, FacetProperty property)
+        public AssignedFacetPropertyNode(IKosmographPersistence model, Entity entity, FacetProperty property)
         {
+            this.model = model;
             this.entity = entity;
             this.assignedProperty = property;
         }
@@ -53,11 +74,8 @@ namespace PSKosmograph.PathNodes
             throw new NotImplementedException();
         }
 
-        public IPathValue GetNodeValue() => new Value(this.entity, this.assignedProperty);
+        public IItemProvider GetItemProvider() => new ItemProvider(this.model, this.entity, this.assignedProperty);
 
-        public IEnumerable<IPathNode> Resolve(IProviderContext providerContext, string name)
-        {
-            throw new NotImplementedException();
-        }
+        public IEnumerable<IPathNode> Resolve(IProviderContext providerContext, string name) => throw new NotImplementedException();
     }
 }

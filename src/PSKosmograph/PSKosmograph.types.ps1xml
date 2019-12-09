@@ -26,7 +26,6 @@
             <ReferencedProperties>
               <Name>Name</Name>
               <Name>ItemType</Name>
-              <Name>Id</Name>
             </ReferencedProperties>
           </PropertySet>
         </Members>
@@ -60,7 +59,6 @@
             <ReferencedProperties>
               <Name>Name</Name>
               <Name>ItemType</Name>
-              <Name>Id</Name>
             </ReferencedProperties>
           </PropertySet>
         </Members>
@@ -96,7 +94,6 @@
             <ReferencedProperties>
               <Name>Name</Name>
               <Name>ItemType</Name>
-              <Name>Id</Name>
             </ReferencedProperties>
           </PropertySet>
         </Members>

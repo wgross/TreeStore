@@ -35,13 +35,13 @@ namespace PSKosmograph.Test.PathNodes
 
             // ACT
 
-            var result = new FacetPropertyNode(tag, tag.Facet.Properties.Single()).GetNodeValue();
+            var result = new FacetPropertyNode(tag, tag.Facet.Properties.Single()).GetItemProvider();
 
             // ASSERT
 
             Assert.Equal("p", result.Name);
-            Assert.False(result.IsCollection);
-            Assert.IsType<FacetPropertyNode.Value>(result);
+            Assert.False(result.IsContainer);
+            Assert.IsType<FacetPropertyNode.ItemProvider>(result);
         }
 
         [Fact]
@@ -53,7 +53,7 @@ namespace PSKosmograph.Test.PathNodes
 
             // ACT
 
-            var result = new FacetPropertyNode(tag, tag.Facet.Properties.Single()).GetNodeValue().Item as FacetPropertyNode.Item;
+            var result = new FacetPropertyNode(tag, tag.Facet.Properties.Single()).GetItemProvider().GetItem() as FacetPropertyNode.Item;
 
             // ASSERT
 
@@ -122,7 +122,7 @@ namespace PSKosmograph.Test.PathNodes
 
             // ACT
 
-            var item = new FacetPropertyNode(tag, tag.Facet.Properties.Single()).GetNodeValue().Item as FacetPropertyNode.Item;
+            var item = new FacetPropertyNode(tag, tag.Facet.Properties.Single()).GetItemProvider().GetItem() as FacetPropertyNode.Item;
             item!.Name = "changed";
 
             // ASSERT
@@ -139,7 +139,7 @@ namespace PSKosmograph.Test.PathNodes
 
             // ACT
 
-            var item = new FacetPropertyNode(tag, tag.Facet.Properties.Single()).GetNodeValue().Item as FacetPropertyNode.Item;
+            var item = new FacetPropertyNode(tag, tag.Facet.Properties.Single()).GetItemProvider().GetItem() as FacetPropertyNode.Item;
             item!.ValueType = Kosmograph.Model.FacetPropertyTypeValues.Bool;
 
             // ASSERT
@@ -170,7 +170,7 @@ namespace PSKosmograph.Test.PathNodes
             // ACT
 
             new FacetPropertyNode(tag, tag.Facet.Properties.Single())
-                .CopyItem(this.ProviderContextMock.Object, "p", null, new TagNode(this.PersistenceMock.Object, tag2).GetNodeValue(), false);
+                .CopyItem(this.ProviderContextMock.Object, "p", null, new TagNode(this.PersistenceMock.Object, tag2).GetItemProvider(), false);
 
             // ASSERT
 
@@ -202,7 +202,7 @@ namespace PSKosmograph.Test.PathNodes
             // ACT
 
             new FacetPropertyNode(tag, tag.Facet.Properties.Single())
-                .CopyItem(this.ProviderContextMock.Object, "p", "pp", new TagNode(this.PersistenceMock.Object, tag2).GetNodeValue(), false);
+                .CopyItem(this.ProviderContextMock.Object, "p", "pp", new TagNode(this.PersistenceMock.Object, tag2).GetItemProvider(), false);
 
             // ASSERT
 
@@ -223,7 +223,7 @@ namespace PSKosmograph.Test.PathNodes
 
             var result = Assert.Throws<InvalidOperationException>(()
                 => new FacetPropertyNode(tag, tag.Facet.Properties.Single()).CopyItem(this.ProviderContextMock.Object,
-                    "p", "p", new TagNode(this.PersistenceMock.Object, tag2).GetNodeValue(), false));
+                    "p", "p", new TagNode(this.PersistenceMock.Object, tag2).GetItemProvider(), false));
 
             // ASSERT
 
