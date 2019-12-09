@@ -1,5 +1,5 @@
-﻿using CodeOwls.PowerShell.Provider.PathNodeProcessors;
-using CodeOwls.PowerShell.Provider.Paths;
+﻿using CodeOwls.PowerShell.Paths;
+using CodeOwls.PowerShell.Provider.PathNodeProcessors;
 using Kosmograph.Model;
 using System.Collections.Generic;
 using System.IO;

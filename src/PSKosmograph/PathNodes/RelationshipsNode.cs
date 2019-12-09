@@ -1,5 +1,5 @@
-﻿using CodeOwls.PowerShell.Provider.PathNodeProcessors;
-using CodeOwls.PowerShell.Provider.Paths;
+﻿using CodeOwls.PowerShell.Paths;
+using CodeOwls.PowerShell.Provider.PathNodeProcessors;
 using System;
 using System.Collections.Generic;
 

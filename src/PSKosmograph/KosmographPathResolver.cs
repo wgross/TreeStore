@@ -1,6 +1,6 @@
-﻿using CodeOwls.PowerShell.Paths.Processors;
+﻿using CodeOwls.PowerShell.Paths;
+using CodeOwls.PowerShell.Paths.Processors;
 using CodeOwls.PowerShell.Provider.PathNodeProcessors;
-using CodeOwls.PowerShell.Provider.Paths;
 using Kosmograph.Model;
 using PSKosmograph.PathNodes;
 using System;
