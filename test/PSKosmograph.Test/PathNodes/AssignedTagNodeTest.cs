@@ -118,7 +118,6 @@ namespace PSKosmograph.Test.PathNodes
         #endregion IGetItemProperties
 
         [Theory]
-
         [InlineData("p")]
         [InlineData("P")]
         public void AssignedTageNode_resolves_property_name_as_AssignedFacetPropertyNode(string name)
@@ -295,5 +294,59 @@ namespace PSKosmograph.Test.PathNodes
             Assert.NotNull(result);
             Assert.Null(e.TryGetFacetProperty(e.Tags.Single().Facet.Properties.Single()).value);
         }
+
+        #region ClearItemProperty
+
+        [Theory]
+        [InlineData("p")]
+        [InlineData("P")]
+        public void ÁssignedTagNode_clears_assigned_tag_properties_by_name(string propertyName)
+        {
+            // ARRANGE
+
+            var e = DefaultEntity(WithDefaultTag);
+            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), 1);
+
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.PersistenceMock
+              .Setup(m => m.Entities)
+              .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.Upsert(e))
+                .Returns<Entity>(e => e);
+
+            // ACT
+
+            new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single())
+                .ClearItemProperty(this.ProviderContextMock.Object, propertyName.Yield());
+
+            // ASSERT
+
+            Assert.Empty(e.Values);
+        }
+
+        [Fact]
+        public void AssignedTagNode_clearing_assigned_tag_properties_ignores_unknown_name()
+        {
+            // ARRANGE
+
+            var e = DefaultEntity(WithDefaultTag);
+            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), 1);
+
+            // ACT
+
+            new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single())
+                .ClearItemProperty(this.ProviderContextMock.Object, "unknown".Yield());
+
+            // ASSERT
+
+            Assert.Single(e.Values);
+        }
+
+        #endregion ClearItemProperty
     }
 }

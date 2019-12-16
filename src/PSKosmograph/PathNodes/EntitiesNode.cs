@@ -7,7 +7,7 @@ using System.Management.Automation;
 
 namespace PSKosmograph.PathNodes
 {
-    public sealed class EntitiesNode : IPathNode, INewItem
+    public sealed class EntitiesNode : PathNode, INewItem
     {
         public sealed class ItemProvider : ContainerItemProvider
         {
@@ -23,25 +23,25 @@ namespace PSKosmograph.PathNodes
 
         #region IPathNode Members
 
-        public string Name => "Entities";
+        public override string Name => "Entities";
 
-        public string ItemMode => "+";
+        public override string ItemMode => "+";
 
-        public IEnumerable<IPathNode> GetNodeChildren(IProviderContext providerContext) => providerContext
+        public override IEnumerable<PathNode> GetNodeChildren(IProviderContext providerContext) => providerContext
             .Persistence()
             .Entities.FindAll()
             .Select(e => new EntityNode(providerContext.Persistence(), e));
 
-        public IItemProvider GetItemProvider() => new ItemProvider();
+        public override IItemProvider GetItemProvider() => new ItemProvider();
 
-        public IEnumerable<IPathNode> Resolve(IProviderContext providerContext, string? name)
+        public override IEnumerable<PathNode> Resolve(IProviderContext providerContext, string? name)
         {
             if (string.IsNullOrEmpty(name))
                 return this.GetNodeChildren(providerContext);
 
             var entity = providerContext.Persistence().Entities.FindByName(name);
             if (entity is null)
-                return Enumerable.Empty<IPathNode>();
+                return Enumerable.Empty<PathNode>();
             return new EntityNode(providerContext.Persistence(), entity).Yield();
         }
 

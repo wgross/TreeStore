@@ -9,11 +9,13 @@ using System.Management.Automation;
 
 namespace PSKosmograph.PathNodes
 {
-    public class TagNode : IPathNode,
+    public class TagNode : PathNode,
         // Item capabilities
         INewItem, IRemoveItem, ICopyItem, IRenameItem,
         // Property capabilities
-        INewItemProperty, IRenameItemProperty, IRemoveItemProperty, ICopyItemPropertySource, ICopyItemPropertyDestination, IMoveItemPropertySource, IMoveItemPropertyDestination
+        INewItemProperty, IRenameItemProperty, IRemoveItemProperty,
+        ICopyItemPropertySource, ICopyItemPropertyDestination, IMoveItemPropertySource,
+        IMoveItemPropertyDestination
     {
         public class Item
         {
@@ -98,23 +100,23 @@ namespace PSKosmograph.PathNodes
 
         #region IPathNode Members
 
-        public string Name => this.tag.Name;
+        public override string Name => this.tag.Name;
 
-        public string ItemMode => "+";
+        public override string ItemMode => "+";
 
-        public IEnumerable<IPathNode> GetNodeChildren(IProviderContext providerContext)
+        public override IEnumerable<PathNode> GetNodeChildren(IProviderContext providerContext)
             => this.tag.Facet.Properties.Select(p => new FacetPropertyNode(this.tag, p));
 
-        public IItemProvider GetItemProvider() => new ItemProvider(this.model, this.tag);
+        public override IItemProvider GetItemProvider() => new ItemProvider(this.model, this.tag);
 
-        public IEnumerable<IPathNode> Resolve(IProviderContext providerContext, string? name)
+        public override IEnumerable<PathNode> Resolve(IProviderContext providerContext, string? name)
         {
             if (name is null)
                 return this.GetNodeChildren(providerContext);
 
             var facetProperty = this.tag.Facet.Properties.FirstOrDefault(p => name.Equals(p.Name));
             if (facetProperty is null)
-                return Enumerable.Empty<IPathNode>();
+                return Enumerable.Empty<PathNode>();
 
             return new[] { new FacetPropertyNode(tag, facetProperty) };
         }
@@ -248,5 +250,6 @@ namespace PSKosmograph.PathNodes
         }
 
         #endregion IMoveItemProperty
+
     }
 }

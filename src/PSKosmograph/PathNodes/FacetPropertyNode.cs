@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace PSKosmograph.PathNodes
 {
-    public class FacetPropertyNode : IPathNode, IRemoveItem, ICopyItem, IRenameItem
+    public class FacetPropertyNode : PathNode, IRemoveItem, ICopyItem, IRenameItem
     {
         public sealed class ItemProvider : LeafItemProvider
         {
@@ -52,17 +52,17 @@ namespace PSKosmograph.PathNodes
             this.facetProperty = facetProperty;
         }
 
-        public object GetNodeChildrenParameters => null;
+        public override object GetNodeChildrenParameters => null;
 
-        public string Name => this.facetProperty.Name;
+        public override string Name => this.facetProperty.Name;
 
-        public string ItemMode => "+";
+        public override string ItemMode => "+";
 
-        public IEnumerable<IPathNode> GetNodeChildren(IProviderContext providerContext) => Enumerable.Empty<IPathNode>();
+        public override IEnumerable<PathNode> GetNodeChildren(IProviderContext providerContext) => Enumerable.Empty<PathNode>();
 
-        public IItemProvider GetItemProvider() => new ItemProvider(this);
+        public override IItemProvider GetItemProvider() => new ItemProvider(this);
 
-        public IEnumerable<IPathNode> Resolve(IProviderContext providerContext, string name)
+        public override IEnumerable<PathNode> Resolve(IProviderContext providerContext, string name)
         {
             throw new NotImplementedException();
         }

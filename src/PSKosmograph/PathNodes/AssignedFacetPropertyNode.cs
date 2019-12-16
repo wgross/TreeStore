@@ -7,7 +7,7 @@ using System.Management.Automation;
 
 namespace PSKosmograph.PathNodes
 {
-    public class AssignedFacetPropertyNode : IPathNode
+    public class AssignedFacetPropertyNode : PathNode
     {
         public class ItemProvider : LeafItemProvider, IItemProvider
         {
@@ -65,17 +65,17 @@ namespace PSKosmograph.PathNodes
             this.assignedProperty = property;
         }
 
-        public string Name => this.assignedProperty.Name;
+        public override string Name => this.assignedProperty.Name;
 
-        public string ItemMode => ".";
+        public override string ItemMode => ".";
 
-        public IEnumerable<IPathNode> GetNodeChildren(IProviderContext providerContext)
+        public override IEnumerable<PathNode> GetNodeChildren(IProviderContext providerContext)
         {
             throw new NotImplementedException();
         }
 
-        public IItemProvider GetItemProvider() => new ItemProvider(this.model, this.entity, this.assignedProperty);
+        public override IItemProvider GetItemProvider() => new ItemProvider(this.model, this.entity, this.assignedProperty);
 
-        public IEnumerable<IPathNode> Resolve(IProviderContext providerContext, string name) => throw new NotImplementedException();
+        public override IEnumerable<PathNode> Resolve(IProviderContext providerContext, string name) => throw new NotImplementedException();
     }
 }

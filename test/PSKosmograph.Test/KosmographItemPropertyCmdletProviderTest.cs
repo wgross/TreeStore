@@ -1087,13 +1087,17 @@ namespace PSKosmograph.Test
                 .Returns(destinationTag);
 
             this.TagRepositoryMock
+                .Setup(r => r.Upsert(sourceTag))
+                .Returns(destinationTag);
+
+            this.TagRepositoryMock
                 .Setup(r => r.Upsert(destinationTag))
                 .Returns(destinationTag);
 
             // ACT
 
             this.PowerShell
-                .AddCommand("Copy-ItemProperty")
+                .AddCommand("Move-ItemProperty")
                 .AddParameter("Path", $@"kg:\Tags\t")
                 .AddParameter("Name", "p")
                 .AddParameter("Destination", $@"kg:\Tags\tt");
@@ -1109,5 +1113,93 @@ namespace PSKosmograph.Test
         }
 
         #endregion Move-ItemProperty /Tags/<name1> -Name <property-name> -Destination /Tags/<name2>
+
+        #region Clear-ItemProperty /Entities/e/<name>/<tag-name> -Name <property-name>
+
+        [Fact]
+        public void PowerShell_clears_AssignedFacetProperty_at_entity()
+        {
+            // ARRANGE
+
+            var entity = DefaultEntity(WithDefaultTag);
+            var tag = entity.Tags.Single();
+            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.Upsert(entity))
+                .Returns(entity);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByName("e"))
+                .Returns(entity);
+
+            // ACT
+
+            this.PowerShell
+               .AddStatement()
+                   .AddCommand("Clear-ItemProperty")
+                   .AddParameter("Path", @"kg:\Entities\e")
+                   .AddParameter("Name", "t.p");
+
+            var result = this.PowerShell.Invoke().ToArray();
+
+            // ASSERT
+
+            Assert.False(this.PowerShell.HadErrors);
+            Assert.Empty(entity.Values);
+        }
+
+        [Fact]
+        public void PowerShell_clears_AssignedFacetProperty_at_Assingted_tag()
+        {
+            // ARRANGE
+
+            var entity = DefaultEntity(WithDefaultTag);
+            var tag = entity.Tags.Single();
+            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.Upsert(entity))
+                .Returns(entity);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByName("e"))
+                .Returns(entity);
+
+            // ACT
+
+            this.PowerShell
+               .AddStatement()
+                   .AddCommand("Clear-ItemProperty")
+                   .AddParameter("Path", @"kg:\Entities\e\t")
+                   .AddParameter("Name", "p");
+
+            var result = this.PowerShell.Invoke().ToArray();
+
+            // ASSERT
+
+            Assert.False(this.PowerShell.HadErrors);
+            Assert.Empty(entity.Values);
+        }
+
+        //todo: clear assigned tag property
+
+        #endregion Clear-ItemProperty /Entities/e/<name>/<tag-name> -Name <property-name>
     }
 }

@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace PSKosmograph.PathNodes
 {
-    public sealed class RootNode : IPathNode
+    public sealed class RootNode : PathNode
     {
         private class Value : ContainerItemProvider
         {
@@ -20,18 +20,16 @@ namespace PSKosmograph.PathNodes
         {
         }
 
-        public object GetNodeChildrenParameters => null;
+        public override string Name => string.Empty;
 
-        public string Name => string.Empty;
+        public override string ItemMode => "+";
 
-        public string ItemMode => "+";
+        public override IEnumerable<PathNode> GetNodeChildren(IProviderContext providerContext)
+            => new PathNode[] { new TagsNode(), new EntitiesNode(), new RelationshipsNode() };
 
-        public IEnumerable<IPathNode> GetNodeChildren(IProviderContext providerContext)
-            => new IPathNode[] { new TagsNode(), new EntitiesNode(), new RelationshipsNode() };
+        public override IItemProvider GetItemProvider() => new Value();
 
-        public IItemProvider GetItemProvider() => new Value();
-
-        public IEnumerable<IPathNode> Resolve(IProviderContext providerContext, string? name)
+        public override IEnumerable<PathNode> Resolve(IProviderContext providerContext, string? name)
         {
             if (name is null)
                 return this.GetNodeChildren(providerContext);
@@ -47,7 +45,7 @@ namespace PSKosmograph.PathNodes
                 case "Relationships":
                     return new RelationshipsNode().Yield();
             }
-            return Enumerable.Empty<IPathNode>();
+            return Enumerable.Empty<PathNode>();
         }
     }
 }

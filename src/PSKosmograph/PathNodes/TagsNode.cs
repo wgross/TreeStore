@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace PSKosmograph.PathNodes
 {
-    public sealed class TagsNode : IPathNode, INewItem
+    public sealed class TagsNode : PathNode, INewItem
     {
         private class Value : ContainerItemProvider
         {
@@ -24,11 +24,11 @@ namespace PSKosmograph.PathNodes
 
         #region IPathNode Members
 
-        public string Name => "Tags";
+        public override string Name => "Tags";
 
-        public string ItemMode => "+";
+        public override string ItemMode => "+";
 
-        public IEnumerable<IPathNode> GetNodeChildren(IProviderContext providerContext)
+        public override IEnumerable<PathNode> GetNodeChildren(IProviderContext providerContext)
         {
             return providerContext
                 .Persistence()
@@ -36,9 +36,9 @@ namespace PSKosmograph.PathNodes
                 .Select(t => new TagNode(providerContext.Persistence(), t));
         }
 
-        public IItemProvider GetItemProvider() => new Value();
+        public override IItemProvider GetItemProvider() => new Value();
 
-        public IEnumerable<IPathNode> Resolve(IProviderContext providerContext, string? name)
+        public override IEnumerable<PathNode> Resolve(IProviderContext providerContext, string? name)
         {
             if (string.IsNullOrEmpty(name))
                 return this.GetNodeChildren(providerContext);
@@ -46,7 +46,7 @@ namespace PSKosmograph.PathNodes
             var tag = providerContext.Persistence().Tags.FindByName(name);
 
             if (tag is null)
-                return Enumerable.Empty<IPathNode>();
+                return Enumerable.Empty<PathNode>();
 
             return new[] { new TagNode(providerContext.Persistence(), tag) };
         }

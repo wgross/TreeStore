@@ -8,7 +8,7 @@ using System.Management.Automation;
 
 namespace PSKosmograph.PathNodes
 {
-    public class AssignedTagNode : IPathNode, IRemoveItem
+    public class AssignedTagNode : PathNode, IRemoveItem, IClearItemProperty
     {
         private readonly IKosmographPersistence model;
         private readonly Entity entity;
@@ -49,7 +49,7 @@ namespace PSKosmograph.PathNodes
 
                 return assignedTagProperties.Select(p =>
                 {
-                    (_, object value) = this.entity.TryGetFacetProperty(p);
+                    (_, object? value) = this.entity.TryGetFacetProperty(p);
                     return new PSNoteProperty(p.Name, value);
                 });
             }
@@ -86,23 +86,23 @@ namespace PSKosmograph.PathNodes
             public KosmographItemType ItemType => KosmographItemType.AssignedTag;
         }
 
-        public string Name => this.assignedTag.Name;
+        public override string Name => this.assignedTag.Name;
 
-        public string ItemMode => "+";
+        public override string ItemMode => "+";
 
-        public IEnumerable<IPathNode> GetNodeChildren(IProviderContext providerContext)
+        public override IEnumerable<PathNode> GetNodeChildren(IProviderContext providerContext)
             => this.assignedTag.Facet.Properties.Select(p => new AssignedFacetPropertyNode(this.model, this.entity, p));
 
-        public IItemProvider GetItemProvider() => new ItemProvider(this.model, this.entity, this.assignedTag);
+        public override IItemProvider GetItemProvider() => new ItemProvider(this.model, this.entity, this.assignedTag);
 
-        public IEnumerable<IPathNode> Resolve(IProviderContext providerContext, string? name)
+        public override IEnumerable<PathNode> Resolve(IProviderContext providerContext, string? name)
         {
             if (name is null)
                 return this.GetNodeChildren(providerContext);
 
             var property = this.assignedTag.Facet.Properties.SingleOrDefault(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
             if (property is null)
-                return Enumerable.Empty<IPathNode>();
+                return Enumerable.Empty<PathNode>();
 
             return new AssignedFacetPropertyNode(providerContext.Persistence(), this.entity, property).Yield();
         }
@@ -116,5 +116,37 @@ namespace PSKosmograph.PathNodes
         }
 
         #endregion IRemoveItem Members
+
+        #region IClearItemProperty
+
+        #region IClearItem Members
+
+        public void ClearItemProperty(IProviderContext providerContext, IEnumerable<string> propertyToClear)
+        {
+            foreach (var propertyName in propertyToClear)
+            {
+                var (_, property) = this.GetAssignedFacetProperty(propertyName);
+                if (property is null)
+                    return;
+                this.entity.Values.Remove(property.Id.ToString());
+            }
+            providerContext.Persistence().Entities.Upsert(this.entity);
+        }
+
+        private (Tag? tag, FacetProperty? propperty) GetAssignedFacetProperty(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return (null, null);
+
+            var facetProperty = this.assignedTag.Facet.Properties.FirstOrDefault(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            if (facetProperty is null)
+                return (assignedTag, null);
+
+            return (assignedTag, facetProperty);
+        }
+
+        #endregion IClearItem Members
+
+        #endregion IClearItemProperty
     }
 }

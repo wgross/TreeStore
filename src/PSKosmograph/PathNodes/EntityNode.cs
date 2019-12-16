@@ -8,7 +8,11 @@ using System.Management.Automation;
 
 namespace PSKosmograph.PathNodes
 {
-    public class EntityNode : IPathNode, INewItem, IRemoveItem, ICopyItem, IRenameItem
+    public class EntityNode : PathNode,
+        // item capabilities
+        INewItem, IRemoveItem, ICopyItem, IRenameItem,
+        // item property capabilities
+        IClearItemProperty
     {
         public sealed class ItemProvider : ContainerItemProvider, IItemProvider
         {
@@ -116,23 +120,23 @@ namespace PSKosmograph.PathNodes
 
         #region IPathNode Members
 
-        public string Name => this.entity.Name;
+        public override string Name => this.entity.Name;
 
-        public string ItemMode => "+";
+        public override string ItemMode => "+";
 
-        public IEnumerable<IPathNode> GetNodeChildren(IProviderContext providerContext)
+        public override IEnumerable<PathNode> GetNodeChildren(IProviderContext providerContext)
             => this.entity.Tags.Select(t => new AssignedTagNode(providerContext.Persistence(), this.entity, t));
 
-        public IItemProvider GetItemProvider() => new ItemProvider(this.model, this.entity);
+        public override IItemProvider GetItemProvider() => new ItemProvider(this.model, this.entity);
 
-        public IEnumerable<IPathNode> Resolve(IProviderContext providerContext, string? name)
+        public override IEnumerable<PathNode> Resolve(IProviderContext providerContext, string? name)
         {
             if (name is null)
                 return this.GetNodeChildren(providerContext);
 
             var tag = this.entity.Tags.SingleOrDefault(t => t.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
             if (tag is null)
-                return Enumerable.Empty<IPathNode>();
+                return Enumerable.Empty<PathNode>();
             return new AssignedTagNode(providerContext.Persistence(), this.entity, tag).Yield();
         }
 
@@ -205,5 +209,41 @@ namespace PSKosmograph.PathNodes
         }
 
         #endregion IRenameItem Members
+
+        #region IClearItemProperty Members
+
+        public void ClearItemProperty(IProviderContext providerContext, IEnumerable<string> propertyToClear)
+        {
+            foreach (var propertyName in propertyToClear)
+            {
+                var (_, property) = this.GetAssignedFacetProperty(propertyName);
+                if (property is null)
+                    return;
+                this.entity.Values.Remove(property.Id.ToString());
+            }
+            providerContext.Persistence().Entities.Upsert(this.entity);
+        }
+
+        private (Tag? tag, FacetProperty? propperty) GetAssignedFacetProperty(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return (null, null);
+
+            var splittedName = name.Split(".", 2, StringSplitOptions.RemoveEmptyEntries);
+            if (splittedName.Length != 2)
+                return (null, null);
+
+            var assignedTag = this.entity.Tags.FirstOrDefault(t => t.Name.Equals(splittedName[0], StringComparison.OrdinalIgnoreCase));
+            if (assignedTag is null)
+                return (null, null);
+
+            var facetProperty = assignedTag.Facet.Properties.FirstOrDefault(p => p.Name.Equals(splittedName[1], StringComparison.OrdinalIgnoreCase));
+            if (facetProperty is null)
+                return (assignedTag, null);
+
+            return (assignedTag, facetProperty);
+        }
+
+        #endregion IClearItemProperty Members
     }
 }

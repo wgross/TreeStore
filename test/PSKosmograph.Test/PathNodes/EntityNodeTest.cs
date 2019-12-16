@@ -473,7 +473,7 @@ namespace PSKosmograph.Test.PathNodes
 
         #endregion Set facet property value
 
-        #region Get dynamic properties
+        #region GetItemProperty
 
         [Fact]
         public void EntityValue_retrieves_entity_and_assigned_tags_properties()
@@ -526,6 +526,60 @@ namespace PSKosmograph.Test.PathNodes
             Assert.Equal("Name", result.Single().Name);
         }
 
-        #endregion Get dynamic properties
+        #endregion GetItemProperty
+
+        #region ClearItemProperty
+
+        [Theory]
+        [InlineData("t.p")]
+        [InlineData("T.P")]
+        public void EntityNode_clears_assigned_tag_properties_by_name(string propertyName)
+        {
+            // ARRANGE
+
+            var e = DefaultEntity(WithDefaultTag);
+            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), 1);
+
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.PersistenceMock
+              .Setup(m => m.Entities)
+              .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.Upsert(e))
+                .Returns<Entity>(e => e);
+
+            // ACT
+
+            new EntityNode(this.PersistenceMock.Object, e)
+                .ClearItemProperty(this.ProviderContextMock.Object, propertyName.Yield());
+
+            // ASSERT
+
+            Assert.Empty(e.Values);
+        }
+
+        [Fact]
+        public void EntityNode_clearing_assigned_tag_properties_ignores_unknown_name()
+        {
+            // ARRANGE
+
+            var e = DefaultEntity(WithDefaultTag);
+            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), 1);
+
+            // ACT
+
+            new EntityNode(this.PersistenceMock.Object, e)
+                .ClearItemProperty(this.ProviderContextMock.Object, "unknown".Yield());
+
+            // ASSERT
+
+            Assert.Single(e.Values);
+        }
+
+        #endregion ClearItemProperty
     }
 }

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace PSKosmograph.PathNodes
 {
-    public sealed class RelationshipsNode : IPathNode
+    public sealed class RelationshipsNode : PathNode
     {
         public sealed class ItemProvider : ContainerItemProvider
         {
@@ -19,20 +19,18 @@ namespace PSKosmograph.PathNodes
             public string Name => "Relationships";
         }
 
-        public object GetNodeChildrenParameters => throw new NotImplementedException();
+        public override string ItemMode => "+";
 
-        public string ItemMode => "+";
+        public override string Name => "Relationships";
 
-        public string Name => "Relationships";
-
-        public IEnumerable<IPathNode> GetNodeChildren(IProviderContext providerContext)
+        public override IEnumerable<PathNode> GetNodeChildren(IProviderContext providerContext)
         {
             throw new NotImplementedException();
         }
 
-        public IItemProvider GetItemProvider() => new ItemProvider();
+        public override IItemProvider GetItemProvider() => new ItemProvider();
 
-        public IEnumerable<IPathNode> Resolve(IProviderContext providerContext, string name)
+        public override IEnumerable<PathNode> Resolve(IProviderContext providerContext, string name)
         {
             throw new NotImplementedException();
         }

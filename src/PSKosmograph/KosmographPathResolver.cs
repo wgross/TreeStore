@@ -11,7 +11,7 @@ namespace PSKosmograph
 {
     public sealed class KosmographPathResolver : IPathResolver
     {
-        public IEnumerable<IPathNode> ResolvePath(IProviderContext providerContext, string path)
+        public IEnumerable<PathNode> ResolvePath(IProviderContext providerContext, string path)
         {
             var normalizedPath = path;
             if (providerContext.Drive is { })
@@ -20,12 +20,12 @@ namespace PSKosmograph
                     normalizedPath = normalizedPath.Remove(0, providerContext.Drive.Root.Length);
                 }
 
-            IPathNode node = new RootNode();
+            PathNode node = new RootNode();
             foreach (var pathItem in normalizedPath.Split("\\/".ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
             {
                 node = node.Resolve(providerContext, pathItem).SingleOrDefault();
                 if (node is null)
-                    return Enumerable.Empty<IPathNode>();
+                    return Enumerable.Empty<PathNode>();
             }
             return node.Yield();
         }
