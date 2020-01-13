@@ -42,6 +42,11 @@ namespace Kosmograph.LiteDb
 
         public IRelationshipRepository Relationships => new RelationshipRepository(db, this.MessageBus.Relationships);
 
+        public bool DeleteCategory(Category category, bool recurse)
+        {
+            return true;
+        }
+
         public void Dispose()
         {
             this.db?.Dispose();

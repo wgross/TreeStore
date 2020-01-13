@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Kosmograph.Model
 {
@@ -8,6 +6,10 @@ namespace Kosmograph.Model
     {
         IEnumerable<Entity> FindByTag(Tag tag);
 
+        IEnumerable<Entity> FindByCategory(Category category);
+
         Entity? FindByName(string name);
+
+        Entity? FindByCategoryAndName(Category category, string name);
     }
 }

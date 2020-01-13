@@ -90,15 +90,12 @@ namespace PSKosmograph.PathNodes
 
         public override string ItemMode => "+";
 
-        public override IEnumerable<PathNode> GetNodeChildren(IProviderContext providerContext)
-            => this.assignedTag.Facet.Properties.Select(p => new AssignedFacetPropertyNode(this.model, this.entity, p));
-
         public override IItemProvider GetItemProvider() => new ItemProvider(this.model, this.entity, this.assignedTag);
 
         public override IEnumerable<PathNode> Resolve(IProviderContext providerContext, string? name)
         {
             if (name is null)
-                return this.GetNodeChildren(providerContext);
+                return this.GetChildNodes(providerContext);
 
             var property = this.assignedTag.Facet.Properties.SingleOrDefault(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
             if (property is null)
@@ -106,6 +103,13 @@ namespace PSKosmograph.PathNodes
 
             return new AssignedFacetPropertyNode(providerContext.Persistence(), this.entity, property).Yield();
         }
+
+        #region IGetChildItem Members
+
+        public override IEnumerable<PathNode> GetChildNodes(IProviderContext providerContext)
+            => this.assignedTag.Facet.Properties.Select(p => new AssignedFacetPropertyNode(this.model, this.entity, p));
+
+        #endregion IGetChildItem Members
 
         #region IRemoveItem Members
 

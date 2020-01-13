@@ -15,6 +15,8 @@ namespace PSKosmograph.Test.PathNodes
             this.tagsRepository = this.Mocks.Create<ITagRepository>();
         }
 
+        #region P2F node structure
+
         [Fact]
         public void TagsNode_has_name_and_ItemMode()
         {
@@ -54,7 +56,10 @@ namespace PSKosmograph.Test.PathNodes
             Assert.NotNull(result);
         }
 
+        #endregion P2F node structure
+
         [Fact]
+
         public void TagsNode_retrieves_Tags_as_child_nodes()
         {
             // ARRANGE
@@ -74,7 +79,7 @@ namespace PSKosmograph.Test.PathNodes
             // ACT
 
             var result = new TagsNode()
-                .GetNodeChildren(this.ProviderContextMock.Object)
+                .GetChildNodes(this.ProviderContextMock.Object)
                 .ToArray();
 
             // ASSERT
@@ -206,7 +211,5 @@ namespace PSKosmograph.Test.PathNodes
 
             Assert.IsType<TagNode.ItemProvider>(result);
         }
-
-        
     }
 }

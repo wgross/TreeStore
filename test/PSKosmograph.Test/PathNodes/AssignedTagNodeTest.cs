@@ -9,6 +9,8 @@ namespace PSKosmograph.Test.PathNodes
 {
     public class AssignedTagNodeTest : NodeTestBase
     {
+        #region P2F node structure
+
         [Fact]
         public void AssignedTagNode_has_name_and_ItemMode()
         {
@@ -53,12 +55,14 @@ namespace PSKosmograph.Test.PathNodes
             // ACT
 
             var node = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single());
-            var result = node.GetNodeChildren(this.ProviderContextMock.Object);
+            var result = node.GetChildNodes(this.ProviderContextMock.Object);
 
             // ASSERT
 
             Assert.Single(result);
         }
+
+        #endregion P2F node structure
 
         #region IGetItemProperties
 

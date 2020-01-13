@@ -104,7 +104,7 @@ namespace PSKosmograph.PathNodes
 
         public override string ItemMode => "+";
 
-        public override IEnumerable<PathNode> GetNodeChildren(IProviderContext providerContext)
+        public override IEnumerable<PathNode> GetChildNodes(IProviderContext providerContext)
             => this.tag.Facet.Properties.Select(p => new FacetPropertyNode(this.tag, p));
 
         public override IItemProvider GetItemProvider() => new ItemProvider(this.model, this.tag);
@@ -112,7 +112,7 @@ namespace PSKosmograph.PathNodes
         public override IEnumerable<PathNode> Resolve(IProviderContext providerContext, string? name)
         {
             if (name is null)
-                return this.GetNodeChildren(providerContext);
+                return this.GetChildNodes(providerContext);
 
             var facetProperty = this.tag.Facet.Properties.FirstOrDefault(p => name.Equals(p.Name));
             if (facetProperty is null)
@@ -146,7 +146,7 @@ namespace PSKosmograph.PathNodes
             this.tag.Facet.AddProperty(facetProperty);
             providerContext.Persistence().Tags.Upsert(this.tag);
 
-            return this.GetNodeChildren(providerContext).Single(fp => fp.Name.Equals(newItemChildPath))?.GetItemProvider();
+            return this.GetChildNodes(providerContext).Single(fp => fp.Name.Equals(newItemChildPath))?.GetItemProvider();
         }
 
         #endregion INewItem Members
@@ -190,7 +190,7 @@ namespace PSKosmograph.PathNodes
 
         #region INewItemProperty Members
 
-        public void NewItemProperty(IProviderContext providerContext, string propertyName, string propertyTypeName, object newItemValue)
+        public void NewItemProperty(IProviderContext providerContext, string propertyName, string propertyTypeName, object? newItemValue)
         {
             this.tag.Facet.AddProperty(new FacetProperty(propertyName, FacetPropertyTypeValue(propertyTypeName)));
 
@@ -250,6 +250,5 @@ namespace PSKosmograph.PathNodes
         }
 
         #endregion IMoveItemProperty
-
     }
 }

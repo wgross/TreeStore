@@ -52,13 +52,9 @@ namespace PSKosmograph.PathNodes
             this.facetProperty = facetProperty;
         }
 
-        public override object GetNodeChildrenParameters => null;
-
         public override string Name => this.facetProperty.Name;
 
         public override string ItemMode => "+";
-
-        public override IEnumerable<PathNode> GetNodeChildren(IProviderContext providerContext) => Enumerable.Empty<PathNode>();
 
         public override IItemProvider GetItemProvider() => new ItemProvider(this);
 
@@ -67,7 +63,7 @@ namespace PSKosmograph.PathNodes
             throw new NotImplementedException();
         }
 
-        #region IRemoveItem members
+        #region IRemoveItem Members
 
         public void RemoveItem(IProviderContext providerContext, string path, bool recurse)
         {
@@ -75,7 +71,7 @@ namespace PSKosmograph.PathNodes
             providerContext.Persistence().Tags.Upsert(this.tag);
         }
 
-        #endregion IRemoveItem members
+        #endregion IRemoveItem Members
 
         #region ICopyItem Members
 
@@ -89,7 +85,7 @@ namespace PSKosmograph.PathNodes
 
         #endregion ICopyItem Members
 
-        #region IRenameItem
+        #region IRenameItem Members
 
         public void RenameItem(IProviderContext providerContext, string path, string newName)
         {
@@ -104,6 +100,6 @@ namespace PSKosmograph.PathNodes
             providerContext.Persistence().Tags.Upsert(this.tag);
         }
 
-        #endregion IRenameItem
+        #endregion IRenameItem Members
     }
 }

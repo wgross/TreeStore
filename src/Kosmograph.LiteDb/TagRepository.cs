@@ -36,6 +36,6 @@ namespace Kosmograph.LiteDb
             return false;
         }
 
-        public Tag FindByName(string name) => this.Repository.Query<Tag>(CollectionName).Where(t => t.Name.Equals(name)).FirstOrDefault();
+        public Tag FindByName(string name) => this.LiteRepository.Query<Tag>(CollectionName).Where(t => t.Name.Equals(name)).FirstOrDefault();
     }
 }

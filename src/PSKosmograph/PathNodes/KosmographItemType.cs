@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace PSKosmograph.PathNodes
+﻿namespace PSKosmograph.PathNodes
 {
     public enum KosmographItemType
     {
@@ -11,6 +7,7 @@ namespace PSKosmograph.PathNodes
         Relationship,
         FacetProperty,
         AssignedTag,
-        AssignedFacetProperty
+        AssignedFacetProperty,
+        Category
     }
 }

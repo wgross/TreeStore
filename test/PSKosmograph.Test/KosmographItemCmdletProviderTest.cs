@@ -11,7 +11,7 @@ namespace PSKosmograph.Test
         #region Get-Item Tags/Entities/Relationships
 
         [Fact]
-        public void Powershell_retrieves_root_container()
+        public void PowerShell_retrieves_root_container()
         {
             // ACT
             // get the provider root path
@@ -39,7 +39,7 @@ namespace PSKosmograph.Test
         [InlineData("Tags")]
         [InlineData("Entities")]
         [InlineData("Relationships")]
-        public void Powershell_retrieves_single_top_level_container(string containerName)
+        public void PowerShell_retrieves_single_top_level_container(string containerName)
         {
             // ACT
             // get the top level containers
@@ -63,7 +63,7 @@ namespace PSKosmograph.Test
         }
 
         [Fact]
-        public void Powershell_retrieving_unknown_top_level_container_by_name_fails()
+        public void PowerShell_retrieving_unknown_top_level_container_by_name_fails()
         {
             // ACT
 
@@ -85,7 +85,7 @@ namespace PSKosmograph.Test
         #region Get-Item Tags/<name>
 
         [Fact]
-        public void Powershell_retrieves_single_Tag_by_name()
+        public void PowerShell_retrieves_single_Tag_by_name()
         {
             // ARRANGE
 
@@ -123,7 +123,7 @@ namespace PSKosmograph.Test
         }
 
         [Fact]
-        public void Powershell_retrieving_unknown_tag_by_name_fails()
+        public void PowerShell_retrieving_unknown_tag_by_name_fails()
         {
             // ARRANGE
             // model is missing the tag t
@@ -155,7 +155,7 @@ namespace PSKosmograph.Test
         #region Get-Item Tags/<name>, Tags/<name>/<property>
 
         [Fact]
-        public void Powershell_retrieves_single_FacetProperty_by_name()
+        public void PowerShell_retrieves_single_FacetProperty_by_name()
         {
             // ARRANGE
             // provide the top level containers
@@ -194,7 +194,7 @@ namespace PSKosmograph.Test
         }
 
         [Fact]
-        public void Powershell_retrieving_unknown_facet_property_by_name_fails()
+        public void PowerShell_retrieving_unknown_facet_property_by_name_fails()
         {
             // ARRANGE
 
@@ -225,23 +225,28 @@ namespace PSKosmograph.Test
 
         #endregion Get-Item Tags/<name>, Tags/<name>/<property>
 
-        #region Get-Item /Entities/<name>, /Entities/<name>/<tag-name>, /Entiites/<name>/<tag-name>/<property-name>
+        #region Get-Item /Entities/<entity-name>, Get-Item /Entities/<category-name>, /Entities/<name>/<tag-name>, /Entiites/<name>/<tag-name>/<property-name>
 
         [Fact]
-        public void Powershell_retrieves_single_Entity_by_name()
+        public void PowerShell_retrieves_single_Entity_by_name()
         {
             // ARRANGE
             // provide a tag and an entity using this tag
 
-            var entity = DefaultEntity();
-            var tag = entity.Tags.Single();
+            this.ArrangeEmptyRootCategory(out var rootCategory);
+
+            this.CategoryRepositoryMock
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
+                .Returns((Category?)null);
 
             this.PersistenceMock
                 .Setup(m => m.Entities)
                 .Returns(this.EntityRepositoryMock.Object);
 
+            var entity = DefaultEntity(WithDefaultTag);
+            var tag = entity.Tags.Single();
             this.EntityRepositoryMock
-                .Setup(r => r.FindByName("e"))
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
                 .Returns(entity);
 
             // ACT
@@ -266,21 +271,55 @@ namespace PSKosmograph.Test
         }
 
         [Fact]
-        public void Powershell_retrieving_unknown_entity_by_name_fails()
+        public void PowerShell_retrieves_single_Category_by_name()
         {
             // ARRANGE
-            // provide a tag and an entity using this tag
 
-            var entity = DefaultEntity();
-            var tag = entity.Tags.Single();
+            this.ArrangeSubCategory(out var rootCategory, out var subCategory);
+
+            this.CategoryRepositoryMock
+                .Setup(r => r.FindByCategoryAndName(rootCategory, subCategory.Name))
+                .Returns(subCategory);
+
+            // ACT
+
+            this.PowerShell
+                .AddStatement()
+                   .AddCommand("Get-Item")
+                   .AddParameter("Path", @"kg:\Entities\c");
+
+            var result = this.PowerShell.Invoke().ToArray();
+
+            // ASSERT
+
+            Assert.False(this.PowerShell.HadErrors);
+            Assert.Single(result);
+            Assert.IsType<ProviderInfo>(result[0].Property<ProviderInfo>("PSProvider"));
+            Assert.Equal("Kosmograph", result[0].Property<ProviderInfo>("PSProvider").Name);
+            Assert.Equal("PSKosmograph", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
+            Assert.Equal(@"PSKosmograph\Kosmograph::kg:\Entities\c", ((string)result[0].Properties["PSPath"].Value));
+            Assert.Equal(subCategory.Id, result[0].Property<Guid>("Id"));
+            Assert.Equal(subCategory.Name, result[0].Property<string>("Name"));
+        }
+
+        [Fact]
+        public void PowerShell_retrieving_unknown_entity_by_name_fails()
+        {
+            // ARRANGE
+
+            this.ArrangeEmptyRootCategory(out var rootCategory);
+
+            this.CategoryRepositoryMock
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "unknown"))
+                .Returns((Category?)null);
 
             this.PersistenceMock
                 .Setup(m => m.Entities)
                 .Returns(this.EntityRepositoryMock.Object);
 
             this.EntityRepositoryMock
-                .Setup(r => r.FindByName("unknown"))
-                .Returns((Entity?)null);
+                 .Setup(r => r.FindByCategoryAndName(rootCategory, "unknown"))
+                 .Returns((Entity?)null);
 
             // ACT
 
@@ -297,12 +336,18 @@ namespace PSKosmograph.Test
         }
 
         [Fact]
-        public void Powershell_retrieves_single_AssignedTag_by_name()
+        public void PowerShell_retrieves_single_AssignedTag_by_name()
         {
             // ARRANGE
             // provide a tag and an entity using this tag
 
-            var entity = DefaultEntity();
+            this.ArrangeEmptyRootCategory(out var rootCategory);
+
+            this.CategoryRepositoryMock
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
+                .Returns((Category?)null);
+
+            var entity = DefaultEntity(WithDefaultTag);
             var tag = entity.Tags.Single();
             entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
 
@@ -311,7 +356,7 @@ namespace PSKosmograph.Test
                 .Returns(this.EntityRepositoryMock.Object);
 
             this.EntityRepositoryMock
-                .Setup(r => r.FindByName("e"))
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
                 .Returns(entity);
 
             // ACT
@@ -337,10 +382,16 @@ namespace PSKosmograph.Test
         }
 
         [Fact]
-        public void Powershell_retrieves_unknown_AssignedTag_name_as_null()
+        public void PowerShell_retrieves_unknown_AssignedTag_name_as_null()
         {
             // ARRANGE
             // provide a tag and an entity using this tag
+
+            this.ArrangeEmptyRootCategory(out var rootCategory);
+
+            this.CategoryRepositoryMock
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
+                .Returns((Category?)null);
 
             var entity = DefaultEntity(WithDefaultTag);
             var tag = entity.Tags.Single();
@@ -351,7 +402,7 @@ namespace PSKosmograph.Test
                 .Returns(this.EntityRepositoryMock.Object);
 
             this.EntityRepositoryMock
-                .Setup(r => r.FindByName("e"))
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
                 .Returns(entity);
 
             // ACT
@@ -374,16 +425,22 @@ namespace PSKosmograph.Test
             // ARRANGE
             // provide a tag and an entity using this tag
 
-            var entity = DefaultEntity(WithDefaultTag);
-            var tag = entity.Tags.Single();
-            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+            this.ArrangeEmptyRootCategory(out var rootCategory);
+
+            this.CategoryRepositoryMock
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
+                .Returns((Category?)null);
 
             this.PersistenceMock
                 .Setup(m => m.Entities)
                 .Returns(this.EntityRepositoryMock.Object);
 
+            var entity = DefaultEntity(WithDefaultTag);
+            var tag = entity.Tags.Single();
+            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+
             this.EntityRepositoryMock
-                .Setup(r => r.FindByName("e"))
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
                 .Returns(entity);
 
             // ACT
@@ -408,6 +465,6 @@ namespace PSKosmograph.Test
             Assert.Equal(1, result[0].Property<int>("Value"));
         }
 
-        #endregion Get-Item /Entities/<name>, /Entities/<name>/<tag-name>, /Entiites/<name>/<tag-name>/<property-name>
+        #endregion Get-Item /Entities/<entity-name>, Get-Item /Entities/<category-name>, /Entities/<name>/<tag-name>, /Entiites/<name>/<tag-name>/<property-name>
     }
 }

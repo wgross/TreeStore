@@ -69,13 +69,17 @@ namespace PSKosmograph.PathNodes
 
         public override string ItemMode => ".";
 
-        public override IEnumerable<PathNode> GetNodeChildren(IProviderContext providerContext)
+        public override IItemProvider GetItemProvider() => new ItemProvider(this.model, this.entity, this.assignedProperty);
+
+        public override IEnumerable<PathNode> Resolve(IProviderContext providerContext, string name) => throw new NotImplementedException();
+
+        #region IGetChildItem Members
+
+        public override IEnumerable<PathNode> GetChildNodes(IProviderContext providerContext)
         {
             throw new NotImplementedException();
         }
 
-        public override IItemProvider GetItemProvider() => new ItemProvider(this.model, this.entity, this.assignedProperty);
-
-        public override IEnumerable<PathNode> Resolve(IProviderContext providerContext, string name) => throw new NotImplementedException();
+        #endregion IGetChildItem Members
     }
 }

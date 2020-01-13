@@ -9,7 +9,6 @@ namespace Kosmograph.LiteDb
 {
     public class RelationshipRepository : LiteDbRepositoryBase<Relationship>, IRelationshipRepository
     {
-        public const string CollectionName = "relationships";
         private readonly IChangedMessageBus<IRelationship> messageBus;
 
         static RelationshipRepository()
@@ -17,11 +16,11 @@ namespace Kosmograph.LiteDb
             BsonMapper.Global
                .Entity<Relationship>()
                    .DbRef(r => r.Tags, TagRepository.CollectionName)
-                   .DbRef(r => r.From, EntityRepository.CollectionName)
-                   .DbRef(r => r.To, EntityRepository.CollectionName);
+                   .DbRef(r => r.From, "entities")
+                   .DbRef(r => r.To, "entities");
         }
 
-        public RelationshipRepository(LiteRepository repo, Messaging.IChangedMessageBus<Messaging.IRelationship> messageBus) : base(repo, CollectionName)
+        public RelationshipRepository(LiteRepository repo, Messaging.IChangedMessageBus<Messaging.IRelationship> messageBus) : base(repo, "relationships")
         {
             this.messageBus = messageBus;
         }
@@ -58,7 +57,7 @@ namespace Kosmograph.LiteDb
             if (query is null)
                 return QueryAndInclude(q => q);
 
-            return query(this.Repository.Query<Relationship>(RelationshipRepository.CollectionName))
+            return query(this.LiteRepository.Query<Relationship>(this.CollectionName))
                 .Include(r => r.Tags)
                 .Include(r => r.From)
                 .Include(r => r.To);

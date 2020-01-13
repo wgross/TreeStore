@@ -21,7 +21,7 @@ namespace Kosmograph.Model
         public IRelationshipRepository Relationships => this.persistence!.Relationships;
 
         public Category RootCategory() => this.persistence!.Categories.Root();
-
+        
         public void Dispose()
         {
             this.persistence?.Dispose();

@@ -6,6 +6,8 @@ namespace PSKosmograph.Test.PathNodes
 {
     public class AssignedFacetPropertyNodeTest : NodeTestBase
     {
+        #region P2F node structure
+
         [Fact]
         public void AssignedFacetPropertyNode_has_name_and_ItemMode()
         {
@@ -61,5 +63,8 @@ namespace PSKosmograph.Test.PathNodes
             Assert.Equal(2, result!.Value);
             Assert.Equal(e.Tags.Single().Facet.Properties.Single().Type, result.ValueType);
         }
+
+        #endregion P2F node structure
+
     }
 }

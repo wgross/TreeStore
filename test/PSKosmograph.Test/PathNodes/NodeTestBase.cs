@@ -1,4 +1,5 @@
-﻿using Kosmograph.Model;
+﻿using Kosmograph.LiteDb;
+using Kosmograph.Model;
 using Moq;
 using System;
 using System.Linq;
@@ -17,6 +18,8 @@ namespace PSKosmograph.Test.PathNodes
 
         protected Mock<IEntityRepository> EntityRepositoryMock { get; }
 
+        public Mock<ICategoryRepository> CategoryRepositoryMock { get; }
+
         protected Mock<ITagRepository> TagRepositoryMock { get; }
 
         public NodeTestBase()
@@ -25,6 +28,7 @@ namespace PSKosmograph.Test.PathNodes
             this.ProviderServiceMock = this.Mocks.Create<IKosmographProviderService>();
             this.PersistenceMock = this.Mocks.Create<IKosmographPersistence>();
             this.EntityRepositoryMock = this.Mocks.Create<IEntityRepository>();
+            this.CategoryRepositoryMock = this.Mocks.Create<ICategoryRepository>();
             this.TagRepositoryMock = this.Mocks.Create<ITagRepository>();
         }
 
@@ -50,7 +54,6 @@ namespace PSKosmograph.Test.PathNodes
         protected static Action<Tag> WithProperty(string name, FacetPropertyTypeValues type)
         {
             return tag => tag.Facet.AddProperty(new FacetProperty(name, type));
-
         }
 
         #endregion Default Tag
@@ -71,6 +74,56 @@ namespace PSKosmograph.Test.PathNodes
 
         protected void WithoutTags(Entity entity) => entity.Tags.Clear();
 
+        protected Action<Entity> WithEntityCategory(Category category)
+        {
+            return e => e.Category = category;
+        }
+
         #endregion Default Entity
+
+        #region Default Category
+
+        public void ArrangeRootCategory(out Category rootCategory)
+        {
+            var rootCategory_ = rootCategory = DefaultCategory(AsRoot);
+
+            this.PersistenceMock
+                .Setup(p => p.Categories)
+                .Returns(this.CategoryRepositoryMock.Object);
+
+            this.CategoryRepositoryMock
+                .Setup(r => r.Root())
+                .Returns(rootCategory);
+        }
+
+        public void ArrangeSubCategory(out Category rootCategory, out Category subCategory)
+        {
+            var rootCategory_ = rootCategory = DefaultCategory(AsRoot);
+            var subCategory_ = subCategory = DefaultCategory();
+            rootCategory.AddSubCategory(subCategory);
+
+            this.PersistenceMock
+                .Setup(p => p.Categories)
+                .Returns(this.CategoryRepositoryMock.Object);
+        }
+
+        protected static Category DefaultCategory(params Action<Category>[] setup)
+        {
+            var tmp = new Category("c");
+            setup.ForEach(s => s(tmp));
+            return tmp;
+        }
+
+        protected static Action<Category> WithSubCategory(Category subcategory)
+            => c => c.AddSubCategory(subcategory);
+
+        protected static void AsRoot(Category category)
+        {
+            category.Id = CategoryRepository.CategoryRootId;
+            category.Parent = null;
+            category.Name = string.Empty;
+        }
+
+        #endregion Default Category
     }
 }

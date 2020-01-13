@@ -6,6 +6,8 @@ namespace Kosmograph.Model.Test
 {
     public class CategoryTest
     {
+        // todo: category name is unique for parent node
+
         #region Category hierarchy structure
 
         [Fact]
@@ -67,8 +69,27 @@ namespace Kosmograph.Model.Test
             Assert.Equal(searchCat, result);
         }
 
+        [Theory]
+        [InlineData("cat2")]
+        [InlineData("Cat2")]
+        public void Categeory_finds_child_by_name(string name)
+        {
+            // ARRANGE
+
+            var searchCat = new Category("cat2", new Facet());
+            var cat = new Category("cat", new Facet(), searchCat);
+
+            // ACT
+
+            var result = cat.FindSubCategory(name, StringComparer.OrdinalIgnoreCase);
+
+            // ASSERT
+
+            Assert.Equal(searchCat, result);
+        }
+
         [Fact]
-        public void Category_finding_subcategory_by_id_returns_null_on_jmisisng_subcategory()
+        public void Category_finding_subcategory_by_id_returns_null_on_missing_subcategory()
         {
             // ARRANGE
 

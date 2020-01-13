@@ -1,6 +1,7 @@
 ﻿using Kosmograph.Model;
 using Moq;
 using PSKosmograph.PathNodes;
+using System;
 using System.Linq;
 using Xunit;
 
@@ -8,12 +9,7 @@ namespace PSKosmograph.Test.PathNodes
 {
     public class EntitiesNodeTest : NodeTestBase
     {
-        private readonly Mock<IEntityRepository> entitesRepository;
-
-        public EntitiesNodeTest()
-        {
-            this.entitesRepository = this.Mocks.Create<IEntityRepository>();
-        }
+        #region P2F node structure
 
         [Fact]
         public void EntitiesNode_has_name_and_ItemMode()
@@ -54,10 +50,14 @@ namespace PSKosmograph.Test.PathNodes
             Assert.NotNull(result);
         }
 
+        #endregion P2F node structure
+
+        #region Resolve
+
         [Theory]
         [InlineData("e")]
         [InlineData("E")]
-        public void EntitiesNodeValue_retrieves_EntityNode_by_name(string name)
+        public void EntitiesNodeValue_retrieves_EntityNode_by_name_and_root_category(string name)
         {
             // ARRANGE
 
@@ -66,11 +66,24 @@ namespace PSKosmograph.Test.PathNodes
                 .Returns(this.PersistenceMock.Object);
 
             this.PersistenceMock
-                .Setup(s => s.Entities)
-                .Returns(this.entitesRepository.Object);
+                .Setup(p => p.Categories)
+                .Returns(this.CategoryRepositoryMock.Object);
 
-            this.entitesRepository
-                .Setup(r => r.FindByName(name))
+            var rootCategory = DefaultCategory(AsRoot);
+            this.CategoryRepositoryMock
+                .Setup(r => r.Root())
+                .Returns(rootCategory);
+
+            this.CategoryRepositoryMock
+                .Setup(r => r.FindByCategoryAndName(rootCategory, name))
+                .Returns((Category?)null);
+
+            this.PersistenceMock
+                .Setup(s => s.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByCategoryAndName(rootCategory, name))
                 .Returns(DefaultEntity());
 
             // ACT
@@ -84,8 +97,10 @@ namespace PSKosmograph.Test.PathNodes
             Assert.IsType<EntityNode>(result.Single());
         }
 
-        [Fact]
-        public void EntitiesNodeValue_retrieves_all_EntityNode_by_null_name()
+        [Theory]
+        [InlineData("c")]
+        [InlineData("C")]
+        public void EntitiesNodeValue_retrieves_CategoryNode_by_name_and_root_category(string name)
         {
             // ARRANGE
 
@@ -94,11 +109,57 @@ namespace PSKosmograph.Test.PathNodes
                 .Returns(this.PersistenceMock.Object);
 
             this.PersistenceMock
-                .Setup(s => s.Entities)
-                .Returns(this.entitesRepository.Object);
+                .Setup(p => p.Categories)
+                .Returns(this.CategoryRepositoryMock.Object);
 
-            this.entitesRepository
-                .Setup(r => r.FindAll())
+            var rootCategory = DefaultCategory(AsRoot);
+            this.CategoryRepositoryMock
+                .Setup(r => r.Root())
+                .Returns(rootCategory);
+
+            this.CategoryRepositoryMock
+                .Setup(r => r.FindByCategoryAndName(rootCategory, name))
+                .Returns(DefaultCategory());
+
+            // ACT
+
+            var result = new EntitiesNode()
+                .Resolve(this.ProviderContextMock.Object, name)
+                .ToArray();
+
+            // ASSERT
+
+            Assert.IsType<CategoryNode>(result.Single());
+        }
+
+        [Fact]
+        public void EntitiesNodeValue_retrieves_all_entities_and_categories_by_null_name()
+        {
+            // ARRANGE
+
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.PersistenceMock
+                .Setup(p => p.Categories)
+                .Returns(this.CategoryRepositoryMock.Object);
+
+            var rootCategory = DefaultCategory(AsRoot, WithSubCategory(DefaultCategory()));
+            this.CategoryRepositoryMock
+                .Setup(r => r.Root())
+                .Returns(rootCategory);
+
+            this.CategoryRepositoryMock
+                .Setup(r => r.FindByCategory(rootCategory))
+                .Returns(rootCategory.SubCategories);
+
+            this.PersistenceMock
+                .Setup(s => s.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByCategory(rootCategory))
                 .Returns(DefaultEntity().Yield());
 
             // ACT
@@ -109,7 +170,9 @@ namespace PSKosmograph.Test.PathNodes
 
             // ASSERT
 
-            Assert.IsType<EntityNode>(result.Single());
+            Assert.Equal(2, result.Length);
+            Assert.IsType<CategoryNode>(result.First());
+            Assert.IsType<EntityNode>(result.Last());
         }
 
         [Fact]
@@ -122,11 +185,24 @@ namespace PSKosmograph.Test.PathNodes
                 .Returns(this.PersistenceMock.Object);
 
             this.PersistenceMock
-                .Setup(s => s.Entities)
-                .Returns(this.entitesRepository.Object);
+               .Setup(p => p.Categories)
+               .Returns(this.CategoryRepositoryMock.Object);
 
-            this.entitesRepository
-                .Setup(r => r.FindByName("unknown"))
+            var rootCategory = DefaultCategory(AsRoot);
+            this.CategoryRepositoryMock
+                .Setup(r => r.Root())
+                .Returns(rootCategory);
+
+            this.CategoryRepositoryMock
+               .Setup(r => r.FindByCategoryAndName(rootCategory, "unknown"))
+               .Returns((Category?)null);
+
+            this.PersistenceMock
+                .Setup(s => s.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "unknown"))
                 .Returns((Entity?)null);
 
             // ACT
@@ -140,6 +216,10 @@ namespace PSKosmograph.Test.PathNodes
             Assert.Empty(result);
         }
 
+        #endregion Resolve
+
+        #region INewItem
+
         [Fact]
         public void EntitiesNode_provides_NewItemTypesNames()
         {
@@ -149,7 +229,11 @@ namespace PSKosmograph.Test.PathNodes
 
             // ASSERT
 
-            Assert.Equal("Entity".Yield(), result);
+            Assert.Equal(new[]
+            {
+                nameof(KosmographItemType.Category),
+                nameof(KosmographItemType.Entity)
+            }, result);
         }
 
         [Theory]
@@ -158,8 +242,6 @@ namespace PSKosmograph.Test.PathNodes
         public void EntitiesNode_creates_EntityNodeValue(string itemTypeName)
         {
             // ARRANGE
-
-            var entity = DefaultEntity();
 
             this.ProviderContextMock
                 .Setup(c => c.DynamicParameters)
@@ -177,10 +259,24 @@ namespace PSKosmograph.Test.PathNodes
                 .Setup(r => r.Upsert(It.Is<Entity>(t => t.Name.Equals("Entity"))))
                 .Returns<Entity>(e => e);
 
+            this.PersistenceMock
+                .Setup(p => p.Categories)
+                .Returns(this.CategoryRepositoryMock.Object);
+
+            var rootCategory = DefaultCategory(AsRoot);
+            this.CategoryRepositoryMock
+                .Setup(r => r.Root())
+                .Returns(rootCategory);
+
+            this.CategoryRepositoryMock
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "Entity"))
+                .Returns((Category?)null);
+
+            var node = new EntitiesNode();
+
             // ACT
 
-            var result = new EntitiesNode()
-                .NewItem(this.ProviderContextMock.Object, newItemName: "Entity", itemTypeName: itemTypeName, newItemValue: null!);
+            var result = node.NewItem(this.ProviderContextMock.Object, newItemName: "Entity", itemTypeName: itemTypeName, newItemValue: null!);
 
             // ASSERT
 
@@ -190,10 +286,6 @@ namespace PSKosmograph.Test.PathNodes
         [Fact]
         public void EntitiesNode_provides_new_item_parameters()
         {
-            // ARRANGE
-
-            var e = DefaultEntity(WithDefaultTag);
-
             // ACT
 
             var result = new EntitiesNode().NewItemParameters;
@@ -226,24 +318,38 @@ namespace PSKosmograph.Test.PathNodes
                 .Setup(m => m.Entities)
                 .Returns(this.EntityRepositoryMock.Object);
 
-            Entity entity = null;
+            Entity? entity = null;
             this.EntityRepositoryMock
                 .Setup(r => r.Upsert(It.Is<Entity>(t => t.Name.Equals("ee"))))
                 .Callback<Entity>(e => entity = e)
                 .Returns<Entity>(e => e);
 
             this.PersistenceMock
-                .Setup(m => m.Tags)
+                .Setup(m => m.Categories)
+                .Returns(this.CategoryRepositoryMock.Object);
+
+            var rootCategory = DefaultCategory(AsRoot);
+            this.CategoryRepositoryMock
+                .Setup(r => r.Root())
+                .Returns(rootCategory);
+
+            this.CategoryRepositoryMock
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "ee"))
+                .Returns((Category?)null);
+
+            this.PersistenceMock
+                .Setup(p => p.Tags)
                 .Returns(this.TagRepositoryMock.Object);
 
             this.TagRepositoryMock
                 .Setup(r => r.FindByName("t"))
                 .Returns(tag);
 
+            var node = new EntitiesNode();
+
             // ACT
 
-            var result = new EntitiesNode()
-                .NewItem(this.ProviderContextMock.Object, newItemName: "ee", itemTypeName: "any", newItemValue: null!);
+            var result = node.NewItem(this.ProviderContextMock.Object, newItemName: "ee", itemTypeName: nameof(KosmographItemType.Entity), newItemValue: null!);
 
             // ASSERT
 
@@ -272,7 +378,7 @@ namespace PSKosmograph.Test.PathNodes
                 .Setup(m => m.Entities)
                 .Returns(this.EntityRepositoryMock.Object);
 
-            Entity entity = null;
+            Entity? entity = null;
             this.EntityRepositoryMock
                 .Setup(r => r.Upsert(It.Is<Entity>(t => t.Name.Equals("ee"))))
                 .Callback<Entity>(e => entity = e)
@@ -290,14 +396,172 @@ namespace PSKosmograph.Test.PathNodes
                 .Setup(r => r.FindByName("unknown"))
                 .Returns((Tag?)null);
 
+            this.PersistenceMock
+                .Setup(p => p.Categories)
+                .Returns(this.CategoryRepositoryMock.Object);
+
+            var rootCategory = DefaultCategory(AsRoot);
+            this.CategoryRepositoryMock
+                .Setup(r => r.Root())
+                .Returns(rootCategory);
+
+            this.CategoryRepositoryMock
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "ee"))
+                .Returns((Category?)null);
+
             // ACT
 
             var result = new EntitiesNode()
-                .NewItem(this.ProviderContextMock.Object, newItemName: "ee", itemTypeName: "any", newItemValue: null!);
+                .NewItem(this.ProviderContextMock.Object, newItemName: "ee", itemTypeName: nameof(KosmographItemType.Entity), newItemValue: null!);
 
             // ASSERT
 
             Assert.Equal(tag, entity!.Tags.Single());
         }
+
+        [Fact]
+        public void EntitiesNode_creates_CategoryNodeValue()
+        {
+            // ARRANGE
+
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.PersistenceMock
+                .Setup(m => m.Categories)
+                .Returns(this.CategoryRepositoryMock.Object);
+
+            var rootCategory = DefaultCategory(AsRoot);
+            this.CategoryRepositoryMock
+                .Setup(r => r.Root())
+                .Returns(rootCategory);
+
+            this.CategoryRepositoryMock
+                .Setup(r => r.Upsert(It.Is<Category>(c => c.Name.Equals("c"))))
+                .Returns<Category>(c => c);
+
+            this.PersistenceMock
+                .Setup(p => p.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "c"))
+                .Returns((Entity?)null);
+
+            var node = new EntitiesNode();
+
+            // ACT
+
+            var result = node
+                .NewItem(this.ProviderContextMock.Object, newItemName: "c", itemTypeName: nameof(KosmographItemType.Category), newItemValue: null!);
+
+            // ASSERT
+
+            Assert.IsType<CategoryNode.ItemProvider>(result);
+        }
+
+        [Theory]
+        [InlineData(nameof(KosmographItemType.AssignedFacetProperty))]
+        [InlineData(nameof(KosmographItemType.AssignedTag))]
+        [InlineData(nameof(KosmographItemType.FacetProperty))]
+        [InlineData(nameof(KosmographItemType.Relationship))]
+        [InlineData(nameof(KosmographItemType.Tag))]
+        [InlineData("unknown")]
+        [InlineData("")]
+        public void EntitiesNode_creating_item_rejects_invalid_item_type(string itemTypeName)
+        {
+            // ARRANGE
+
+            var node = new EntitiesNode();
+
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(() => node.NewItem(this.ProviderContextMock.Object,
+                newItemName: "c", itemTypeName: itemTypeName, newItemValue: null!));
+
+            // ASSERT
+
+            Assert.Equal($"ItemType '{itemTypeName}' not allowed in the context", result.Message);
+        }
+
+        [Theory]
+        [InlineData("name")]
+        [InlineData("NAME")]
+        public void EntitiesNode_creating_item_rejects_category_with_same_name_as_entity(string newItemName)
+        {
+            // ARRANGE
+
+            var node = new EntitiesNode();
+
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.PersistenceMock
+                .Setup(p => p.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.PersistenceMock
+               .Setup(p => p.Categories)
+               .Returns(this.CategoryRepositoryMock.Object);
+
+            var rootCategory = DefaultCategory(AsRoot);
+            this.CategoryRepositoryMock
+                .Setup(r => r.Root())
+                .Returns(rootCategory);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByCategoryAndName(rootCategory, newItemName))
+                .Returns(DefaultEntity(e => e.Name = newItemName, WithEntityCategory(rootCategory)));
+
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(() => node.NewItem(this.ProviderContextMock.Object,
+                newItemName: newItemName, itemTypeName: nameof(KosmographItemType.Category), newItemValue: null!));
+
+            // ASSERT
+
+            Assert.Equal("Name is already used by and item of type 'Entity'", result.Message);
+        }
+
+        [Theory]
+        [InlineData("name")]
+        [InlineData("NAME")]
+        public void EntitiesNode_creating_item_rejects_entity_with_same_name_as_category(string newItemName)
+        {
+            // ARRANGE
+
+            var node = new EntitiesNode();
+
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.PersistenceMock
+               .Setup(p => p.Categories)
+               .Returns(this.CategoryRepositoryMock.Object);
+
+            var subCategory = DefaultCategory(c => c.Name = newItemName);
+            var rootCategory = DefaultCategory(AsRoot, WithSubCategory(subCategory));
+            this.CategoryRepositoryMock
+                .Setup(r => r.Root())
+                .Returns(rootCategory);
+
+            this.CategoryRepositoryMock
+              .Setup(r => r.FindByCategoryAndName(rootCategory, newItemName))
+              .Returns(subCategory);
+
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(() => node.NewItem(this.ProviderContextMock.Object,
+                newItemName: newItemName, itemTypeName: nameof(KosmographItemType.Entity), newItemValue: null!));
+
+            // ASSERT
+
+            Assert.Equal("Name is already used by and item of type 'Category'", result.Message);
+        }
+
+        #endregion INewItem
     }
 }

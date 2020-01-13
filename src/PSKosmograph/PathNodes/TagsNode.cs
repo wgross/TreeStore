@@ -28,20 +28,12 @@ namespace PSKosmograph.PathNodes
 
         public override string ItemMode => "+";
 
-        public override IEnumerable<PathNode> GetNodeChildren(IProviderContext providerContext)
-        {
-            return providerContext
-                .Persistence()
-                .Tags.FindAll()
-                .Select(t => new TagNode(providerContext.Persistence(), t));
-        }
-
         public override IItemProvider GetItemProvider() => new Value();
 
         public override IEnumerable<PathNode> Resolve(IProviderContext providerContext, string? name)
         {
             if (string.IsNullOrEmpty(name))
-                return this.GetNodeChildren(providerContext);
+                return this.GetChildNodes(providerContext);
 
             var tag = providerContext.Persistence().Tags.FindByName(name);
 
@@ -52,6 +44,18 @@ namespace PSKosmograph.PathNodes
         }
 
         #endregion IPathNode Members
+
+        #region IGetChildItem Members
+
+        public override IEnumerable<PathNode> GetChildNodes(IProviderContext providerContext)
+        {
+            return providerContext
+                .Persistence()
+                .Tags.FindAll()
+                .Select(t => new TagNode(providerContext.Persistence(), t));
+        }
+
+        #endregion IGetChildItem Members
 
         #region INewItem Members
 

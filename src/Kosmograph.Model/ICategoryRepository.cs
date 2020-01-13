@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Kosmograph.Model
 {
@@ -10,6 +11,8 @@ namespace Kosmograph.Model
 
         Category Upsert(Category entity);
 
-        bool Delete(Guid id);
+        Category? FindByCategoryAndName(Category category, string name);
+
+        IEnumerable<Category> FindByCategory(Category category);
     }
 }

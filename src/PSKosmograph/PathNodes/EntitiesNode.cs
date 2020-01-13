@@ -1,6 +1,7 @@
 ﻿using CodeOwls.PowerShell.Paths;
 using CodeOwls.PowerShell.Provider.PathNodeProcessors;
 using Kosmograph.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
@@ -21,35 +22,47 @@ namespace PSKosmograph.PathNodes
             public string Name => "Entities";
         }
 
-        #region IPathNode Members
-
         public override string Name => "Entities";
 
         public override string ItemMode => "+";
-
-        public override IEnumerable<PathNode> GetNodeChildren(IProviderContext providerContext) => providerContext
-            .Persistence()
-            .Entities.FindAll()
-            .Select(e => new EntityNode(providerContext.Persistence(), e));
 
         public override IItemProvider GetItemProvider() => new ItemProvider();
 
         public override IEnumerable<PathNode> Resolve(IProviderContext providerContext, string? name)
         {
             if (string.IsNullOrEmpty(name))
-                return this.GetNodeChildren(providerContext);
+                return this.GetChildNodes(providerContext);
 
-            var entity = providerContext.Persistence().Entities.FindByName(name);
+            var persistence = providerContext.Persistence();
+
+            // first check if there is a category: its faster
+            var subCategory = SubCategory(persistence, name);
+            if (subCategory is { })
+                return new CategoryNode(persistence, subCategory).Yield();
+
+            // no category, might be an entity
+            var entity = providerContext.Persistence().Entities.FindByCategoryAndName(RootCategory(persistence), name);
             if (entity is null)
                 return Enumerable.Empty<PathNode>();
-            return new EntityNode(providerContext.Persistence(), entity).Yield();
+
+            return new EntityNode(persistence, entity).Yield();
         }
 
-        #endregion IPathNode Members
+        #region IGetChildItem Members
 
-        #region NewItem Members
+        public override IEnumerable<PathNode> GetChildNodes(IProviderContext providerContext)
+        {
+            var persistence = providerContext.Persistence();
 
-        public IEnumerable<string> NewItemTypeNames => "Entity".Yield();
+            return SubCategories(persistence).Select(c => new CategoryNode(persistence, c))
+                    .Union<PathNode>(Entities(persistence).Select(e => new EntityNode(persistence, e)));
+        }
+
+        #endregion IGetChildItem Members
+
+        #region INewItem Members
+
+        public IEnumerable<string> NewItemTypeNames { get; } = new[] { nameof(KosmographItemType.Category), nameof(KosmographItemType.Entity) };
 
         public class NewItemParametersDefinition
         {
@@ -62,12 +75,49 @@ namespace PSKosmograph.PathNodes
 
         public IItemProvider NewItem(IProviderContext providerContext, string newItemName, string itemTypeName, object newItemValue)
         {
+            switch (itemTypeName ?? nameof(KosmographItemType.Entity))
+            {
+                case nameof(KosmographItemType.Category):
+                    return NewCategory(providerContext, newItemName);
+
+                case nameof(KosmographItemType.Entity):
+                    return NewEntity(providerContext, newItemName);
+
+                default:
+                    throw new InvalidOperationException($"ItemType '{itemTypeName}' not allowed in the context");
+            }
+        }
+
+        private IItemProvider NewCategory(IProviderContext providerContext, string newItemName)
+        {
+            var persistence = providerContext.Persistence();
+
+            if (SubEntity(persistence, newItemName) is { })
+            {
+                throw new InvalidOperationException("Name is already used by and item of type 'Entity'");
+            }
+
+            var category = new Category(newItemName);
+
+            RootCategory(persistence).AddSubCategory(category);
+
+            return new CategoryNode(persistence, persistence.Categories.Upsert(category)).GetItemProvider();
+        }
+
+        private IItemProvider NewEntity(IProviderContext providerContext, string newItemName)
+        {
+            var persistence = providerContext.Persistence();
+            if (SubCategory(persistence, newItemName) is { })
+            {
+                throw new InvalidOperationException("Name is already used by and item of type 'Category'");
+            }
+
             var entity = new Entity(newItemName);
 
             switch (providerContext.DynamicParameters)
             {
                 case NewItemParametersDefinition d when d.Tags.Any():
-                    foreach (var tag in d.Tags.Select(t => providerContext.Persistence().Tags.FindByName(t)).Where(t => t != null))
+                    foreach (var tag in d.Tags.Select(t => Tag(persistence, t)).Where(t => t != null))
                     {
                         entity.AddTag(tag!);
                     }
@@ -77,6 +127,22 @@ namespace PSKosmograph.PathNodes
             return new EntityNode(providerContext.Persistence(), providerContext.Persistence().Entities.Upsert(entity)).GetItemProvider();
         }
 
-        #endregion NewItem Members
+        #endregion INewItem Members
+
+        #region Model Accessors
+
+        private static IEnumerable<Category> SubCategories(IKosmographPersistence persistence) => persistence.Categories.FindByCategory(RootCategory(persistence));
+
+        private static IEnumerable<Entity> Entities(IKosmographPersistence persistence) => persistence.Entities.FindByCategory(RootCategory(persistence));
+
+        private static Category RootCategory(IKosmographPersistence persistence) => persistence.Categories.Root();
+
+        private static Category? SubCategory(IKosmographPersistence persistence, string name) => persistence.Categories.FindByCategoryAndName(RootCategory(persistence), name);
+
+        private static Entity? SubEntity(IKosmographPersistence persistence, string name) => persistence.Entities.FindByCategoryAndName(RootCategory(persistence), name);
+
+        private static Tag? Tag(IKosmographPersistence persistence, string name) => persistence.Tags.FindByName(name);
+
+        #endregion Model Accessors
     }
 }

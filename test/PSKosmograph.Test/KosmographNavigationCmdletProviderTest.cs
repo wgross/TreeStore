@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using Kosmograph.Model;
+using System.Linq;
 using Xunit;
 
 namespace PSKosmograph.Test
@@ -11,7 +12,7 @@ namespace PSKosmograph.Test
         [InlineData("Tags")]
         [InlineData("Entities")]
         [InlineData("Relationships")]
-        public void Powershell_test_top_level_container(string containerName)
+        public void PowerShell_test_top_level_container(string containerName)
         {
             // ACT
             // test the top level containers
@@ -35,7 +36,7 @@ namespace PSKosmograph.Test
         #region Test-Path /Tags/<name>, /Tags/<name>/<property-name>
 
         [Fact]
-        public void Powershell_tests_Tag_container_by_name()
+        public void PowerShell_tests_Tag_container_by_name()
         {
             // ARRANGE
 
@@ -66,7 +67,7 @@ namespace PSKosmograph.Test
         }
 
         [Fact]
-        public void Powershell_tests_tags_FacetProperty_leaf_by_name()
+        public void PowerShell_tests_tags_FacetProperty_leaf_by_name()
         {
             // ARRANGE
 
@@ -101,18 +102,23 @@ namespace PSKosmograph.Test
         #region Test-Path /Entities/<name>, /Entities/<name>/<tag-name>, /Entities/<name>/<tag-name>/<property-name>
 
         [Fact]
-        public void Powershell_tests_Entity_container_by_name()
+        public void PowerShell_tests_Entity_container_by_name()
         {
             // ARRANGE
 
-            var entity = DefaultEntity();
+            this.ArrangeEmptyRootCategory(out var rootCategory);
+
+            this.CategoryRepositoryMock
+              .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
+              .Returns((Category?)null);
 
             this.PersistenceMock
                 .Setup(m => m.Entities)
                 .Returns(this.EntityRepositoryMock.Object);
 
+            var entity = DefaultEntity();
             this.EntityRepositoryMock
-                .Setup(r => r.FindByName("e"))
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
                 .Returns(entity);
 
             // ACT
@@ -132,18 +138,23 @@ namespace PSKosmograph.Test
         }
 
         [Fact]
-        public void Powershell_tests_entities_AssignedTag_container_by_name()
+        public void PowerShell_tests_entities_AssignedTag_container_by_name()
         {
             // ARRANGE
 
-            var entity = DefaultEntity();
+            this.ArrangeEmptyRootCategory(out var rootCategory);
+
+            this.CategoryRepositoryMock
+              .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
+              .Returns((Category?)null);
 
             this.PersistenceMock
                 .Setup(m => m.Entities)
                 .Returns(this.EntityRepositoryMock.Object);
 
+            var entity = DefaultEntity();
             this.EntityRepositoryMock
-                .Setup(r => r.FindByName("e"))
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
                 .Returns(entity);
 
             // ACT
@@ -159,22 +170,27 @@ namespace PSKosmograph.Test
             // ASSERT
 
             Assert.False(this.PowerShell.HadErrors);
-            Assert.True(result.As<bool>());
+            Assert.False(result.As<bool>());
         }
 
         [Fact]
-        public void Powershell_tests_entities_AssignedFacetProperty_leaf_by_name()
+        public void PowerShell_tests_entities_AssignedFacetProperty_leaf_by_name()
         {
             // ARRANGE
 
-            var entity = DefaultEntity();
+            this.ArrangeEmptyRootCategory(out var rootCategory);
+
+            this.CategoryRepositoryMock
+              .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
+              .Returns((Category?)null);
 
             this.PersistenceMock
                 .Setup(m => m.Entities)
                 .Returns(this.EntityRepositoryMock.Object);
 
+            var entity = DefaultEntity();
             this.EntityRepositoryMock
-                .Setup(r => r.FindByName("e"))
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
                 .Returns(entity);
 
             // ACT
@@ -190,7 +206,7 @@ namespace PSKosmograph.Test
             // ASSERT
 
             Assert.False(this.PowerShell.HadErrors);
-            Assert.True(result.As<bool>());
+            Assert.False(result.As<bool>());
         }
     }
 

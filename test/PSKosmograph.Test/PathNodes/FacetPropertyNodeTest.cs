@@ -9,6 +9,8 @@ namespace PSKosmograph.Test.PathNodes
 {
     public class FacetPropertyNodeTest : NodeTestBase
     {
+        #region P2F node structure
+
         [Fact]
         public void FacetPropertyNode_has_name_and_ItemMode()
         {
@@ -63,6 +65,8 @@ namespace PSKosmograph.Test.PathNodes
             Assert.Equal(KosmographItemType.FacetProperty, result!.ItemType);
         }
 
+        #endregion P2F node structure
+
         [Fact]
         public void FacetPropertyNode_has_no_children()
         {
@@ -73,15 +77,11 @@ namespace PSKosmograph.Test.PathNodes
             // ACT
 
             var node = new FacetPropertyNode(tag, tag.Facet.Properties.Single());
-            var result = (
-                children: node.GetNodeChildren(this.ProviderContextMock.Object),
-                parameters: node.GetNodeChildrenParameters
-            );
+            var result = node.GetChildNodes(this.ProviderContextMock.Object);
 
             // ASSERT
 
-            Assert.Empty(result.children);
-            Assert.Null(result.parameters);
+            Assert.Empty(result);
         }
 
         [Fact]
@@ -286,7 +286,7 @@ namespace PSKosmograph.Test.PathNodes
             // ACT
             // rename with already used name (different casing)
 
-            var result = Assert.Throws<InvalidOperationException>(() => 
+            var result = Assert.Throws<InvalidOperationException>(() =>
                 new FacetPropertyNode(tag, tag.Facet.Properties.First()).RenameItem(this.ProviderContextMock.Object, "p", "PP"));
 
             // ASSERT

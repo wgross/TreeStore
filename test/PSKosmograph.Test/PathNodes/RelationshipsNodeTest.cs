@@ -5,6 +5,8 @@ namespace PSKosmograph.Test.PathNodes
 {
     public class RelationshipsNodeTest
     {
+        #region P2F node structure
+
         [Fact]
         public void RelationshipsNode_has_name_amd_ItemMode()
         {
@@ -43,6 +45,8 @@ namespace PSKosmograph.Test.PathNodes
             Assert.Equal("Relationships", result!.Name);
             Assert.NotNull(result);
         }
+
+        #endregion P2F node structure
 
         [Fact]
         public void RelationshipsNode_provides_RelationshipsNodeValue()

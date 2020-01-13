@@ -2,7 +2,7 @@
 
 namespace Kosmograph.Model
 {
-    public static class KosomographPersistenceExtensions
+    public static class KosmographPersistenceExtensions
     {
         public static bool RemoveWithRelationship(this IKosmographPersistence thisPersistence, Entity entity)
         {

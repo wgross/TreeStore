@@ -5,34 +5,51 @@ using System.Collections.Generic;
 
 namespace Kosmograph.LiteDb
 {
-    public abstract class LiteDbRepositoryBase<T> where T : NamedBase
+    public abstract class LiteDbRepositoryBase
     {
-        private readonly string collectionName;
+        public string CollectionName { get; }
 
-        protected LiteRepository Repository { get; }
+        /// <summary>
+        /// Provides low oleve access to underlying the lite db.
+        /// </summary>
+        public LiteRepository LiteRepository { get; }
 
+        public LiteCollection<BsonDocument> LiteCollection() => this.LiteRepository.Database.GetCollection(this.CollectionName);
+
+        public LiteCollection<T> LiteCollection<T>() => this.LiteRepository.Database.GetCollection<T>(this.CollectionName);
+
+        protected LiteDbRepositoryBase(LiteRepository repository, string collectionName)
+        {
+            this.LiteRepository = repository;
+            this.CollectionName = collectionName;
+        }
+    }
+
+    public abstract class LiteDbRepositoryBase<T> : LiteDbRepositoryBase
+        where T : NamedBase
+    {
         static LiteDbRepositoryBase()
         {
-            BsonMapper.Global
+            // mapping from liteDb _id property is always to public Id property
+            BsonMapper
+                .Global
                 .Entity<T>().Id(v => v.Id);
         }
 
         public LiteDbRepositoryBase(LiteRepository repository, string collectionName)
-        {
-            this.Repository = repository;
-            this.collectionName = collectionName;
-        }
+            : base(repository, collectionName)
+        { }
 
         public virtual T Upsert(T entity)
         {
-            this.Repository.Upsert(entity, collectionName);
+            this.LiteRepository.Upsert(entity, CollectionName);
             return entity;
         }
 
-        public virtual T FindById(Guid id) => this.Repository.SingleById<T>(id, collectionName);
+        public virtual T FindById(Guid id) => this.LiteRepository.SingleById<T>(id, this.CollectionName);
 
-        public virtual IEnumerable<T> FindAll() => this.Repository.Query<T>(collectionName).ToEnumerable();
+        public virtual IEnumerable<T> FindAll() => this.LiteRepository.Query<T>(this.CollectionName).ToEnumerable();
 
-        public virtual bool Delete(T entity) => this.Repository.Delete<T>(entity.Id, collectionName);
+        public virtual bool Delete(T entity) => this.LiteRepository.Delete<T>(entity.Id, this.CollectionName);
     }
 }

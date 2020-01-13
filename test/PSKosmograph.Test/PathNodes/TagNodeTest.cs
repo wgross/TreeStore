@@ -9,6 +9,8 @@ namespace PSKosmograph.Test.PathNodes
 {
     public class TagNodeTest : NodeTestBase
     {
+        #region P2F node structure
+
         [Fact]
         public void TagNode_has_name_and_ItemMode()
         {
@@ -53,17 +55,7 @@ namespace PSKosmograph.Test.PathNodes
             Assert.Equal(KosmographItemType.Tag, result!.ItemType);
         }
 
-        [Fact]
-        public void TagNode_retrieves_FacetProperties_as_child_nodes()
-        {
-            // ACT
-
-            var result = new TagNode(this.PersistenceMock.Object, DefaultTag()).GetNodeChildren(this.ProviderContextMock.Object);
-
-            // ASSERT
-
-            Assert.Single(result);
-        }
+        #endregion P2F node structure
 
         [Fact]
         public void TagNode_resolves_null_name_as_all_child_nodes()
@@ -100,6 +92,22 @@ namespace PSKosmograph.Test.PathNodes
 
             Assert.Empty(result);
         }
+
+        #region IGetChildItem Members
+
+        [Fact]
+        public void TagNode_retrieves_FacetProperties_as_child_nodes()
+        {
+            // ACT
+
+            var result = new TagNode(this.PersistenceMock.Object, DefaultTag()).GetChildNodes(this.ProviderContextMock.Object);
+
+            // ASSERT
+
+            Assert.Single(result);
+        }
+
+        #endregion IGetChildItem Members
 
         #region IGetItemProperty
 

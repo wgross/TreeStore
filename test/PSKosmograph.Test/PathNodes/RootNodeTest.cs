@@ -7,6 +7,8 @@ namespace PSKosmograph.Test.PathNodes
 {
     public class RootNodeTest : NodeTestBase
     {
+        #region P2F node structure
+
         [Fact]
         public void RootNode_has_name_and_ItemMode()
         {
@@ -46,13 +48,15 @@ namespace PSKosmograph.Test.PathNodes
             Assert.IsType<RootNode.Item>(result);
         }
 
+        #endregion P2F node structure
+
         [Fact]
         public void RootNode_retrives_top_level_child_nodes()
         {
             // ACT
 
             var result = new RootNode()
-                .GetNodeChildren(this.ProviderContextMock.Object)
+                .GetChildNodes(this.ProviderContextMock.Object)
                 .ToArray();
 
             // ASSERT

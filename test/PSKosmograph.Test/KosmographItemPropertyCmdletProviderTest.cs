@@ -290,21 +290,26 @@ namespace PSKosmograph.Test
             // ARRANGE
             // provide a tag and an entity using this tag
 
-            var entity = DefaultEntity(WithDefaultTag);
-            var tag = entity.Tags.Single();
+            this.ArrangeEmptyRootCategory(out var rootCategory);
+
+            this.CategoryRepositoryMock
+               .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
+               .Returns((Category?)null);
 
             this.PersistenceMock
                 .Setup(m => m.Entities)
                 .Returns(this.EntityRepositoryMock.Object);
 
+            var entity = DefaultEntity(WithDefaultTag);
+            var tag = entity.Tags.Single();
             this.EntityRepositoryMock
-                .Setup(r => r.FindByName("e"))
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
                 .Returns(entity);
 
             // ACT
 
             this.PowerShell
-               .AddStatement()
+                .AddStatement()
                    .AddCommand("Get-ItemProperty")
                    .AddParameter("Path", @"kg:\Entities\e");
 
@@ -329,15 +334,20 @@ namespace PSKosmograph.Test
             // ARRANGE
             // provide a tag and an entity using this tag
 
-            var entity = DefaultEntity();
-            var tag = entity.Tags.Single();
+            this.ArrangeEmptyRootCategory(out var rootCategory);
+
+            this.CategoryRepositoryMock
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
+                .Returns((Category?)null);
 
             this.PersistenceMock
                 .Setup(m => m.Entities)
                 .Returns(this.EntityRepositoryMock.Object);
 
+            var entity = DefaultEntity(WithDefaultTag);
+            var tag = entity.Tags.Single();
             this.EntityRepositoryMock
-                .Setup(r => r.FindByName("e"))
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
                 .Returns(entity);
 
             // ACT
@@ -368,15 +378,20 @@ namespace PSKosmograph.Test
             // ARRANGE
             // provide a tag and an entity using this tag
 
-            var entity = DefaultEntity();
-            var tag = entity.Tags.Single();
+            this.ArrangeEmptyRootCategory(out var rootCategory);
+
+            this.CategoryRepositoryMock
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
+                .Returns((Category?)null);
 
             this.PersistenceMock
                 .Setup(m => m.Entities)
                 .Returns(this.EntityRepositoryMock.Object);
 
+            var entity = DefaultEntity(WithDefaultTag);
+            var tag = entity.Tags.Single();
             this.EntityRepositoryMock
-                .Setup(r => r.FindByName("e"))
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
                 .Returns(entity);
 
             // ACT
@@ -409,16 +424,21 @@ namespace PSKosmograph.Test
             // ARRANGE
             // provide a tag and an entity using this tag
 
-            var entity = DefaultEntity();
-            var tag = entity.Tags.Single();
-            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+            this.ArrangeEmptyRootCategory(out var rootCategory);
+
+            this.CategoryRepositoryMock
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
+                .Returns((Category?)null);
 
             this.PersistenceMock
                 .Setup(m => m.Entities)
                 .Returns(this.EntityRepositoryMock.Object);
 
+            var entity = DefaultEntity(WithDefaultTag);
+            var tag = entity.Tags.Single();
+            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
             this.EntityRepositoryMock
-                .Setup(r => r.FindByName("e"))
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
                 .Returns(entity);
 
             // ACT
@@ -449,16 +469,21 @@ namespace PSKosmograph.Test
             // ARRANGE
             // provide a tag and an entity using this tag
 
-            var entity = DefaultEntity();
-            var tag = entity.Tags.Single();
-            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+            this.ArrangeEmptyRootCategory(out var rootCategory);
+
+            this.CategoryRepositoryMock
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
+                .Returns((Category?)null);
 
             this.PersistenceMock
                 .Setup(m => m.Entities)
                 .Returns(this.EntityRepositoryMock.Object);
 
+            var entity = DefaultEntity(WithDefaultTag);
+            var tag = entity.Tags.Single();
+            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
             this.EntityRepositoryMock
-                .Setup(r => r.FindByName("e"))
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
                 .Returns(entity);
 
             // ACT
@@ -490,17 +515,22 @@ namespace PSKosmograph.Test
             // ARRANGE
             // provide a tag and an entity using this tag
 
-            var entity = DefaultEntity();
-            var tag = entity.Tags.Single();
-            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+            this.ArrangeEmptyRootCategory(out var rootCategory);
+
+            this.CategoryRepositoryMock
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
+                .Returns((Category?)null);
 
             this.PersistenceMock
                 .Setup(m => m.Entities)
                 .Returns(this.EntityRepositoryMock.Object);
 
+            var entity = DefaultEntity(WithDefaultTag);
+            var tag = entity.Tags.Single();
+            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
             this.EntityRepositoryMock
-                .Setup(r => r.FindByName("e"))
-                .Returns(entity);
+                 .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
+                 .Returns(entity);
 
             // ACT
 
@@ -532,16 +562,21 @@ namespace PSKosmograph.Test
             // ARRANGE
             // provide a tag and an entity using this tag
 
-            var entity = DefaultEntity(WithDefaultTag);
-            var tag = entity.Tags.Single();
-            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+            this.ArrangeEmptyRootCategory(out var rootCategory);
+
+            this.CategoryRepositoryMock
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
+                .Returns((Category?)null);
 
             this.PersistenceMock
                 .Setup(m => m.Entities)
                 .Returns(this.EntityRepositoryMock.Object);
 
+            var entity = DefaultEntity(WithDefaultTag);
+            var tag = entity.Tags.Single();
+            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
             this.EntityRepositoryMock
-                .Setup(r => r.FindByName("e"))
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
                 .Returns(entity);
 
             // ACT
@@ -573,16 +608,22 @@ namespace PSKosmograph.Test
             // ARRANGE
             // provide a tag and an entity using this tag
 
-            var entity = DefaultEntity(WithDefaultTag);
-            var tag = entity.Tags.Single();
-            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+            this.ArrangeEmptyRootCategory(out var rootCategory);
+
+            this.CategoryRepositoryMock
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
+                .Returns((Category?)null);
 
             this.PersistenceMock
                 .Setup(m => m.Entities)
                 .Returns(this.EntityRepositoryMock.Object);
 
+            var entity = DefaultEntity(WithDefaultTag);
+            var tag = entity.Tags.Single();
+            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+
             this.EntityRepositoryMock
-                .Setup(r => r.FindByName("e"))
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
                 .Returns(entity);
 
             // ACT
@@ -615,16 +656,21 @@ namespace PSKosmograph.Test
             // ARRANGE
             // provide a tag and an entity using this tag
 
-            var entity = DefaultEntity(WithDefaultTag);
-            var tag = entity.Tags.Single();
-            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+            this.ArrangeEmptyRootCategory(out var rootCategory);
+
+            this.CategoryRepositoryMock
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
+                .Returns((Category?)null);
 
             this.PersistenceMock
                 .Setup(m => m.Entities)
                 .Returns(this.EntityRepositoryMock.Object);
 
+            var entity = DefaultEntity(WithDefaultTag);
+            var tag = entity.Tags.Single();
+            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
             this.EntityRepositoryMock
-                .Setup(r => r.FindByName("e"))
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
                 .Returns(entity);
 
             // ACT
@@ -772,7 +818,13 @@ namespace PSKosmograph.Test
             // ARRANGE
             // provide a tag and an entity using this tag
 
-            var entity = DefaultEntity();
+            this.ArrangeEmptyRootCategory(out var rootCategory);
+
+            this.CategoryRepositoryMock
+              .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
+              .Returns((Category?)null);
+
+            var entity = DefaultEntity(WithDefaultTag);
             var tag = entity.Tags.Single();
             entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
 
@@ -781,7 +833,7 @@ namespace PSKosmograph.Test
                 .Returns(this.EntityRepositoryMock.Object);
 
             this.EntityRepositoryMock
-                .Setup(r => r.FindByName("e"))
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
                 .Returns(entity);
 
             this.EntityRepositoryMock
@@ -814,24 +866,29 @@ namespace PSKosmograph.Test
         {
             // ARRANGE
 
+            this.ArrangeEmptyRootCategory(out var rootCategory);
+
+            this.CategoryRepositoryMock
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
+                .Returns((Category?)null);
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
             var entity = DefaultEntity(WithDefaultTag);
             var tag = entity.Tags.Single();
             entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
-
-            this.PersistenceMock
-                .Setup(m => m.Entities)
-                .Returns(this.EntityRepositoryMock.Object);
-
-            this.PersistenceMock
-                .Setup(m => m.Entities)
-                .Returns(this.EntityRepositoryMock.Object);
-
             this.EntityRepositoryMock
                 .Setup(r => r.Upsert(entity))
                 .Returns(entity);
 
             this.EntityRepositoryMock
-                .Setup(r => r.FindByName("e"))
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
                 .Returns(entity);
 
             // ACT
@@ -858,24 +915,30 @@ namespace PSKosmograph.Test
             // ARRANGE
             // provide a tag and an entity using this tag
 
+            this.ArrangeEmptyRootCategory(out var rootCategory);
+
+            this.CategoryRepositoryMock
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
+                .Returns((Category?)null);
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
             var entity = DefaultEntity(WithDefaultTag);
             var tag = entity.Tags.Single();
             entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
-
-            this.PersistenceMock
-                .Setup(m => m.Entities)
-                .Returns(this.EntityRepositoryMock.Object);
-
-            this.PersistenceMock
-                .Setup(m => m.Entities)
-                .Returns(this.EntityRepositoryMock.Object);
 
             this.EntityRepositoryMock
                 .Setup(r => r.Upsert(entity))
                 .Returns(entity);
 
             this.EntityRepositoryMock
-                .Setup(r => r.FindByName("e"))
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
                 .Returns(entity);
 
             // ACT
@@ -902,24 +965,30 @@ namespace PSKosmograph.Test
             // ARRANGE
             // provide a tag and an entity using this tag
 
+            this.ArrangeEmptyRootCategory(out var rootCategory);
+
+            this.CategoryRepositoryMock
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
+                .Returns((Category?)null);
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
             var entity = DefaultEntity(WithDefaultTag);
             var tag = entity.Tags.Single();
             entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
-
-            this.PersistenceMock
-                .Setup(m => m.Entities)
-                .Returns(this.EntityRepositoryMock.Object);
-
-            this.PersistenceMock
-                .Setup(m => m.Entities)
-                .Returns(this.EntityRepositoryMock.Object);
 
             this.EntityRepositoryMock
                 .Setup(r => r.Upsert(entity))
                 .Returns(entity);
 
             this.EntityRepositoryMock
-                .Setup(r => r.FindByName("e"))
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
                 .Returns(entity);
 
             // ACT
@@ -1121,24 +1190,29 @@ namespace PSKosmograph.Test
         {
             // ARRANGE
 
+            this.ArrangeEmptyRootCategory(out var rootCategory);
+
+            this.CategoryRepositoryMock
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
+                .Returns((Category?)null);
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
             var entity = DefaultEntity(WithDefaultTag);
             var tag = entity.Tags.Single();
             entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
-
-            this.PersistenceMock
-                .Setup(m => m.Entities)
-                .Returns(this.EntityRepositoryMock.Object);
-
-            this.PersistenceMock
-                .Setup(m => m.Entities)
-                .Returns(this.EntityRepositoryMock.Object);
-
             this.EntityRepositoryMock
                 .Setup(r => r.Upsert(entity))
                 .Returns(entity);
 
             this.EntityRepositoryMock
-                .Setup(r => r.FindByName("e"))
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
                 .Returns(entity);
 
             // ACT
@@ -1162,24 +1236,29 @@ namespace PSKosmograph.Test
         {
             // ARRANGE
 
+            this.ArrangeEmptyRootCategory(out var rootCategory);
+
+            this.CategoryRepositoryMock
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
+                .Returns((Category?)null);
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
             var entity = DefaultEntity(WithDefaultTag);
             var tag = entity.Tags.Single();
             entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
-
-            this.PersistenceMock
-                .Setup(m => m.Entities)
-                .Returns(this.EntityRepositoryMock.Object);
-
-            this.PersistenceMock
-                .Setup(m => m.Entities)
-                .Returns(this.EntityRepositoryMock.Object);
-
             this.EntityRepositoryMock
-                .Setup(r => r.Upsert(entity))
+                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
                 .Returns(entity);
 
             this.EntityRepositoryMock
-                .Setup(r => r.FindByName("e"))
+                .Setup(r => r.Upsert(entity))
                 .Returns(entity);
 
             // ACT

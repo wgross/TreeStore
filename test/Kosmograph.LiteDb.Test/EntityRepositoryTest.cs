@@ -37,6 +37,8 @@ namespace Kosmograph.LiteDb.Test
             this.mocks.VerifyAll();
         }
 
+        // todo: find by name case insesitive
+
         [Fact]
         public void EntityRepository_writes_entity()
         {
@@ -106,6 +108,97 @@ namespace Kosmograph.LiteDb.Test
             Assert.Equal(entity, readByAll);
             Assert.Equal(entity, readById);
         }
+
+        [Fact]
+        public void EntityRepository_finds_entity_by_name()
+        {
+            // ARRANGE
+
+            this.eventSource
+              .Setup(s => s.Modified(It.IsAny<Entity>()));
+
+            var entity1 = this.entityRepository.Upsert(new Entity("entity"));
+
+            // ACT
+
+            var result = this.entityRepository.FindByName("entity");
+
+            // ASSERT
+
+            Assert.Equal(entity1.Id, result.Id);
+        }
+
+        [Fact]
+        public void EntityRepository_removes_entity()
+        {
+            // ARRANGE
+
+            var entity = new Entity("entity");
+
+            this.eventSource
+                .Setup(s => s.Modified(entity));
+
+            this.entityRepository.Upsert(entity);
+
+            this.eventSource
+                .Setup(s => s.Removed(entity));
+
+            // ACT
+
+            var result = this.entityRepository.Delete(entity);
+
+            // ASSERT
+
+            Assert.True(result);
+            Assert.Throws<InvalidOperationException>(() => this.entityRepository.FindById(entity.Id));
+        }
+
+        [Fact]
+        public void EntityRepository_removing_unknown_entity_returns_false()
+        {
+            // ARRANGE
+
+            var entity = new Entity("entity");
+
+            // ACT
+
+            var result = this.entityRepository.Delete(entity);
+
+            // ASSERT
+
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void EntityRepository_removing_entity_fails_if_used_in_relationship()
+        {
+            // ARRANGE
+
+            var entity1 = new Entity("entity1");
+            var entity2 = new Entity("entity2");
+
+            this.eventSource
+                .Setup(s => s.Modified(entity1));
+            this.eventSource
+                .Setup(s => s.Modified(entity2));
+
+            this.entityRepository.Upsert(entity1);
+            this.entityRepository.Upsert(entity2);
+
+            var relationship = new Relationship("relationship1", entity1, entity2);
+
+            this.relationshipRepository.Upsert(relationship);
+
+            // ACT
+
+            var result = this.entityRepository.Delete(entity1);
+
+            // ASSERT
+
+            Assert.False(result);
+        }
+
+        #region Entity -1:*-> Tag
 
         [Fact]
         public void EntityRepository_writes_entity_with_tag()
@@ -200,6 +293,33 @@ namespace Kosmograph.LiteDb.Test
         }
 
         [Fact]
+        public void EntityRepository_finds_entities_by_tag()
+        {
+            // ARRANGE
+
+            this.eventSource
+              .Setup(s => s.Modified(It.IsAny<Entity>()));
+
+            var tag1 = this.tagRepository.Upsert(new Tag("t1"));
+            var tag2 = this.tagRepository.Upsert(new Tag("t2"));
+            var entity1 = this.entityRepository.Upsert(new Entity("entity1", tag1));
+            var entity2 = this.entityRepository.Upsert(new Entity("entity2", tag2));
+
+            // ACT
+
+            var result = this.entityRepository.FindByTag(tag1);
+
+            // ASSERT
+
+            Assert.Single(result);
+            Assert.Equal(entity1, result.Single());
+        }
+
+        #endregion Entity -1:*-> Tag
+
+        #region Entity -0:*-> PropertyValues
+
+        [Fact]
         public void EntityRepository_writes_Entity_with_FacetProperty_values()
         {
             // ARRANGE
@@ -262,116 +382,97 @@ namespace Kosmograph.LiteDb.Test
             });
         }
 
+        #endregion Entity -0:*-> PropertyValues
+
+        #region Entity -0:1-> Category
+
         [Fact]
-        public void EntityRepository_removes_entity()
+        public void EntityRespository_writes_entity_with_category()
         {
             // ARRANGE
 
-            var entity = new Entity("entity");
-
             this.eventSource
-                .Setup(s => s.Modified(entity));
+              .Setup(s => s.Modified(It.IsAny<Entity>()));
+
+            var category = this.categoryRepository.Upsert(DefaultCategory(this.categoryRepository.Root()));
+            var entity = DefaultEntity(WithCategory(category));
+
+            // ACT
 
             this.entityRepository.Upsert(entity);
 
-            this.eventSource
-                .Setup(s => s.Removed(entity));
-
-            // ACT
-
-            var result = this.entityRepository.Delete(entity);
-
             // ASSERT
 
-            Assert.True(result);
-            Assert.Throws<InvalidOperationException>(() => this.entityRepository.FindById(entity.Id));
+            var readEntity = this.entities.FindById(entity.Id);
+
+            Assert.NotNull(readEntity);
+            Assert.Equal(entity.Id, readEntity.AsDocument["_id"].AsGuid);
+            Assert.Equal(entity.Category.Id, readEntity["Category"].AsDocument["$id"].AsGuid);
+            Assert.Equal(this.categoryRepository.CollectionName, readEntity["Category"].AsDocument["$ref"].AsString);
         }
 
         [Fact]
-        public void EntityRepository_removing_unknown_entity_returns_false()
-        {
-            // ARRANGE
-
-            var entity = new Entity("entity");
-
-            // ACT
-
-            var result = this.entityRepository.Delete(entity);
-
-            // ASSERT
-
-            Assert.False(result);
-        }
-
-        [Fact]
-        public void EntityRepository_removing_entity_fails_if_used_in_relationship()
-        {
-            // ARRANGE
-
-            var entity1 = new Entity("entity1");
-            var entity2 = new Entity("entity2");
-
-            this.eventSource
-                .Setup(s => s.Modified(entity1));
-            this.eventSource
-                .Setup(s => s.Modified(entity2));
-
-            this.entityRepository.Upsert(entity1);
-            this.entityRepository.Upsert(entity2);
-
-            var relationship = new Relationship("relationship1", entity1, entity2);
-
-            this.relationshipRepository.Upsert(relationship);
-
-            // ACT
-
-            var result = this.entityRepository.Delete(entity1);
-
-            // ASSERT
-
-            Assert.False(result);
-        }
-
-        [Fact]
-        public void EntityRepository_finds_entities_by_tag()
+        public void EntityRespository_reads_entity_with_category_by_id()
         {
             // ARRANGE
 
             this.eventSource
               .Setup(s => s.Modified(It.IsAny<Entity>()));
 
-            var tag1 = this.tagRepository.Upsert(new Tag("t1"));
-            var tag2 = this.tagRepository.Upsert(new Tag("t2"));
-            var entity1 = this.entityRepository.Upsert(new Entity("entity1", tag1));
-            var entity2 = this.entityRepository.Upsert(new Entity("entity2", tag2));
+            var category = this.categoryRepository.Upsert(DefaultCategory(this.categoryRepository.Root()));
+            var entity = this.entityRepository.Upsert(DefaultEntity(WithCategory(category)));
 
             // ACT
 
-            var result = this.entityRepository.FindByTag(tag1);
+            var result = this.entityRepository.FindById(entity.Id);
 
             // ASSERT
 
-            Assert.Single(result);
-            Assert.Equal(entity1, result.Single());
+            Assert.Equal(category.Id, result.Category.Id);
+            Assert.Equal(category, result.Category);
+            Assert.NotSame(entity, result);
+            Assert.NotSame(entity.Category, result.Category);
         }
 
         [Fact]
-        public void EntityRepository_finds_entity_by_name()
+        public void EntityRepository_finds_entity_by_category()
         {
             // ARRANGE
 
             this.eventSource
               .Setup(s => s.Modified(It.IsAny<Entity>()));
 
-            var entity1 = this.entityRepository.Upsert(new Entity("entity"));
+            var category = this.categoryRepository.Upsert(DefaultCategory(this.categoryRepository.Root()));
+            var entity = this.entityRepository.Upsert(DefaultEntity(WithCategory(category)));
 
             // ACT
 
-            var result = this.entityRepository.FindByName("entity");
+            var result = this.entityRepository.FindByCategory(category);
 
             // ASSERT
 
-            Assert.Equal(entity1.Id, result.Id);
+            Assert.Equal(entity.Id, result.Single().Id);
         }
+
+        [Fact]
+        public void EntityRepository_finds_entity_by_category_and_name()
+        {
+            // ARRANGE
+
+            this.eventSource
+              .Setup(s => s.Modified(It.IsAny<Entity>()));
+
+            var entity = this.entityRepository.Upsert(DefaultEntity(e => e.Category = this.categoryRepository.Root()));
+
+            // ACT
+
+            var result = this.entityRepository.FindByCategoryAndName(this.categoryRepository.Root(), entity.Name);
+
+            // ASSERT
+
+            Assert.Equal(entity.Id, result.Id);
+        }
+
+        #endregion Entity -0:1-> Category
     }
 }

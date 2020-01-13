@@ -13,7 +13,7 @@ namespace Kosmograph.Model
         { }
 
         public Category(string name)
-            : this(string.Empty, new Facet())
+            : this(name, new Facet())
         { }
 
         public Category(string name, Facet ownFacet, params Category[] subcategories)
@@ -51,7 +51,7 @@ namespace Kosmograph.Model
 
         private List<Category> subCategories = new List<Category>();
 
-        public Category Parent { get; set; }
+        public Category? Parent { get; set; }
 
         public void AddSubCategory(Category subcategory)
         {
@@ -60,6 +60,9 @@ namespace Kosmograph.Model
         }
 
         public Category FindSubCategory(Guid id) => this.DescendantsAndSelf(c => c.SubCategories, depthFirst: true, maxDepth: 10).FirstOrDefault(c => c.Id == id);
+
+        public Category FindSubCategory(string name, IEqualityComparer<string> nameComparer)
+            => this.Children<Category>(c => c.SubCategories).FirstOrDefault(c => nameComparer.Equals(c.Name, name));
 
         #endregion Category is hierarchical
     }

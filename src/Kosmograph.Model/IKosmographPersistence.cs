@@ -14,5 +14,7 @@ namespace Kosmograph.Model
         IEntityRepository Entities { get; }
 
         IRelationshipRepository Relationships { get; }
+
+        bool DeleteCategory(Category category, bool recurse);
     }
 }

@@ -23,10 +23,14 @@ namespace PSKosmograph.PathNodes
 
         public override string Name => "Relationships";
 
-        public override IEnumerable<PathNode> GetNodeChildren(IProviderContext providerContext)
+        #region IGetChildItem Members
+
+        public override IEnumerable<PathNode> GetChildNodes(IProviderContext providerContext)
         {
             throw new NotImplementedException();
         }
+
+        #endregion
 
         public override IItemProvider GetItemProvider() => new ItemProvider();
 

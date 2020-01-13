@@ -8,7 +8,6 @@ namespace Kosmograph.LiteDb
 {
     public class EntityRepository : LiteDbRepositoryBase<Entity>, IEntityRepository
     {
-        public const string CollectionName = "entities";
         private readonly IChangedMessageBus<IEntity> eventSource;
 
         static EntityRepository()
@@ -16,10 +15,10 @@ namespace Kosmograph.LiteDb
             BsonMapper.Global
                 .Entity<Entity>()
                     .DbRef(e => e.Tags, TagRepository.CollectionName)
-                    .DbRef(e => e.Category, CategoryRepository.CollectionName);
+                    .DbRef(e => e.Category, "categories");
         }
 
-        public EntityRepository(LiteRepository db, IChangedMessageBus<IEntity> eventSource) : base(db, CollectionName)
+        public EntityRepository(LiteRepository db, IChangedMessageBus<IEntity> eventSource) : base(db, "entities")
         {
             db.Database
                 .GetCollection(CollectionName)
@@ -36,8 +35,8 @@ namespace Kosmograph.LiteDb
 
         public override bool Delete(Entity entity)
         {
-            var relationshipExists = this.Repository
-                .Query<Relationship>(RelationshipRepository.CollectionName)
+            var relationshipExists = this.LiteRepository
+                .Query<Relationship>("relationships")
                 .Where(r => r.From.Id.Equals(entity.Id) || r.To.Id.Equals(entity.Id))
                 .Exists();
 
@@ -52,12 +51,12 @@ namespace Kosmograph.LiteDb
             return false;
         }
 
-        public override Entity FindById(Guid id) => this.Repository
+        public override Entity FindById(Guid id) => this.LiteRepository
             .Query<Entity>(CollectionName)
             .Include(e => e.Tags)
             .SingleById(id);
 
-        public override IEnumerable<Entity> FindAll() => this.Repository
+        public override IEnumerable<Entity> FindAll() => this.LiteRepository
             .Query<Entity>(CollectionName)
             .Include(e => e.Tags)
             .ToArray();
@@ -65,16 +64,34 @@ namespace Kosmograph.LiteDb
         public IEnumerable<Entity> FindByTag(Tag tag)
         {
             // i'm sure this is a table scan...
-            return this.Repository.Query<Entity>(CollectionName)
+            return this.LiteRepository.Query<Entity>(CollectionName)
                 .Include(e => e.Tags)
                 .Where(e => e.Tags.Contains(tag))
                 .ToArray();
         }
 
-        public Entity FindByName(string name) => this.Repository
+        public Entity? FindByName(string name) => this.LiteRepository
             .Query<Entity>(CollectionName)
             .Include(e => e.Tags)
             .Where(e => e.Name.Equals(name))
             .FirstOrDefault();
+
+        public IEnumerable<Entity> FindByCategory(Category category)
+        {
+            return this.LiteRepository
+                .Query<Entity>(CollectionName)
+                .Include(e => e.Tags)
+                .Where(e => e.Category.Id == category.Id)
+                .ToArray();
+        }
+
+        public Entity? FindByCategoryAndName(Category category, string name)
+        {
+            return this.LiteRepository
+                .Query<Entity>(CollectionName)
+                .Include(e => e.Tags)
+                .Where(e => e.Category.Id == category.Id && e.Name.Equals(name))
+                .FirstOrDefault();
+        }
     }
 }

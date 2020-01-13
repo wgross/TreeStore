@@ -8,9 +8,9 @@ using System.Management.Automation;
 
 namespace PSKosmograph.PathNodes
 {
-    public class EntityNode : PathNode,
+    public sealed class EntityNode : PathNode,
         // item capabilities
-        INewItem, IRemoveItem, ICopyItem, IRenameItem,
+        INewItem, IRemoveItem, ICopyItem, IRenameItem, IMoveItem,
         // item property capabilities
         IClearItemProperty
     {
@@ -124,7 +124,7 @@ namespace PSKosmograph.PathNodes
 
         public override string ItemMode => "+";
 
-        public override IEnumerable<PathNode> GetNodeChildren(IProviderContext providerContext)
+        public override IEnumerable<PathNode> GetChildNodes(IProviderContext providerContext)
             => this.entity.Tags.Select(t => new AssignedTagNode(providerContext.Persistence(), this.entity, t));
 
         public override IItemProvider GetItemProvider() => new ItemProvider(this.model, this.entity);
@@ -132,7 +132,7 @@ namespace PSKosmograph.PathNodes
         public override IEnumerable<PathNode> Resolve(IProviderContext providerContext, string? name)
         {
             if (name is null)
-                return this.GetNodeChildren(providerContext);
+                return this.GetChildNodes(providerContext);
 
             var tag = this.entity.Tags.SingleOrDefault(t => t.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
             if (tag is null)
@@ -178,20 +178,36 @@ namespace PSKosmograph.PathNodes
 
         #region ICopyItem Members
 
-        public void CopyItem(IProviderContext providerContext, string sourceItemName, string destinationItemName, IItemProvider destinationContainer, bool recurse)
+        public void CopyItem(IProviderContext providerContext, string sourceItemName, string? destinationItemName, IItemProvider destinationProvider, bool recurse)
         {
-            var newEntity = new Entity(destinationItemName, this.entity.Tags.ToArray());
+            var newEntity = new Entity(destinationItemName ?? sourceItemName, this.entity.Tags.ToArray());
+            var persistence = providerContext.Persistence();
+
+            if (destinationProvider is CategoryNode.ItemProvider categoryProvider)
+            {
+                newEntity.SetCategory(persistence.Categories.FindById(categoryProvider.Id));
+            }
+            else if (destinationProvider is EntitiesNode.ItemProvider enttiesProvider)
+            {
+                newEntity.SetCategory(persistence.Categories.Root());
+            }
+            else throw new InvalidOperationException($"Entity(name={sourceItemName} can't be copied to destnatination(typof='{destinationProvider.GetType()}'");
 
             this.entity.Tags.ForEach(t =>
             {
                 t.Facet.Properties.ForEach(p =>
                 {
                     (var hasValue, var value) = this.entity.TryGetFacetProperty(p);
+
                     if (hasValue)
                         newEntity.SetFacetProperty(p, value);
                 });
             });
-            providerContext.Persistence().Entities.Upsert(newEntity);
+
+            //todo: make Category non-nullable
+            this.EnsureUniqueDestinationName(persistence, newEntity.Category!, newEntity.Name);
+
+            persistence.Entities.Upsert(newEntity);
         }
 
         #endregion ICopyItem Members
@@ -203,12 +219,47 @@ namespace PSKosmograph.PathNodes
             if (this.entity.Name.Equals(newName))
                 return;
 
+            var persistence = providerContext.Persistence();
+            if (SiblingEntity(persistence, newName) is { })
+                return;
+            if (SiblingCategory(persistence, newName) is { })
+                return;
+
             this.entity.Name = newName;
 
             providerContext.Persistence().Entities.Upsert(this.entity);
         }
 
         #endregion IRenameItem Members
+
+        #region IMoveItem Members
+
+        public IItemProvider MoveItem(IProviderContext providerContext, string path, string? movePath, IItemProvider destinationProvider)
+        {
+            var persistence = providerContext.Persistence();
+            var resolvedDestinationName = movePath ?? this.entity.Name;
+
+            Category category;
+            if (destinationProvider is CategoryNode.ItemProvider categoryProvider)
+            {
+                category = persistence.Categories.FindById(categoryProvider.Id);
+            }
+            else if (destinationProvider is EntitiesNode.ItemProvider entitiesProvider)
+            {
+                category = persistence.Categories.Root();
+            }
+            else throw new InvalidOperationException($"Entity(name={path} can't be moved to destnatination(typof='{destinationProvider.GetType()}'");
+
+            this.EnsureUniqueDestinationName(persistence, category, resolvedDestinationName);
+            // edit entity after checks are done
+            this.entity.Name = resolvedDestinationName;
+            this.entity.SetCategory(category);
+            persistence.Entities.Upsert(this.entity);
+
+            return this.GetItemProvider();
+        }
+
+        #endregion IMoveItem Members
 
         #region IClearItemProperty Members
 
@@ -245,5 +296,30 @@ namespace PSKosmograph.PathNodes
         }
 
         #endregion IClearItemProperty Members
+
+        #region Model Accessors
+
+        private void EnsureUniqueDestinationName(IKosmographPersistence persistence, Category category, string destinationName)
+        {
+            if (SubCategory(persistence, category, destinationName) is { })
+                throw new InvalidOperationException($"Destination container contains already a category with name '{destinationName}'");
+
+            if (SubEntity(persistence, category, destinationName) is { })
+                throw new InvalidOperationException($"Destination container contains already an entity with name '{destinationName}'");
+        }
+
+        private Category? SiblingCategory(IKosmographPersistence persistence, string name) => persistence.Categories.FindByCategoryAndName(this.entity.Category!, name);
+
+        private Entity? SiblingEntity(IKosmographPersistence persistence, string name) => persistence.Entities.FindByCategoryAndName(this.entity.Category!, name);
+
+        private Entity? SubEntity(IKosmographPersistence persistence, Category category) => this.SubEntity(persistence, category, this.entity.Name);
+
+        private Entity? SubEntity(IKosmographPersistence persistence, Category category, string name) => persistence.Entities.FindByCategoryAndName(category, name);
+
+        private Category? SubCategory(IKosmographPersistence persistence, Category category) => this.SubCategory(persistence, category, this.entity.Name);
+
+        private Category? SubCategory(IKosmographPersistence persistence, Category parentCategory, string name) => persistence.Categories.FindByCategoryAndName(parentCategory, name);
+
+        #endregion Model Accessors
     }
 }
