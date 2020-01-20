@@ -196,5 +196,25 @@ namespace Kosmograph.Model.Test
 
             Assert.Equal(new[] { facet2, facet1 }, result);
         }
+
+        [Fact]
+        public void Category_clones_shallow_with_noe_id()
+        {
+            // ARRANGE
+
+            var category = new Category();
+            var subcategory = new Category();
+            category.AddSubCategory(subcategory);
+
+            // ACT
+
+            var result = (Category)category.Clone();
+
+            // ASSERT
+
+            Assert.Equal(category.Name, result.Name);
+            Assert.NotEqual(category.Id, result.Id);
+            Assert.Empty(result.SubCategories);
+        }
     }
 }

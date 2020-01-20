@@ -24,6 +24,23 @@ namespace Kosmograph.Model.Test
         }
 
         [Fact]
+        public void Entity_has_calculated_index_property()
+        {
+            // ARRANGE
+
+            var category = new Category();
+            var entity = new Entity("Name");
+
+            // ACT
+
+            entity.SetCategory(category);
+
+            // ASSERT
+
+            Assert.Equal($"name_{category.Id}", entity.UniqueName);
+        }
+
+        [Fact]
         public void Entity_adds_Tag()
         {
             // ARRANGE
@@ -182,6 +199,7 @@ namespace Kosmograph.Model.Test
             var tag = new Tag("tag", facet);
             var entity = new Entity();
             entity.AddTag(tag);
+            entity.SetFacetProperty(entity.Facets().Single().Properties.Single(), 1);
 
             // ACT
 
@@ -190,6 +208,30 @@ namespace Kosmograph.Model.Test
             // ASSERT
 
             Assert.False(result);
+        }
+
+        [Fact]
+        public void Entity_clones_with_new_id()
+        {
+            // ARRANGE
+
+            var facet = new Facet("facet", new FacetProperty("prop"));
+            var tag = new Tag("tag", facet);
+            var entity = new Entity();
+            entity.AddTag(tag);
+            entity.SetFacetProperty(entity.Facets().Single().Properties.Single(), 1);
+
+            // ACT
+
+            var result = (Entity)entity.Clone();
+
+            // ASSERT
+
+            Assert.NotEqual(entity.Id, result.Id);
+            Assert.Equal(entity.Name, result.Name);
+            Assert.Equal(entity.Tags.Single(), result.Tags.Single());
+            Assert.Equal(entity.Values.Single().Key, result.Values.Single().Key);
+            Assert.Equal(entity.Values.Single().Value, result.Values.Single().Value);
         }
     }
 }

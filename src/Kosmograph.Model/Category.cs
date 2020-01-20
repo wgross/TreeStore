@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Kosmograph.Model
 {
-    public class Category : FacetingEntityBase
+    public class Category : FacetingEntityBase, ICloneable
     {
         public Category()
             : this(string.Empty, new Facet())
@@ -59,10 +59,18 @@ namespace Kosmograph.Model
             this.SubCategories = this.SubCategories.Union(new[] { subcategory }).ToList();
         }
 
+        public void DetachSubCategory(Category subcategory)
+        {
+            subcategory.Parent = null;
+            this.SubCategories = this.SubCategories.Except(new[] { subcategory }).ToList();
+        }
+
         public Category FindSubCategory(Guid id) => this.DescendantsAndSelf(c => c.SubCategories, depthFirst: true, maxDepth: 10).FirstOrDefault(c => c.Id == id);
 
         public Category FindSubCategory(string name, IEqualityComparer<string> nameComparer)
             => this.Children<Category>(c => c.SubCategories).FirstOrDefault(c => nameComparer.Equals(c.Name, name));
+
+        public object Clone() => new Category(this.Name);
 
         #endregion Category is hierarchical
     }

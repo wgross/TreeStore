@@ -22,7 +22,7 @@ namespace Kosmograph.LiteDb
         {
             db.Database
                 .GetCollection(CollectionName)
-                .EnsureIndex(field: nameof(Entity.Name), expression: $"LOWER($.{nameof(Entity.Name)})", unique: true);
+                .EnsureIndex(field: nameof(Entity.UniqueName), expression: $"$.{nameof(Entity.UniqueName)}", unique: true);
 
             this.eventSource = eventSource;
         }

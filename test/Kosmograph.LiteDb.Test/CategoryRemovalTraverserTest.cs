@@ -1,23 +1,16 @@
-﻿using Kosmograph.Messaging;
-using LiteDB;
-using System.IO;
+﻿using Kosmograph.Model;
+using Moq;
 using Xunit;
-using static Kosmograph.LiteDb.Test.TestDataSources;
 
 namespace Kosmograph.LiteDb.Test
 {
-    public class CategoryRemovalTraverserTest
+    public class CategoryRemovalTraverserTest : LiteDbTestBase
     {
-        private readonly EntityRepository entityRepository;
-        private readonly CategoryRepository categoryRepository;
         private readonly CategoryRemovalTraverser traverser;
 
         public CategoryRemovalTraverserTest()
         {
-            var tmp = new LiteRepositoryAdapater(new LiteRepository(new MemoryStream()));
-            this.entityRepository = new EntityRepository(tmp.LiteRepository, KosmographMessageBus.Default.Entities);
-            this.categoryRepository = new CategoryRepository(tmp.LiteRepository);
-            this.traverser = new CategoryRemovalTraverser(this.categoryRepository, this.entityRepository);
+            this.traverser = new CategoryRemovalTraverser(this.CategoryRepository, this.EntityRepository);
         }
 
         [Fact]
@@ -25,7 +18,7 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var category = this.categoryRepository.Upsert(DefaultCategory(this.categoryRepository.Root()));
+            var category = this.CategoryRepository.Upsert(DefaultCategory());
 
             // ACT
 
@@ -34,7 +27,7 @@ namespace Kosmograph.LiteDb.Test
             // ASSERT
 
             Assert.True(result);
-            Assert.Null(this.categoryRepository.FindById(category.Id));
+            Assert.Null(this.CategoryRepository.FindById(category.Id));
         }
 
         [Fact]
@@ -42,8 +35,8 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var category = this.categoryRepository.Upsert(DefaultCategory(this.categoryRepository.Root()));
-            var subCategory = this.categoryRepository.Upsert(DefaultCategory(category));
+            var category = this.CategoryRepository.Upsert(DefaultCategory());
+            var subCategory = this.CategoryRepository.Upsert(DefaultCategory(WithParentCategory(category)));
 
             // ACT
 
@@ -52,8 +45,8 @@ namespace Kosmograph.LiteDb.Test
             // ASSERT
 
             Assert.False(result);
-            Assert.NotNull(this.categoryRepository.FindById(category.Id));
-            Assert.NotNull(this.categoryRepository.FindById(subCategory.Id));
+            Assert.NotNull(this.CategoryRepository.FindById(category.Id));
+            Assert.NotNull(this.CategoryRepository.FindById(subCategory.Id));
         }
 
         [Fact]
@@ -61,8 +54,12 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var category = this.categoryRepository.Upsert(DefaultCategory(this.categoryRepository.Root()));
-            var entity = this.entityRepository.Upsert(DefaultEntity(WithCategory(category)));
+            var category = this.CategoryRepository.Upsert(DefaultCategory());
+
+            this.EntityEventSource
+                .Setup(ev => ev.Modified(It.IsAny<Entity>()));
+
+            var entity = this.EntityRepository.Upsert(DefaultEntity(WithEntityCategory(category)));
 
             // ACT
 
@@ -71,8 +68,8 @@ namespace Kosmograph.LiteDb.Test
             // ASSERT
 
             Assert.False(result);
-            Assert.NotNull(this.categoryRepository.FindById(category.Id));
-            Assert.NotNull(this.entityRepository.FindById(entity.Id));
+            Assert.NotNull(this.CategoryRepository.FindById(category.Id));
+            Assert.NotNull(this.EntityRepository.FindById(entity.Id));
         }
 
         [Fact]
@@ -80,12 +77,12 @@ namespace Kosmograph.LiteDb.Test
         {
             // ACT
 
-            var result = this.traverser.DeleteIfEmpty(this.categoryRepository.Root());
+            var result = this.traverser.DeleteIfEmpty(this.CategoryRepository.Root());
 
             // ASSERT
 
             Assert.False(result);
-            Assert.NotNull(this.categoryRepository.FindById(this.categoryRepository.Root().Id));
+            Assert.NotNull(this.CategoryRepository.FindById(this.CategoryRepository.Root().Id));
         }
 
         [Fact]
@@ -93,8 +90,8 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var category = this.categoryRepository.Upsert(DefaultCategory(this.categoryRepository.Root()));
-            var subCategory = this.categoryRepository.Upsert(DefaultCategory(category));
+            var category = this.CategoryRepository.Upsert(DefaultCategory());
+            var subCategory = this.CategoryRepository.Upsert(DefaultCategory(WithParentCategory(category)));
 
             // ACT
 
@@ -103,9 +100,9 @@ namespace Kosmograph.LiteDb.Test
             // ASSERT
 
             Assert.True(result);
-            Assert.Null(this.categoryRepository.FindById(category.Id));
-            Assert.Null(this.categoryRepository.FindById(subCategory.Id));
-            Assert.Empty(this.categoryRepository.Root().SubCategories);
+            Assert.Null(this.CategoryRepository.FindById(category.Id));
+            Assert.Null(this.CategoryRepository.FindById(subCategory.Id));
+            Assert.Empty(this.CategoryRepository.Root().SubCategories);
         }
 
         [Fact]
@@ -113,12 +110,12 @@ namespace Kosmograph.LiteDb.Test
         {
             // ACT
 
-            var result = this.traverser.DeleteRecursively(this.categoryRepository.Root());
+            var result = this.traverser.DeleteRecursively(this.CategoryRepository.Root());
 
             // ASSERT
 
             Assert.False(result);
-            Assert.NotNull(this.categoryRepository.FindById(this.categoryRepository.Root().Id));
+            Assert.NotNull(this.CategoryRepository.FindById(this.CategoryRepository.Root().Id));
         }
     }
 }

@@ -32,7 +32,7 @@ namespace Kosmograph.LiteDb
             return this.DeleteCategoryInDb(category);
         }
 
-        #region Delete Resurvively
+        #region Delete Resurvive
 
         public bool DeleteRecursively(Category category)
         {
@@ -84,9 +84,18 @@ namespace Kosmograph.LiteDb
             return false;
         }
 
-        private bool DeleteCategoryInDb(Category category) => this.categoryRepository.LiteCollection().Delete(category.Id);
+        private bool DeleteCategoryInDb(Category category)
+        {
+            // do low level delete lite repos directly...
+            if (!this.categoryRepository.LiteCollection().Delete(category.Id))
+                return false;
+            // if ok detach from the parent and upsert ist in the DB
+            category.Parent.SubCategories.Remove(category);
+            this.categoryRepository.LiteCollection<Category>().Upsert(category.Parent);
+            return true;
+        }
 
-        #endregion Delete Resurvively
+        #endregion Delete Resurvivly
 
         private IEnumerable<Entity> SubEntites(Category category) => this.entityRepository.FindByCategory(category);
 

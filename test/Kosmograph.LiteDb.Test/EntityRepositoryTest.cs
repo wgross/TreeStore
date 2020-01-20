@@ -3,87 +3,111 @@ using Kosmograph.Model;
 using LiteDB;
 using Moq;
 using System;
-using System.IO;
 using System.Linq;
 using Xunit;
 using static Kosmograph.LiteDb.Test.TestDataSources;
 
 namespace Kosmograph.LiteDb.Test
 {
-    public class EntityRepositoryTest : IDisposable
+    public class EntityRepositoryTest : LiteDbTestBase, IDisposable
     {
-        private readonly LiteRepository liteDb;
-        private readonly Mock<IChangedMessageBus<IEntity>> eventSource;
-        private readonly EntityRepository entityRepository;
-        private readonly TagRepository tagRepository;
         private readonly RelationshipRepository relationshipRepository;
-        private readonly CategoryRepository categoryRepository;
         private readonly LiteCollection<BsonDocument> entities;
-        private readonly MockRepository mocks = new MockRepository(MockBehavior.Strict);
 
         public EntityRepositoryTest()
         {
-            this.liteDb = new LiteRepository(new MemoryStream());
-            this.eventSource = this.mocks.Create<IChangedMessageBus<IEntity>>();
-            this.entityRepository = new EntityRepository(this.liteDb, this.eventSource.Object);
-            this.tagRepository = new TagRepository(this.liteDb, this.mocks.Create<IChangedMessageBus<ITag>>(MockBehavior.Loose).Object);
-            this.relationshipRepository = new RelationshipRepository(this.liteDb, this.mocks.Create<IChangedMessageBus<IRelationship>>(MockBehavior.Loose).Object);
-            this.categoryRepository = new CategoryRepository(this.liteDb);
-            this.entities = this.liteDb.Database.GetCollection("entities");
+            this.relationshipRepository = new RelationshipRepository(this.LiteDb, this.Mocks.Create<IChangedMessageBus<IRelationship>>(MockBehavior.Loose).Object);
+            this.entities = this.LiteDb.Database.GetCollection("entities");
         }
-
-        public void Dispose()
-        {
-            this.mocks.VerifyAll();
-        }
-
-        // todo: find by name case insesitive
 
         [Fact]
         public void EntityRepository_writes_entity()
         {
             // ARRANGE
 
-            var entity = new Entity("entity");
+            var entity = DefaultEntity();
 
-            this.eventSource
+            this.EntityEventSource
                 .Setup(s => s.Modified(entity));
 
             // ACT
 
-            this.entityRepository.Upsert(entity);
+            this.EntityRepository.Upsert(entity);
 
             // ASSERT
 
             var readEntity = this.entities.FindAll().Single();
 
             Assert.NotNull(readEntity);
+
+            // name and id are there
             Assert.Equal(entity.Id, readEntity.AsDocument["_id"].AsGuid);
             Assert.Equal(entity.Name, readEntity.AsDocument["Name"].AsString);
+
+            // unique identifier form category and root is stored
+            Assert.Equal($"{entity.Name.ToLowerInvariant()}_{this.CategoryRepository.Root().Id}", readEntity.AsDocument["UniqueName"].AsString);
+
+            // entity is in root category
+            Assert.Equal(this.CategoryRepository.Root().Id, readEntity.AsDocument["Category"].AsDocument["$id"].AsGuid);
+            Assert.Equal("categories", readEntity.AsDocument["Category"].AsDocument["$ref"].AsString);
+            Assert.Equal("categories", readEntity.AsDocument["Category"].AsDocument["$ref"].AsString);
+
+            // no tags
+            Assert.Empty(readEntity.AsDocument["Tags"].AsArray);
         }
 
         [Fact]
-        public void EntitiyRepository_rejects_duplicate_name()
+        public void EntitiyRepository_writing_entity_rejects_duplicate_name_in_same_category()
         {
             // ARRANGE
 
-            var entity = new Entity("entity");
+            this.EntityEventSource
+                .Setup(s => s.Modified(It.IsAny<Entity>()));
 
-            this.eventSource
-                .Setup(s => s.Modified(entity));
-            this.entityRepository.Upsert(entity);
+            var entity = this.EntityRepository.Upsert(DefaultEntity());
 
             // ACT
 
-            var result = Assert.Throws<LiteException>(() => this.entityRepository.Upsert(new Entity("entity")));
+            var secondEntity = DefaultEntity();
+
+            var result = Assert.Throws<LiteException>(() => this.EntityRepository.Upsert(secondEntity));
+
+            // ASSERT
+
+            // duplicate was rejected
+            Assert.Equal("Cannot insert duplicate key in unique index 'UniqueName'. The duplicate value is '\"e_00000000-0000-0000-0000-000000000001\"'.", result.Message);
+
+            // notification was sent only once
+            this.EntityEventSource.Verify(s => s.Modified(It.IsAny<Entity>()), Times.Once());
+
+            Assert.Single(this.entities.FindAll());
+        }
+
+        [Fact]
+        public void EntitiyRepository_write_entity_with_duplicate_name_to_different_categories()
+        {
+            // ARRANGE
+
+            this.EntityEventSource
+                .Setup(s => s.Modified(It.IsAny<Entity>()));
+
+            var entity = this.EntityRepository.Upsert(DefaultEntity());
+            var category = this.CategoryRepository.Upsert(DefaultCategory());
+            var secondEntity = DefaultEntity(WithEntityCategory(category));
+
+            this.EntityEventSource
+                .Setup(s => s.Modified(secondEntity));
+
+            // ACT
+
+            var result = this.EntityRepository.Upsert(secondEntity);
 
             // ASSERT
             // notification was sent only once
 
-            this.eventSource.Verify(s => s.Modified(It.IsAny<Entity>()), Times.Once());
+            this.EntityEventSource.Verify(s => s.Modified(It.IsAny<Entity>()), Times.Exactly(2));
 
-            Assert.Equal("Cannot insert duplicate key in unique index 'Name'. The duplicate value is '\"entity\"'.", result.Message);
-            Assert.Single(this.entities.FindAll());
+            Assert.Equal(2, this.entities.FindAll().Count());
         }
 
         [Fact]
@@ -91,41 +115,18 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var entity = new Entity("entity");
+            this.EntityEventSource
+                .Setup(s => s.Modified(It.IsAny<Entity>()));
 
-            this.eventSource
-                .Setup(s => s.Modified(entity));
-
-            this.entityRepository.Upsert(entity);
+            var entity = this.EntityRepository.Upsert(DefaultEntity());
 
             // ACT
 
-            var readById = this.entityRepository.FindById(entity.Id);
-            var readByAll = this.entityRepository.FindAll().Single();
+            var result = this.EntityRepository.FindById(entity.Id);
 
             // ASSERT
 
-            Assert.Equal(entity, readByAll);
-            Assert.Equal(entity, readById);
-        }
-
-        [Fact]
-        public void EntityRepository_finds_entity_by_name()
-        {
-            // ARRANGE
-
-            this.eventSource
-              .Setup(s => s.Modified(It.IsAny<Entity>()));
-
-            var entity1 = this.entityRepository.Upsert(new Entity("entity"));
-
-            // ACT
-
-            var result = this.entityRepository.FindByName("entity");
-
-            // ASSERT
-
-            Assert.Equal(entity1.Id, result.Id);
+            Assert.Equal(entity, result);
         }
 
         [Fact]
@@ -133,24 +134,22 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var entity = new Entity("entity");
+            this.EntityEventSource
+                .Setup(s => s.Modified(It.IsAny<Entity>()));
 
-            this.eventSource
-                .Setup(s => s.Modified(entity));
+            var entity = this.EntityRepository.Upsert(DefaultEntity());
 
-            this.entityRepository.Upsert(entity);
-
-            this.eventSource
+            this.EntityEventSource
                 .Setup(s => s.Removed(entity));
 
             // ACT
 
-            var result = this.entityRepository.Delete(entity);
+            var result = this.EntityRepository.Delete(entity);
 
             // ASSERT
 
             Assert.True(result);
-            Assert.Throws<InvalidOperationException>(() => this.entityRepository.FindById(entity.Id));
+            Assert.Throws<InvalidOperationException>(() => this.EntityRepository.FindById(entity.Id));
         }
 
         [Fact]
@@ -162,7 +161,7 @@ namespace Kosmograph.LiteDb.Test
 
             // ACT
 
-            var result = this.entityRepository.Delete(entity);
+            var result = this.EntityRepository.Delete(entity);
 
             // ASSERT
 
@@ -173,25 +172,17 @@ namespace Kosmograph.LiteDb.Test
         public void EntityRepository_removing_entity_fails_if_used_in_relationship()
         {
             // ARRANGE
+            this.EntityEventSource
+                .Setup(s => s.Modified(It.IsAny<Entity>()));
 
-            var entity1 = new Entity("entity1");
-            var entity2 = new Entity("entity2");
+            var entity1 = this.EntityRepository.Upsert(DefaultEntity(e => e.Name = "entity1"));
+            var entity2 = this.EntityRepository.Upsert(DefaultEntity(e => e.Name = "entity2"));
 
-            this.eventSource
-                .Setup(s => s.Modified(entity1));
-            this.eventSource
-                .Setup(s => s.Modified(entity2));
-
-            this.entityRepository.Upsert(entity1);
-            this.entityRepository.Upsert(entity2);
-
-            var relationship = new Relationship("relationship1", entity1, entity2);
-
-            this.relationshipRepository.Upsert(relationship);
+            this.relationshipRepository.Upsert(new Relationship("relationship1", entity1, entity2));
 
             // ACT
 
-            var result = this.entityRepository.Delete(entity1);
+            var result = this.EntityRepository.Delete(entity1);
 
             // ASSERT
 
@@ -205,16 +196,17 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var tag = this.tagRepository.Upsert(new Tag("tag", new Facet("facet", new FacetProperty("prop"))));
+            this.TagEventSource.Setup(s => s.Modified(It.IsAny<Tag>()));
 
-            var entity = new Entity("entity", tag);
+            var tag = this.TagRepository.Upsert(DefaultTag());
 
-            this.eventSource
-              .Setup(s => s.Modified(entity));
+            var entity = DefaultEntity(e => e.AddTag(tag));
+
+            this.EntityEventSource.Setup(s => s.Modified(entity));
 
             // ACT
 
-            this.entityRepository.Upsert(entity);
+            this.EntityRepository.Upsert(entity);
 
             // ASSERT
 
@@ -231,32 +223,25 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var tag = this.tagRepository.Upsert(new Tag("tag", new Facet("facet", new FacetProperty("prop"))));
+            this.TagEventSource.Setup(s => s.Modified(It.IsAny<Tag>()));
+            var tag = this.TagRepository.Upsert(DefaultTag());
 
-            var entity = new Entity("entity", tag);
-
-            this.eventSource
-                .Setup(s => s.Modified(entity));
-
-            this.entityRepository.Upsert(entity);
+            this.EntityEventSource.Setup(s => s.Modified(It.IsAny<Entity>()));
+            var entity = this.EntityRepository.Upsert(DefaultEntity(e => e.AddTag(tag)));
 
             // ACT
 
-            var readById = this.entityRepository.FindById(entity.Id);
-            var readByAll = this.entityRepository.FindAll().Single();
+            var result = this.EntityRepository.FindById(entity.Id);
 
             // ASSERT
 
-            Assert.All(new[] { readByAll, readById }, e =>
-            {
-                Assert.Equal(entity, e);
-                Assert.NotSame(entity, e);
-                Assert.Equal(entity.Name, e.Name);
-                Assert.Equal(entity.Tags.Single().Id, e.Tags.Single().Id);
-                Assert.Equal(entity.Tags.Single().Name, e.Tags.Single().Name);
-                Assert.Equal(entity.Tags.Single().Facet.Name, e.Tags.Single().Facet.Name);
-                Assert.Equal(entity.Tags.Single().Facet.Properties.Single().Name, e.Tags.Single().Facet.Properties.Single().Name);
-            });
+            Assert.Equal(entity, result);
+            Assert.NotSame(entity, result);
+            Assert.Equal(entity.Name, result.Name);
+            Assert.Equal(entity.Tags.Single().Id, result.Tags.Single().Id);
+            Assert.Equal(entity.Tags.Single().Name, result.Tags.Single().Name);
+            Assert.Equal(entity.Tags.Single().Facet.Name, result.Tags.Single().Facet.Name);
+            Assert.Equal(entity.Tags.Single().Facet.Properties.Single().Name, result.Tags.Single().Facet.Properties.Single().Name);
         }
 
         [Fact]
@@ -264,32 +249,26 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var tag = this.tagRepository.Upsert(DefaultTag(WithDefaultProperty));
+            this.TagEventSource.Setup(s => s.Modified(It.IsAny<Tag>()));
+            var tag = this.TagRepository.Upsert(DefaultTag());
 
-            var entity = new Entity("entity", tag);
+            this.EntityEventSource.Setup(s => s.Modified(It.IsAny<Entity>()));
 
-            this.eventSource
-                .Setup(s => s.Modified(entity));
-
-            this.entityRepository.Upsert(entity);
+            var entity = this.EntityRepository.Upsert(DefaultEntity(WithoutTags, WithEntityCategory(this.CategoryRepository.Root()), e => e.AddTag(tag)));
 
             // ACT
 
-            var readById = this.entityRepository.FindByName(entity.Name);
-            var readByAll = this.entityRepository.FindAll().Single();
+            var result = this.EntityRepository.FindAll().Single();
 
             // ASSERT
 
-            Assert.All(new[] { readByAll, readById }, e =>
-            {
-                Assert.Equal(entity, e);
-                Assert.NotSame(entity, e);
-                Assert.Equal(entity.Name, e.Name);
-                Assert.Equal(entity.Tags.Single().Id, e.Tags.Single().Id);
-                Assert.Equal(entity.Tags.Single().Name, e.Tags.Single().Name);
-                Assert.Equal(entity.Tags.Single().Facet.Name, e.Tags.Single().Facet.Name);
-                Assert.Equal(entity.Tags.Single().Facet.Properties.Single().Name, e.Tags.Single().Facet.Properties.Single().Name);
-            });
+            Assert.Equal(entity, result);
+            Assert.NotSame(entity, result);
+            Assert.Equal(entity.Name, result.Name);
+            Assert.Equal(entity.Tags.Single().Id, result.Tags.Single().Id);
+            Assert.Equal(entity.Tags.Single().Name, result.Tags.Single().Name);
+            Assert.Equal(entity.Tags.Single().Facet.Name, result.Tags.Single().Facet.Name);
+            Assert.Equal(entity.Tags.Single().Facet.Properties.Single().Name, result.Tags.Single().Facet.Properties.Single().Name);
         }
 
         [Fact]
@@ -297,17 +276,26 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            this.eventSource
-              .Setup(s => s.Modified(It.IsAny<Entity>()));
+            this.TagEventSource.Setup(s => s.Modified(It.IsAny<Tag>()));
+            var tag1 = this.TagRepository.Upsert(DefaultTag(t => t.Name = "t1"));
+            var tag2 = this.TagRepository.Upsert(DefaultTag(t => t.Name = "t2"));
 
-            var tag1 = this.tagRepository.Upsert(new Tag("t1"));
-            var tag2 = this.tagRepository.Upsert(new Tag("t2"));
-            var entity1 = this.entityRepository.Upsert(new Entity("entity1", tag1));
-            var entity2 = this.entityRepository.Upsert(new Entity("entity2", tag2));
+            this.EntityEventSource.Setup(s => s.Modified(It.IsAny<Entity>()));
+            var entity1 = this.EntityRepository.Upsert(DefaultEntity(e =>
+            {
+                e.Name = "entity1";
+                e.AddTag(tag1);
+            }));
+
+            var entity2 = this.EntityRepository.Upsert(DefaultEntity(e =>
+            {
+                e.Name = "entity2";
+                e.AddTag(tag2);
+            }));
 
             // ACT
 
-            var result = this.entityRepository.FindByTag(tag1);
+            var result = this.EntityRepository.FindByTag(tag1);
 
             // ASSERT
 
@@ -324,17 +312,19 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var tag = this.tagRepository.Upsert(new Tag("tag", new Facet("facet", new FacetProperty("prop"))));
+            this.TagEventSource.Setup(s => s.Modified(It.IsAny<Tag>()));
+            var tag = this.TagRepository.Upsert(DefaultTag());
 
-            var entity = new Entity("entity", tag);
-            entity.SetFacetProperty(entity.Facets().Single().Properties.Single(), 1);
-
-            this.eventSource
-              .Setup(s => s.Modified(entity));
+            this.EntityEventSource.Setup(s => s.Modified(It.IsAny<Entity>()));
+            var entity = this.EntityRepository.Upsert(DefaultEntity(e =>
+            {
+                e.AddTag(tag);
+                e.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+            }));
 
             // ACT
 
-            this.entityRepository.Upsert(entity);
+            this.EntityRepository.Upsert(entity);
 
             // ASSERT
 
@@ -351,35 +341,35 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            var tag = this.tagRepository.Upsert(new Tag("tag", new Facet("facet", new FacetProperty("prop"))));
-            var entity = new Entity("entity", tag);
+            this.TagEventSource.Setup(s => s.Modified(It.IsAny<Tag>()));
+            var tag = this.TagRepository.Upsert(DefaultTag());
+
+            this.EntityEventSource.Setup(s => s.Modified(It.IsAny<Entity>()));
+            var entity = this.EntityRepository.Upsert(DefaultEntity(WithEntityCategory(this.CategoryRepository.Root()), WithoutTags, e =>
+             {
+                 e.AddTag(tag);
+             }));
 
             // set facet property value
-            entity.SetFacetProperty(entity.Facets().Single().Properties.Single(), 1);
+            entity.SetFacetProperty(entity.Tags.Single().Facet.Properties.Single(), 1);
 
-            this.eventSource
-                .Setup(s => s.Modified(entity));
-
-            entityRepository.Upsert(entity);
+            this.EntityEventSource.Setup(s => s.Modified(entity));
+            this.EntityRepository.Upsert(entity);
 
             // ACT
 
-            var readById = this.entityRepository.FindById(entity.Id);
-            var readByAll = this.entityRepository.FindAll().Single();
+            var result = this.EntityRepository.FindById(entity.Id);
 
             // ASSERT
 
-            Assert.All(new[] { readByAll, readById }, e =>
-            {
-                Assert.Equal(entity, e);
-                Assert.NotSame(entity, e);
-                Assert.Equal(entity.Name, e.Name);
-                Assert.Equal(entity.Tags.Single().Id, e.Tags.Single().Id);
-                Assert.Equal(entity.Tags.Single().Name, e.Tags.Single().Name);
-                Assert.Equal(entity.Tags.Single().Facet.Name, e.Tags.Single().Facet.Name);
-                Assert.Equal(entity.Tags.Single().Facet.Properties.Single().Name, e.Tags.Single().Facet.Properties.Single().Name);
-                Assert.Equal(entity.Values[entity.Tags.Single().Facet.Properties.Single().Id.ToString()], e.Values[e.Tags.Single().Facet.Properties.Single().Id.ToString()]);
-            });
+            Assert.Equal(entity, result);
+            Assert.NotSame(entity, result);
+            Assert.Equal(entity.Name, result.Name);
+            Assert.Equal(entity.Tags.Single().Id, result.Tags.Single().Id);
+            Assert.Equal(entity.Tags.Single().Name, result.Tags.Single().Name);
+            Assert.Equal(entity.Tags.Single().Facet.Name, result.Tags.Single().Facet.Name);
+            Assert.Equal(entity.Tags.Single().Facet.Properties.Single().Name, result.Tags.Single().Facet.Properties.Single().Name);
+            Assert.Equal(entity.Values[entity.Tags.Single().Facet.Properties.Single().Id.ToString()], result.Values[result.Tags.Single().Facet.Properties.Single().Id.ToString()]);
         }
 
         #endregion Entity -0:*-> PropertyValues
@@ -391,15 +381,15 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            this.eventSource
+            this.EntityEventSource
               .Setup(s => s.Modified(It.IsAny<Entity>()));
 
-            var category = this.categoryRepository.Upsert(DefaultCategory(this.categoryRepository.Root()));
-            var entity = DefaultEntity(WithCategory(category));
+            var category = this.CategoryRepository.Upsert(DefaultCategory());
+            var entity = DefaultEntity(WithEntityCategory(category));
 
             // ACT
 
-            this.entityRepository.Upsert(entity);
+            this.EntityRepository.Upsert(entity);
 
             // ASSERT
 
@@ -408,7 +398,7 @@ namespace Kosmograph.LiteDb.Test
             Assert.NotNull(readEntity);
             Assert.Equal(entity.Id, readEntity.AsDocument["_id"].AsGuid);
             Assert.Equal(entity.Category.Id, readEntity["Category"].AsDocument["$id"].AsGuid);
-            Assert.Equal(this.categoryRepository.CollectionName, readEntity["Category"].AsDocument["$ref"].AsString);
+            Assert.Equal(this.CategoryRepository.CollectionName, readEntity["Category"].AsDocument["$ref"].AsString);
         }
 
         [Fact]
@@ -416,15 +406,15 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            this.eventSource
+            this.EntityEventSource
               .Setup(s => s.Modified(It.IsAny<Entity>()));
 
-            var category = this.categoryRepository.Upsert(DefaultCategory(this.categoryRepository.Root()));
-            var entity = this.entityRepository.Upsert(DefaultEntity(WithCategory(category)));
+            var category = this.CategoryRepository.Upsert(DefaultCategory());
+            var entity = this.EntityRepository.Upsert(DefaultEntity(WithEntityCategory(category)));
 
             // ACT
 
-            var result = this.entityRepository.FindById(entity.Id);
+            var result = this.EntityRepository.FindById(entity.Id);
 
             // ASSERT
 
@@ -439,15 +429,15 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            this.eventSource
+            this.EntityEventSource
               .Setup(s => s.Modified(It.IsAny<Entity>()));
 
-            var category = this.categoryRepository.Upsert(DefaultCategory(this.categoryRepository.Root()));
-            var entity = this.entityRepository.Upsert(DefaultEntity(WithCategory(category)));
+            var category = this.CategoryRepository.Upsert(DefaultCategory());
+            var entity = this.EntityRepository.Upsert(DefaultEntity(WithEntityCategory(category)));
 
             // ACT
 
-            var result = this.entityRepository.FindByCategory(category);
+            var result = this.EntityRepository.FindByCategory(category);
 
             // ASSERT
 
@@ -459,14 +449,14 @@ namespace Kosmograph.LiteDb.Test
         {
             // ARRANGE
 
-            this.eventSource
+            this.EntityEventSource
               .Setup(s => s.Modified(It.IsAny<Entity>()));
 
-            var entity = this.entityRepository.Upsert(DefaultEntity(e => e.Category = this.categoryRepository.Root()));
+            var entity = this.EntityRepository.Upsert(DefaultEntity(e => e.Category = this.CategoryRepository.Root()));
 
             // ACT
 
-            var result = this.entityRepository.FindByCategoryAndName(this.categoryRepository.Root(), entity.Name);
+            var result = this.EntityRepository.FindByCategoryAndName(this.CategoryRepository.Root(), entity.Name);
 
             // ASSERT
 

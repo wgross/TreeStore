@@ -23,7 +23,7 @@ namespace Kosmograph.LiteDb.Test
             this.mocks.VerifyAll();
         }
 
-        [Fact]
+        [Fact(Skip = "ignore relationships")]
         public void KosmographLiteDbPersistence_removes_entity_with_relationship()
         {
             // ARRANGE

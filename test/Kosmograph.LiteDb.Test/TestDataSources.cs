@@ -46,7 +46,7 @@ namespace Kosmograph.LiteDb.Test
 
         public static void WithoutTags(Entity entity) => entity.Tags.Clear();
 
-        public static Action<Entity> WithCategory(Category c) => e => e.SetCategory(c);
+        public static Action<Entity> WithEntityCategory(Category c) => e => e.SetCategory(c);
 
         #endregion Default Entity
 

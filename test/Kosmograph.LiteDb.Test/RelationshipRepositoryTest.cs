@@ -37,7 +37,7 @@ namespace Kosmograph.LiteDb.Test
             this.mocks.VerifyAll();
         }
 
-        [Fact]
+        [Fact(Skip = "ignore relationships")]
         public void RelationshipRepository_writes_relationship_with_entities()
         {
             // ARRANGE
@@ -65,7 +65,7 @@ namespace Kosmograph.LiteDb.Test
             Assert.Equal(this.entityRepository.CollectionName, readRelationship["To"].AsDocument["$ref"].AsString);
         }
 
-        [Fact]
+        [Fact(Skip = "ignore relationships")]
         public void RelationshipRepository_reads_relationship_with_entities()
         {
             // ARRANGE
@@ -97,7 +97,7 @@ namespace Kosmograph.LiteDb.Test
             Assert.NotSame(entity2, resultByAll.To);
         }
 
-        [Fact]
+        [Fact(Skip = "ignore relationships")]
         public void RelationshipRepository_writes_relationship_with_tag()
         {
             // ARRANGE
@@ -124,7 +124,7 @@ namespace Kosmograph.LiteDb.Test
             Assert.Equal(TagRepository.CollectionName, readRelationship["Tags"].AsArray[0].AsDocument["$ref"].AsString);
         }
 
-        [Fact]
+        [Fact(Skip = "ignore relationships")]
         public void RelationshipRepository_reads_relationship_with_tag()
         {
             // ARRANGE
@@ -152,7 +152,7 @@ namespace Kosmograph.LiteDb.Test
             Assert.NotSame(tag, resultByAll.Tags.Single());
         }
 
-        [Fact]
+        [Fact(Skip = "ignore relationships")]
         public void RelationshipRepository_writes_and_reads_Relationship_with_FacetProperty_values()
         {
             // ARRANGE
@@ -182,7 +182,7 @@ namespace Kosmograph.LiteDb.Test
             Assert.Equal(1, result.TryGetFacetProperty(tag.Facet.Properties.Single()).Item2);
         }
 
-        [Fact]
+        [Fact(Skip = "ignore relationships")]
         public void RelationshipRepository_removes_relationship()
         {
             // ARRANGE
@@ -209,7 +209,7 @@ namespace Kosmograph.LiteDb.Test
             Assert.Throws<InvalidOperationException>(() => this.relationshipRepository.FindById(relationship.Id));
         }
 
-        [Fact]
+        [Fact(Skip = "ignore relationships")]
         public void RelationshipRepository_removing_unknown_relationhip_returns_false()
         {
             // ARRANGE
@@ -227,7 +227,7 @@ namespace Kosmograph.LiteDb.Test
             Assert.False(result);
         }
 
-        [Fact]
+        [Fact(Skip = "ignore relationships")]
         public void RelationshipRepository_finds_relationship_by_entity()
         {
             // ARRANGE
@@ -256,7 +256,7 @@ namespace Kosmograph.LiteDb.Test
             Assert.All(new[] { relationship1, relationship2 }, r => Assert.Contains(r, result));
         }
 
-        [Fact]
+        [Fact(Skip = "ignore relationships")]
         public void RelationshipRepository_removes_mutiple_relationships()
         {
             // ARRANGE
@@ -289,7 +289,7 @@ namespace Kosmograph.LiteDb.Test
             Assert.Throws<InvalidOperationException>(() => this.relationshipRepository.FindById(relationship2.Id));
         }
 
-        [Fact]
+        [Fact(Skip = "ignore relationships")]
         public void EntityRepositiry_finds_relationships_by_tag()
         {
             // ARRANGE
