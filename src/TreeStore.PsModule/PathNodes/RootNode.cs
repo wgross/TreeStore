@@ -1,8 +1,8 @@
 ﻿using CodeOwls.PowerShell.Paths;
 using CodeOwls.PowerShell.Provider.PathNodeProcessors;
-using TreeStore.Model;
 using System.Collections.Generic;
 using System.Linq;
+using TreeStore.Model;
 
 namespace TreeStore.PsModule.PathNodes
 {
@@ -48,7 +48,10 @@ namespace TreeStore.PsModule.PathNodes
         #region IGetChildItem Members
 
         public override IEnumerable<PathNode> GetChildNodes(IProviderContext providerContext)
-            => new PathNode[] { new TagsNode(), new EntitiesNode(), new RelationshipsNode() };
+            => new PathNode[] { new TagsNode(), new EntitiesNode() };
+
+        //todo: reintroduce relationships
+        // => new PathNode[] { new TagsNode(), new EntitiesNode(), new RelationshipsNode() };
 
         #endregion IGetChildItem Members
     }

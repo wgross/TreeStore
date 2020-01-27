@@ -1,6 +1,6 @@
-﻿using TreeStore.PsModule.PathNodes;
-using System;
+﻿using System;
 using System.Linq;
+using TreeStore.PsModule.PathNodes;
 using Xunit;
 
 namespace TreeStore.PsModule.Test.PathNodes
@@ -61,10 +61,12 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ASSERT
 
-            Assert.Equal(3, result.Count());
+            Assert.Equal(2, result.Count());
             Assert.IsType<TagsNode>(result.ElementAt(0));
             Assert.IsType<EntitiesNode>(result.ElementAt(1));
-            Assert.IsType<RelationshipsNode>(result.ElementAt(2));
+            //todo: reintroduce relationships
+            //Assert.Equal(3, result.Count());
+            //Assert.IsType<RelationshipsNode>(result.ElementAt(2));
         }
 
         [Fact]
@@ -78,10 +80,12 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ASSERT
 
-            Assert.Equal(3, result.Count());
+            Assert.Equal(2, result.Count());
             Assert.IsType<TagsNode>(result.ElementAt(0));
             Assert.IsType<EntitiesNode>(result.ElementAt(1));
-            Assert.IsType<RelationshipsNode>(result.ElementAt(2));
+            //todo: reintroduce relationships
+            //Assert.Equal(3, result.Count());
+            //Assert.IsType<RelationshipsNode>(result.ElementAt(2));
         }
 
         [Theory]
