@@ -1,4 +1,4 @@
-﻿Start-Process `
+﻿tart-Process `
     -FilePath "C:\Program Files\PowerShell\7-preview\pwsh.exe" `
     -ArgumentList @(
         "-noprofile"

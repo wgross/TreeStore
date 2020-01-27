@@ -62,7 +62,7 @@ CompatiblePSEditions = @("Core")
 # ScriptsToProcess = @()
 
 # Type files (.ps1xml) to be loaded when importing this module
-TypesToProcess = "TreeStore.PsModule.types.ps1xml"
+TypesToProcess = "TreeStore.types.ps1xml"
 
 # Format files (.ps1xml) to be loaded when importing this module
 # FormatsToProcess = @()

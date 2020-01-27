@@ -33,6 +33,23 @@
     </Members>
   </Type>
   <Type>
+    <Name>TreeStore.PsModule.PathNodes.CategoryNode+Item</Name>
+    <Members>
+      <MemberSet>
+        <Name>PSStandardMembers</Name>
+        <Members>
+          <PropertySet>
+            <Name>DefaultDisplayPropertySet</Name>
+            <ReferencedProperties>
+              <Name>Name</Name>
+              <Name>ItemType</Name>
+            </ReferencedProperties>
+          </PropertySet>
+        </Members>
+      </MemberSet>
+    </Members>
+  </Type>
+  <Type>
     <Name>TreeStore.PsModule.PathNodes.TagsNode+Item</Name>
     <Members>
       <MemberSet>
