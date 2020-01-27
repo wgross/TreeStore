@@ -1,5 +1,5 @@
 # TreeStore
-A powershell file system provide for storing simply structured data
+A powershell file system provide for storing simply structured data. Implementaion of the file system provider relies heavily from an extended fork of [beefarinos p2f framework](https://github.com/beefarino/p2f). The fork can be found at [here](https://github.com/wgross/p2f). 
 
 ## Installation
 
