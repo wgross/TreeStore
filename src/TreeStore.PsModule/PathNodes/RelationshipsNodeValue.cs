@@ -1,0 +1,3 @@
+﻿namespace TreeStore.PsModule.PathNodes
+{
+}

@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <OutputType>Library</OutputType>
+    <ApplicationIcon />
+    <StartupObject />
+    <AssemblyName>TreeStore</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Management.Automation" Version="6.2.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\p2f\src\CodeOwls.PowerShell\CodeOwls.PowerShell.Paths\CodeOwls.PowerShell.Paths.csproj" />
+    <ProjectReference Include="..\p2f\src\CodeOwls.PowerShell\CodeOwls.PowerShell.Provider\CodeOwls.PowerShell.Provider.csproj" />
+    <ProjectReference Include="..\TreeStore.LiteDb\TreeStore.LiteDb.csproj" />
+    <ProjectReference Include="..\TreeStore.Messaging\TreeStore.Messaging.csproj" />
+    <ProjectReference Include="..\TreeStore.Model\TreeStore.Model.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="TreeStore.PsModule.psd1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TreeStore.PsModule.types.ps1xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="start.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>

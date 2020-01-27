@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="LiteDb" Version="4.1.4" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TreeStore.Messaging\TreeStore.Messaging.csproj" />
+    <ProjectReference Include="..\TreeStore.Model\TreeStore.Model.csproj" />
+  </ItemGroup>
+</Project>

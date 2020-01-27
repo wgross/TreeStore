@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <Nullable>enable</Nullable>
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LiteDB" Version="4.1.4" />
+    <PackageReference Include="Microsoft.PowerShell.SDK" Version="6.2.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Moq" Version="4.13.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\TreeStore.LiteDb\TreeStore.LiteDb.csproj" />
+    <ProjectReference Include="..\..\src\TreeStore.Messaging\TreeStore.Messaging.csproj" />
+    <ProjectReference Include="..\..\src\TreeStore.Model\TreeStore.Model.csproj" />
+    <ProjectReference Include="..\..\src\TreeStore.PsModule\TreeStore.PsModule.csproj" />
+  </ItemGroup>
+
+</Project>
