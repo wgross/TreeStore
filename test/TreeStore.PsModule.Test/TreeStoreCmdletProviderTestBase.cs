@@ -1,8 +1,8 @@
-﻿using TreeStore.LiteDb;
-using TreeStore.Model;
-using Moq;
+﻿using Moq;
 using System;
 using System.Management.Automation;
+using TreeStore.LiteDb;
+using TreeStore.Model;
 using Xunit;
 
 namespace TreeStore.PsModule.Test
@@ -11,8 +11,6 @@ namespace TreeStore.PsModule.Test
     public class TreeStoreCmdletProviderTestBase : IDisposable
     {
         public MockRepository Mocks { get; }
-
-        public TreeStoreModel Model { get; }
 
         public Mock<ITreeStorePersistence> PersistenceMock { get; }
 
@@ -29,16 +27,15 @@ namespace TreeStore.PsModule.Test
         public TreeStoreCmdletProviderTestBase()
         {
             this.Mocks = new MockRepository(MockBehavior.Strict);
-            //this.Model = this.CreateModel();
             this.PersistenceMock = this.Mocks.Create<ITreeStorePersistence>();
             this.TagRepositoryMock = this.Mocks.Create<ITagRepository>();
             this.EntityRepositoryMock = this.Mocks.Create<IEntityRepository>();
             this.RelationshipRepositoryMock = this.Mocks.Create<IRelationshipRepository>();
             this.CategoryRepositoryMock = this.Mocks.Create<ICategoryRepository>();
-
-            TreeStoreCmdletProvider.NewTreeStorePersistence = _ => this.PersistenceMock.Object;
-
             this.PowerShell = PowerShell.Create();
+
+            // inject mock of the treestore model
+            TreeStoreCmdletProvider.NewTreeStorePersistence = _ => this.PersistenceMock.Object;
 
             this.PowerShell
                 .AddStatement()
@@ -51,29 +48,34 @@ namespace TreeStore.PsModule.Test
                     .AddCommand("New-PsDrive")
                         .AddParameter("Name", "kg")
                         .AddParameter("PsProvider", "TreeStore")
-                        .AddParameter("Root", @"kg:\")
+                        .AddParameter("Root", string.Empty) // in memory model
                         .Invoke();
 
             this.PowerShell.Commands.Clear();
         }
 
-        public void Dispose() => this.Mocks.VerifyAll();
+        #region IDisposable Members
 
-        //protected KosmographModel CreateModel()
-        //{
-        //    var model = new KosmographModel(KosmographLiteDbPersistence.InMemory(KosmographMessageBus.Default));
-        //    var tag1 = model.Tags.Upsert(new Tag("t1", new Facet("facet",
-        //        new FacetProperty("text", FacetPropertyTypeValues.String),
-        //        new FacetProperty("long", FacetPropertyTypeValues.Long))));
-        //    var tag2 = model.Tags.Upsert(new Tag("t2", new Facet("facet", new FacetProperty("p2"))));
-        //    var entity1 = model.Entities.Upsert(new Entity("e1", tag1));
-        //    var entity2 = model.Entities.Upsert(new Entity("e2"));
-        //    //var entity3 = model.Entities.Upsert(new Entity("entity3"));
-        //    //var entity4 = model.Entities.Upsert(new Entity("entity4", tag1));
-        //    var relationship1 = model.Relationships.Upsert(new Relationship("relationship1", entity1, entity2, tag2));
-        //    // var relationship2 = model.Relationships.Upsert(new Relationship("relationship2", entity2, entity3, tag2));
-        //    return model;
-        //}
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    this.Mocks.VerifyAll();
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            this.Dispose(true);
+        }
+
+        #endregion IDisposable Members
 
         #region Arrangements
 
@@ -165,6 +167,12 @@ namespace TreeStore.PsModule.Test
         }
 
         protected static Action<Category> WithSubCategory(Category category) => c => c.AddSubCategory(category);
+
+        #region IDisposable Support
+
+        private bool disposedValue = false; // To detect redundant calls
+
+        #endregion IDisposable Support
 
         #endregion Default Category
     }

@@ -16,28 +16,20 @@ namespace TreeStore.PsModule
     {
         #region Construction and initialization of this instance
 
-        static TreeStoreCmdletProvider()
-        {
-            NewTreeStorePersistence = _ => TreeStoreLiteDbPersistence.InMemory(new TreeStoreMessageBus());
-        }
-
         /// <summary>
-        /// The creation method is exposed as a delegfate for testing purpose.
+        /// The creation method is exposed as a delegate for testing purpose.
         /// </summary>
         public static Func<string, ITreeStorePersistence> NewTreeStorePersistence { get; set; }
-            = _ => throw new InvalidOperationException($"{NewTreeStorePersistence} is uninitalized");
+            = driveRoot => CreateLiteDbPersistenceFromPath(driveRoot);
 
-        private static ITreeStorePersistence CreateLiteDbPersistenceFromPath(string path)
-        {
-            if (string.IsNullOrEmpty(path))
-            {
-                return TreeStoreLiteDbPersistence.InMemory(TreeStoreMessageBus.Default);
-            }
-            else
-            {
-                return TreeStoreLiteDbPersistence.InFile(TreeStoreMessageBus.Default, path);
-            }
-        }
+        /// <summary>
+        /// The Default Creation method make an in memory model if the drive root is empty.
+        /// </summary>
+        /// <param name="driveRoot"></param>
+        /// <returns></returns>
+        private static ITreeStorePersistence CreateLiteDbPersistenceFromPath(string driveRoot) => string.IsNullOrEmpty(driveRoot)
+                ? TreeStoreLiteDbPersistence.InMemory(TreeStoreMessageBus.Default)
+                : TreeStoreLiteDbPersistence.InFile(TreeStoreMessageBus.Default, driveRoot);
 
         public TreeStoreCmdletProvider()
         {
@@ -76,13 +68,13 @@ namespace TreeStore.PsModule
 
         protected override PSDriveInfo NewDrive(PSDriveInfo drive)
         {
-            //return new KosmographDriveInfo(drive, NewKosmographService(drive.Root));
-
-            var persistence = NewTreeStorePersistence?.Invoke(drive.Root);
-            if (persistence is null)
-                throw new ArgumentNullException(nameof(NewTreeStorePersistence));
-
-            return new TreeStoreDriveInfo(new PSDriveInfo(drive.Name, drive.Provider, $@"{drive.Name}:\", drive.Description, drive.Credential), persistence);
+            return new TreeStoreDriveInfo(new PSDriveInfo(
+                drive.Name,
+                drive.Provider,
+                root: $@"{drive.Name}:\", // show the "name:\" as root path
+                drive.Description,
+                drive.Credential),
+                    persistence: NewTreeStorePersistence(drive.Root));
         }
 
         public ProviderInfo GetProviderInfo() => this.ProviderInfo;
