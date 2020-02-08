@@ -1,7 +1,7 @@
-using TreeStore.Model;
 using Moq;
 using System.Linq;
 using System.Management.Automation;
+using TreeStore.Model;
 using Xunit;
 
 namespace TreeStore.PsModule.Test
@@ -17,10 +17,11 @@ namespace TreeStore.PsModule.Test
 
         public KosmographFileSystemProviderTest()
         {
-            this.PersistenceMock = this.Mocks.Create<ITreeStorePersistence>();
-            TreeStoreCmdletProvider.NewTreeStorePersistence = _ => this.PersistenceMock.Object;
-
             this.PowerShell = PowerShell.Create();
+            this.PersistenceMock = this.Mocks.Create<ITreeStorePersistence>();
+
+            // inject mock of TreeStore model
+            TreeStoreCmdletProvider.NewTreeStorePersistence = _ => this.PersistenceMock.Object;
 
             this.PowerShell
               .AddStatement()
@@ -40,7 +41,7 @@ namespace TreeStore.PsModule.Test
                     .AddCommand("New-PsDrive")
                         .AddParameter("Name", "kg")
                         .AddParameter("PsProvider", "TreeStore")
-                        .AddParameter("Root", @"c:\in\memory\db");
+                        .AddParameter("Root", string.Empty); // in memory model
 
             var result = this.PowerShell.Invoke();
 
@@ -74,7 +75,7 @@ namespace TreeStore.PsModule.Test
                     .AddCommand("New-PsDrive")
                         .AddParameter("Name", "kg")
                         .AddParameter("PsProvider", "TreeStore")
-                        .AddParameter("Root", @"");
+                        .AddParameter("Root", string.Empty);
 
             this.PersistenceMock.Setup(p => p.Dispose());
 

@@ -10,7 +10,7 @@
     <AssemblyName>TreeStore</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="System.Management.Automation" Version="6.2.3" />
+    <PackageReference Include="PowerShellStandard.Library" Version="5.1.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\p2f\src\CodeOwls.PowerShell\CodeOwls.PowerShell.Paths\CodeOwls.PowerShell.Paths.csproj" />
@@ -20,6 +20,9 @@
     <ProjectReference Include="..\TreeStore.Model\TreeStore.Model.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="TreeStore.psd1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="TreeStore.PsModule.psd1">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -27,6 +30,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="start.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TreeStore.types.ps1xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

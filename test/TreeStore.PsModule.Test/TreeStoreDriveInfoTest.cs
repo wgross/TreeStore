@@ -1,30 +1,60 @@
-﻿using TreeStore.LiteDb;
-using TreeStore.Messaging;
-using TreeStore.Model;
+﻿using System;
 using System.IO;
+using System.Management.Automation;
+using TreeStore.Model;
 using Xunit;
 
 namespace TreeStore.PsModule.Test
 {
-    public class KosmographDriveInfoTest : TreeStoreCmdletProviderTestBase
+    public class TreeStoreDriveInfoTest : IDisposable
     {
-        private readonly string _liteDbPath;
+        private readonly string liteDbPath;
 
-        public KosmographDriveInfoTest()
+        public PowerShell PowerShell { get; }
+
+        public TreeStoreDriveInfoTest()
         {
-            _liteDbPath = Path.GetTempFileName();
-            TreeStoreCmdletProvider.NewTreeStorePersistence = path => TreeStoreLiteDbPersistence.InFile(new TreeStoreMessageBus(), path);
+            this.liteDbPath = Path.GetTempFileName();
+
+            this.PowerShell = PowerShell.Create();
+
+            this.PowerShell
+               .AddStatement()
+                   .AddCommand("Import-Module")
+                       .AddArgument("./TreeStore.dll")
+                       .Invoke();
 
             this.PowerShell
                 .AddStatement()
                     .AddCommand("New-PsDrive")
                         .AddParameter("Name", "kgf")
                         .AddParameter("PsProvider", "TreeStore")
-                        .AddParameter("Root", _liteDbPath)
+                        .AddParameter("Root", this.liteDbPath)
                         .Invoke();
 
             this.PowerShell.Commands.Clear();
         }
+
+        #region IDisposable Support
+
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    //File.Delete(this.liteDbPath);
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose() => this.Dispose(true);
+
+        #endregion IDisposable Support
 
         [Fact]
         public void KosmographCmdletProvider_creates_LiteDb_file()
@@ -39,11 +69,13 @@ namespace TreeStore.PsModule.Test
             this.PowerShell.Commands.Clear();
             this.PowerShell.AddCommand("New-Item").AddParameter("Path", @"kgf:\Entities\e\t").Invoke();
             this.PowerShell.Commands.Clear();
+            this.PowerShell.AddCommand("Remove-PSDrive").AddParameter("Name", "kgf").Invoke();
+            this.PowerShell.Commands.Clear();
 
             // ASSERT
 
             Assert.False(this.PowerShell.HadErrors);
-            Assert.True(File.Exists(_liteDbPath));
+            Assert.True(File.Exists(this.liteDbPath));
         }
     }
 }

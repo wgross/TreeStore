@@ -12,10 +12,10 @@
 RootModule = 'TreeStore.Dll'
 
 # Version number of this module.
-ModuleVersion = '1.0.0'
+ModuleVersion = '0.0.1'
 
 # Supported PSEditions
-# CompatiblePSEditions = @()
+CompatiblePSEditions = @('Core')
 
 # ID used to uniquely identify this module
 GUID = '608e5308-ba4a-478a-b4e7-f6df92ce5955'
@@ -24,24 +24,22 @@ GUID = '608e5308-ba4a-478a-b4e7-f6df92ce5955'
 Author = 'github.com/wgross'
 
 # Company or vendor of this module
-CompanyName = 'Unknown'
+#CompanyName = 'Unknown'
 
 # Copyright statement for this module
 Copyright = '(c) github.com/wgross. All rights reserved.'
 
 # Description of the functionality provided by this module
-# Description = ''
+Description = 'LiteDb base file system provider to store simple data structures'
 
 # Minimum version of the PowerShell engine required by this module
-# PowerShellVersion = ''
+PowerShellVersion = '5.1'
 
 # Name of the PowerShell host required by this module
 # PowerShellHostName = ''
 
 # Minimum version of the PowerShell host required by this module
 # PowerShellHostVersion = ''
-
-CompatiblePSEditions = @("Core")
 
 # Minimum version of Microsoft .NET Framework required by this module. This prerequisite is valid for the PowerShell Desktop edition only.
 # DotNetFrameworkVersion = ''
@@ -62,7 +60,7 @@ CompatiblePSEditions = @("Core")
 # ScriptsToProcess = @()
 
 # Type files (.ps1xml) to be loaded when importing this module
-TypesToProcess = "TreeStore.PsModule.types.ps1xml"
+TypesToProcess = "TreeStore.types.ps1xml"
 
 # Format files (.ps1xml) to be loaded when importing this module
 # FormatsToProcess = @()
@@ -80,7 +78,7 @@ CmdletsToExport = @()
 VariablesToExport = @()
 
 # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-AliasesToExport = '*'
+AliasesToExport = @()
 
 # DSC resources to export from this module
 # DscResourcesToExport = @()
@@ -103,7 +101,7 @@ PrivateData = @{
         # LicenseUri = ''
 
         # A URL to the main website for this project.
-        # ProjectUri = ''
+        ProjectUri = 'https://github.com/wgross/TreeStore'
 
         # A URL to an icon representing this module.
         # IconUri = ''
@@ -112,7 +110,7 @@ PrivateData = @{
         # ReleaseNotes = ''
 
         # Prerelease string of this module
-        # Prerelease = ''
+        Prerelease = 'alpha001'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         RequireLicenseAcceptance = $false

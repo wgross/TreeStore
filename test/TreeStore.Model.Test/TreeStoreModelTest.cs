@@ -3,13 +3,13 @@ using Xunit;
 
 namespace TreeStore.Model.Test
 {
-    public class KosmographModelTest : ModelTestBase
+    public class TreeStoreModelTest : ModelTestBase
     {
         private readonly Mock<ICategoryRepository> categoryRepository;
         private readonly Mock<ITagRepository> tagRepository;
         private readonly TreeStoreModel model;
 
-        public KosmographModelTest()
+        public TreeStoreModelTest()
         {
             this.categoryRepository = this.Mocks.Create<ICategoryRepository>();
             this.tagRepository = this.Mocks.Create<ITagRepository>();
@@ -19,7 +19,7 @@ namespace TreeStore.Model.Test
         }
 
         [Fact]
-        public void KosmographModel_provides_root_Category()
+        public void TreeStoreModel_provides_root_Category()
         {
             // ARRANGE
 
@@ -41,7 +41,7 @@ namespace TreeStore.Model.Test
         }
 
         [Fact]
-        public void KosmographModel_provides_tags()
+        public void TreeStoreModel_provides_tags()
         {
             // ARRANGE
 
@@ -59,7 +59,7 @@ namespace TreeStore.Model.Test
         }
 
         [Fact]
-        public void KosmographModel_disposes_persistence_on_model_disposing()
+        public void TreeStoreModel_disposes_persistence_on_model_disposing()
         {
             // ARRANGE
 
