@@ -15,7 +15,7 @@ RootModule = 'TreeStore.Dll'
 ModuleVersion = '0.0.1'
 
 # Supported PSEditions
-# CompatiblePSEditions = @()
+CompatiblePSEditions = @('Core')
 
 # ID used to uniquely identify this module
 GUID = '608e5308-ba4a-478a-b4e7-f6df92ce5955'
@@ -24,24 +24,22 @@ GUID = '608e5308-ba4a-478a-b4e7-f6df92ce5955'
 Author = 'github.com/wgross'
 
 # Company or vendor of this module
-CompanyName = 'Unknown'
+#CompanyName = 'Unknown'
 
 # Copyright statement for this module
 Copyright = '(c) github.com/wgross. All rights reserved.'
 
 # Description of the functionality provided by this module
-# Description = ''
+Description = 'LiteDb base file system provider to store simple data structures'
 
 # Minimum version of the PowerShell engine required by this module
-# PowerShellVersion = ''
+PowerShellVersion = '5.1'
 
 # Name of the PowerShell host required by this module
 # PowerShellHostName = ''
 
 # Minimum version of the PowerShell host required by this module
 # PowerShellHostVersion = ''
-
-CompatiblePSEditions = @("Core")
 
 # Minimum version of Microsoft .NET Framework required by this module. This prerequisite is valid for the PowerShell Desktop edition only.
 # DotNetFrameworkVersion = ''
@@ -112,7 +110,7 @@ PrivateData = @{
         # ReleaseNotes = ''
 
         # Prerelease string of this module
-        Prerelease = 'alpha-001'
+        Prerelease = 'alpha001'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         RequireLicenseAcceptance = $false
