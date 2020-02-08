@@ -3,7 +3,12 @@ A powershell file system provide for storing simply structured data. Implementat
 
 ## Installation
 
-None yet. PSGallery support is coming.
+Install from PSGallery:
+
+```powershell
+Install-Module TreeStore -AllowPrerelease
+```
+Currently only PSCore is supported.
 
 ## Create a TreeStore file system.
 
