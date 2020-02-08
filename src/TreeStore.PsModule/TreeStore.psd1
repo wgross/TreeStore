@@ -12,7 +12,7 @@
 RootModule = 'TreeStore.Dll'
 
 # Version number of this module.
-ModuleVersion = '1.0.0'
+ModuleVersion = '0.0.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -80,7 +80,7 @@ CmdletsToExport = @()
 VariablesToExport = @()
 
 # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-AliasesToExport = '*'
+AliasesToExport = @()
 
 # DSC resources to export from this module
 # DscResourcesToExport = @()
@@ -103,7 +103,7 @@ PrivateData = @{
         # LicenseUri = ''
 
         # A URL to the main website for this project.
-        # ProjectUri = ''
+        ProjectUri = 'https://github.com/wgross/TreeStore'
 
         # A URL to an icon representing this module.
         # IconUri = ''
@@ -112,7 +112,7 @@ PrivateData = @{
         # ReleaseNotes = ''
 
         # Prerelease string of this module
-        # Prerelease = ''
+        Prerelease = 'alpha-001'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         RequireLicenseAcceptance = $false
