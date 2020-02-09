@@ -4,8 +4,8 @@
     Generated publish file for github.com/wgross dev workflow in 'dotnet-nearest'.
 .PARAMETER Target
     Specifies what to publish (optional)
-.PARAMETER Config
-    Specifies publish configuration (optional)
+.PARAMETER BuildConfiguration
+    Specifies publish BuildConfigurationuration (optional)
 .PARAMETER Destination
     Specifies publish destination (optional)
 .PARAMETER FromPath
@@ -17,7 +17,7 @@ param(
 
     [Parameter()]
     [ValidateRange("Debug","Release")]
-    [string]$Config,
+    [string]$BuildConfiguration = "Debug",
 
     [Parameter()]
     $Destination,
@@ -33,7 +33,17 @@ Import-Module -Name dotnet
 # react to the publish target
 switch($Target) {
     default {
-        Invoke-DotNetPublish -Project "$PSScriptRoot\src\TreeStore.PsModule\TreeStore.PsModule.csproj"
+        
+        # publish the module
+        $params =@{
+            Project = "$PSScriptRoot\src\TreeStore.PsModule\TreeStore.PsModule.csproj"
+            Destination = "$PSScriptRoot\TreeStore"
+            BuildConfiguration = $BuildConfiguration
+        }
+        Invoke-DotNetPublish @params 
+        
+        # create a file catalog from the publishing destination content
+        New-FileCatalog -CatalogFilePath "$PSScriptRoot\TreeStore\TreeStore.cat" -Path "$PSScriptRoot\TreeStore"
     }
 }
         
