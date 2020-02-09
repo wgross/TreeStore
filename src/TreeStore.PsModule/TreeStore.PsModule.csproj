@@ -30,7 +30,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="start.ps1">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Update="TreeStore.types.ps1xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
