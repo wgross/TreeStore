@@ -1,6 +1,6 @@
 **/obj/*
 **/bin/*
-.vs*
+.vs/**
 /.coverageresults
 /.msbuildresults
 /.testresults
