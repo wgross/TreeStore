@@ -43,7 +43,7 @@ switch($Target) {
         Invoke-DotNetPublish @params 
         
         # create a file catalog from the publishing destination content
-        New-FileCatalog -CatalogFilePath "$PSScriptRoot\TreeStore\TreeStore.cat" -Path "$PSScriptRoot\TreeStore"
+        # New-FileCatalog -CatalogFilePath "$PSScriptRoot\TreeStore\TreeStore.cat" -Path "$PSScriptRoot\TreeStore"
     }
 }
         

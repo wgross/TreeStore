@@ -28,6 +28,8 @@ namespace TreeStore.PsModule.Test
                   .AddCommand("Import-Module")
                   .AddArgument("./TreeStore.dll")
                   .Invoke();
+
+            this.PowerShell.Commands.Clear();
         }
 
         [Fact]
@@ -38,12 +40,9 @@ namespace TreeStore.PsModule.Test
 
             this.PowerShell
                 .AddStatement()
-                    .AddCommand("New-PsDrive")
+                    .AddCommand("New-TreeStoreDrive")
                         .AddParameter("Name", "kg")
-                        .AddParameter("PsProvider", "TreeStore")
-                        .AddParameter("Root", string.Empty); // in memory model
-
-            var result = this.PowerShell.Invoke();
+                        .Invoke();
 
             // ASSERT
             // drive was created
@@ -59,7 +58,7 @@ namespace TreeStore.PsModule.Test
             Assert.NotNull(drive);
             Assert.Equal("kg", ((PSDriveInfo)drive.ImmediateBaseObject).Name);
             Assert.Equal(@"kg:\", ((PSDriveInfo)drive.ImmediateBaseObject).Root);
-            Assert.Null(((PSDriveInfo)drive.ImmediateBaseObject).Description);
+            Assert.Equal("TreeStore in memory", ((PSDriveInfo)drive.ImmediateBaseObject).Description);
             Assert.Equal("", ((PSDriveInfo)drive.ImmediateBaseObject).CurrentLocation);
             Assert.Null(((PSDriveInfo)drive.ImmediateBaseObject).DisplayRoot);
         }
@@ -72,10 +71,9 @@ namespace TreeStore.PsModule.Test
 
             this.PowerShell
                 .AddStatement()
-                    .AddCommand("New-PsDrive")
+                    .AddCommand("New-TreeStoreDrive")
                         .AddParameter("Name", "kg")
-                        .AddParameter("PsProvider", "TreeStore")
-                        .AddParameter("Root", string.Empty);
+                        .Invoke();
 
             this.PersistenceMock.Setup(p => p.Dispose());
 
@@ -85,27 +83,19 @@ namespace TreeStore.PsModule.Test
             this.PowerShell
                 .AddStatement()
                     .AddCommand("Remove-PsDrive")
-                    .AddParameter("Name", "kg");
-
-            var result = this.PowerShell.Invoke().Single();
+                    .AddParameter("Name", "kg")
+                    .Invoke();
 
             // ASSERT
             // drive is no longer there and service was called.
-
-            Assert.False(this.PowerShell.HadErrors);
-
-            Assert.NotNull(result);
-            Assert.Equal("kg", ((PSDriveInfo)result.ImmediateBaseObject).Name);
-            Assert.Equal(@"kg:\", ((PSDriveInfo)result.ImmediateBaseObject).Root);
-
-            // fecthing drive fails
 
             var drive = this.PowerShell
                 .AddStatement()
                     .AddCommand("Get-PsDrive")
                         .AddParameter("Name", "kg")
-                        .Invoke().Single();
+                        .Invoke().SingleOrDefault();
 
+            Assert.Null(drive);
             Assert.True(this.PowerShell.HadErrors);
         }
     }

@@ -45,11 +45,15 @@ namespace TreeStore.PsModule.Test
 
             this.PowerShell
                 .AddStatement()
-                    .AddCommand("New-PsDrive")
+                     .AddCommand("New-TreeStoreDrive")
                         .AddParameter("Name", "kg")
-                        .AddParameter("PsProvider", "TreeStore")
-                        .AddParameter("Root", string.Empty) // in memory model
                         .Invoke();
+
+            //.AddCommand("New-PsDrive")
+            //    .AddParameter("Name", "kg")
+            //    .AddParameter("PsProvider", "TreeStore")
+            //    .AddParameter("Root", string.Empty) // in memory model
+            //    .Invoke();
 
             this.PowerShell.Commands.Clear();
         }
