@@ -33,7 +33,6 @@ Import-Module -Name dotnet
 # react to the publish target
 switch($Target) {
     default {
-        
         # publish the module
         $params =@{
             Project = "$PSScriptRoot\src\TreeStore.PsModule\TreeStore.PsModule.csproj"
