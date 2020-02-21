@@ -26,10 +26,9 @@ namespace TreeStore.PsModule.Test
 
             this.PowerShell
                 .AddStatement()
-                    .AddCommand("New-PsDrive")
-                        .AddParameter("Name", "kgf")
-                        .AddParameter("PsProvider", "TreeStore")
-                        .AddParameter("Root", this.liteDbPath)
+                    .AddCommand("New-TreeStoreDrive")
+                        .AddParameter("Name", "kg")
+                        .AddParameter("TreeStorePath", this.liteDbPath)
                         .Invoke();
 
             this.PowerShell.Commands.Clear();

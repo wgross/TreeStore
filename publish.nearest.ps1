@@ -33,7 +33,6 @@ Import-Module -Name dotnet
 # react to the publish target
 switch($Target) {
     default {
-        
         # publish the module
         $params =@{
             Project = "$PSScriptRoot\src\TreeStore.PsModule\TreeStore.PsModule.csproj"
@@ -43,7 +42,7 @@ switch($Target) {
         Invoke-DotNetPublish @params 
         
         # create a file catalog from the publishing destination content
-        New-FileCatalog -CatalogFilePath "$PSScriptRoot\TreeStore\TreeStore.cat" -Path "$PSScriptRoot\TreeStore"
+        # New-FileCatalog -CatalogFilePath "$PSScriptRoot\TreeStore\TreeStore.cat" -Path "$PSScriptRoot\TreeStore"
     }
 }
         
