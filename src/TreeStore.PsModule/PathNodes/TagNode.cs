@@ -1,24 +1,34 @@
 ﻿using CodeOwls.PowerShell.Paths;
 using CodeOwls.PowerShell.Paths.Extensions;
 using CodeOwls.PowerShell.Provider.PathNodeProcessors;
-using TreeStore.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
+using TreeStore.Model;
 
 namespace TreeStore.PsModule.PathNodes
 {
     public class TagNode : PathNode,
         // Item capabilities
-        INewItem, IRemoveItem, ICopyItem, IRenameItem,
-        // Property capabilities
-        INewItemProperty, IRenameItemProperty, IRemoveItemProperty,
-        ICopyItemPropertySource, ICopyItemPropertyDestination, IMoveItemPropertySource,
-        IMoveItemPropertyDestination
+        INewItem, IRemoveItem, ICopyItem, IRenameItem
     {
         public class Item
         {
+            public class Property
+            {
+                private readonly FacetProperty property;
+
+                protected internal Property(FacetProperty property)
+                {
+                    this.property = property;
+                }
+
+                public string Name => this.property.Name;
+
+                public FacetPropertyTypeValues ValueType => this.property.Type;
+            }
+
             private readonly Tag tag;
 
             public Item(Tag value)
@@ -35,6 +45,8 @@ namespace TreeStore.PsModule.PathNodes
             public Guid Id => this.tag.Id;
 
             public KosmographItemType ItemType => KosmographItemType.Tag;
+
+            public Property[] Properties => this.tag.Facet.Properties.Select(p => new Property(p)).ToArray();
         }
 
         public class ItemProvider : IItemProvider
@@ -60,19 +72,21 @@ namespace TreeStore.PsModule.PathNodes
             {
                 IEnumerable<PSNoteProperty> tagProperties()
                 {
-                    yield return new PSNoteProperty(nameof(Item.Id), this.tag.Id);
-                    yield return new PSNoteProperty(nameof(Item.Name), this.tag.Name);
+                    var item = (Item)GetItem();
+                    yield return new PSNoteProperty(nameof(Item.Id), item.Id);
+                    yield return new PSNoteProperty(nameof(Item.Name), item.Name);
+                    yield return new PSNoteProperty(nameof(Item.Properties), item.Properties);
                 }
 
-                var facetProperties = this.tag.Facet.Properties.Select(p => new PSFacetProperty(p.Name, p.Type, null));
-
                 if (propertyNames.Any())
-                    return tagProperties().Union(facetProperties).Where(p => propertyNames.Contains(p.Name, StringComparer.OrdinalIgnoreCase));
+                    return tagProperties().Where(p => propertyNames.Contains(p.Name, StringComparer.OrdinalIgnoreCase));
                 else
-                    return tagProperties().Union(facetProperties);
+                    return tagProperties();
             }
 
             #endregion IGetItemProperties
+
+            #region ISetItemProperties
 
             public void SetItemProperties(IEnumerable<PSPropertyInfo> properties)
 
@@ -87,6 +101,8 @@ namespace TreeStore.PsModule.PathNodes
 
                 providerContext.Persistence().Tags.Upsert(this.tag);
             }
+
+            #endregion ISetItemProperties
         }
 
         private readonly ITreeStorePersistence model;
@@ -187,68 +203,5 @@ namespace TreeStore.PsModule.PathNodes
         }
 
         #endregion IRenameItem Members
-
-        #region INewItemProperty Members
-
-        public void NewItemProperty(IProviderContext providerContext, string propertyName, string propertyTypeName, object? newItemValue)
-        {
-            this.tag.Facet.AddProperty(new FacetProperty(propertyName, FacetPropertyTypeValue(propertyTypeName)));
-
-            providerContext.Persistence().Tags.Upsert(this.tag);
-        }
-
-        private static FacetPropertyTypeValues FacetPropertyTypeValue(string facetProperyTypeName)
-        {
-            if (Enum.TryParse(typeof(FacetPropertyTypeValues), facetProperyTypeName, out var type))
-                return (FacetPropertyTypeValues)(type ?? FacetPropertyTypeValues.String);
-            else return FacetPropertyTypeValues.String;
-        }
-
-        #endregion INewItemProperty Members
-
-        #region IRenameItemProperty Members
-
-        public void RenameItemProperty(IProviderContext providerContext, string sourcePropertyName, string destinationPropertyName)
-        {
-            this.tag.Facet.Properties.Single(p => p.Name.Equals("p", StringComparison.OrdinalIgnoreCase)).Name = destinationPropertyName;
-
-            providerContext.Persistence().Tags.Upsert(this.tag);
-        }
-
-        #endregion IRenameItemProperty Members
-
-        #region IRemoveItemPropery Members
-
-        public void RemoveItemProperty(IProviderContext providerContext, string propertyName)
-        {
-            this.tag.Facet.RemoveProperty(
-                this.tag.Facet.Properties.Single(p => p.Name.Equals("p", StringComparison.OrdinalIgnoreCase)));
-
-            providerContext.Persistence().Tags.Upsert(this.tag);
-        }
-
-        #endregion IRemoveItemPropery Members
-
-        #region ICopyItemProperty
-
-        public void CopyItemProperty(IProviderContext providerContext, string sourceProperty, string destinationProperty, IItemProvider sourceItemProvider)
-        {
-            var sourcePSFacetProperty = sourceItemProvider.GetItemProperties(sourceProperty.Yield()).First();
-
-            this.NewItemProperty(providerContext, destinationProperty, sourcePSFacetProperty.TypeNameOfValue, sourcePSFacetProperty.Value);
-        }
-
-        #endregion ICopyItemProperty
-
-        #region IMoveItemProperty
-
-        public void MoveItemProperty(IProviderContext providerContext, string sourceProperty, string destinationProperty, IItemProvider sourceItemProvider)
-        {
-            var sourcePSFacetProperty = sourceItemProvider.GetItemProperties(sourceProperty.Yield()).First();
-
-            this.NewItemProperty(providerContext, destinationProperty, sourcePSFacetProperty.TypeNameOfValue, sourcePSFacetProperty.Value);
-        }
-
-        #endregion IMoveItemProperty
     }
 }

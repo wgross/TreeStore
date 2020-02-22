@@ -1,7 +1,7 @@
-﻿using TreeStore.Model;
-using System;
+﻿using System;
 using System.Linq;
 using System.Management.Automation;
+using TreeStore.Model;
 using Xunit;
 
 namespace TreeStore.PsModule.Test
@@ -1087,101 +1087,6 @@ namespace TreeStore.PsModule.Test
         }
 
         #endregion Remove-ItemProperty /Tags/<name> -Name <property-name>
-
-        #region Copy-ItemProperty /Tags/<name1> -Name <property-name> -Destination /Tags/<name2>
-
-        [Fact]
-        public void PowerShell_copies_FacetProperty_to_other_tag()
-        {
-            // ARRANGE
-
-            var sourceTag = DefaultTag(WithDefaultProperty);
-            var destinationTag = DefaultTag(WithoutProperty, t => t.Name = "tt");
-
-            this.PersistenceMock
-                .Setup(m => m.Tags)
-                .Returns(this.TagRepositoryMock.Object);
-
-            this.TagRepositoryMock
-                .Setup(r => r.FindByName("t"))
-                .Returns(sourceTag);
-
-            this.TagRepositoryMock
-                .Setup(r => r.FindByName("tt"))
-                .Returns(destinationTag);
-
-            this.TagRepositoryMock
-                .Setup(r => r.Upsert(destinationTag))
-                .Returns(destinationTag);
-
-            // ACT
-
-            this.PowerShell
-                .AddCommand("Copy-ItemProperty")
-                .AddParameter("Path", $@"kg:\Tags\t")
-                .AddParameter("Name", "p")
-                .AddParameter("Destination", $@"kg:\Tags\tt");
-
-            var result = this.PowerShell.Invoke();
-
-            // ASSERT
-
-            Assert.False(this.PowerShell.HadErrors);
-            Assert.Equal("p", destinationTag.Facet.Properties.Single().Name);
-            Assert.Equal(FacetPropertyTypeValues.String, destinationTag.Facet.Properties.Single().Type);
-        }
-
-        #endregion Copy-ItemProperty /Tags/<name1> -Name <property-name> -Destination /Tags/<name2>
-
-        #region Move-ItemProperty /Tags/<name1> -Name <property-name> -Destination /Tags/<name2>
-
-        [Fact]
-        public void PowerShell_moves_FacetProperty_to_other_tag()
-        {
-            // ARRANGE
-
-            var sourceTag = DefaultTag(WithDefaultProperty);
-            var destinationTag = DefaultTag(WithoutProperty, t => t.Name = "tt");
-
-            this.PersistenceMock
-                .Setup(m => m.Tags)
-                .Returns(this.TagRepositoryMock.Object);
-
-            this.TagRepositoryMock
-                .Setup(r => r.FindByName("t"))
-                .Returns(sourceTag);
-
-            this.TagRepositoryMock
-                .Setup(r => r.FindByName("tt"))
-                .Returns(destinationTag);
-
-            this.TagRepositoryMock
-                .Setup(r => r.Upsert(sourceTag))
-                .Returns(destinationTag);
-
-            this.TagRepositoryMock
-                .Setup(r => r.Upsert(destinationTag))
-                .Returns(destinationTag);
-
-            // ACT
-
-            this.PowerShell
-                .AddCommand("Move-ItemProperty")
-                .AddParameter("Path", $@"kg:\Tags\t")
-                .AddParameter("Name", "p")
-                .AddParameter("Destination", $@"kg:\Tags\tt");
-
-            var result = this.PowerShell.Invoke();
-
-            // ASSERT
-
-            Assert.False(this.PowerShell.HadErrors);
-            Assert.Equal("p", destinationTag.Facet.Properties.Single().Name);
-            Assert.Equal(FacetPropertyTypeValues.String, destinationTag.Facet.Properties.Single().Type);
-            Assert.Empty(sourceTag.Facet.Properties);
-        }
-
-        #endregion Move-ItemProperty /Tags/<name1> -Name <property-name> -Destination /Tags/<name2>
 
         #region Clear-ItemProperty /Entities/e/<name>/<tag-name> -Name <property-name>
 

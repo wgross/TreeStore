@@ -8,20 +8,21 @@ Install from PSGallery:
 ```powershell
 Install-Module TreeStore -AllowPrerelease
 ```
-Currently only PSCore is supported.
 
 ## Create a TreeStore file system.
+
+TreeStore provides its own cmdlet to create PSDrives for convenience. You can achive the same with New-PsDrive but filling the cmdlet-arguments is less straightforward.
 
 Create non-persistent (in memory) drive:
 ```powershell
 Import-Module TreeStore
-New-PSDrive -Name tree -PsProvider TreeStore -Root ""
+New-TreeStoreDrive -Name tree
 cd tree:
 ```
 Create a persistent drive based o a LiteDb database.
 ```powershell
 Import-Module TreeStore
-New-PSDrive -Name tree -PsProvider TreeStore -Root "c:\tmp\data.db"
+New-TreeStoreDrive -Name tree -TreeStorePath "c:\tmp\data.db"
 cd tree:
 ```
 
@@ -48,7 +49,7 @@ The name must be unique within the Tag. Every properties have a data type assign
 ```powershell
 New-Item \Tags\t -Name p -ValueType Long
 ```
-Supported property types are: Bool, DateTime, Decimal, Double, Guid, Long, String.
+Supported property types are: Bool, DateTime, Decimal, Double, Guid, Long, String. Properties can be copyied/move to anothet tag or removed from a tag with powershells item cmdlets. Since facet properties can exist only with in a tag destinations outside of a tag are not allowed for copying or moving
 
 ## Assign Tag to an Entity
 

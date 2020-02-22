@@ -107,7 +107,10 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        # ReleaseNotes = ''
+        ReleaseNotes = @"
+0.0.1-alpha4 : Tags don't present their facet properties as item properties anymore (could hide tag property with same name)
+0.0.1-alpha3 : new cmdlet to create TreeStore drives
+"@
 
         # Prerelease string of this module
         Prerelease = 'alpha002'
