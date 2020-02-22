@@ -55,6 +55,10 @@ namespace TreeStore.PsModule.Cmdlets
                     credential: null),
                     scope: this.Scope);
             }
+
+            // Create function to switch to the drive
+            if (!this.SessionState.InvokeProvider.Item.Exists($@"Function:\{this.Name}:"))
+                this.SessionState.InvokeProvider.Item.Set($@"Function:\{this.Name}:", ScriptBlock.Create("Set-Location $MyInvocation.MyCommand.Name"));
         }
     }
 }
