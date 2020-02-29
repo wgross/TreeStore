@@ -52,7 +52,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             Assert.Equal(c.Id, result!.Id);
             Assert.Equal(c.Name, result!.Name);
-            Assert.Equal(KosmographItemType.Category, result!.ItemType);
+            Assert.Equal(TreeStoreItemType.Category, result!.ItemType);
         }
 
         #endregion P2F node structure
@@ -186,14 +186,14 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             Assert.Equal(new[]
             {
-                nameof(KosmographItemType.Category),
-                nameof(KosmographItemType.Entity)
+                nameof(TreeStoreItemType.Category),
+                nameof(TreeStoreItemType.Entity)
             }, result);
         }
 
         [Theory]
         [InlineData(null)]
-        [InlineData(nameof(KosmographItemType.Entity))]
+        [InlineData(nameof(TreeStoreItemType.Entity))]
         public void CategoryNode_creates_EntityNodeValue(string itemTypeName)
         {
             // ARRANGE
@@ -274,11 +274,11 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = Assert.Throws<InvalidOperationException>(() => node.NewItem(this.ProviderContextMock.Object, newItemName: "Entity", itemTypeName: nameof(KosmographItemType.Entity), newItemValue: null!));
+            var result = Assert.Throws<InvalidOperationException>(() => node.NewItem(this.ProviderContextMock.Object, newItemName: "Entity", itemTypeName: nameof(TreeStoreItemType.Entity), newItemValue: null!));
 
             // ASSERT
 
-            Assert.Equal($"Name is already used by and item of type '{nameof(KosmographItemType.Entity)}'", result.Message);
+            Assert.Equal($"Name is already used by and item of type '{nameof(TreeStoreItemType.Entity)}'", result.Message);
         }
 
         [Fact]
@@ -308,11 +308,11 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = Assert.Throws<InvalidOperationException>(() => node.NewItem(this.ProviderContextMock.Object, newItemName: "Entity", itemTypeName: nameof(KosmographItemType.Entity), newItemValue: null!));
+            var result = Assert.Throws<InvalidOperationException>(() => node.NewItem(this.ProviderContextMock.Object, newItemName: "Entity", itemTypeName: nameof(TreeStoreItemType.Entity), newItemValue: null!));
 
             // ASSERT
 
-            Assert.Equal($"Name is already used by and item of type '{nameof(KosmographItemType.Category)}'", result.Message);
+            Assert.Equal($"Name is already used by and item of type '{nameof(TreeStoreItemType.Category)}'", result.Message);
         }
 
         [Fact]
@@ -349,7 +349,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = node.NewItem(this.ProviderContextMock.Object, newItemName: "c", itemTypeName: nameof(KosmographItemType.Category), newItemValue: null!);
+            var result = node.NewItem(this.ProviderContextMock.Object, newItemName: "c", itemTypeName: nameof(TreeStoreItemType.Category), newItemValue: null!);
 
             // ASSERT
 
@@ -386,11 +386,11 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = Assert.Throws<InvalidOperationException>(() => node.NewItem(this.ProviderContextMock.Object, newItemName: "c", itemTypeName: nameof(KosmographItemType.Category), newItemValue: null!));
+            var result = Assert.Throws<InvalidOperationException>(() => node.NewItem(this.ProviderContextMock.Object, newItemName: "c", itemTypeName: nameof(TreeStoreItemType.Category), newItemValue: null!));
 
             // ASSERT
 
-            Assert.Equal($"Name is already used by and item of type '{nameof(KosmographItemType.Entity)}'", result.Message);
+            Assert.Equal($"Name is already used by and item of type '{nameof(TreeStoreItemType.Entity)}'", result.Message);
         }
 
         [Fact]
@@ -415,11 +415,11 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = Assert.Throws<InvalidOperationException>(() => node.NewItem(this.ProviderContextMock.Object, newItemName: "c", itemTypeName: nameof(KosmographItemType.Category), newItemValue: null!));
+            var result = Assert.Throws<InvalidOperationException>(() => node.NewItem(this.ProviderContextMock.Object, newItemName: "c", itemTypeName: nameof(TreeStoreItemType.Category), newItemValue: null!));
 
             // ASSERT
 
-            Assert.Equal($"Name is already used by and item of type '{nameof(KosmographItemType.Category)}'", result.Message);
+            Assert.Equal($"Name is already used by and item of type '{nameof(TreeStoreItemType.Category)}'", result.Message);
         }
 
         //todo: crerate entity with duplicate entity name

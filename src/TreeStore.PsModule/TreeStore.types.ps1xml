@@ -15,6 +15,7 @@
       </MemberSet>
     </Members>
   </Type>
+  <!--Entity shows Id, Name and Properties-->
   <Type>
     <Name>TreeStore.PsModule.PathNodes.EntityNode+Item</Name>
     <Members>
@@ -26,6 +27,26 @@
             <ReferencedProperties>
               <Name>Name</Name>
               <Name>ItemType</Name>
+              <Name>Properties</Name>
+            </ReferencedProperties>
+          </PropertySet>
+        </Members>
+      </MemberSet>
+    </Members>
+  </Type>
+  <!--An item from the entities Property list shows Name, Value and ValueType-->
+  <Type>
+    <Name>TreeStore.PsModule.PathNodes.EntityNode+Item+Property</Name>
+    <Members>
+      <MemberSet>
+        <Name>PSStandardMembers</Name>
+        <Members>
+          <PropertySet>
+            <Name>DefaultDisplayPropertySet</Name>
+            <ReferencedProperties>
+              <Name>Name</Name>
+              <Name>Value</Name>
+              <Name>ValueType</Name>
             </ReferencedProperties>
           </PropertySet>
         </Members>
@@ -131,6 +152,25 @@
             <ReferencedProperties>
               <Name>Name</Name>
               <Name>ItemType</Name>
+              <Name>Properties</Name>
+            </ReferencedProperties>
+          </PropertySet>
+        </Members>
+      </MemberSet>
+    </Members>
+  </Type>
+  <Type>
+    <Name>TreeStore.PsModule.PathNodes.AssignedTagNode+Item+Property</Name>
+    <Members>
+      <MemberSet>
+        <Name>PSStandardMembers</Name>
+        <Members>
+          <PropertySet>
+            <Name>DefaultDisplayPropertySet</Name>
+            <ReferencedProperties>
+              <Name>Name</Name>
+              <Name>ValueType</Name>
+              <Name>Value</Name>
             </ReferencedProperties>
           </PropertySet>
         </Members>

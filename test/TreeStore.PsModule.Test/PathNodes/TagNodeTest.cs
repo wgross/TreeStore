@@ -37,6 +37,10 @@ namespace TreeStore.PsModule.Test.PathNodes
             Assert.True(result.IsContainer);
         }
 
+        #endregion P2F node structure
+
+        #region IGetItem
+
         [Fact]
         public void TagNodeValue_provides_Item()
         {
@@ -52,12 +56,12 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             Assert.Equal("t", result!.Name);
             Assert.Equal(tag.Id, result!.Id);
-            Assert.Equal(KosmographItemType.Tag, result!.ItemType);
+            Assert.Equal(TreeStoreItemType.Tag, result!.ItemType);
             Assert.Equal(tag.Facet.Properties.Single().Name, result!.Properties.Single().Name);
             Assert.Equal(tag.Facet.Properties.Single().Type, result!.Properties.Single().ValueType);
         }
 
-        #endregion P2F node structure
+        #endregion IGetItem
 
         [Fact]
         public void TagNode_resolves_null_name_as_all_child_nodes()

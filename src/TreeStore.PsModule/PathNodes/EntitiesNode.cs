@@ -62,7 +62,7 @@ namespace TreeStore.PsModule.PathNodes
 
         #region INewItem Members
 
-        public IEnumerable<string> NewItemTypeNames { get; } = new[] { nameof(KosmographItemType.Category), nameof(KosmographItemType.Entity) };
+        public IEnumerable<string> NewItemTypeNames { get; } = new[] { nameof(TreeStoreItemType.Category), nameof(TreeStoreItemType.Entity) };
 
         public class NewItemParametersDefinition
         {
@@ -75,12 +75,12 @@ namespace TreeStore.PsModule.PathNodes
 
         public IItemProvider NewItem(IProviderContext providerContext, string newItemName, string itemTypeName, object newItemValue)
         {
-            switch (itemTypeName ?? nameof(KosmographItemType.Entity))
+            switch (itemTypeName ?? nameof(TreeStoreItemType.Entity))
             {
-                case nameof(KosmographItemType.Category):
+                case nameof(TreeStoreItemType.Category):
                     return NewCategory(providerContext, newItemName);
 
-                case nameof(KosmographItemType.Entity):
+                case nameof(TreeStoreItemType.Entity):
                     return NewEntity(providerContext, newItemName);
 
                 default:

@@ -1,9 +1,9 @@
-﻿using TreeStore.Model;
-using Moq;
-using TreeStore.PsModule.PathNodes;
+﻿using Moq;
 using System;
 using System.Linq;
 using System.Management.Automation;
+using TreeStore.Model;
+using TreeStore.PsModule.PathNodes;
 using Xunit;
 
 namespace TreeStore.PsModule.Test.PathNodes
@@ -38,12 +38,16 @@ namespace TreeStore.PsModule.Test.PathNodes
             Assert.True(result.IsContainer);
         }
 
+        #endregion P2F node structure
+
+        #region IGetItem
+
         [Fact]
         public void EntityNodeValue_provides_Item()
         {
             // ARRANGE
 
-            var e = DefaultEntity();
+            var e = DefaultEntity(WithDefaultTag);
 
             // ACT
 
@@ -53,10 +57,13 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             Assert.Equal(e.Id, result!.Id);
             Assert.Equal(e.Name, result!.Name);
-            Assert.Equal(KosmographItemType.Entity, result!.ItemType);
+            Assert.Equal(TreeStoreItemType.Entity, result!.ItemType);
+            Assert.Equal("t.p", result!.Properties.Single().Name);
+            Assert.Null(result!.Properties.Single().Value);
+            Assert.Equal(e.Tags.Single().Facet.Properties.Single().Type, result!.Properties.Single().ValueType);
         }
 
-        #endregion P2F node structure
+        #endregion IGetItem
 
         [Fact]
         public void EntityNode_retrieves_assigned_tags()

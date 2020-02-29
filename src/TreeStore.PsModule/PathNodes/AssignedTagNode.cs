@@ -1,10 +1,10 @@
 ﻿using CodeOwls.PowerShell.Paths;
 using CodeOwls.PowerShell.Provider.PathNodeProcessors;
-using TreeStore.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
+using TreeStore.Model;
 
 namespace TreeStore.PsModule.PathNodes
 {
@@ -38,7 +38,7 @@ namespace TreeStore.PsModule.PathNodes
 
             public bool IsContainer => true;
 
-            public object GetItem() => new Item(this.assignedTag);
+            public object GetItem() => new Item(this.entity, this.assignedTag);
 
             public IEnumerable<PSPropertyInfo> GetItemProperties(IEnumerable<string> propertyNames)
             {
@@ -70,21 +70,62 @@ namespace TreeStore.PsModule.PathNodes
             }
         }
 
-        public class Item
+        #region Item - to be used in powershell pipe
+
+        public sealed class Property
+        {
+            private readonly FacetProperty property;
+
+            internal Property(string name, object? value, FacetPropertyTypeValues type)
+            {
+                this.Name = name;
+                this.Value = value;
+                this.ValueType = type;
+            }
+
+            public string Name { get; }
+
+            public object? Value { get; }
+
+            public FacetPropertyTypeValues ValueType { get; }
+        }
+
+        public sealed class Item
         {
             private readonly Tag assignedTag;
+            private readonly Entity entity;
 
-            public Item(Tag tag)
+            public Item(Entity entity, Tag tag)
             {
                 this.assignedTag = tag;
+                this.entity = entity;
             }
 
             public Guid Id => this.assignedTag.Id;
 
             public string Name => this.assignedTag.Name;
 
-            public KosmographItemType ItemType => KosmographItemType.AssignedTag;
+            public TreeStoreItemType ItemType => TreeStoreItemType.AssignedTag;
+
+            private Property[]? properties = null;
+
+            public Property[] Properties => this.properties ??= this.SelectAssignedProperties();
+
+            private Property[] SelectAssignedProperties() => this.assignedTag
+                .Facet
+                .Properties
+                .Select(p =>
+                {
+                    var (hasValue, value) = this.entity.TryGetFacetProperty(p);
+                    if (hasValue)
+                        return new Property($"{p.Name}", value, p.Type);
+                    else
+                        return new Property($"{p.Name}", null, p.Type);
+                })
+                .ToArray();
         }
+
+        #endregion Item - to be used in powershell pipe
 
         public override string Name => this.assignedTag.Name;
 

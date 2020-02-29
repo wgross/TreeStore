@@ -8,45 +8,6 @@ namespace TreeStore.PsModule.Test
 {
     public class KosmographItemPropertyCmdletProviderTest : TreeStoreCmdletProviderTestBase
     {
-        #region New-ItemProperty /Tags/<name> -Name <property-name>
-
-        [Fact]
-        public void Powershell_creates_FacetProperty()
-        {
-            // ARRANGE
-
-            var tag = DefaultTag(WithoutProperty);
-
-            this.PersistenceMock
-                .Setup(m => m.Tags)
-                .Returns(this.TagRepositoryMock.Object);
-
-            this.TagRepositoryMock
-                .Setup(r => r.FindByName("t"))
-                .Returns(tag);
-
-            this.TagRepositoryMock
-                .Setup(r => r.Upsert(tag))
-                .Returns(tag);
-
-            // ACT
-
-            this.PowerShell
-                .AddCommand("New-ItemProperty")
-                .AddParameter("Path", $@"kg:\Tags\t")
-                .AddParameter("Name", "p")
-                .AddParameter("PropertyType", FacetPropertyTypeValues.Bool);
-
-            var result = this.PowerShell.Invoke();
-
-            // ASSERT
-
-            Assert.False(this.PowerShell.HadErrors);
-            Assert.Equal("p", tag.Facet.Properties.Single().Name);
-        }
-
-        #endregion New-ItemProperty /Tags/<name> -Name <property-name>
-
         #region Get-ItemProperty /Tags/<name>
 
         [Fact]
@@ -1010,83 +971,6 @@ namespace TreeStore.PsModule.Test
         }
 
         #endregion Set-ItemProperty /Entities/<name>/<tag-name> -Name <property-name>, Set-ItemProperty /Entities/<name> -Name <tag-name>.<property-name>
-
-        #region Rename-ItemProperty /Tags/<name> -Name <property-name>
-
-        [Fact]
-        public void Powershell_renames_FacetProperty()
-        {
-            // ARRANGE
-
-            var tag = DefaultTag(WithDefaultProperty);
-
-            this.PersistenceMock
-                .Setup(m => m.Tags)
-                .Returns(this.TagRepositoryMock.Object);
-
-            this.TagRepositoryMock
-                .Setup(r => r.FindByName("t"))
-                .Returns(tag);
-
-            this.TagRepositoryMock
-                .Setup(r => r.Upsert(tag))
-                .Returns(tag);
-
-            // ACT
-
-            this.PowerShell
-                .AddCommand("Rename-ItemProperty")
-                .AddParameter("Path", $@"kg:\Tags\t")
-                .AddParameter("Name", "p")
-                .AddParameter("NewName", "q");
-
-            var result = this.PowerShell.Invoke();
-
-            // ASSERT
-
-            Assert.False(this.PowerShell.HadErrors);
-            Assert.Equal("q", tag.Facet.Properties.Single().Name);
-        }
-
-        #endregion Rename-ItemProperty /Tags/<name> -Name <property-name>
-
-        #region Remove-ItemProperty /Tags/<name> -Name <property-name>
-
-        [Fact]
-        public void Powershell_removes_FacetProperty()
-        {
-            // ARRANGE
-
-            var tag = DefaultTag(WithDefaultProperty);
-
-            this.PersistenceMock
-                .Setup(m => m.Tags)
-                .Returns(this.TagRepositoryMock.Object);
-
-            this.TagRepositoryMock
-                .Setup(r => r.FindByName("t"))
-                .Returns(tag);
-
-            this.TagRepositoryMock
-                .Setup(r => r.Upsert(tag))
-                .Returns(tag);
-
-            // ACT
-
-            this.PowerShell
-                .AddCommand("Remove-ItemProperty")
-                .AddParameter("Path", $@"kg:\Tags\t")
-                .AddParameter("Name", "p");
-
-            var result = this.PowerShell.Invoke();
-
-            // ASSERT
-
-            Assert.False(this.PowerShell.HadErrors);
-            Assert.Empty(tag.Facet.Properties);
-        }
-
-        #endregion Remove-ItemProperty /Tags/<name> -Name <property-name>
 
         #region Clear-ItemProperty /Entities/e/<name>/<tag-name> -Name <property-name>
 

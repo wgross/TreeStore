@@ -13,9 +13,11 @@ namespace TreeStore.PsModule.PathNodes
         // Item capabilities
         INewItem, IRemoveItem, ICopyItem, IRenameItem
     {
-        public class Item
+        #region Item - to be used in powershell pipe
+
+        public sealed class Item
         {
-            public class Property
+            public sealed class Property
             {
                 private readonly FacetProperty property;
 
@@ -44,12 +46,15 @@ namespace TreeStore.PsModule.PathNodes
 
             public Guid Id => this.tag.Id;
 
-            public KosmographItemType ItemType => KosmographItemType.Tag;
+            public TreeStoreItemType ItemType => TreeStoreItemType.Tag;
 
             public Property[] Properties => this.tag.Facet.Properties.Select(p => new Property(p)).ToArray();
         }
 
+        #endregion Item - to be used in powershell pipe
+
         public class ItemProvider : IItemProvider
+
         {
             private readonly ITreeStorePersistence model;
             private readonly Tag tag;

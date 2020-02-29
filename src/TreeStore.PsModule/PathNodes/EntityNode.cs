@@ -1,10 +1,10 @@
 ﻿using CodeOwls.PowerShell.Paths;
 using CodeOwls.PowerShell.Provider.PathNodeProcessors;
-using TreeStore.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
+using TreeStore.Model;
 
 namespace TreeStore.PsModule.PathNodes
 {
@@ -89,25 +89,65 @@ namespace TreeStore.PsModule.PathNodes
             }
         }
 
+        #region Item - to be used in powershell pipe
+
+        public sealed class Property
+        {
+            private readonly FacetProperty property;
+
+            internal Property(string name, object? value, FacetPropertyTypeValues type)
+            {
+                this.Name = name;
+                this.Value = value;
+                this.ValueType = type;
+            }
+
+            public string Name { get; }
+
+            public object? Value { get; }
+
+            public FacetPropertyTypeValues ValueType { get; }
+        }
+
         public sealed class Item
         {
-            private readonly Entity entitiy;
+            private readonly Entity entity;
 
             public Item(Entity entity)
             {
-                this.entitiy = entity;
+                this.entity = entity;
             }
 
             public string Name
             {
-                get => this.entitiy.Name;
-                set => this.entitiy.Name = value;
+                get => this.entity.Name;
+                set => this.entity.Name = value;
             }
 
-            public Guid Id => this.entitiy.Id;
+            public Guid Id => this.entity.Id;
 
-            public KosmographItemType ItemType => KosmographItemType.Entity;
+            public TreeStoreItemType ItemType => TreeStoreItemType.Entity;
+
+            private Property[]? properties = null;
+
+            public Property[] Properties => this.properties ??= this.SelectAssignedProperties();
+
+            private Property[] SelectAssignedProperties() => this.entity.Tags
+                // make tuple <tag-name>, <property>
+                .SelectMany(t => t.Facet.Properties.AsEnumerable().Select(p => (t.Name, p)))
+                // map tuple to PSNoteProperty(<tag-name>.<property-name>,p.Value)
+                .Select(tnp =>
+                {
+                    var (hasValue, value) = this.entity.TryGetFacetProperty(tnp.p);
+                    if (hasValue)
+                        return new Property($"{tnp.Name}.{tnp.p.Name}", value, tnp.p.Type);
+                    else
+                        return new Property($"{tnp.Name}.{tnp.p.Name}", null, tnp.p.Type);
+                })
+                .ToArray();
         }
+
+        #endregion Item - to be used in powershell pipe
 
         private readonly Entity entity;
         private readonly ITreeStorePersistence model;

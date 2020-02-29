@@ -47,7 +47,7 @@ namespace TreeStore.PsModule.Test
             Assert.Equal(@"TreeStore\TreeStore::kg:\Tags\tag", ((string)result[0].Properties["PSPath"].Value));
             Assert.NotEqual(Guid.Empty, result[0].Property<Guid>("Id"));
             Assert.Equal("tag", result[0].Property<string>("Name"));
-            Assert.Equal(KosmographItemType.Tag, result[0].Property<KosmographItemType>("ItemType"));
+            Assert.Equal(TreeStoreItemType.Tag, result[0].Property<TreeStoreItemType>("ItemType"));
         }
 
         [Fact]
@@ -86,7 +86,7 @@ namespace TreeStore.PsModule.Test
             Assert.Equal(@"TreeStore\TreeStore::kg:\Tags\tag", ((string)result[0].Properties["PSPath"].Value));
             Assert.NotEqual(Guid.Empty, result[0].Property<Guid>("Id"));
             Assert.Equal("tag", result[0].Property<string>("Name"));
-            Assert.Equal(KosmographItemType.Tag, result[0].Property<KosmographItemType>("ItemType"));
+            Assert.Equal(TreeStoreItemType.Tag, result[0].Property<TreeStoreItemType>("ItemType"));
         }
 
         #endregion New-Item /Tags/<name>
@@ -131,7 +131,7 @@ namespace TreeStore.PsModule.Test
             Assert.Equal(@"TreeStore\TreeStore::kg:\Tags\t\p", ((string)result[0].Properties["PSPath"].Value));
             Assert.NotEqual(Guid.Empty, result[0].Property<Guid>("Id"));
             Assert.Equal("p", result[0].Property<string>("Name"));
-            Assert.Equal(KosmographItemType.FacetProperty, result[0].Property<KosmographItemType>("ItemType"));
+            Assert.Equal(TreeStoreItemType.FacetProperty, result[0].Property<TreeStoreItemType>("ItemType"));
         }
 
         #endregion New-Item /Tags/<name>/<property-name>
@@ -179,7 +179,7 @@ namespace TreeStore.PsModule.Test
             Assert.Equal(@"TreeStore\TreeStore::kg:\Entities\e", ((string)result[0].Properties["PSPath"].Value));
             Assert.NotEqual(Guid.Empty, result[0].Property<Guid>("Id"));
             Assert.Equal("e", result[0].Property<string>("Name"));
-            Assert.Equal(KosmographItemType.Entity, result[0].Property<KosmographItemType>("ItemType"));
+            Assert.Equal(TreeStoreItemType.Entity, result[0].Property<TreeStoreItemType>("ItemType"));
         }
 
         [Fact]
@@ -224,7 +224,7 @@ namespace TreeStore.PsModule.Test
             Assert.Equal(@"TreeStore\TreeStore::kg:\Entities\e", ((string)result[0].Properties["PSPath"].Value));
             Assert.NotEqual(Guid.Empty, result[0].Property<Guid>("Id"));
             Assert.Equal("e", result[0].Property<string>("Name"));
-            Assert.Equal(KosmographItemType.Entity, result[0].Property<KosmographItemType>("ItemType"));
+            Assert.Equal(TreeStoreItemType.Entity, result[0].Property<TreeStoreItemType>("ItemType"));
         }
 
         [Fact]
@@ -337,7 +337,7 @@ namespace TreeStore.PsModule.Test
             Assert.Equal(@"TreeStore\TreeStore::kg:\Entities\e\t", ((string)result[0].Properties["PSPath"].Value));
             Assert.NotEqual(Guid.Empty, result[0].Property<Guid>("Id"));
             Assert.Equal("t", result[0].Property<string>("Name"));
-            Assert.Equal(KosmographItemType.AssignedTag, result[0].Property<KosmographItemType>("ItemType"));
+            Assert.Equal(TreeStoreItemType.AssignedTag, result[0].Property<TreeStoreItemType>("ItemType"));
         }
 
         #endregion New-Item /Entities/<entity-name>/<tag-name>
@@ -386,7 +386,7 @@ namespace TreeStore.PsModule.Test
             Assert.Equal(@"TreeStore\TreeStore::kg:\Entities\c", ((string)result[0].Properties["PSPath"].Value));
             Assert.NotEqual(Guid.Empty, result[0].Property<Guid>("Id"));
             Assert.Equal("c", result[0].Property<string>("Name"));
-            Assert.Equal(KosmographItemType.Category, result[0].Property<KosmographItemType>("ItemType"));
+            Assert.Equal(TreeStoreItemType.Category, result[0].Property<TreeStoreItemType>("ItemType"));
         }
 
         #endregion New-Item /Entities/<name> -ItemType Category
@@ -443,7 +443,7 @@ namespace TreeStore.PsModule.Test
             Assert.Equal(@"TreeStore\TreeStore::kg:\Entities\c\e", ((string)result[0].Properties["PSPath"].Value));
             Assert.NotEqual(Guid.Empty, result[0].Property<Guid>("Id"));
             Assert.Equal("e", result[0].Property<string>("Name"));
-            Assert.Equal(KosmographItemType.Entity, result[0].Property<KosmographItemType>("ItemType"));
+            Assert.Equal(TreeStoreItemType.Entity, result[0].Property<TreeStoreItemType>("ItemType"));
         }
 
         #endregion New-Item /Entities/<category-name>/<name> -ItemType Entity

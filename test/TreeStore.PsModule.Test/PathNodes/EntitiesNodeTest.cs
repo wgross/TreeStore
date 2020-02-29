@@ -231,8 +231,8 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             Assert.Equal(new[]
             {
-                nameof(KosmographItemType.Category),
-                nameof(KosmographItemType.Entity)
+                nameof(TreeStoreItemType.Category),
+                nameof(TreeStoreItemType.Entity)
             }, result);
         }
 
@@ -353,7 +353,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = node.NewItem(this.ProviderContextMock.Object, newItemName: "ee", itemTypeName: nameof(KosmographItemType.Entity), newItemValue: null!);
+            var result = node.NewItem(this.ProviderContextMock.Object, newItemName: "ee", itemTypeName: nameof(TreeStoreItemType.Entity), newItemValue: null!);
 
             // ASSERT
 
@@ -416,7 +416,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ACT
 
             var result = new EntitiesNode()
-                .NewItem(this.ProviderContextMock.Object, newItemName: "ee", itemTypeName: nameof(KosmographItemType.Entity), newItemValue: null!);
+                .NewItem(this.ProviderContextMock.Object, newItemName: "ee", itemTypeName: nameof(TreeStoreItemType.Entity), newItemValue: null!);
 
             // ASSERT
 
@@ -458,7 +458,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ACT
 
             var result = node
-                .NewItem(this.ProviderContextMock.Object, newItemName: "c", itemTypeName: nameof(KosmographItemType.Category), newItemValue: null!);
+                .NewItem(this.ProviderContextMock.Object, newItemName: "c", itemTypeName: nameof(TreeStoreItemType.Category), newItemValue: null!);
 
             // ASSERT
 
@@ -466,11 +466,11 @@ namespace TreeStore.PsModule.Test.PathNodes
         }
 
         [Theory]
-        [InlineData(nameof(KosmographItemType.AssignedFacetProperty))]
-        [InlineData(nameof(KosmographItemType.AssignedTag))]
-        [InlineData(nameof(KosmographItemType.FacetProperty))]
-        [InlineData(nameof(KosmographItemType.Relationship))]
-        [InlineData(nameof(KosmographItemType.Tag))]
+        [InlineData(nameof(TreeStoreItemType.AssignedFacetProperty))]
+        [InlineData(nameof(TreeStoreItemType.AssignedTag))]
+        [InlineData(nameof(TreeStoreItemType.FacetProperty))]
+        [InlineData(nameof(TreeStoreItemType.Relationship))]
+        [InlineData(nameof(TreeStoreItemType.Tag))]
         [InlineData("unknown")]
         [InlineData("")]
         public void EntitiesNode_creating_item_rejects_invalid_item_type(string itemTypeName)
@@ -522,7 +522,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ACT
 
             var result = Assert.Throws<InvalidOperationException>(() => node.NewItem(this.ProviderContextMock.Object,
-                newItemName: newItemName, itemTypeName: nameof(KosmographItemType.Category), newItemValue: null!));
+                newItemName: newItemName, itemTypeName: nameof(TreeStoreItemType.Category), newItemValue: null!));
 
             // ASSERT
 
@@ -559,7 +559,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ACT
 
             var result = Assert.Throws<InvalidOperationException>(() => node.NewItem(this.ProviderContextMock.Object,
-                newItemName: newItemName, itemTypeName: nameof(KosmographItemType.Entity), newItemValue: null!));
+                newItemName: newItemName, itemTypeName: nameof(TreeStoreItemType.Entity), newItemValue: null!));
 
             // ASSERT
 

@@ -51,7 +51,7 @@ namespace TreeStore.PsModule.PathNodes
 
             public FacetPropertyTypeValues ValueType => this.assignedProperty.Type;
 
-            public KosmographItemType ItemType => KosmographItemType.AssignedFacetProperty;
+            public TreeStoreItemType ItemType => TreeStoreItemType.AssignedFacetProperty;
         }
 
         private readonly ITreeStorePersistence model;

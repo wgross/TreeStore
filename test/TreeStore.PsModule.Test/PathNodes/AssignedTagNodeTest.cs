@@ -1,8 +1,8 @@
-﻿using TreeStore.Model;
-using TreeStore.PsModule.PathNodes;
-using System;
+﻿using System;
 using System.Linq;
 using System.Management.Automation;
+using TreeStore.Model;
+using TreeStore.PsModule.PathNodes;
 using Xunit;
 
 namespace TreeStore.PsModule.Test.PathNodes
@@ -64,6 +64,31 @@ namespace TreeStore.PsModule.Test.PathNodes
 
         #endregion P2F node structure
 
+        #region IGetItem
+
+        [Fact]
+        public void AsseginedTagNode_provides_Item()
+        {
+            // ARRANGE
+
+            var e = DefaultEntity(WithDefaultTag);
+
+            // ACT
+
+            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).GetItemProvider().GetItem() as AssignedTagNode.Item;
+
+            // ASSERT
+
+            Assert.Equal("t", result!.Name);
+            Assert.Equal(TreeStoreItemType.AssignedTag, result!.ItemType);
+            Assert.Equal(e.Tags.Single().Id, result!.Id);
+            Assert.Equal("p", result!.Properties.Single().Name);
+            Assert.Null(result!.Properties.Single().Value);
+            Assert.Equal(e.Tags.Single().Facet.Properties.Single().Type, result!.Properties.Single().ValueType);
+        }
+
+        #endregion IGetItem
+
         #region IGetItemProperties
 
         [Fact]
@@ -124,7 +149,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         [Theory]
         [InlineData("p")]
         [InlineData("P")]
-        public void AssignedTageNode_resolves_property_name_as_AssignedFacetPropertyNode(string name)
+        public void AssignedTagNode_resolves_property_name_as_AssignedFacetPropertyNode(string name)
         {
             // ARRANGE
 
@@ -144,7 +169,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         }
 
         [Fact]
-        public void AssignedTagNode_resolves_unkown_property_name_as_empty_result()
+        public void AssignedTagNode_resolves_unknown_property_name_as_empty_result()
         {
             // ARRANGE
 
@@ -174,6 +199,8 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             Assert.Single(result);
         }
+
+        #region IRemoveItem
 
         [Theory]
         [InlineData(true)]
@@ -238,24 +265,9 @@ namespace TreeStore.PsModule.Test.PathNodes
             Assert.Empty(e.Tags);
         }
 
-        [Fact]
-        public void AssignedTagNodeValue_provides_Item()
-        {
-            // ARRANGE
+        #endregion IRemoveItem
 
-            var e = DefaultEntity(WithDefaultTag);
-
-            // ACT
-
-            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).GetItemProvider().GetItem() as AssignedTagNode.Item;
-
-            // ASSERT
-
-            Assert.NotNull(result);
-            Assert.Equal(e.Tags.Single().Name, result!.Name);
-            Assert.Equal(e.Tags.Single().Id, result!.Id);
-            Assert.Equal(KosmographItemType.AssignedTag, result!.ItemType);
-        }
+        #region ISetItenmProperties
 
         [Fact]
         public void AssignedTagNodeValue_sets_facet_property_value()
@@ -298,6 +310,8 @@ namespace TreeStore.PsModule.Test.PathNodes
             Assert.NotNull(result);
             Assert.Null(e.TryGetFacetProperty(e.Tags.Single().Facet.Properties.Single()).value);
         }
+
+        #endregion ISetItenmProperties
 
         #region ClearItemProperty
 

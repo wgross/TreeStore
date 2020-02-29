@@ -58,7 +58,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ASSERT
 
-            Assert.Equal(KosmographItemType.AssignedFacetProperty, result!.ItemType);
+            Assert.Equal(TreeStoreItemType.AssignedFacetProperty, result!.ItemType);
             Assert.Equal("p", result!.Name);
             Assert.Equal(2, result!.Value);
             Assert.Equal(e.Tags.Single().Facet.Properties.Single().Type, result.ValueType);

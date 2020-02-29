@@ -40,7 +40,7 @@ namespace TreeStore.PsModule.PathNodes
                 set => this.facetProperty.Type = value;
             }
 
-            public KosmographItemType ItemType => KosmographItemType.FacetProperty;
+            public TreeStoreItemType ItemType => TreeStoreItemType.FacetProperty;
         }
 
         private readonly FacetProperty facetProperty;

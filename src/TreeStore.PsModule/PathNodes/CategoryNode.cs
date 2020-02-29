@@ -34,7 +34,7 @@ namespace TreeStore.PsModule.PathNodes
 
             public string Name => this.category.Name;
 
-            public KosmographItemType ItemType => KosmographItemType.Category;
+            public TreeStoreItemType ItemType => TreeStoreItemType.Category;
         }
 
         private readonly ITreeStorePersistence persistence;
@@ -84,16 +84,16 @@ namespace TreeStore.PsModule.PathNodes
 
         #region INewItem Members
 
-        public IEnumerable<string> NewItemTypeNames { get; } = new[] { nameof(KosmographItemType.Category), nameof(KosmographItemType.Entity) };
+        public IEnumerable<string> NewItemTypeNames { get; } = new[] { nameof(TreeStoreItemType.Category), nameof(TreeStoreItemType.Entity) };
 
         public IItemProvider NewItem(IProviderContext providerContext, string newItemName, string itemTypeName, object newItemValue)
         {
-            switch (itemTypeName ?? nameof(KosmographItemType.Entity))
+            switch (itemTypeName ?? nameof(TreeStoreItemType.Entity))
             {
-                case nameof(KosmographItemType.Category):
+                case nameof(TreeStoreItemType.Category):
                     return NewCategory(providerContext, newItemName);
 
-                case nameof(KosmographItemType.Entity):
+                case nameof(TreeStoreItemType.Entity):
                     return NewEntity(providerContext, newItemName);
 
                 default:
@@ -107,12 +107,12 @@ namespace TreeStore.PsModule.PathNodes
 
             if (SubCategory(persistence, newItemName) is { })
             {
-                throw new InvalidOperationException($"Name is already used by and item of type '{nameof(KosmographItemType.Category)}'");
+                throw new InvalidOperationException($"Name is already used by and item of type '{nameof(TreeStoreItemType.Category)}'");
             }
 
             if (SubEntity(persistence, newItemName) is { })
             {
-                throw new InvalidOperationException($"Name is already used by and item of type '{nameof(KosmographItemType.Entity)}'");
+                throw new InvalidOperationException($"Name is already used by and item of type '{nameof(TreeStoreItemType.Entity)}'");
             }
 
             var subCategory = new Category(newItemName);
@@ -127,12 +127,12 @@ namespace TreeStore.PsModule.PathNodes
             var persistence = providerContext.Persistence();
             if (SubCategory(persistence, newItemName) is { })
             {
-                throw new InvalidOperationException($"Name is already used by and item of type '{nameof(KosmographItemType.Category)}'");
+                throw new InvalidOperationException($"Name is already used by and item of type '{nameof(TreeStoreItemType.Category)}'");
             }
 
             if (SubEntity(persistence, newItemName) is { })
             {
-                throw new InvalidOperationException($"Name is already used by and item of type '{nameof(KosmographItemType.Entity)}'");
+                throw new InvalidOperationException($"Name is already used by and item of type '{nameof(TreeStoreItemType.Entity)}'");
             }
 
             var entity = new Entity(newItemName);
