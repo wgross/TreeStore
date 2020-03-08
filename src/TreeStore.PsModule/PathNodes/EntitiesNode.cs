@@ -8,7 +8,7 @@ using TreeStore.Model;
 
 namespace TreeStore.PsModule.PathNodes
 {
-    public sealed class EntitiesNode : PathNode, INewItem
+    public sealed class EntitiesNode : ContainerNode, INewItem
     {
         public sealed class ItemProvider : ContainerItemProvider
         {
@@ -23,10 +23,6 @@ namespace TreeStore.PsModule.PathNodes
         }
 
         public override string Name => "Entities";
-
-        public override string ItemMode => "+";
-
-        public override IItemProvider GetItemProvider() => new ItemProvider();
 
         public override IEnumerable<PathNode> Resolve(IProviderContext providerContext, string? name)
         {
@@ -48,7 +44,13 @@ namespace TreeStore.PsModule.PathNodes
             return new EntityNode(persistence, entity).Yield();
         }
 
-        #region IGetChildItem Members
+        #region IGetItem
+
+        public override PSObject GetItem() => PSObject.AsPSObject(new Item());
+
+        #endregion IGetItem
+
+        #region IGetChildItem
 
         public override IEnumerable<PathNode> GetChildNodes(IProviderContext providerContext)
         {
@@ -58,9 +60,9 @@ namespace TreeStore.PsModule.PathNodes
                     .Union<PathNode>(Entities(persistence).Select(e => new EntityNode(persistence, e)));
         }
 
-        #endregion IGetChildItem Members
+        #endregion IGetChildItem
 
-        #region INewItem Members
+        #region INewItem
 
         public IEnumerable<string> NewItemTypeNames { get; } = new[] { nameof(TreeStoreItemType.Category), nameof(TreeStoreItemType.Entity) };
 
@@ -73,7 +75,7 @@ namespace TreeStore.PsModule.PathNodes
 
         public object NewItemParameters => new NewItemParametersDefinition();
 
-        public IItemProvider NewItem(IProviderContext providerContext, string newItemName, string itemTypeName, object newItemValue)
+        public PathNode NewItem(IProviderContext providerContext, string newItemName, string itemTypeName, object newItemValue)
         {
             switch (itemTypeName ?? nameof(TreeStoreItemType.Entity))
             {
@@ -88,7 +90,7 @@ namespace TreeStore.PsModule.PathNodes
             }
         }
 
-        private IItemProvider NewCategory(IProviderContext providerContext, string newItemName)
+        private PathNode NewCategory(IProviderContext providerContext, string newItemName)
         {
             var persistence = providerContext.Persistence();
 
@@ -101,10 +103,10 @@ namespace TreeStore.PsModule.PathNodes
 
             RootCategory(persistence).AddSubCategory(category);
 
-            return new CategoryNode(persistence, persistence.Categories.Upsert(category)).GetItemProvider();
+            return new CategoryNode(persistence, persistence.Categories.Upsert(category));
         }
 
-        private IItemProvider NewEntity(IProviderContext providerContext, string newItemName)
+        private PathNode NewEntity(IProviderContext providerContext, string newItemName)
         {
             var persistence = providerContext.Persistence();
             if (SubCategory(persistence, newItemName) is { })
@@ -127,10 +129,10 @@ namespace TreeStore.PsModule.PathNodes
                     break;
             }
 
-            return new EntityNode(providerContext.Persistence(), providerContext.Persistence().Entities.Upsert(entity)).GetItemProvider();
+            return new EntityNode(providerContext.Persistence(), providerContext.Persistence().Entities.Upsert(entity));
         }
 
-        #endregion INewItem Members
+        #endregion INewItem
 
         #region Model Accessors
 

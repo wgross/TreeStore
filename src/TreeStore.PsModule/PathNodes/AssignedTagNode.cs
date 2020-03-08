@@ -2,13 +2,15 @@
 using CodeOwls.PowerShell.Provider.PathNodeProcessors;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Management.Automation;
 using TreeStore.Model;
 
 namespace TreeStore.PsModule.PathNodes
 {
-    public class AssignedTagNode : PathNode, IRemoveItem, IClearItemProperty
+    public class AssignedTagNode : ContainerNode, IRemoveItem,
+        IClearItemProperty, ISetItemProperty, IGetItemProperty
     {
         private readonly ITreeStorePersistence model;
         private readonly Entity entity;
@@ -19,75 +21,6 @@ namespace TreeStore.PsModule.PathNodes
             this.model = model;
             this.entity = entity;
             this.assignedTag = tag;
-        }
-
-        public class ItemProvider : IItemProvider
-        {
-            private readonly ITreeStorePersistence model;
-            private readonly Entity entity;
-            private readonly Tag assignedTag;
-
-            public ItemProvider(ITreeStorePersistence model, Entity entity, Tag assignedTag)
-            {
-                this.model = model;
-                this.entity = entity;
-                this.assignedTag = assignedTag;
-            }
-
-            public string Name => this.assignedTag.Name;
-
-            public bool IsContainer => true;
-
-            public object GetItem() => new Item(this.entity, this.assignedTag);
-
-            public IEnumerable<PSPropertyInfo> GetItemProperties(IEnumerable<string> propertyNames)
-            {
-                var assignedTagProperties = this.assignedTag.Facet.Properties.AsEnumerable();
-
-                if (propertyNames != null && propertyNames.Any())
-                    assignedTagProperties = assignedTagProperties.Where(p => propertyNames.Contains(p.Name));
-
-                return assignedTagProperties.Select(p =>
-                {
-                    (_, object? value) = this.entity.TryGetFacetProperty(p);
-                    return new PSNoteProperty(p.Name, value);
-                });
-            }
-
-            public void SetItemProperties(IEnumerable<PSPropertyInfo> properties)
-            {
-                foreach (var p in properties)
-                {
-                    var fp = this.assignedTag.Facet.Properties.SingleOrDefault(fp => fp.Name.Equals(p.Name));
-                    if (fp is null)
-                        continue;
-                    if (!fp.CanAssignValue(p.Value?.ToString() ?? null))
-                        throw new InvalidOperationException($"value='{p.Value}' cant be assigned to property(name='{p.Name}', type='{fp.Type}')");
-
-                    this.entity.SetFacetProperty(fp, p.Value);
-                }
-                this.model.Entities.Upsert(this.entity);
-            }
-        }
-
-        #region Item - to be used in powershell pipe
-
-        public sealed class Property
-        {
-            private readonly FacetProperty property;
-
-            internal Property(string name, object? value, FacetPropertyTypeValues type)
-            {
-                this.Name = name;
-                this.Value = value;
-                this.ValueType = type;
-            }
-
-            public string Name { get; }
-
-            public object? Value { get; }
-
-            public FacetPropertyTypeValues ValueType { get; }
         }
 
         public sealed class Item
@@ -101,37 +34,18 @@ namespace TreeStore.PsModule.PathNodes
                 this.entity = entity;
             }
 
-            public Guid Id => this.assignedTag.Id;
-
             public string Name => this.assignedTag.Name;
 
             public TreeStoreItemType ItemType => TreeStoreItemType.AssignedTag;
 
-            private Property[]? properties = null;
-
-            public Property[] Properties => this.properties ??= this.SelectAssignedProperties();
-
-            private Property[] SelectAssignedProperties() => this.assignedTag
+            public string[] Properties => this.assignedTag
                 .Facet
                 .Properties
-                .Select(p =>
-                {
-                    var (hasValue, value) = this.entity.TryGetFacetProperty(p);
-                    if (hasValue)
-                        return new Property($"{p.Name}", value, p.Type);
-                    else
-                        return new Property($"{p.Name}", null, p.Type);
-                })
+                .Select(p => p.Name)
                 .ToArray();
         }
 
-        #endregion Item - to be used in powershell pipe
-
         public override string Name => this.assignedTag.Name;
-
-        public override string ItemMode => "+";
-
-        public override IItemProvider GetItemProvider() => new ItemProvider(this.model, this.entity, this.assignedTag);
 
         public override IEnumerable<PathNode> Resolve(IProviderContext providerContext, string? name)
         {
@@ -145,6 +59,25 @@ namespace TreeStore.PsModule.PathNodes
             return new AssignedFacetPropertyNode(providerContext.Persistence(), this.entity, property).Yield();
         }
 
+        #region IGetItem
+
+        public override PSObject GetItem()
+        {
+            var psObject = PSObject.AsPSObject(new Item(this.entity, this.assignedTag));
+
+            this.entity
+               .AllAssignedPropertyValues(this.assignedTag)
+               .Aggregate(psObject, (pso, p) =>
+               {
+                   pso.Properties.Add(new PSNoteProperty(p.propertyName, p.value));
+                   return pso;
+               });
+
+            return psObject;
+        }
+
+        #endregion IGetItem
+
         #region IGetChildItem Members
 
         public override IEnumerable<PathNode> GetChildNodes(IProviderContext providerContext)
@@ -154,7 +87,7 @@ namespace TreeStore.PsModule.PathNodes
 
         #region IRemoveItem Members
 
-        public void RemoveItem(IProviderContext providerContext, string path, bool recurse)
+        public void RemoveItem(IProviderContext providerContext, string path)
         {
             this.entity.Tags.Remove(this.assignedTag);
             providerContext.Persistence().Entities.Upsert(this.entity);
@@ -164,7 +97,7 @@ namespace TreeStore.PsModule.PathNodes
 
         #region IClearItemProperty
 
-        #region IClearItem Members
+        public object ClearItemPropertyParameters => this.BuildItemPropertyParameters(this.ValidateSetAttributeForSettable());
 
         public void ClearItemProperty(IProviderContext providerContext, IEnumerable<string> propertyToClear)
         {
@@ -190,8 +123,56 @@ namespace TreeStore.PsModule.PathNodes
             return (assignedTag, facetProperty);
         }
 
-        #endregion IClearItem Members
-
         #endregion IClearItemProperty
+
+        #region ISetItemProperty
+
+        public object SetItemPropertyParameters => this.BuildItemPropertyParameters(this.ValidateSetAttributeForSettable());
+
+        private RuntimeDefinedParameterDictionary BuildItemPropertyParameters(ValidateSetAttribute validateSet)
+        {
+            var propertyNameParameter = new RuntimeDefinedParameter("TreeStorePropertyName", typeof(string), new Collection<Attribute>());
+            propertyNameParameter.Attributes.Add(this.ParameterAttribute());
+            propertyNameParameter.Attributes.Add(validateSet);
+            var parameter = new RuntimeDefinedParameterDictionary();
+            parameter.Add(propertyNameParameter.Name, propertyNameParameter);
+            return parameter;
+        }
+
+        private ParameterAttribute ParameterAttribute() => new ParameterAttribute();
+
+        private ValidateSetAttribute ValidateSetAttributeForSettable() => new ValidateSetAttribute(this.entity
+            .AllAssignedPropertyValues(this.assignedTag)
+            .Select(pv => pv.propertyName)
+            .ToArray());
+
+        public void SetItemProperties(IProviderContext providerContext, IEnumerable<PSPropertyInfo> properties)
+        {
+            foreach (var p in properties)
+            {
+                var fp = this.assignedTag.Facet.Properties.SingleOrDefault(fp => fp.Name.Equals(p.Name, StringComparison.OrdinalIgnoreCase));
+                if (fp is null)
+                    continue;
+                if (!fp.CanAssignValue(p.Value?.ToString() ?? null))
+                    throw new InvalidOperationException($"value='{p.Value}' cant be assigned to property(name='{p.Name}', type='{fp.Type}')");
+
+                this.entity.SetFacetProperty(fp, p.Value);
+            }
+            providerContext.Persistence().Entities.Upsert(this.entity);
+        }
+
+        #endregion ISetItemProperty
+
+        #region IGetItemProperty - argument completion only
+
+        public RuntimeDefinedParameterDictionary GetItemPropertyParameters => this.BuildItemPropertyParameters(this.ValidateSetAttributeForGettable());
+
+        private ValidateSetAttribute ValidateSetAttributeForGettable() => new ValidateSetAttribute(this.entity
+            .AllAssignedPropertyValues(this.assignedTag)
+            .Select(pv => pv.propertyName)
+            .Union(new[] { "Name" })
+            .ToArray());
+
+        #endregion IGetItemProperty - argument completion only
     }
 }

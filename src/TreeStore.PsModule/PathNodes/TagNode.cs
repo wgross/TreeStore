@@ -1,5 +1,4 @@
 ﻿using CodeOwls.PowerShell.Paths;
-using CodeOwls.PowerShell.Paths.Extensions;
 using CodeOwls.PowerShell.Provider.PathNodeProcessors;
 using System;
 using System.Collections.Generic;
@@ -9,7 +8,7 @@ using TreeStore.Model;
 
 namespace TreeStore.PsModule.PathNodes
 {
-    public class TagNode : PathNode,
+    public class TagNode : ContainerNode,
         // Item capabilities
         INewItem, IRemoveItem, ICopyItem, IRenameItem
     {
@@ -48,67 +47,10 @@ namespace TreeStore.PsModule.PathNodes
 
             public TreeStoreItemType ItemType => TreeStoreItemType.Tag;
 
-            public Property[] Properties => this.tag.Facet.Properties.Select(p => new Property(p)).ToArray();
+            public string[] Properties => this.tag.Facet.Properties.Select(p => p.Name).ToArray();
         }
 
         #endregion Item - to be used in powershell pipe
-
-        public class ItemProvider : IItemProvider
-
-        {
-            private readonly ITreeStorePersistence model;
-            private readonly Tag tag;
-
-            public ItemProvider(ITreeStorePersistence model, Tag tag)
-            {
-                this.model = model;
-                this.tag = tag;
-            }
-
-            public string Name => this.tag.Name.MakeSafeForPath();
-
-            public bool IsContainer => true;
-
-            public object GetItem() => new Item(this.tag);
-
-            #region IGetItemProperties
-
-            public IEnumerable<PSPropertyInfo> GetItemProperties(IEnumerable<string> propertyNames)
-            {
-                IEnumerable<PSNoteProperty> tagProperties()
-                {
-                    var item = (Item)GetItem();
-                    yield return new PSNoteProperty(nameof(Item.Id), item.Id);
-                    yield return new PSNoteProperty(nameof(Item.Name), item.Name);
-                    yield return new PSNoteProperty(nameof(Item.Properties), item.Properties);
-                }
-
-                if (propertyNames.Any())
-                    return tagProperties().Where(p => propertyNames.Contains(p.Name, StringComparer.OrdinalIgnoreCase));
-                else
-                    return tagProperties();
-            }
-
-            #endregion IGetItemProperties
-
-            #region ISetItemProperties
-
-            public void SetItemProperties(IEnumerable<PSPropertyInfo> properties)
-
-            {
-                IItemProvider.SetItemProperties(this, properties);
-                this.model.Tags.Upsert(tag);
-            }
-
-            internal void AddProperty(IProviderContext providerContext, string name, FacetPropertyTypeValues type)
-            {
-                this.tag.Facet.AddProperty(new FacetProperty(name, type));
-
-                providerContext.Persistence().Tags.Upsert(this.tag);
-            }
-
-            #endregion ISetItemProperties
-        }
 
         private readonly ITreeStorePersistence model;
         private readonly Tag tag;
@@ -119,16 +61,18 @@ namespace TreeStore.PsModule.PathNodes
             this.tag = tag;
         }
 
-        #region IPathNode Members
+        #region IGetItem
+
+        public override PSObject GetItem() => PSObject.AsPSObject(new Item(this.tag));
+
+        #endregion IGetItem
+
+        #region IPathNode
 
         public override string Name => this.tag.Name;
 
-        public override string ItemMode => "+";
-
         public override IEnumerable<PathNode> GetChildNodes(IProviderContext providerContext)
             => this.tag.Facet.Properties.Select(p => new FacetPropertyNode(this.tag, p));
-
-        public override IItemProvider GetItemProvider() => new ItemProvider(this.model, this.tag);
 
         public override IEnumerable<PathNode> Resolve(IProviderContext providerContext, string? name)
         {
@@ -142,9 +86,9 @@ namespace TreeStore.PsModule.PathNodes
             return new[] { new FacetPropertyNode(tag, facetProperty) };
         }
 
-        #endregion IPathNode Members
+        #endregion IPathNode
 
-        #region INewItem Members
+        #region INewItem
 
         public class NewFacetPropertyParameters
         {
@@ -156,7 +100,7 @@ namespace TreeStore.PsModule.PathNodes
 
         public object NewItemParameters => new NewFacetPropertyParameters();
 
-        public IItemProvider? NewItem(IProviderContext providerContext, string newItemChildPath, string itemTypeName, object? newItemValue)
+        public PathNode NewItem(IProviderContext providerContext, string newItemChildPath, string itemTypeName, object? newItemValue)
         {
             var facetProperty = providerContext.DynamicParameters switch
             {
@@ -167,26 +111,26 @@ namespace TreeStore.PsModule.PathNodes
             this.tag.Facet.AddProperty(facetProperty);
             providerContext.Persistence().Tags.Upsert(this.tag);
 
-            return this.GetChildNodes(providerContext).Single(fp => fp.Name.Equals(newItemChildPath))?.GetItemProvider();
+            return this.GetChildNodes(providerContext).Single(fp => fp.Name.Equals(newItemChildPath));
         }
 
-        #endregion INewItem Members
+        #endregion INewItem
 
-        #region IRemoveItem Members
+        #region IRemoveItem
 
-        public void RemoveItem(IProviderContext providerContext, string name, bool recurse)
+        public void RemoveItem(IProviderContext providerContext, string name)
         {
-            if (recurse)
+            if (providerContext.Recurse)
                 providerContext.Persistence().Tags.Delete(this.tag);
             else if (!this.tag.Facet.Properties.Any())
                 providerContext.Persistence().Tags.Delete(this.tag);
         }
 
-        #endregion IRemoveItem Members
+        #endregion IRemoveItem
 
-        #region ICopyItem Members
+        #region ICopyItem
 
-        public void CopyItem(IProviderContext providerContext, string sourceItemName, string destinationItemName, IItemProvider destinationContainer, bool recurse)
+        public void CopyItem(IProviderContext providerContext, string sourceItemName, string destinationItemName, PathNode destinationNode)
         {
             var newTag = new Tag(destinationItemName);
             this.tag.Facet.Properties.ForEach(p => newTag.Facet.AddProperty(new FacetProperty(p.Name, p.Type)));
@@ -194,9 +138,16 @@ namespace TreeStore.PsModule.PathNodes
             providerContext.Persistence().Tags.Upsert(newTag);
         }
 
-        #endregion ICopyItem Members
+        internal void AddProperty(IProviderContext providerContext, string name, FacetPropertyTypeValues type)
+        {
+            this.tag.Facet.AddProperty(new FacetProperty(name, type));
 
-        #region IRenameItem Members
+            providerContext.Persistence().Tags.Upsert(this.tag);
+        }
+
+        #endregion ICopyItem
+
+        #region IRenameItem
 
         public void RenameItem(IProviderContext providerContext, string path, string newName)
         {
@@ -207,6 +158,6 @@ namespace TreeStore.PsModule.PathNodes
             providerContext.Persistence().Tags.Upsert(this.tag);
         }
 
-        #endregion IRenameItem Members
+        #endregion IRenameItem
     }
 }

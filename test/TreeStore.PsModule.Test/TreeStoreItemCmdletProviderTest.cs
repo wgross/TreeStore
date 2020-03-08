@@ -376,7 +376,6 @@ namespace TreeStore.PsModule.Test
             Assert.Equal("TreeStore", result[0].Property<ProviderInfo>("PSProvider").Name);
             Assert.Equal("TreeStore", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
             Assert.Equal(@"TreeStore\TreeStore::kg:\Entities\e\t", ((string)result[0].Properties["PSPath"].Value));
-            Assert.Equal(tag.Id, result[0].Property<Guid>("Id"));
             Assert.Equal(tag.Name, result[0].Property<string>("Name"));
             Assert.Equal(entity.TryGetFacetProperty(tag.Facet.Properties.Single()).Item2, result[0].Property<int>(tag.Facet.Properties.Single().Name));
         }
@@ -460,7 +459,6 @@ namespace TreeStore.PsModule.Test
             Assert.Equal("TreeStore", result[0].Property<ProviderInfo>("PSProvider").Name);
             Assert.Equal("TreeStore", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
             Assert.Equal(@"TreeStore\TreeStore::kg:\Entities\e\t\p", ((string)result[0].Properties["PSPath"].Value));
-            Assert.Equal(tag.Facet.Properties.Single().Id, result[0].Property<Guid>("Id"));
             Assert.Equal(tag.Facet.Properties.Single().Name, result[0].Property<string>("Name"));
             Assert.Equal(1, result[0].Property<int>("Value"));
         }

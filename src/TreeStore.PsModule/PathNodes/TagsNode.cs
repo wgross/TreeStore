@@ -1,13 +1,14 @@
 ﻿using CodeOwls.PowerShell.Paths;
 using CodeOwls.PowerShell.Provider.PathNodeProcessors;
-using TreeStore.Model;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Management.Automation;
+using TreeStore.Model;
 
 namespace TreeStore.PsModule.PathNodes
 {
-    public sealed class TagsNode : PathNode, INewItem
+    public sealed class TagsNode : ContainerNode, INewItem
     {
         private class Value : ContainerItemProvider
         {
@@ -22,13 +23,9 @@ namespace TreeStore.PsModule.PathNodes
             public string Name => "Tags";
         }
 
-        #region IPathNode Members
+        #region IPathNode
 
         public override string Name => "Tags";
-
-        public override string ItemMode => "+";
-
-        public override IItemProvider GetItemProvider() => new Value();
 
         public override IEnumerable<PathNode> Resolve(IProviderContext providerContext, string? name)
         {
@@ -43,9 +40,15 @@ namespace TreeStore.PsModule.PathNodes
             return new[] { new TagNode(providerContext.Persistence(), tag) };
         }
 
-        #endregion IPathNode Members
+        #endregion IPathNode
 
-        #region IGetChildItem Members
+        #region IGetItem
+
+        public override PSObject GetItem() => PSObject.AsPSObject(new Item());
+
+        #endregion IGetItem
+
+        #region IGetChildItem
 
         public override IEnumerable<PathNode> GetChildNodes(IProviderContext providerContext)
         {
@@ -55,15 +58,15 @@ namespace TreeStore.PsModule.PathNodes
                 .Select(t => new TagNode(providerContext.Persistence(), t));
         }
 
-        #endregion IGetChildItem Members
+        #endregion IGetChildItem
 
-        #region INewItem Members
+        #region INewItem
 
         public IEnumerable<string> NewItemTypeNames => "Tag".Yield();
 
-        public IItemProvider NewItem(IProviderContext providerContext, string newItemChildPath, string? itemTypeName, object? newItemValue)
-            => new TagNode(providerContext.Persistence(), providerContext.Persistence().Tags.Upsert(new Tag(Path.GetFileName(newItemChildPath)))).GetItemProvider();
+        public PathNode NewItem(IProviderContext providerContext, string newItemChildPath, string? itemTypeName, object? newItemValue)
+            => new TagNode(providerContext.Persistence(), providerContext.Persistence().Tags.Upsert(new Tag(Path.GetFileName(newItemChildPath))));
 
-        #endregion INewItem Members
+        #endregion INewItem
     }
 }

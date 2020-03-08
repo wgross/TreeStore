@@ -1,8 +1,8 @@
-﻿using TreeStore.Model;
-using Moq;
-using TreeStore.PsModule.PathNodes;
+﻿using Moq;
 using System;
 using System.Linq;
+using TreeStore.Model;
+using TreeStore.PsModule.PathNodes;
 using Xunit;
 
 namespace TreeStore.PsModule.Test.PathNodes
@@ -25,7 +25,6 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ASSERT
 
             Assert.Equal("p", result.Name);
-            Assert.Equal("+", result.ItemMode);
         }
 
         [Fact]
@@ -37,13 +36,12 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = new FacetPropertyNode(tag, tag.Facet.Properties.Single()).GetItemProvider();
+            var result = new FacetPropertyNode(tag, tag.Facet.Properties.Single());
 
             // ASSERT
 
             Assert.Equal("p", result.Name);
             Assert.False(result.IsContainer);
-            Assert.IsType<FacetPropertyNode.ItemProvider>(result);
         }
 
         [Fact]
@@ -55,14 +53,18 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = new FacetPropertyNode(tag, tag.Facet.Properties.Single()).GetItemProvider().GetItem() as FacetPropertyNode.Item;
+            var result = new FacetPropertyNode(tag, tag.Facet.Properties.Single()).GetItem();
 
             // ASSERT
 
-            Assert.Equal(tag.Facet.Properties.Single().Id, result!.Id);
-            Assert.Equal("p", result!.Name);
-            Assert.Equal(tag.Facet.Properties.Single().Type, result!.ValueType);
-            Assert.Equal(TreeStoreItemType.FacetProperty, result!.ItemType);
+            Assert.IsType<FacetPropertyNode.Item>(result.ImmediateBaseObject);
+
+            var resultValue = (FacetPropertyNode.Item)result.ImmediateBaseObject;
+
+            Assert.Equal(tag.Facet.Properties.Single().Id, resultValue.Id);
+            Assert.Equal("p", resultValue.Name);
+            Assert.Equal(tag.Facet.Properties.Single().Type, resultValue.ValueType);
+            Assert.Equal(TreeStoreItemType.FacetProperty, resultValue.ItemType);
         }
 
         #endregion P2F node structure
@@ -105,47 +107,48 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            new FacetPropertyNode(tag, tag.Facet.Properties.Single())
-                .RemoveItem(this.ProviderContextMock.Object, "p", true);
+            new FacetPropertyNode(tag, tag.Facet.Properties.Single()).RemoveItem(this.ProviderContextMock.Object, "p");
 
             // ASSERT
 
             Assert.Empty(tag.Facet.Properties);
         }
 
-        [Fact]
-        public void FacetPropertyNodeItem_set_FacetProperty_name()
-        {
-            // ARRANGE
+        //[Fact]
+        //public void FacetPropertyNodeItem_set_FacetProperty_name()
+        //{
+        //    // ARRANGE
 
-            var tag = DefaultTag(WithDefaultProperty);
+        //    var tag = DefaultTag(WithDefaultProperty);
 
-            // ACT
+        //    // ACT
 
-            var item = new FacetPropertyNode(tag, tag.Facet.Properties.Single()).GetItemProvider().GetItem() as FacetPropertyNode.Item;
-            item!.Name = "changed";
+        //    var item = new FacetPropertyNode(tag, tag.Facet.Properties.Single()).GetItemProvider().GetItem() as FacetPropertyNode.Item;
+        //    item!.Name = "changed";
 
-            // ASSERT
+        //    // ASSERT
 
-            Assert.Equal("changed", tag.Facet.Properties.Single().Name);
-        }
+        //    Assert.Equal("changed", tag.Facet.Properties.Single().Name);
+        //}
 
-        [Fact]
-        public void FacetPropertyNodeItem_set_FacetProperty_type()
-        {
-            // ARRANGE
+        //[Fact]
+        //public void FacetPropertyNodeItem_set_FacetProperty_type()
+        //{
+        //    // ARRANGE
 
-            var tag = DefaultTag(WithDefaultProperty);
+        //    var tag = DefaultTag(WithDefaultProperty);
 
-            // ACT
+        //    // ACT
 
-            var item = new FacetPropertyNode(tag, tag.Facet.Properties.Single()).GetItemProvider().GetItem() as FacetPropertyNode.Item;
-            item!.ValueType = TreeStore.Model.FacetPropertyTypeValues.Bool;
+        //    var item = new FacetPropertyNode(tag, tag.Facet.Properties.Single()).GetItemProvider().GetItem();
 
-            // ASSERT
+        //    as FacetPropertyNode.Item;
+        //    item!.ValueType = TreeStore.Model.FacetPropertyTypeValues.Bool;
 
-            Assert.Equal(TreeStore.Model.FacetPropertyTypeValues.Bool, tag.Facet.Properties.Single().Type);
-        }
+        //    // ASSERT
+
+        //    Assert.Equal(TreeStore.Model.FacetPropertyTypeValues.Bool, tag.Facet.Properties.Single().Type);
+        //}
 
         [Fact]
         public void FacetPropertyNode_copies_to_tag_with_same_name()
@@ -170,7 +173,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ACT
 
             new FacetPropertyNode(tag, tag.Facet.Properties.Single())
-                .CopyItem(this.ProviderContextMock.Object, "p", null, new TagNode(this.PersistenceMock.Object, tag2).GetItemProvider(), false);
+                .CopyItem(this.ProviderContextMock.Object, "p", null, new TagNode(this.PersistenceMock.Object, tag2));
 
             // ASSERT
 
@@ -202,7 +205,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ACT
 
             new FacetPropertyNode(tag, tag.Facet.Properties.Single())
-                .CopyItem(this.ProviderContextMock.Object, "p", "pp", new TagNode(this.PersistenceMock.Object, tag2).GetItemProvider(), false);
+                .CopyItem(this.ProviderContextMock.Object, "p", "pp", new TagNode(this.PersistenceMock.Object, tag2));
 
             // ASSERT
 
@@ -223,7 +226,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             var result = Assert.Throws<InvalidOperationException>(()
                 => new FacetPropertyNode(tag, tag.Facet.Properties.Single()).CopyItem(this.ProviderContextMock.Object,
-                    "p", "p", new TagNode(this.PersistenceMock.Object, tag2).GetItemProvider(), false));
+                    "p", "p", new TagNode(this.PersistenceMock.Object, tag2)));
 
             // ASSERT
 
@@ -293,5 +296,47 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             Assert.Equal("rename failed: property name 'PP' must be unique.", result.Message);
         }
+
+        #region IGetItemProperty
+
+        [Fact]
+        public void FacetPropertyNode_retrieves_Cs_properties_with_values()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithoutProperty, WithProperty("p", FacetPropertyTypeValues.String), WithProperty("pp", FacetPropertyTypeValues.Long));
+            var facetProperty = tag.Facet.Properties.First();
+
+            // ACT
+
+            var result = new FacetPropertyNode(tag, facetProperty).GetItemProperties(this.ProviderContextMock.Object, Enumerable.Empty<string>());
+
+            // ASSERT
+
+            Assert.Equal(new[] { "Id", "Name", "ValueType", "ItemType" }, result.Select(r => r.Name));
+            Assert.Equal(new object[] { facetProperty.Id, facetProperty.Name, facetProperty.Type, TreeStoreItemType.FacetProperty }, result.Select(r => r.Value));
+        }
+
+        [Theory]
+        [InlineData("ID")]
+        [InlineData("id")]
+        public void FacetPropertyNode_retrieves_specifoed_Cs_properties_with_values(string propertyName)
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithoutProperty, WithProperty("p", FacetPropertyTypeValues.String), WithProperty("pp", FacetPropertyTypeValues.Long));
+            var facetProperty = tag.Facet.Properties.First();
+
+            // ACT
+
+            var result = new FacetPropertyNode(tag, facetProperty).GetItemProperties(this.ProviderContextMock.Object, new[] { propertyName });
+
+            // ASSERT
+
+            Assert.Equal("Id", result.Single().Name);
+            Assert.Equal(facetProperty.Id, result.Single().Value);
+        }
+
+        #endregion IGetItemProperty
     }
 }

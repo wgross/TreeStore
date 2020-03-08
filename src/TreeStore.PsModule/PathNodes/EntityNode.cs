@@ -2,17 +2,20 @@
 using CodeOwls.PowerShell.Provider.PathNodeProcessors;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Management.Automation;
 using TreeStore.Model;
 
 namespace TreeStore.PsModule.PathNodes
 {
-    public sealed class EntityNode : PathNode,
-        // item capabilities
+    /// <summary>
+    /// Represents and object of the data model. It has Assigned tags as child nodes and
+    /// Allows to read/write all properties of all tags assiged to it.
+    /// </summary>
+    public sealed class EntityNode : ContainerNode,
         INewItem, IRemoveItem, ICopyItem, IRenameItem, IMoveItem,
-        // item property capabilities
-        IClearItemProperty
+        IClearItemProperty, ISetItemProperty, IGetItemProperty
     {
         public sealed class ItemProvider : ContainerItemProvider, IItemProvider
         {
@@ -28,64 +31,21 @@ namespace TreeStore.PsModule.PathNodes
 
             public IEnumerable<PSPropertyInfo> GetItemProperties(IEnumerable<string> propertyNames)
             {
-                IEnumerable<PSNoteProperty> staticProperties(Item item)
+                IEnumerable<PSNoteProperty> staticProperties()
                 {
-                    yield return new PSNoteProperty(nameof(Name), item.Name);
+                    yield return new PSNoteProperty(nameof(Item.Id), this.entity.Id);
+                    yield return new PSNoteProperty(nameof(Item.Name), this.entity.Name);
                 }
 
-                IEnumerable<PSNoteProperty> dynamicProperties()
-                {
-                    return this.entity.Tags
-                        // make tuple <tag-name>, <property>
-                        .SelectMany(t => t.Facet.Properties.AsEnumerable().Select(p => (t.Name, p)))
-                        // map tuple to PSNoteProperty(<tag-name>.<property-name>,p.Value)
-                        .Select(tnp =>
-                        {
-                            var (hasValue, value) = this.entity.TryGetFacetProperty(tnp.p);
-                            if (hasValue)
-                                return new PSNoteProperty($"{tnp.Name}.{tnp.p.Name}", value);
-                            else
-                                return new PSNoteProperty($"{tnp.Name}.{tnp.p.Name}", null);
-                        });
-                }
+                IEnumerable<PSNoteProperty> assignedProperties() => this.entity
+                    .AllAssignedPropertyValues()
+                    .Select(p => new PSNoteProperty($"{p.tagName}.{p.propertyName}", p.value));
 
-                var allProperties = staticProperties((Item)this.GetItem()).Union(dynamicProperties());
+                var allProperties = staticProperties().Union(assignedProperties());
                 if (propertyNames.Any())
                     return allProperties.Where(p => propertyNames.Contains(p.Name, StringComparer.OrdinalIgnoreCase));
                 else
                     return allProperties;
-            }
-
-            public void SetItemProperties(IEnumerable<PSPropertyInfo> properties)
-            {
-                foreach (var property in properties)
-                {
-                    if (nameof(Name).Equals(property.Name, StringComparison.OrdinalIgnoreCase))
-                    {
-                        this.entity.Name = (string)property.Value;
-                    }
-                    else this.SetAssignedFacetProperty(property.Name, property.Value);
-                }
-                this.model.Entities.Upsert(entity);
-            }
-
-            private void SetAssignedFacetProperty(string name, object value)
-            {
-                if (string.IsNullOrEmpty(name))
-                    return;
-                var splittedName = name.Split(".", 2, StringSplitOptions.RemoveEmptyEntries);
-                if (splittedName.Length != 2)
-                    return;
-
-                var assignedTag = this.entity.Tags.FirstOrDefault(t => t.Name.Equals(splittedName[0], StringComparison.OrdinalIgnoreCase));
-                if (assignedTag is null)
-                    return;
-
-                var facetProperty = assignedTag.Facet.Properties.FirstOrDefault(p => p.Name.Equals(splittedName[1], StringComparison.OrdinalIgnoreCase));
-                if (facetProperty is null)
-                    return;
-
-                this.entity.SetFacetProperty(facetProperty, value);
             }
         }
 
@@ -93,8 +53,6 @@ namespace TreeStore.PsModule.PathNodes
 
         public sealed class Property
         {
-            private readonly FacetProperty property;
-
             internal Property(string name, object? value, FacetPropertyTypeValues type)
             {
                 this.Name = name;
@@ -128,22 +86,14 @@ namespace TreeStore.PsModule.PathNodes
 
             public TreeStoreItemType ItemType => TreeStoreItemType.Entity;
 
-            private Property[]? properties = null;
+            private string[]? properties = null;
 
-            public Property[] Properties => this.properties ??= this.SelectAssignedProperties();
+            public string[] Properties => this.properties ??= this.SelectAssignedProperties();
 
-            private Property[] SelectAssignedProperties() => this.entity.Tags
-                // make tuple <tag-name>, <property>
+            private string[] SelectAssignedProperties() => this.entity
+                .Tags
                 .SelectMany(t => t.Facet.Properties.AsEnumerable().Select(p => (t.Name, p)))
-                // map tuple to PSNoteProperty(<tag-name>.<property-name>,p.Value)
-                .Select(tnp =>
-                {
-                    var (hasValue, value) = this.entity.TryGetFacetProperty(tnp.p);
-                    if (hasValue)
-                        return new Property($"{tnp.Name}.{tnp.p.Name}", value, tnp.p.Type);
-                    else
-                        return new Property($"{tnp.Name}.{tnp.p.Name}", null, tnp.p.Type);
-                })
+                .Select(tnp => $"{tnp.Name}.{tnp.p.Name}")
                 .ToArray();
         }
 
@@ -158,16 +108,34 @@ namespace TreeStore.PsModule.PathNodes
             this.model = model;
         }
 
-        #region IPathNode Members
+        #region IGetItem
+
+        public override PSObject GetItem()
+        {
+            // create a spo wth all properties from Item
+            var pso = PSObject.AsPSObject(new Item(this.entity));
+            // append all dynamic properties as not properties
+            this.entity
+                .AllAssignedPropertyValues()
+                .Aggregate(pso, (pso, p) =>
+                {
+                    pso.Properties.Add(new PSNoteProperty($"{p.tagName}.{p.propertyName}", p.value));
+                    return pso;
+                });
+
+            return pso;
+        }
+
+        #endregion IGetItem
 
         public override string Name => this.entity.Name;
 
-        public override string ItemMode => "+";
+        #region IGetChildNodes
 
         public override IEnumerable<PathNode> GetChildNodes(IProviderContext providerContext)
             => this.entity.Tags.Select(t => new AssignedTagNode(providerContext.Persistence(), this.entity, t));
 
-        public override IItemProvider GetItemProvider() => new ItemProvider(this.model, this.entity);
+        #endregion IGetChildNodes
 
         public override IEnumerable<PathNode> Resolve(IProviderContext providerContext, string? name)
         {
@@ -180,58 +148,56 @@ namespace TreeStore.PsModule.PathNodes
             return new AssignedTagNode(providerContext.Persistence(), this.entity, tag).Yield();
         }
 
-        #endregion IPathNode Members
-
-        #region INewItem Members
+        #region INewItem
 
         public IEnumerable<string> NewItemTypeNames => "AssignedTag".Yield();
 
-        public IItemProvider NewItem(IProviderContext providerContext, string newItemChildPath, string? itemTypeName, object? newItemValue)
+        public PathNode NewItem(IProviderContext providerContext, string newItemChildPath, string? itemTypeName, object? newItemValue)
         {
             var tag = providerContext.Persistence().Tags.FindByName(newItemChildPath);
             if (tag is null)
                 throw new InvalidOperationException($"tag(name='{newItemChildPath}') doesn't exist.");
 
             if (this.entity.Tags.Contains(tag))
-                return new AssignedTagNode(providerContext.Persistence(), this.entity, tag).GetItemProvider();
+                return new AssignedTagNode(providerContext.Persistence(), this.entity, tag);
 
             this.entity.AddTag(tag);
 
             providerContext.Persistence().Entities.Upsert(this.entity);
 
-            return new AssignedTagNode(providerContext.Persistence(), this.entity, tag).GetItemProvider();
+            return new AssignedTagNode(providerContext.Persistence(), this.entity, tag);
         }
 
-        #endregion INewItem Members
+        #endregion INewItem
 
-        #region IRemoveItem Members
+        #region IRemoveItem
 
-        public void RemoveItem(IProviderContext providerContext, string path, bool recurse)
+        public void RemoveItem(IProviderContext providerContext, string path)
         {
-            if (recurse)
+            if (providerContext.Recurse)
                 providerContext.Persistence().Entities.Delete(this.entity);
             else if (!this.entity.Tags.Any())
                 providerContext.Persistence().Entities.Delete(this.entity);
         }
 
-        #endregion IRemoveItem Members
+        #endregion IRemoveItem
 
-        #region ICopyItem Members
+        #region ICopyItem
 
-        public void CopyItem(IProviderContext providerContext, string sourceItemName, string? destinationItemName, IItemProvider destinationProvider, bool recurse)
+        public void CopyItem(IProviderContext providerContext, string sourceItemName, string? destinationItemName, PathNode destinationNode)
         {
             var newEntity = new Entity(destinationItemName ?? sourceItemName, this.entity.Tags.ToArray());
             var persistence = providerContext.Persistence();
 
-            if (destinationProvider is CategoryNode.ItemProvider categoryProvider)
+            if (destinationNode is CategoryNode categoryProvider)
             {
                 newEntity.SetCategory(persistence.Categories.FindById(categoryProvider.Id));
             }
-            else if (destinationProvider is EntitiesNode.ItemProvider enttiesProvider)
+            else if (destinationNode is EntitiesNode enttiesProvider)
             {
                 newEntity.SetCategory(persistence.Categories.Root());
             }
-            else throw new InvalidOperationException($"Entity(name={sourceItemName} can't be copied to destnatination(typof='{destinationProvider.GetType()}'");
+            else throw new InvalidOperationException($"Entity(name={sourceItemName} can't be copied to destnatination(typof='{destinationNode.GetType()}'");
 
             this.entity.Tags.ForEach(t =>
             {
@@ -250,9 +216,9 @@ namespace TreeStore.PsModule.PathNodes
             persistence.Entities.Upsert(newEntity);
         }
 
-        #endregion ICopyItem Members
+        #endregion ICopyItem
 
-        #region IRenameItem Members
+        #region IRenameItem
 
         public void RenameItem(IProviderContext providerContext, string path, string newName)
         {
@@ -270,38 +236,36 @@ namespace TreeStore.PsModule.PathNodes
             providerContext.Persistence().Entities.Upsert(this.entity);
         }
 
-        #endregion IRenameItem Members
+        #endregion IRenameItem
 
-        #region IMoveItem Members
+        #region IMoveItem
 
-        public IItemProvider MoveItem(IProviderContext providerContext, string path, string? movePath, IItemProvider destinationProvider)
+        public void MoveItem(IProviderContext providerContext, string path, string? movePath, PathNode destinationNode)
         {
             var persistence = providerContext.Persistence();
             var resolvedDestinationName = movePath ?? this.entity.Name;
 
             Category category;
-            if (destinationProvider is CategoryNode.ItemProvider categoryProvider)
+            if (destinationNode is CategoryNode categoryProvider)
             {
                 category = persistence.Categories.FindById(categoryProvider.Id);
             }
-            else if (destinationProvider is EntitiesNode.ItemProvider entitiesProvider)
+            else if (destinationNode is EntitiesNode entitiesProvider)
             {
                 category = persistence.Categories.Root();
             }
-            else throw new InvalidOperationException($"Entity(name={path} can't be moved to destnatination(typof='{destinationProvider.GetType()}'");
+            else throw new InvalidOperationException($"Entity(name={path} can't be moved to destnatination(typof='{destinationNode.GetType()}'");
 
             this.EnsureUniqueDestinationName(persistence, category, resolvedDestinationName);
             // edit entity after checks are done
             this.entity.Name = resolvedDestinationName;
             this.entity.SetCategory(category);
             persistence.Entities.Upsert(this.entity);
-
-            return this.GetItemProvider();
         }
 
-        #endregion IMoveItem Members
+        #endregion IMoveItem
 
-        #region IClearItemProperty Members
+        #region IClearItemProperty
 
         public void ClearItemProperty(IProviderContext providerContext, IEnumerable<string> propertyToClear)
         {
@@ -335,7 +299,75 @@ namespace TreeStore.PsModule.PathNodes
             return (assignedTag, facetProperty);
         }
 
-        #endregion IClearItemProperty Members
+        public object ClearItemPropertyParameters => this.BuildItemPropertyParameters(this.ValidateSetAttributeForSettable());
+
+        #endregion IClearItemProperty
+
+        #region ISetItemProperty
+
+        public object SetItemPropertyParameters => this.BuildItemPropertyParameters(this.ValidateSetAttributeForSettable());
+
+        public void SetItemProperties(IProviderContext providerContext, IEnumerable<PSPropertyInfo> properties)
+        {
+            foreach (var property in properties)
+            {
+                this.SetAssignedFacetProperty(property.Name, property.Value);
+            }
+            providerContext.Persistence().Entities.Upsert(entity);
+        }
+
+        private void SetAssignedFacetProperty(string name, object value)
+        {
+            if (string.IsNullOrEmpty(name))
+                return;
+            var splittedName = name.Split(".", 2, StringSplitOptions.RemoveEmptyEntries);
+            if (splittedName.Length != 2)
+                return;
+
+            var assignedTag = this.entity.Tags.FirstOrDefault(t => t.Name.Equals(splittedName[0], StringComparison.OrdinalIgnoreCase));
+            if (assignedTag is null)
+                return;
+
+            var facetProperty = assignedTag.Facet.Properties.FirstOrDefault(p => p.Name.Equals(splittedName[1], StringComparison.OrdinalIgnoreCase));
+            if (facetProperty is null)
+                return;
+
+            this.entity.SetFacetProperty(facetProperty, value);
+        }
+
+        private ParameterAttribute ParameterAttribute()
+        {
+            return new ParameterAttribute();
+        }
+
+        private ValidateSetAttribute ValidateSetAttributeForSettable() => new ValidateSetAttribute(this.entity
+            .AllAssignedPropertyValues()
+            .Select(pv => $"{pv.tagName}.{pv.propertyName}")
+            .ToArray());
+
+        #endregion ISetItemProperty
+
+        #region IGetItemProperty - dynamic parameters only
+
+        public object GetItemPropertyParameters => this.BuildItemPropertyParameters(this.ValidateSetAttributeForGettable());
+
+        private RuntimeDefinedParameterDictionary BuildItemPropertyParameters(ValidateSetAttribute validateSet)
+        {
+            var propertyNameParameter = new RuntimeDefinedParameter("TreeStorePropertyName", typeof(string), new Collection<Attribute>());
+            propertyNameParameter.Attributes.Add(this.ParameterAttribute());
+            propertyNameParameter.Attributes.Add(validateSet);
+            var parameter = new RuntimeDefinedParameterDictionary();
+            parameter.Add(propertyNameParameter.Name, propertyNameParameter);
+            return parameter;
+        }
+
+        private ValidateSetAttribute ValidateSetAttributeForGettable() => new ValidateSetAttribute(this.entity
+            .AllAssignedPropertyValues()
+            .Select(pv => $"{pv.tagName}.{pv.propertyName}")
+            .Union(new[] { "Id", "Name" })
+            .ToArray());
+
+        #endregion IGetItemProperty - dynamic parameters only
 
         #region Model Accessors
 

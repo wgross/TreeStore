@@ -1,22 +1,17 @@
 ﻿using CodeOwls.PowerShell.Paths;
 using CodeOwls.PowerShell.Provider.PathNodeProcessors;
-using TreeStore.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Management.Automation;
+using TreeStore.Model;
 
 namespace TreeStore.PsModule.PathNodes
 {
-    public class FacetPropertyNode : PathNode, IRemoveItem, ICopyItem, IRenameItem
+    public class FacetPropertyNode : LeafNode,
+        IRemoveItem, ICopyItem, IRenameItem,
+        IGetItemProperty
     {
-        public sealed class ItemProvider : LeafItemProvider
-        {
-            public ItemProvider(FacetPropertyNode node)
-                : base(new Item(node.facetProperty), node.Name)
-            {
-            }
-        }
-
         public sealed class Item
         {
             private readonly FacetProperty facetProperty;
@@ -34,11 +29,7 @@ namespace TreeStore.PsModule.PathNodes
                 set => this.facetProperty.Name = value;
             }
 
-            public FacetPropertyTypeValues ValueType
-            {
-                get => this.facetProperty.Type;
-                set => this.facetProperty.Type = value;
-            }
+            public FacetPropertyTypeValues ValueType => this.facetProperty.Type;
 
             public TreeStoreItemType ItemType => TreeStoreItemType.FacetProperty;
         }
@@ -54,18 +45,20 @@ namespace TreeStore.PsModule.PathNodes
 
         public override string Name => this.facetProperty.Name;
 
-        public override string ItemMode => "+";
-
-        public override IItemProvider GetItemProvider() => new ItemProvider(this);
-
         public override IEnumerable<PathNode> Resolve(IProviderContext providerContext, string name)
         {
             throw new NotImplementedException();
         }
 
+        #region IGetItem
+
+        public override PSObject GetItem() => PSObject.AsPSObject(new Item(this.facetProperty));
+
+        #endregion IGetItem
+
         #region IRemoveItem Members
 
-        public void RemoveItem(IProviderContext providerContext, string path, bool recurse)
+        public void RemoveItem(IProviderContext providerContext, string path)
         {
             this.tag.Facet.RemoveProperty(this.facetProperty);
             providerContext.Persistence().Tags.Upsert(this.tag);
@@ -75,9 +68,9 @@ namespace TreeStore.PsModule.PathNodes
 
         #region ICopyItem Members
 
-        public void CopyItem(IProviderContext providerContext, string sourceItemName, string? destinationItemName, IItemProvider destinationContainer, bool recurse)
+        public void CopyItem(IProviderContext providerContext, string sourceItemName, string? destinationItemName, PathNode destinationNode)
         {
-            if (destinationContainer is TagNode.ItemProvider destinationContainerNodeValue)
+            if (destinationNode is TagNode destinationContainerNodeValue)
             {
                 destinationContainerNodeValue.AddProperty(providerContext, destinationItemName ?? this.facetProperty.Name, this.facetProperty.Type);
             }

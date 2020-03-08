@@ -21,7 +21,6 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ASSERT
 
             Assert.Equal("Entities", result.Name);
-            Assert.Equal("+", result.ItemMode);
         }
 
         [Fact]
@@ -29,7 +28,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ACT
 
-            var result = new EntitiesNode().GetItemProvider();
+            var result = new EntitiesNode();
 
             // ASSERT
 
@@ -42,12 +41,15 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ACT
 
-            var result = new EntitiesNode().GetItemProvider().GetItem() as EntitiesNode.Item;
+            var result = new EntitiesNode().GetItem();
 
             // ASSERT
 
-            Assert.Equal("Entities", result!.Name);
-            Assert.NotNull(result);
+            Assert.IsType<EntitiesNode.Item>(result.ImmediateBaseObject);
+
+            var resultValue = (EntitiesNode.Item)result.ImmediateBaseObject;
+
+            Assert.Equal("Entities", resultValue.Name);
         }
 
         #endregion P2F node structure
@@ -282,9 +284,9 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ASSERT
 
-            Assert.IsType<EntityNode.ItemProvider>(result);
-            Assert.Equal("Entity", newEntity.Name);
-            Assert.Equal(rootCategory, newEntity.Category);
+            Assert.IsType<EntityNode>(result);
+            Assert.Equal("Entity", newEntity!.Name);
+            Assert.Equal(rootCategory, newEntity!.Category);
         }
 
         [Fact]
@@ -462,7 +464,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ASSERT
 
-            Assert.IsType<CategoryNode.ItemProvider>(result);
+            Assert.IsType<CategoryNode>(result);
         }
 
         [Theory]

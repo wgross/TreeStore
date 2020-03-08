@@ -335,7 +335,6 @@ namespace TreeStore.PsModule.Test
             Assert.Equal("TreeStore", result[0].Property<ProviderInfo>("PSProvider").Name);
             Assert.Equal("TreeStore", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
             Assert.Equal(@"TreeStore\TreeStore::kg:\Entities\e\t", ((string)result[0].Properties["PSPath"].Value));
-            Assert.NotEqual(Guid.Empty, result[0].Property<Guid>("Id"));
             Assert.Equal("t", result[0].Property<string>("Name"));
             Assert.Equal(TreeStoreItemType.AssignedTag, result[0].Property<TreeStoreItemType>("ItemType"));
         }
@@ -568,7 +567,6 @@ namespace TreeStore.PsModule.Test
 
             Assert.False(this.PowerShell.HadErrors);
             Assert.Equal("t", result.Single().Property<string>("Name"));
-            Assert.Equal(entity.Tags.Single().Id, result.Single().Property<Guid>("Id"));
         }
 
         #endregion Get-ChildItem /Entities/<entity-name>

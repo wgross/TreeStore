@@ -1,7 +1,7 @@
-﻿using TreeStore.Model;
-using Moq;
-using TreeStore.PsModule.PathNodes;
+﻿using Moq;
 using System.Linq;
+using TreeStore.Model;
+using TreeStore.PsModule.PathNodes;
 using Xunit;
 
 namespace TreeStore.PsModule.Test.PathNodes
@@ -27,7 +27,6 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ASSERT
 
             Assert.Equal("Tags", result.Name);
-            Assert.Equal("+", result.ItemMode);
         }
 
         [Fact]
@@ -35,7 +34,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ACT
 
-            var result = new TagsNode().GetItemProvider();
+            var result = new TagsNode();
 
             // ASSERT
 
@@ -48,18 +47,20 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ACT
 
-            var result = new TagsNode().GetItemProvider().GetItem() as TagsNode.Item;
+            var result = new TagsNode().GetItem();
 
             // ASSERT
 
-            Assert.Equal("Tags", result!.Name);
-            Assert.NotNull(result);
+            Assert.IsType<TagsNode.Item>(result.ImmediateBaseObject);
+
+            var resultValue = (TagsNode.Item)result.ImmediateBaseObject;
+
+            Assert.Equal("Tags", resultValue.Name);
         }
 
         #endregion P2F node structure
 
         [Fact]
-
         public void TagsNode_retrieves_Tags_as_child_nodes()
         {
             // ARRANGE
@@ -209,7 +210,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ASSERT
 
-            Assert.IsType<TagNode.ItemProvider>(result);
+            Assert.IsType<TagNode>(result);
         }
     }
 }

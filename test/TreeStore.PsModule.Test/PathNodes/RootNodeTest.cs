@@ -19,7 +19,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ASSERT
 
             Assert.Equal("", result.Name);
-            Assert.Equal("+", result.ItemMode);
+            
         }
 
         [Fact]
@@ -27,13 +27,13 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ACT
 
-            var result = new RootNode().GetItemProvider();
+            var result = new RootNode();
 
             // ASSERT
 
             Assert.Equal(string.Empty, result.Name);
             Assert.True(result.IsContainer);
-            Assert.IsType<RootNode.Item>(result.GetItem());
+            Assert.IsType<RootNode.Item>(result.GetItem().ImmediateBaseObject);
         }
 
         [Fact]
@@ -41,11 +41,11 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ACT
 
-            var result = new RootNode().GetItemProvider().GetItem() as RootNode.Item;
+            var result = new RootNode().GetItem();
 
             // ASSERT
 
-            Assert.IsType<RootNode.Item>(result);
+            Assert.IsType<RootNode.Item>(result.ImmediateBaseObject);
         }
 
         #endregion P2F node structure

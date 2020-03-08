@@ -1,14 +1,17 @@
 ﻿using CodeOwls.PowerShell.Paths;
 using CodeOwls.PowerShell.Provider.PathNodeProcessors;
-using TreeStore.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Management.Automation;
+using TreeStore.Model;
 
 namespace TreeStore.PsModule.PathNodes
 {
-    public sealed class CategoryNode : PathNode,
-        // item capabilities
+    /// <summary>
+    /// Categorizes a set of <see cref="EntityNode"/>. Has no accessible properties ecept the C# ones.
+    /// </summary>
+    public sealed class CategoryNode : ContainerNode,
         IGetChildItem, INewItem, IRemoveItem, ICopyItem, IRenameItem, IMoveItem
     {
         public sealed class ItemProvider : ContainerItemProvider, IItemProvider
@@ -18,7 +21,7 @@ namespace TreeStore.PsModule.PathNodes
             {
             }
 
-            public Guid Id => ((Item)this.GetItem()).Id;
+            public Guid Id => ((Item)this.GetItem().ImmediateBaseObject).Id;
         }
 
         public sealed class Item
@@ -46,9 +49,11 @@ namespace TreeStore.PsModule.PathNodes
             this.category = category;
         }
 
+        public Guid Id => this.category.Id;
+
         public override string Name => this.category.Name;
 
-        #region PathNode Members
+        #region PathNode
 
         public override IEnumerable<PathNode> Resolve(IProviderContext providerContext, string nodeName)
         {
@@ -66,9 +71,15 @@ namespace TreeStore.PsModule.PathNodes
             return categories().Union(entities());
         }
 
-        #endregion PathNode Members
+        #endregion PathNode
 
-        #region IGetChildItem Members
+        #region IGetItem
+
+        public override PSObject GetItem() => PSObject.AsPSObject(new Item(this.category));
+
+        #endregion IGetItem
+
+        #region IGetChildItem
 
         override public IEnumerable<PathNode> GetChildNodes(IProviderContext context)
         {
@@ -80,13 +91,13 @@ namespace TreeStore.PsModule.PathNodes
             return categories().Union(entities());
         }
 
-        #endregion IGetChildItem Members
+        #endregion IGetChildItem
 
-        #region INewItem Members
+        #region INewItem
 
         public IEnumerable<string> NewItemTypeNames { get; } = new[] { nameof(TreeStoreItemType.Category), nameof(TreeStoreItemType.Entity) };
 
-        public IItemProvider NewItem(IProviderContext providerContext, string newItemName, string itemTypeName, object newItemValue)
+        public PathNode NewItem(IProviderContext providerContext, string newItemName, string itemTypeName, object newItemValue)
         {
             switch (itemTypeName ?? nameof(TreeStoreItemType.Entity))
             {
@@ -101,7 +112,7 @@ namespace TreeStore.PsModule.PathNodes
             }
         }
 
-        private IItemProvider NewCategory(IProviderContext providerContext, string newItemName)
+        private PathNode NewCategory(IProviderContext providerContext, string newItemName)
         {
             var persistence = providerContext.Persistence();
 
@@ -119,10 +130,10 @@ namespace TreeStore.PsModule.PathNodes
 
             this.category.AddSubCategory(subCategory);
 
-            return new CategoryNode(persistence, persistence.Categories.Upsert(subCategory)).GetItemProvider();
+            return new CategoryNode(persistence, persistence.Categories.Upsert(subCategory));
         }
 
-        private IItemProvider NewEntity(IProviderContext providerContext, string newItemName)
+        private PathNode NewEntity(IProviderContext providerContext, string newItemName)
         {
             var persistence = providerContext.Persistence();
             if (SubCategory(persistence, newItemName) is { })
@@ -148,22 +159,22 @@ namespace TreeStore.PsModule.PathNodes
             //        break;
             //}
 
-            return new EntityNode(providerContext.Persistence(), providerContext.Persistence().Entities.Upsert(entity)).GetItemProvider();
+            return new EntityNode(providerContext.Persistence(), providerContext.Persistence().Entities.Upsert(entity));
         }
 
-        #endregion INewItem Members
+        #endregion INewItem
 
-        public void CopyItem(IProviderContext providerContext, string sourceItemName, string destinationItemName, IItemProvider destinationProvider, bool recurse)
+        public void CopyItem(IProviderContext providerContext, string sourceItemName, string destinationItemName, PathNode destinationNode)
         {
             var persistennce = providerContext.Persistence();
 
             var newCategory = new Category(destinationItemName ?? sourceItemName);
-            if (destinationProvider is EntitiesNode.ItemProvider)
+            if (destinationNode is EntitiesNode)
             {
                 // dont add the category yet to its parent
                 newCategory.Parent = persistennce.Categories.Root();
             }
-            else if (destinationProvider is CategoryNode.ItemProvider containerProvider)
+            else if (destinationNode is CategoryNode containerProvider)
             {
                 newCategory.Parent = persistennce.Categories.FindById(containerProvider.Id);
             }
@@ -175,16 +186,16 @@ namespace TreeStore.PsModule.PathNodes
             persistence.Categories.Upsert(newCategory);
         }
 
-        #region IRemoveItem Members
+        #region IRemoveItem
 
-        public void RemoveItem(IProviderContext providerContext, string path, bool recurse)
+        public void RemoveItem(IProviderContext providerContext, string path)
         {
-            providerContext.Persistence().DeleteCategory(this.category, recurse);
+            providerContext.Persistence().DeleteCategory(this.category, providerContext.Recurse);
         }
 
-        #endregion IRemoveItem Members
+        #endregion IRemoveItem
 
-        #region IRenameItem Members
+        #region IRenameItem
 
         public void RenameItem(IProviderContext providerContext, string path, string newName)
         {
@@ -206,16 +217,16 @@ namespace TreeStore.PsModule.PathNodes
             persistence.Categories.Upsert(this.category);
         }
 
-        #endregion IRenameItem Members
+        #endregion IRenameItem
 
-        #region IMoveItem Members
+        #region IMoveItem
 
-        public IItemProvider MoveItem(IProviderContext providerContext, string path, string? movePath, IItemProvider destinationProvider)
+        public void MoveItem(IProviderContext providerContext, string path, string? movePath, PathNode destinationNode)
         {
-            if (destinationProvider is CategoryNode.ItemProvider categoryProvider)
+            if (destinationNode is CategoryNode categoryNode)
             {
                 var persistence = providerContext.Persistence();
-                var destinationCategory = persistence.Categories.FindById(categoryProvider.Id);
+                var destinationCategory = persistence.Categories.FindById(categoryNode.Id);
                 var movePathResolved = movePath ?? this.category.Name;
 
                 if (SubCategory(persistence, destinationCategory, movePathResolved) is { })
@@ -228,12 +239,9 @@ namespace TreeStore.PsModule.PathNodes
                 destinationCategory.AddSubCategory(this.category);
                 persistence.Categories.Upsert(destinationCategory);
             }
-            return this.GetItemProvider();
         }
 
-        #endregion IMoveItem Members
-
-        public override IItemProvider GetItemProvider() => new ItemProvider(this.category);
+        #endregion IMoveItem
 
         #region Model Accessors
 

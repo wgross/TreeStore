@@ -1,33 +1,21 @@
 ﻿using CodeOwls.PowerShell.Paths;
 using CodeOwls.PowerShell.Provider.PathNodeProcessors;
-using TreeStore.Model;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Management.Automation;
+using TreeStore.Model;
 
 namespace TreeStore.PsModule.PathNodes
 {
-    public class AssignedFacetPropertyNode : PathNode
+    /// <summary>
+    /// Represents an assigned facet propertyt.
+    /// Value propertyvan be cane be set, get and cleared.
+    /// </summary>
+    public class AssignedFacetPropertyNode : LeafNode,
+        IGetItem,
+        ISetItemProperty, IGetItemProperty, IClearItemProperty
     {
-        public class ItemProvider : LeafItemProvider, IItemProvider
-        {
-            private readonly ITreeStorePersistence model;
-            private readonly Entity entity;
-
-            public ItemProvider(ITreeStorePersistence model, Entity entity, FacetProperty property)
-                : base(new Item(entity, property), property.Name)
-            {
-                this.model = model;
-                this.entity = entity;
-            }
-
-            public void SetItemProperties(IEnumerable<PSPropertyInfo> properties)
-            {
-                IItemProvider.SetItemProperties(this, properties);
-                this.model.Entities.Upsert(this.entity);
-            }
-        }
-
         public class Item
         {
             private readonly Entity entity;
@@ -38,8 +26,6 @@ namespace TreeStore.PsModule.PathNodes
                 this.entity = entity;
                 this.assignedProperty = property;
             }
-
-            public Guid Id => this.assignedProperty.Id;
 
             public string Name => this.assignedProperty.Name;
 
@@ -67,11 +53,13 @@ namespace TreeStore.PsModule.PathNodes
 
         public override string Name => this.assignedProperty.Name;
 
-        public override string ItemMode => ".";
-
-        public override IItemProvider GetItemProvider() => new ItemProvider(this.model, this.entity, this.assignedProperty);
-
         public override IEnumerable<PathNode> Resolve(IProviderContext providerContext, string name) => throw new NotImplementedException();
+
+        #region IGetItem
+
+        public override PSObject GetItem() => PSObject.AsPSObject(new Item(this.entity, this.assignedProperty));
+
+        #endregion IGetItem
 
         #region IGetChildItem Members
 
@@ -81,5 +69,41 @@ namespace TreeStore.PsModule.PathNodes
         }
 
         #endregion IGetChildItem Members
+
+        #region ISetItemProperty
+
+        public void SetItemProperties(IProviderContext providerContext, IEnumerable<PSPropertyInfo> properties)
+        {
+            // only the value property can be changed
+            var valueProperty = properties.FirstOrDefault(p => p.Name.Equals(nameof(Item.Value), StringComparison.OrdinalIgnoreCase));
+            if (valueProperty is null)
+                return;
+
+            if (!this.assignedProperty.CanAssignValue(valueProperty.Value?.ToString() ?? null))
+                throw new InvalidOperationException($"value='{valueProperty.Value}' cant be assigned to property(name='{this.assignedProperty.Name}', type='{this.assignedProperty.Type}')");
+
+            // change value and update database
+            this.entity.SetFacetProperty(this.assignedProperty, valueProperty.Value);
+
+            providerContext.Persistence().Entities.Upsert(this.entity);
+        }
+
+        #endregion ISetItemProperty
+
+        #region IClearItemProperty
+
+        public void ClearItemProperty(IProviderContext providerContext, IEnumerable<string> propertyNames)
+        {
+            // only the value property can be changed
+            var valueProperty = propertyNames.FirstOrDefault(pn => pn.Equals(nameof(Item.Value), StringComparison.OrdinalIgnoreCase));
+            if (valueProperty is null)
+                return;
+
+            // change value and update database
+            this.entity.Values.Remove(this.assignedProperty.Id.ToString());
+            providerContext.Persistence().Entities.Upsert(this.entity);
+        }
+
+        #endregion IClearItemProperty
     }
 }

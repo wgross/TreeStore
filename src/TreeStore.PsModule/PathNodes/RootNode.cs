@@ -2,11 +2,12 @@
 using CodeOwls.PowerShell.Provider.PathNodeProcessors;
 using System.Collections.Generic;
 using System.Linq;
+using System.Management.Automation;
 using TreeStore.Model;
 
 namespace TreeStore.PsModule.PathNodes
 {
-    public sealed class RootNode : PathNode, IGetChildItem
+    public sealed class RootNode : ContainerNode, IGetChildItem
     {
         private class Value : ContainerItemProvider
         {
@@ -21,10 +22,6 @@ namespace TreeStore.PsModule.PathNodes
         }
 
         public override string Name => string.Empty;
-
-        public override string ItemMode => "+";
-
-        public override IItemProvider GetItemProvider() => new Value();
 
         public override IEnumerable<PathNode> Resolve(IProviderContext providerContext, string? name)
         {
@@ -44,6 +41,12 @@ namespace TreeStore.PsModule.PathNodes
             }
             return Enumerable.Empty<PathNode>();
         }
+
+        #region IGetItem
+
+        public override PSObject GetItem() => PSObject.AsPSObject(new Item());
+
+        #endregion IGetItem
 
         #region IGetChildItem Members
 

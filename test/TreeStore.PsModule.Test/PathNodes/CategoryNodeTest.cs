@@ -1,8 +1,8 @@
-﻿using TreeStore.Model;
-using Moq;
-using TreeStore.PsModule.PathNodes;
+﻿using Moq;
 using System;
 using System.Linq;
+using TreeStore.Model;
+using TreeStore.PsModule.PathNodes;
 using Xunit;
 
 namespace TreeStore.PsModule.Test.PathNodes
@@ -21,7 +21,6 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ASSERT
 
             Assert.Equal("c", result.Name);
-            Assert.Equal("d+~<  cmr ", result.ItemMode);
         }
 
         [Fact]
@@ -29,7 +28,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ACT
 
-            var result = new CategoryNode(this.PersistenceMock.Object, DefaultCategory()).GetItemProvider();
+            var result = new CategoryNode(this.PersistenceMock.Object, DefaultCategory());
 
             // ASSERT
 
@@ -37,8 +36,12 @@ namespace TreeStore.PsModule.Test.PathNodes
             Assert.True(result.IsContainer);
         }
 
+        #endregion P2F node structure
+
+        #region IGetItem
+
         [Fact]
-        public void CategoryNodeValue_provides_Item()
+        public void CategoryNode_provides_Item()
         {
             // ARRANGE
 
@@ -46,16 +49,53 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = new CategoryNode(this.PersistenceMock.Object, c).GetItemProvider().GetItem() as CategoryNode.Item;
+            var result = new CategoryNode(this.PersistenceMock.Object, c).GetItem();
 
             // ASSERT
 
-            Assert.Equal(c.Id, result!.Id);
-            Assert.Equal(c.Name, result!.Name);
-            Assert.Equal(TreeStoreItemType.Category, result!.ItemType);
+            Assert.Equal(c.Id, result.Property<Guid>("Id"));
+            Assert.Equal(c.Name, result.Property<string>("Name"));
+            Assert.Equal(TreeStoreItemType.Category, result.Property<TreeStoreItemType>("ItemType"));
+            Assert.IsType<CategoryNode.Item>(result.ImmediateBaseObject);
         }
 
-        #endregion P2F node structure
+        #endregion IGetItem
+
+        #region IGetItemProperties
+
+        [Fact]
+        public void CategoryNode_retrieves_all_properties()
+        {
+            // ARRANGE
+
+            var c = DefaultCategory();
+
+            // ACT
+
+            var result = new CategoryNode(this.PersistenceMock.Object, c).GetItemProperties(this.ProviderContextMock.Object, Enumerable.Empty<string>()).ToArray();
+
+            // ASSERT
+
+            Assert.Equal(new[] { "Id", "Name", "ItemType" }, result.Select(r => r.Name));
+        }
+
+        [Fact]
+        public void CategoryNode_retrieves_specified_property()
+        {
+            // ARRANGE
+
+            var c = DefaultCategory();
+
+            // ACT
+
+            var result = new CategoryNode(this.PersistenceMock.Object, c).GetItemProperties(this.ProviderContextMock.Object, "NAME".Yield()).ToArray();
+
+            // ASSERT
+
+            Assert.Equal("Name", result.Single().Name, StringComparer.OrdinalIgnoreCase);
+        }
+
+        #endregion IGetItemProperties
 
         #region IGetChildItem
 
@@ -132,7 +172,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ASSERT
 
-            Assert.Equal(entity.Id, ((EntityNode.Item)result.GetItemProvider().GetItem()).Id);
+            Assert.Equal(entity.Id, ((EntityNode.Item)result.GetItem().ImmediateBaseObject).Id);
         }
 
         [Theory]
@@ -164,7 +204,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ASSERT
 
-            Assert.Equal(category.SubCategories.Single().Id, ((CategoryNode.Item)result.GetItemProvider().GetItem()).Id);
+            Assert.Equal(category.SubCategories.Single().Id, ((CategoryNode.Item)result.GetItem().ImmediateBaseObject).Id);
         }
 
         #endregion Resolve
@@ -236,7 +276,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ASSERT
 
-            Assert.IsType<EntityNode.ItemProvider>(result);
+            Assert.IsType<EntityNode>(result);
         }
 
         [Fact]
@@ -353,7 +393,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ASSERT
 
-            Assert.IsType<CategoryNode.ItemProvider>(result);
+            Assert.IsType<CategoryNode>(result);
         }
 
         [Fact]
@@ -465,8 +505,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            new CategoryNode(this.PersistenceMock.Object, subCategory)
-                .CopyItem(this.ProviderContextMock.Object, "c", "cc", entityContainer.GetItemProvider(), recurse: false);
+            new CategoryNode(this.PersistenceMock.Object, subCategory).CopyItem(this.ProviderContextMock.Object, "c", "cc", entityContainer);
 
             // ASSERT
 
@@ -516,7 +555,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ACT
 
             new CategoryNode(this.PersistenceMock.Object, category)
-                .CopyItem(this.ProviderContextMock.Object, initialName, destinationName, categoryContainer.GetItemProvider(), recurse: false);
+                .CopyItem(this.ProviderContextMock.Object, initialName, destinationName, categoryContainer);
 
             // ASSERT
 
@@ -564,7 +603,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ACT
 
             var result = Assert.Throws<InvalidOperationException>(
-                () => node.CopyItem(this.ProviderContextMock.Object, initialName, destinationName, entitiesNode.GetItemProvider(), recurse: false));
+                () => node.CopyItem(this.ProviderContextMock.Object, initialName, destinationName, entitiesNode));
 
             // ASSERT
 
@@ -603,9 +642,9 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ACT
 
             var result = Assert.Throws<InvalidOperationException>(
-                () => node.CopyItem(this.ProviderContextMock.Object, initialName, destinationName, entitiesNode.GetItemProvider(), recurse: false));
+                () => node.CopyItem(this.ProviderContextMock.Object, initialName, destinationName, entitiesNode));
 
-            // ASSERT
+            // ASSERTS
 
             Assert.Equal($"Destination container contains already a category with name '{resultName}'", result.Message);
         }
@@ -730,6 +769,10 @@ namespace TreeStore.PsModule.Test.PathNodes
               .Setup(c => c.Persistence)
               .Returns(this.PersistenceMock.Object);
 
+            this.ProviderContextMock
+                .Setup(p => p.Recurse)
+                .Returns(recurse);
+
             this.PersistenceMock
                 .Setup(r => r.DeleteCategory(category, recurse))
                 .Returns(true);
@@ -738,7 +781,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            node.RemoveItem(this.ProviderContextMock.Object, "c", recurse);
+            node.RemoveItem(this.ProviderContextMock.Object, "c");
         }
 
         #endregion IRemoveItem
@@ -787,7 +830,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            node.MoveItem(this.ProviderContextMock.Object, "", destinationName, categoryNode.GetItemProvider());
+            node.MoveItem(this.ProviderContextMock.Object, "", destinationName, categoryNode);
 
             // ASSERT
 
@@ -835,7 +878,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ACT
 
             var result = Assert.Throws<InvalidOperationException>(
-                () => node.MoveItem(this.ProviderContextMock.Object, "", destinationName, categoryNode.GetItemProvider()));
+                () => node.MoveItem(this.ProviderContextMock.Object, "", destinationName, categoryNode));
 
             // ASSERT
 
@@ -873,7 +916,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ACT
 
             var result = Assert.Throws<InvalidOperationException>(
-                () => node.MoveItem(this.ProviderContextMock.Object, "", destinationName, categoryNode.GetItemProvider()));
+                () => node.MoveItem(this.ProviderContextMock.Object, "", destinationName, categoryNode));
 
             // ASSERT
 
