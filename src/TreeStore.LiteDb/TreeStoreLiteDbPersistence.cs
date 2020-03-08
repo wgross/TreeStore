@@ -1,14 +1,15 @@
-﻿using TreeStore.Messaging;
-using TreeStore.Model;
-using LiteDB;
+﻿using LiteDB;
 using System.IO;
-using FileMode = System.IO.FileMode;
+using TreeStore.Messaging;
+using TreeStore.Model;
 
 namespace TreeStore.LiteDb
 {
     public class TreeStoreLiteDbPersistence : ITreeStorePersistence
     {
         private LiteRepository db;
+
+        #region Create in Memory Storage
 
         public static TreeStoreLiteDbPersistence InMemory(ITreeStoreMessageBus messageBus) => new TreeStoreLiteDbPersistence(messageBus);
 
@@ -18,14 +19,22 @@ namespace TreeStore.LiteDb
             this.MessageBus = messageBus;
         }
 
-        public static TreeStoreLiteDbPersistence InFile(ITreeStoreMessageBus messageBus, string path) => new TreeStoreLiteDbPersistence(messageBus, File.Open(path, FileMode.OpenOrCreate));
-
         private TreeStoreLiteDbPersistence(ITreeStoreMessageBus messageBus, Stream storageStream)
            : this(messageBus, new LiteRepository(storageStream))
         {
         }
 
+        #endregion Create in Memory Storage
+
+        #region Create File based Storage
+
+        public static TreeStoreLiteDbPersistence InFile(ITreeStoreMessageBus messageBus, string connectionString)
+            => new TreeStoreLiteDbPersistence(messageBus, new LiteRepository(connectionString));
+
+        #endregion Create File based Storage
+
         private TreeStoreLiteDbPersistence(ITreeStoreMessageBus messageBus, LiteRepository db)
+
         {
             this.db = db;
             this.Categories = new CategoryRepository(db);
