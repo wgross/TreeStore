@@ -1,5 +1,5 @@
 # TreeStore
-A powershell file system provide for storing simply structured data. Implementation of the file system provider relies heavily on an extended fork of [beefarinos p2f framework](https://github.com/beefarino/p2f). The fork can be found [here](https://github.com/wgross/p2f). 
+A powershell file system for storing simple structured data. Implementation of the file system provider relies heavily on an extended fork of [beefarinos p2f framework](https://github.com/beefarino/p2f). The fork can be found [here](https://github.com/wgross/p2f). 
 
 ## Installation
 
@@ -11,7 +11,7 @@ Install-Module TreeStore -AllowPrerelease
 
 ## Create a TreeStore file system.
 
-TreeStore provides its own cmdlet to create PSDrives for convenience. You can achive the same with New-PsDrive but filling the cmdlet-arguments is less straightforward.
+TreeStore provides its own cmdlet to create PSDrives for convenience. You can achive the same with New-PsDrive but filling the cmdlet-arguments is more straightforward using the custom cmdlet.
 
 Create non-persistent (in memory) drive:
 ```powershell
@@ -19,12 +19,13 @@ Import-Module TreeStore
 New-TreeStoreDrive -Name tree
 cd tree:
 ```
-Create a persistent drive based o a LiteDb database.
+Create a persistent drive based on a LiteDb database.
 ```powershell
 Import-Module TreeStore
 New-TreeStoreDrive -Name tree -TreeStorePath "c:\tmp\data.db"
 cd tree:
 ```
+[more on creating TreeStore drives](https://github.com/wgross/TreeStore/wiki/New-TreeStoreDrive)
 
 ## Create an Entity
 
