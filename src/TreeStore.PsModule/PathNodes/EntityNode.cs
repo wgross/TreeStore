@@ -100,17 +100,15 @@ namespace TreeStore.PsModule.PathNodes
         #endregion Item - to be used in powershell pipe
 
         private readonly Entity entity;
-        private readonly ITreeStorePersistence model;
 
-        public EntityNode(ITreeStorePersistence model, Entity entity)
+        public EntityNode(Entity entity)
         {
             this.entity = entity;
-            this.model = model;
         }
 
         #region IGetItem
 
-        public override PSObject GetItem()
+        public override PSObject GetItem(IProviderContext providerContext)
         {
             // create a spo wth all properties from Item
             var pso = PSObject.AsPSObject(new Item(this.entity));

@@ -14,16 +14,6 @@ namespace TreeStore.PsModule.PathNodes
     public sealed class CategoryNode : ContainerNode,
         IGetChildItem, INewItem, IRemoveItem, ICopyItem, IRenameItem, IMoveItem
     {
-        public sealed class ItemProvider : ContainerItemProvider, IItemProvider
-        {
-            public ItemProvider(Category category)
-                : base(new Item(category), category.Name)
-            {
-            }
-
-            public Guid Id => ((Item)this.GetItem().ImmediateBaseObject).Id;
-        }
-
         public sealed class Item
         {
             private Category category;
@@ -40,12 +30,10 @@ namespace TreeStore.PsModule.PathNodes
             public TreeStoreItemType ItemType => TreeStoreItemType.Category;
         }
 
-        private readonly ITreeStorePersistence persistence;
         private readonly Category category;
 
-        public CategoryNode(ITreeStorePersistence persistence, Category category)
+        public CategoryNode(Category category)
         {
-            this.persistence = persistence;
             this.category = category;
         }
 
@@ -62,11 +50,11 @@ namespace TreeStore.PsModule.PathNodes
             IEnumerable<PathNode> categories() => this.category
                 .SubCategories
                 .Where(c => c.Name.Equals(nodeName, StringComparison.InvariantCultureIgnoreCase))
-                .Select(c => new CategoryNode(persistence, c));
+                .Select(c => new CategoryNode(c));
 
             IEnumerable<PathNode> entities() => persistence.Entities.FindByCategory(this.category)
                 .Where(c => c.Name.Equals(nodeName, StringComparison.InvariantCultureIgnoreCase))
-                .Select(e => new EntityNode(persistence, e));
+                .Select(e => new EntityNode(e));
 
             return categories().Union(entities());
         }
@@ -75,7 +63,7 @@ namespace TreeStore.PsModule.PathNodes
 
         #region IGetItem
 
-        public override PSObject GetItem() => PSObject.AsPSObject(new Item(this.category));
+        public override PSObject GetItem(IProviderContext providerContext) => PSObject.AsPSObject(new Item(this.category));
 
         #endregion IGetItem
 
@@ -85,8 +73,8 @@ namespace TreeStore.PsModule.PathNodes
         {
             var persistence = context.Persistence();
 
-            IEnumerable<PathNode> entities() => SubEntities(persistence).Select(e => new EntityNode(persistence, e));
-            IEnumerable<PathNode> categories() => SubCategories(persistence).Select(c => new CategoryNode(persistence, c));
+            IEnumerable<PathNode> entities() => SubEntities(persistence).Select(e => new EntityNode(e));
+            IEnumerable<PathNode> categories() => SubCategories(persistence).Select(c => new CategoryNode(c));
 
             return categories().Union(entities());
         }
@@ -130,7 +118,7 @@ namespace TreeStore.PsModule.PathNodes
 
             this.category.AddSubCategory(subCategory);
 
-            return new CategoryNode(persistence, persistence.Categories.Upsert(subCategory));
+            return new CategoryNode(persistence.Categories.Upsert(subCategory));
         }
 
         private PathNode NewEntity(IProviderContext providerContext, string newItemName)
@@ -159,27 +147,27 @@ namespace TreeStore.PsModule.PathNodes
             //        break;
             //}
 
-            return new EntityNode(providerContext.Persistence(), providerContext.Persistence().Entities.Upsert(entity));
+            return new EntityNode(providerContext.Persistence().Entities.Upsert(entity));
         }
 
         #endregion INewItem
 
         public void CopyItem(IProviderContext providerContext, string sourceItemName, string destinationItemName, PathNode destinationNode)
         {
-            var persistennce = providerContext.Persistence();
+            var persistence = providerContext.Persistence();
 
             var newCategory = new Category(destinationItemName ?? sourceItemName);
             if (destinationNode is EntitiesNode)
             {
                 // dont add the category yet to its parent
-                newCategory.Parent = persistennce.Categories.Root();
+                newCategory.Parent = persistence.Categories.Root();
             }
             else if (destinationNode is CategoryNode containerProvider)
             {
-                newCategory.Parent = persistennce.Categories.FindById(containerProvider.Id);
+                newCategory.Parent = persistence.Categories.FindById(containerProvider.Id);
             }
 
-            this.EnsureUniqueDestinationName(persistennce, newCategory.Parent!, newCategory.Name);
+            this.EnsureUniqueDestinationName(persistence, newCategory.Parent!, newCategory.Name);
 
             // finalize the link
             newCategory.Parent!.AddSubCategory(newCategory);

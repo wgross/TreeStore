@@ -58,7 +58,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = new AssignedFacetPropertyNode(this.PersistenceMock.Object, e, e.Tags.Single().Facet.Properties.Single()).GetItem();
+            var result = new AssignedFacetPropertyNode(this.PersistenceMock.Object, e, e.Tags.Single().Facet.Properties.Single()).GetItem(this.ProviderContextMock.Object);
 
             // ASSERT
 

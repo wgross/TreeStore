@@ -16,7 +16,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ACT
 
-            var result = new TagNode(this.PersistenceMock.Object, DefaultTag());
+            var result = new TagNode(DefaultTag());
 
             // ASSERT
 
@@ -28,7 +28,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ACT
 
-            var result = new TagNode(this.PersistenceMock.Object, DefaultTag());
+            var result = new TagNode(DefaultTag());
 
             // ASSERT
 
@@ -49,7 +49,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = new TagNode(this.PersistenceMock.Object, tag).GetItem();
+            var result = new TagNode(tag).GetItem(this.ProviderContextMock.Object);
 
             // ASSERT
 
@@ -67,7 +67,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ACT
 
-            var result = new TagNode(this.PersistenceMock.Object, DefaultTag()).Resolve(this.ProviderContextMock.Object, name: null);
+            var result = new TagNode(DefaultTag()).Resolve(this.ProviderContextMock.Object, name: null);
 
             // ASSERT
 
@@ -79,7 +79,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ACT
 
-            var result = new TagNode(this.PersistenceMock.Object, DefaultTag()).Resolve(this.ProviderContextMock.Object, name: "p");
+            var result = new TagNode(DefaultTag()).Resolve(this.ProviderContextMock.Object, name: "p");
 
             // ASSERT
 
@@ -91,7 +91,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ACT
 
-            var result = new TagNode(this.PersistenceMock.Object, DefaultTag()).Resolve(this.ProviderContextMock.Object, name: "unknown");
+            var result = new TagNode(DefaultTag()).Resolve(this.ProviderContextMock.Object, name: "unknown");
 
             // ASSERT
 
@@ -105,7 +105,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ACT
 
-            var result = new TagNode(this.PersistenceMock.Object, DefaultTag()).GetChildNodes(this.ProviderContextMock.Object);
+            var result = new TagNode(DefaultTag()).GetChildNodes(this.ProviderContextMock.Object);
 
             // ASSERT
 
@@ -125,7 +125,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = new TagNode(this.PersistenceMock.Object, tag).GetItemProperties(this.ProviderContextMock.Object, Enumerable.Empty<string>());
+            var result = new TagNode(tag).GetItemProperties(this.ProviderContextMock.Object, Enumerable.Empty<string>());
 
             // ASSERT
 
@@ -143,7 +143,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = new TagNode(this.PersistenceMock.Object, tag).GetItemProperties(this.ProviderContextMock.Object, propertyName.Yield());
+            var result = new TagNode(tag).GetItemProperties(this.ProviderContextMock.Object, propertyName.Yield());
 
             // ASSERT
 
@@ -160,7 +160,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = new TagNode(this.PersistenceMock.Object, tag).GetItemProperties(this.ProviderContextMock.Object, "unknown".Yield());
+            var result = new TagNode(tag).GetItemProperties(this.ProviderContextMock.Object, "unknown".Yield());
 
             // ASSERT
 
@@ -180,7 +180,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = new TagNode(this.PersistenceMock.Object, tag).NewItemTypeNames;
+            var result = new TagNode(tag).NewItemTypeNames;
 
             // ASSERT
 
@@ -196,7 +196,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = new TagNode(this.PersistenceMock.Object, tag).NewItemParameters;
+            var result = new TagNode( tag).NewItemParameters;
 
             // ASSERT
 
@@ -233,14 +233,14 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = new TagNode(this.PersistenceMock.Object, tag)
+            var result = new TagNode(tag)
                 .NewItem(this.ProviderContextMock.Object, newItemChildPath: @"p", itemTypeName: itemTypeName, newItemValue: null);
 
             // ASSERT
 
             Assert.IsType<FacetPropertyNode>(result);
             Assert.Equal("p", result!.Name);
-            Assert.Equal(FacetPropertyTypeValues.Bool, ((FacetPropertyNode.Item)result.GetItem().ImmediateBaseObject).ValueType);
+            Assert.Equal(FacetPropertyTypeValues.Bool, ((FacetPropertyNode.Item)result.GetItem(this.ProviderContextMock.Object).ImmediateBaseObject).ValueType);
         }
 
         #endregion INewItem - replace with INewItemProperty!
@@ -274,7 +274,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            new TagNode(this.PersistenceMock.Object, tag)
+            new TagNode(tag)
                 .RemoveItem(this.ProviderContextMock.Object, "t");
         }
 
@@ -303,7 +303,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            new TagNode(this.PersistenceMock.Object, tag).RemoveItem(this.ProviderContextMock.Object, "t");
+            new TagNode(tag).RemoveItem(this.ProviderContextMock.Object, "t");
 
             // ASSERT
 
@@ -323,7 +323,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            new TagNode(this.PersistenceMock.Object, tag).RemoveItem(this.ProviderContextMock.Object, "t");
+            new TagNode(tag).RemoveItem(this.ProviderContextMock.Object, "t");
 
             // ASSERT
 
@@ -359,7 +359,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            new TagNode(this.PersistenceMock.Object, tag)
+            new TagNode(tag)
                 .CopyItem(this.ProviderContextMock.Object, "t", "tt", tagsContainer);
 
             // ASSERT
@@ -396,7 +396,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            new TagNode(this.PersistenceMock.Object, tag).RenameItem(this.ProviderContextMock.Object, "t", "tt");
+            new TagNode(tag).RenameItem(this.ProviderContextMock.Object, "t", "tt");
 
             // ASSERT
 
@@ -412,7 +412,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            new TagNode(this.PersistenceMock.Object, tag).RenameItem(this.ProviderContextMock.Object, "t", "t");
+            new TagNode(tag).RenameItem(this.ProviderContextMock.Object, "t", "t");
 
             // ASSERT
 

@@ -10,14 +10,6 @@ namespace TreeStore.PsModule.PathNodes
 {
     public sealed class TagsNode : ContainerNode, INewItem
     {
-        private class Value : ContainerItemProvider
-        {
-            public Value()
-                 : base(new Item(), "Tags")
-            {
-            }
-        }
-
         public sealed class Item
         {
             public string Name => "Tags";
@@ -37,14 +29,14 @@ namespace TreeStore.PsModule.PathNodes
             if (tag is null)
                 return Enumerable.Empty<PathNode>();
 
-            return new[] { new TagNode(providerContext.Persistence(), tag) };
+            return new[] { new TagNode(tag) };
         }
 
         #endregion IPathNode
 
         #region IGetItem
 
-        public override PSObject GetItem() => PSObject.AsPSObject(new Item());
+        public override PSObject GetItem(IProviderContext providerContext) => PSObject.AsPSObject(new Item());
 
         #endregion IGetItem
 
@@ -55,7 +47,7 @@ namespace TreeStore.PsModule.PathNodes
             return providerContext
                 .Persistence()
                 .Tags.FindAll()
-                .Select(t => new TagNode(providerContext.Persistence(), t));
+                .Select(t => new TagNode(t));
         }
 
         #endregion IGetChildItem
@@ -65,7 +57,7 @@ namespace TreeStore.PsModule.PathNodes
         public IEnumerable<string> NewItemTypeNames => "Tag".Yield();
 
         public PathNode NewItem(IProviderContext providerContext, string newItemChildPath, string? itemTypeName, object? newItemValue)
-            => new TagNode(providerContext.Persistence(), providerContext.Persistence().Tags.Upsert(new Tag(Path.GetFileName(newItemChildPath))));
+            => new TagNode(providerContext.Persistence().Tags.Upsert(new Tag(Path.GetFileName(newItemChildPath))));
 
         #endregion INewItem
     }

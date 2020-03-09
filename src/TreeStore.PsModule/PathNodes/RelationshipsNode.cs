@@ -8,13 +8,6 @@ namespace TreeStore.PsModule.PathNodes
 {
     public sealed class RelationshipsNode : ContainerNode
     {
-        public sealed class ItemProvider : ContainerItemProvider
-        {
-            public ItemProvider()
-                : base(new Item(), "Relationships")
-            { }
-        }
-
         public sealed class Item
         {
             public string Name => "Relationships";
@@ -24,7 +17,7 @@ namespace TreeStore.PsModule.PathNodes
 
         #region IGetItem
 
-        public override PSObject GetItem() => PSObject.AsPSObject(new Item());
+        public override PSObject GetItem(IProviderContext providerContext) => PSObject.AsPSObject(new Item());
 
         #endregion IGetItem
 

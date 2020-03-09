@@ -9,14 +9,6 @@ namespace TreeStore.PsModule.PathNodes
 {
     public sealed class RootNode : ContainerNode, IGetChildItem
     {
-        private class Value : ContainerItemProvider
-        {
-            public Value()
-               : base(new Item(), string.Empty)
-            {
-            }
-        }
-
         public sealed class Item
         {
         }
@@ -44,11 +36,11 @@ namespace TreeStore.PsModule.PathNodes
 
         #region IGetItem
 
-        public override PSObject GetItem() => PSObject.AsPSObject(new Item());
+        public override PSObject GetItem(IProviderContext providerContext) => PSObject.AsPSObject(new Item());
 
         #endregion IGetItem
 
-        #region IGetChildItem Members
+        #region IGetChildItem
 
         public override IEnumerable<PathNode> GetChildNodes(IProviderContext providerContext)
             => new PathNode[] { new TagsNode(), new EntitiesNode() };
@@ -56,6 +48,6 @@ namespace TreeStore.PsModule.PathNodes
         //todo: reintroduce relationships
         // => new PathNode[] { new TagsNode(), new EntitiesNode(), new RelationshipsNode() };
 
-        #endregion IGetChildItem Members
+        #endregion IGetChildItem
     }
 }

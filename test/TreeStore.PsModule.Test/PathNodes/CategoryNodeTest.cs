@@ -16,7 +16,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ACT
 
-            var result = new CategoryNode(this.PersistenceMock.Object, DefaultCategory());
+            var result = new CategoryNode(DefaultCategory());
 
             // ASSERT
 
@@ -28,7 +28,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ACT
 
-            var result = new CategoryNode(this.PersistenceMock.Object, DefaultCategory());
+            var result = new CategoryNode(DefaultCategory());
 
             // ASSERT
 
@@ -49,7 +49,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = new CategoryNode(this.PersistenceMock.Object, c).GetItem();
+            var result = new CategoryNode(c).GetItem(this.ProviderContextMock.Object);
 
             // ASSERT
 
@@ -72,7 +72,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = new CategoryNode(this.PersistenceMock.Object, c).GetItemProperties(this.ProviderContextMock.Object, Enumerable.Empty<string>()).ToArray();
+            var result = new CategoryNode(c).GetItemProperties(this.ProviderContextMock.Object, Enumerable.Empty<string>()).ToArray();
 
             // ASSERT
 
@@ -88,7 +88,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = new CategoryNode(this.PersistenceMock.Object, c).GetItemProperties(this.ProviderContextMock.Object, "NAME".Yield()).ToArray();
+            var result = new CategoryNode(c).GetItemProperties(this.ProviderContextMock.Object, "NAME".Yield()).ToArray();
 
             // ASSERT
 
@@ -127,7 +127,7 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Setup(r => r.FindByCategory(category))
                 .Returns(entity.Yield());
 
-            var node = new CategoryNode(this.PersistenceMock.Object, category);
+            var node = new CategoryNode(category);
 
             // ACT
 
@@ -164,7 +164,7 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Setup(r => r.FindByCategory(category))
                 .Returns(entity.Yield());
 
-            var node = new CategoryNode(this.PersistenceMock.Object, category);
+            var node = new CategoryNode(category);
 
             // ACT
 
@@ -172,7 +172,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ASSERT
 
-            Assert.Equal(entity.Id, ((EntityNode.Item)result.GetItem().ImmediateBaseObject).Id);
+            Assert.Equal(entity.Id, ((EntityNode.Item)result.GetItem(this.ProviderContextMock.Object).ImmediateBaseObject).Id);
         }
 
         [Theory]
@@ -196,7 +196,7 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Setup(r => r.FindByCategory(category))
                 .Returns(Enumerable.Empty<Entity>());
 
-            var node = new CategoryNode(this.PersistenceMock.Object, category);
+            var node = new CategoryNode(category);
 
             // ACT
 
@@ -204,7 +204,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ASSERT
 
-            Assert.Equal(category.SubCategories.Single().Id, ((CategoryNode.Item)result.GetItem().ImmediateBaseObject).Id);
+            Assert.Equal(category.SubCategories.Single().Id, ((CategoryNode.Item)result.GetItem(this.ProviderContextMock.Object).ImmediateBaseObject).Id);
         }
 
         #endregion Resolve
@@ -216,7 +216,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ARRANGE
 
-            var node = new CategoryNode(this.PersistenceMock.Object, DefaultCategory());
+            var node = new CategoryNode(DefaultCategory());
 
             // ACT
 
@@ -268,7 +268,7 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Setup(r => r.Upsert(It.Is<Entity>(t => t.Name.Equals("Entity"))))
                 .Returns<Entity>(e => e);
 
-            var node = new CategoryNode(this.PersistenceMock.Object, category);
+            var node = new CategoryNode(category);
 
             // ACT
 
@@ -310,7 +310,7 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Setup(r => r.FindByCategoryAndName(category, "Entity"))
                 .Returns(DefaultEntity());
 
-            var node = new CategoryNode(this.PersistenceMock.Object, category);
+            var node = new CategoryNode(category);
 
             // ACT
 
@@ -344,7 +344,7 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Setup(r => r.FindByCategoryAndName(category, "Entity"))
                 .Returns(DefaultCategory());
 
-            var node = new CategoryNode(this.PersistenceMock.Object, category);
+            var node = new CategoryNode(category);
 
             // ACT
 
@@ -385,7 +385,7 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Setup(r => r.FindByCategoryAndName(category, "c"))
                 .Returns((Entity?)null);
 
-            var node = new CategoryNode(this.PersistenceMock.Object, category);
+            var node = new CategoryNode(category);
 
             // ACT
 
@@ -422,7 +422,7 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Setup(r => r.FindByCategoryAndName(category, "c"))
                 .Returns(DefaultEntity());
 
-            var node = new CategoryNode(this.PersistenceMock.Object, category);
+            var node = new CategoryNode(category);
 
             // ACT
 
@@ -451,7 +451,7 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Setup(r => r.FindByCategoryAndName(category, "c"))
                 .Returns(DefaultCategory());
 
-            var node = new CategoryNode(this.PersistenceMock.Object, category);
+            var node = new CategoryNode(category);
 
             // ACT
 
@@ -505,7 +505,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            new CategoryNode(this.PersistenceMock.Object, subCategory).CopyItem(this.ProviderContextMock.Object, "c", "cc", entityContainer);
+            new CategoryNode(subCategory).CopyItem(this.ProviderContextMock.Object, "c", "cc", entityContainer);
 
             // ASSERT
 
@@ -550,11 +550,11 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Callback<Category>(c => createdCatagory = c)
                 .Returns<Category>(c => c);
 
-            var categoryContainer = new CategoryNode(this.PersistenceMock.Object, subCategory);
+            var categoryContainer = new CategoryNode(subCategory);
 
             // ACT
 
-            new CategoryNode(this.PersistenceMock.Object, category)
+            new CategoryNode(category)
                 .CopyItem(this.ProviderContextMock.Object, initialName, destinationName, categoryContainer);
 
             // ASSERT
@@ -598,7 +598,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             var entitiesNode = new EntitiesNode();
             var category = DefaultCategory(c => subCategory.AddSubCategory(c));
-            var node = new CategoryNode(this.PersistenceMock.Object, category);
+            var node = new CategoryNode(category);
 
             // ACT
 
@@ -637,7 +637,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             var entitiesNode = new EntitiesNode();
             var category = DefaultCategory(c => subCategory.AddSubCategory(c));
-            var node = new CategoryNode(this.PersistenceMock.Object, category);
+            var node = new CategoryNode(category);
 
             // ACT
 
@@ -683,7 +683,7 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Setup(p => p.FindByCategoryAndName(parentCategory, "cc"))
                 .Returns((Entity?)null);
 
-            var categoryNode = new CategoryNode(this.PersistenceMock.Object, category);
+            var categoryNode = new CategoryNode(category);
 
             // ACT
 
@@ -718,7 +718,7 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Setup(p => p.FindByCategoryAndName(parentCategory, "e"))
                 .Returns(entity);
 
-            var categoryNode = new CategoryNode(this.PersistenceMock.Object, category);
+            var categoryNode = new CategoryNode(category);
 
             // ACT
 
@@ -741,7 +741,7 @@ namespace TreeStore.PsModule.Test.PathNodes
                 WithSubCategory(category),
                 WithSubCategory(DefaultCategory(c => c.Name = existingName)));
 
-            var categoryNode = new CategoryNode(this.PersistenceMock.Object, category);
+            var categoryNode = new CategoryNode(category);
 
             // ACT
 
@@ -777,7 +777,7 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Setup(r => r.DeleteCategory(category, recurse))
                 .Returns(true);
 
-            var node = new CategoryNode(this.PersistenceMock.Object, category);
+            var node = new CategoryNode(category);
 
             // ACT
 
@@ -825,8 +825,8 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Setup(r => r.Upsert(c))
                 .Returns<Category>(c => c);
 
-            var categoryNode = new CategoryNode(this.PersistenceMock.Object, c);
-            var node = new CategoryNode(this.PersistenceMock.Object, c2);
+            var categoryNode = new CategoryNode(c);
+            var node = new CategoryNode(c2);
 
             // ACT
 
@@ -872,8 +872,8 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Setup(r => r.FindByCategoryAndName(c, resultName))
                 .Returns(DefaultEntity());
 
-            var categoryNode = new CategoryNode(this.PersistenceMock.Object, c);
-            var node = new CategoryNode(this.PersistenceMock.Object, c2);
+            var categoryNode = new CategoryNode(c);
+            var node = new CategoryNode(c2);
 
             // ACT
 
@@ -910,8 +910,8 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Setup(r => r.FindByCategoryAndName(c, resultName))
                 .Returns(DefaultCategory());
 
-            var categoryNode = new CategoryNode(this.PersistenceMock.Object, c);
-            var node = new CategoryNode(this.PersistenceMock.Object, c2);
+            var categoryNode = new CategoryNode(c);
+            var node = new CategoryNode(c2);
 
             // ACT
 

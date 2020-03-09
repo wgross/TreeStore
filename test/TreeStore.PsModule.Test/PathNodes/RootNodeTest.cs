@@ -33,7 +33,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             Assert.Equal(string.Empty, result.Name);
             Assert.True(result.IsContainer);
-            Assert.IsType<RootNode.Item>(result.GetItem().ImmediateBaseObject);
+            Assert.IsType<RootNode.Item>(result.GetItem(this.ProviderContextMock.Object).ImmediateBaseObject);
         }
 
         [Fact]
@@ -41,7 +41,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ACT
 
-            var result = new RootNode().GetItem();
+            var result = new RootNode().GetItem(this.ProviderContextMock.Object);
 
             // ASSERT
 

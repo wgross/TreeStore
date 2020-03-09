@@ -75,7 +75,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).GetItem();
+            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).GetItem(this.ProviderContextMock.Object);
 
             // ASSERT
 

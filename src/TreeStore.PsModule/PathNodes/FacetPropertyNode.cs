@@ -52,7 +52,7 @@ namespace TreeStore.PsModule.PathNodes
 
         #region IGetItem
 
-        public override PSObject GetItem() => PSObject.AsPSObject(new Item(this.facetProperty));
+        public override PSObject GetItem(IProviderContext providerContext) => PSObject.AsPSObject(new Item(this.facetProperty));
 
         #endregion IGetItem
 

@@ -10,13 +10,6 @@ namespace TreeStore.PsModule.PathNodes
 {
     public sealed class EntitiesNode : ContainerNode, INewItem
     {
-        public sealed class ItemProvider : ContainerItemProvider
-        {
-            public ItemProvider()
-                : base(new Item(), name: "Entities")
-            { }
-        }
-
         public sealed class Item
         {
             public string Name => "Entities";
@@ -34,19 +27,19 @@ namespace TreeStore.PsModule.PathNodes
             // first check if there is a category: its faster
             var subCategory = SubCategory(persistence, name);
             if (subCategory is { })
-                return new CategoryNode(persistence, subCategory).Yield();
+                return new CategoryNode(subCategory).Yield();
 
             // no category, might be an entity
             var entity = providerContext.Persistence().Entities.FindByCategoryAndName(RootCategory(persistence), name);
             if (entity is null)
                 return Enumerable.Empty<PathNode>();
 
-            return new EntityNode(persistence, entity).Yield();
+            return new EntityNode(entity).Yield();
         }
 
         #region IGetItem
 
-        public override PSObject GetItem() => PSObject.AsPSObject(new Item());
+        public override PSObject GetItem(IProviderContext providerContext) => PSObject.AsPSObject(new Item());
 
         #endregion IGetItem
 
@@ -56,8 +49,8 @@ namespace TreeStore.PsModule.PathNodes
         {
             var persistence = providerContext.Persistence();
 
-            return SubCategories(persistence).Select(c => new CategoryNode(persistence, c))
-                    .Union<PathNode>(Entities(persistence).Select(e => new EntityNode(persistence, e)));
+            return SubCategories(persistence).Select(c => new CategoryNode(c))
+                    .Union<PathNode>(Entities(persistence).Select(e => new EntityNode(e)));
         }
 
         #endregion IGetChildItem
@@ -103,7 +96,7 @@ namespace TreeStore.PsModule.PathNodes
 
             RootCategory(persistence).AddSubCategory(category);
 
-            return new CategoryNode(persistence, persistence.Categories.Upsert(category));
+            return new CategoryNode(persistence.Categories.Upsert(category));
         }
 
         private PathNode NewEntity(IProviderContext providerContext, string newItemName)
@@ -129,7 +122,7 @@ namespace TreeStore.PsModule.PathNodes
                     break;
             }
 
-            return new EntityNode(providerContext.Persistence(), providerContext.Persistence().Entities.Upsert(entity));
+            return new EntityNode(providerContext.Persistence().Entities.Upsert(entity));
         }
 
         #endregion INewItem

@@ -53,7 +53,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = new FacetPropertyNode(tag, tag.Facet.Properties.Single()).GetItem();
+            var result = new FacetPropertyNode(tag, tag.Facet.Properties.Single()).GetItem(this.ProviderContextMock.Object);
 
             // ASSERT
 
@@ -173,7 +173,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ACT
 
             new FacetPropertyNode(tag, tag.Facet.Properties.Single())
-                .CopyItem(this.ProviderContextMock.Object, "p", null, new TagNode(this.PersistenceMock.Object, tag2));
+                .CopyItem(this.ProviderContextMock.Object, "p", null, new TagNode(tag2));
 
             // ASSERT
 
@@ -205,7 +205,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ACT
 
             new FacetPropertyNode(tag, tag.Facet.Properties.Single())
-                .CopyItem(this.ProviderContextMock.Object, "p", "pp", new TagNode(this.PersistenceMock.Object, tag2));
+                .CopyItem(this.ProviderContextMock.Object, "p", "pp", new TagNode(tag2));
 
             // ASSERT
 
@@ -226,7 +226,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             var result = Assert.Throws<InvalidOperationException>(()
                 => new FacetPropertyNode(tag, tag.Facet.Properties.Single()).CopyItem(this.ProviderContextMock.Object,
-                    "p", "p", new TagNode(this.PersistenceMock.Object, tag2)));
+                    "p", "p", new TagNode(tag2)));
 
             // ASSERT
 

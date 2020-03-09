@@ -52,18 +52,16 @@ namespace TreeStore.PsModule.PathNodes
 
         #endregion Item - to be used in powershell pipe
 
-        private readonly ITreeStorePersistence model;
         private readonly Tag tag;
 
-        public TagNode(ITreeStorePersistence model, Tag tag)
+        public TagNode(Tag tag)
         {
-            this.model = model;
             this.tag = tag;
         }
 
         #region IGetItem
 
-        public override PSObject GetItem() => PSObject.AsPSObject(new Item(this.tag));
+        public override PSObject GetItem(IProviderContext providerContext) => PSObject.AsPSObject(new Item(this.tag));
 
         #endregion IGetItem
 

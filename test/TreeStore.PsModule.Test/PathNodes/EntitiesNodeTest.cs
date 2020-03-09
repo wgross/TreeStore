@@ -41,7 +41,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ACT
 
-            var result = new EntitiesNode().GetItem();
+            var result = new EntitiesNode().GetItem(this.ProviderContextMock.Object);
 
             // ASSERT
 

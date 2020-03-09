@@ -1,8 +1,8 @@
-﻿using TreeStore.Model;
-using LiteDB;
+﻿using LiteDB;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TreeStore.Model;
 
 namespace TreeStore.LiteDb
 {
@@ -24,12 +24,15 @@ namespace TreeStore.LiteDb
         #region There must be a persistent root
 
         private readonly Lazy<Category> rootNode;
+
         public static Guid CategoryRootId { get; } = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
         public Category Root() => this.rootNode.Value;
 
         // todo: abandon completely loaded root tree
-        private Category FindRootCategory() => this.LiteCollection<Category>().IncludeAll(maxDepth: 10).FindById(CategoryRootId);
+        private Category FindRootCategory() => this
+            .LiteCollection<Category>()
+            .FindById(CategoryRootId);
 
         private Category CreateRootCategory() => this.Upsert(new Category(string.Empty) { Id = CategoryRootId });
 

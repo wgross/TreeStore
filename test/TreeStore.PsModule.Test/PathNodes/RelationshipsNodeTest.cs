@@ -3,7 +3,7 @@ using Xunit;
 
 namespace TreeStore.PsModule.Test.PathNodes
 {
-    public class RelationshipsNodeTest
+    public class RelationshipsNodeTest : NodeTestBase
     {
         #region P2F node structure
 
@@ -37,7 +37,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ACT
 
-            var result = new RelationshipsNode().GetItem();
+            var result = new RelationshipsNode().GetItem(this.ProviderContextMock.Object);
 
             // ASSERT
 
@@ -61,7 +61,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             Assert.Equal("Relationships", result.Name);
             Assert.True(result.IsContainer);
-            Assert.IsType<RelationshipsNode.Item>(result.GetItem().ImmediateBaseObject);
+            Assert.IsType<RelationshipsNode.Item>(result.GetItem(this.ProviderContextMock.Object).ImmediateBaseObject);
         }
     }
 }

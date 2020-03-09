@@ -57,7 +57,7 @@ namespace TreeStore.PsModule.PathNodes
 
         #region IGetItem
 
-        public override PSObject GetItem() => PSObject.AsPSObject(new Item(this.entity, this.assignedProperty));
+        public override PSObject GetItem(IProviderContext providerContext) => PSObject.AsPSObject(new Item(this.entity, this.assignedProperty));
 
         #endregion IGetItem
 
