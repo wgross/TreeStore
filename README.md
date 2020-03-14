@@ -10,7 +10,6 @@ Install-Module TreeStore -AllowPrerelease
 ```
 
 ## Create a TreeStore file system.
-
 TreeStore provides its own cmdlet to create PSDrives for convenience. You can achive the same with New-PsDrive but filling the cmdlet-arguments is more straightforward using the custom cmdlet.
 
 Create non-persistent (in memory) drive:
@@ -28,15 +27,21 @@ cd tree:
 [more TreeStore drives](https://github.com/wgross/TreeStore/wiki/New-TreeStoreDrive)
 
 ## Create a Tag
-
 A Tag defines a simple data structure composed of uniquely named properties. The name of the tag is also unique. To create Tag just create a new item in directory /Tags.
 ```powershell
 New-Item \Tags\t 
 ```
-[more on Tags](https://github.com/wgross/TreeStore/wiki/Tags)
+### Create a Facet Property
+To add facet properties to a tag just create a new item under the tag.
+The name must be unique within the Tag. For eny property a data type has to be chosen.
+```powershell
+New-Item \Tags\t -Name p -ValueType Long
+```
+Supported property types are: Bool, DateTime, Decimal, Double, Guid, Long, String. Properties can be copyied/move to anothet tag or removed from a tag with powershells item cmdlets. Since facet properties can exist only with in a tag destinations outside of a tag are not allowed for copying or moving
+
+[more on Tags and Facet Properties](https://github.com/wgross/TreeStore/wiki/Tags)
 
 ## Create an Entity
-
 An entity is the main item of a TreeStore file system. Its Name is unique in its folder like a file name. All entites are stored under \Entities folder.
 ```powershell
 NewItem \Entities\e
@@ -44,14 +49,6 @@ NewItem \Entities\e
 To attach additional data to an entity you need to define the data structure first. Data Structures are called 'Tag' in TreeStore.
 
 
-## Create a Facet Property
-
-To add facet properties to a tag just create a new item under the tag.
-The name must be unique within the Tag. Every properties have a data type assigned.
-```powershell
-New-Item \Tags\t -Name p -ValueType Long
-```
-Supported property types are: Bool, DateTime, Decimal, Double, Guid, Long, String. Properties can be copyied/move to anothet tag or removed from a tag with powershells item cmdlets. Since facet properties can exist only with in a tag destinations outside of a tag are not allowed for copying or moving
 
 ## Assign Tag to an Entity
 
