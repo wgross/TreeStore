@@ -318,6 +318,7 @@ namespace TreeStore.PsModule.PathNodes
         {
             if (string.IsNullOrEmpty(name))
                 return;
+
             var splittedName = name.Split(".", 2, StringSplitOptions.RemoveEmptyEntries);
             if (splittedName.Length != 2)
                 return;
@@ -330,6 +331,7 @@ namespace TreeStore.PsModule.PathNodes
             if (facetProperty is null)
                 return;
 
+            if(facetProperty.CanAssignValue(value))
             this.entity.SetFacetProperty(facetProperty, value);
         }
 

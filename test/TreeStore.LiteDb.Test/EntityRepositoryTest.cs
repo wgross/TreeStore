@@ -1,9 +1,9 @@
-﻿using TreeStore.Messaging;
-using TreeStore.Model;
-using LiteDB;
+﻿using LiteDB;
 using Moq;
 using System;
 using System.Linq;
+using TreeStore.Messaging;
+using TreeStore.Model;
 using Xunit;
 using static TreeStore.LiteDb.Test.TestDataSources;
 
@@ -319,7 +319,7 @@ namespace TreeStore.LiteDb.Test
             var entity = this.EntityRepository.Upsert(DefaultEntity(e =>
             {
                 e.AddTag(tag);
-                e.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+                e.SetFacetProperty(tag.Facet.Properties.Single(), "1");
             }));
 
             // ACT
@@ -351,7 +351,7 @@ namespace TreeStore.LiteDb.Test
              }));
 
             // set facet property value
-            entity.SetFacetProperty(entity.Tags.Single().Facet.Properties.Single(), 1);
+            entity.SetFacetProperty(entity.Tags.Single().Facet.Properties.Single(), "1");
 
             this.EntityEventSource.Setup(s => s.Modified(entity));
             this.EntityRepository.Upsert(entity);

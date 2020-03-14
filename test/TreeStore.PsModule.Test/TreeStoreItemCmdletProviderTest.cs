@@ -1,7 +1,7 @@
-﻿using TreeStore.Model;
-using System;
+﻿using System;
 using System.Linq;
 using System.Management.Automation;
+using TreeStore.Model;
 using Xunit;
 
 namespace TreeStore.PsModule.Test
@@ -349,7 +349,7 @@ namespace TreeStore.PsModule.Test
 
             var entity = DefaultEntity(WithDefaultTag);
             var tag = entity.Tags.Single();
-            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+            entity.SetFacetProperty(tag.Facet.Properties.Single(), "1");
 
             this.PersistenceMock
                 .Setup(m => m.Entities)
@@ -377,7 +377,7 @@ namespace TreeStore.PsModule.Test
             Assert.Equal("TreeStore", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
             Assert.Equal(@"TreeStore\TreeStore::kg:\Entities\e\t", ((string)result[0].Properties["PSPath"].Value));
             Assert.Equal(tag.Name, result[0].Property<string>("Name"));
-            Assert.Equal(entity.TryGetFacetProperty(tag.Facet.Properties.Single()).Item2, result[0].Property<int>(tag.Facet.Properties.Single().Name));
+            Assert.Equal(entity.TryGetFacetProperty(tag.Facet.Properties.Single()).Item2, result[0].Property<string>(tag.Facet.Properties.Single().Name));
         }
 
         [Fact]
@@ -394,7 +394,7 @@ namespace TreeStore.PsModule.Test
 
             var entity = DefaultEntity(WithDefaultTag);
             var tag = entity.Tags.Single();
-            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+            entity.SetFacetProperty(tag.Facet.Properties.Single(), "1");
 
             this.PersistenceMock
                 .Setup(m => m.Entities)
@@ -436,7 +436,7 @@ namespace TreeStore.PsModule.Test
 
             var entity = DefaultEntity(WithDefaultTag);
             var tag = entity.Tags.Single();
-            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+            entity.SetFacetProperty(tag.Facet.Properties.Single(), "1");
 
             this.EntityRepositoryMock
                 .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
@@ -460,7 +460,7 @@ namespace TreeStore.PsModule.Test
             Assert.Equal("TreeStore", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
             Assert.Equal(@"TreeStore\TreeStore::kg:\Entities\e\t\p", ((string)result[0].Properties["PSPath"].Value));
             Assert.Equal(tag.Facet.Properties.Single().Name, result[0].Property<string>("Name"));
-            Assert.Equal(1, result[0].Property<int>("Value"));
+            Assert.Equal("1", result[0].Property<string>("Value"));
         }
 
         #endregion Get-Item /Entities/<entity-name>, Get-Item /Entities/<category-name>, /Entities/<name>/<tag-name>, /Entiites/<name>/<tag-name>/<property-name>

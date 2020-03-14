@@ -397,7 +397,7 @@ namespace TreeStore.PsModule.Test
 
             var entity = DefaultEntity(WithDefaultTag);
             var tag = entity.Tags.Single();
-            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+            entity.SetFacetProperty(tag.Facet.Properties.Single(), "1");
             this.EntityRepositoryMock
                 .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
                 .Returns(entity);
@@ -420,7 +420,7 @@ namespace TreeStore.PsModule.Test
             Assert.Equal("TreeStore", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
             Assert.Equal(@"TreeStore\TreeStore::kg:\Entities\e\t", ((string)result[0].Properties["PSPath"].Value));
             Assert.Equal(tag.Name, result[0].Property<string>("Name"));
-            Assert.Equal(entity.TryGetFacetProperty(tag.Facet.Properties.Single()).Item2, result[0].Property<int>(tag.Facet.Properties.Single().Name));
+            Assert.Equal(entity.TryGetFacetProperty(tag.Facet.Properties.Single()).Item2, result[0].Property<string>(tag.Facet.Properties.Single().Name));
         }
 
         [Fact]
@@ -441,7 +441,7 @@ namespace TreeStore.PsModule.Test
 
             var entity = DefaultEntity(WithDefaultTag);
             var tag = entity.Tags.Single();
-            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+            entity.SetFacetProperty(tag.Facet.Properties.Single(), "1");
             this.EntityRepositoryMock
                 .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
                 .Returns(entity);
@@ -464,7 +464,7 @@ namespace TreeStore.PsModule.Test
             Assert.Equal("TreeStore", result[0].Property<ProviderInfo>("PSProvider").Name);
             Assert.Equal("TreeStore", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
             Assert.Equal(@"TreeStore\TreeStore::kg:\Entities\e\t", ((string)result[0].Properties["PSPath"].Value));
-            Assert.Equal(entity.TryGetFacetProperty(tag.Facet.Properties.Single()).Item2, result[0].Property<int>(tag.Facet.Properties.Single().Name));
+            Assert.Equal(entity.TryGetFacetProperty(tag.Facet.Properties.Single()).Item2, result[0].Property<string>(tag.Facet.Properties.Single().Name));
             Assert.False(result[0].PropertyContains("id"));
             Assert.False(result[0].PropertyContains("name"));
         }
@@ -487,7 +487,7 @@ namespace TreeStore.PsModule.Test
 
             var entity = DefaultEntity(WithDefaultTag);
             var tag = entity.Tags.Single();
-            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+            entity.SetFacetProperty(tag.Facet.Properties.Single(), "1");
             this.EntityRepositoryMock
                  .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
                  .Returns(entity);
@@ -534,7 +534,7 @@ namespace TreeStore.PsModule.Test
 
             var entity = DefaultEntity(WithDefaultTag);
             var tag = entity.Tags.Single();
-            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+            entity.SetFacetProperty(tag.Facet.Properties.Single(), "1");
             this.EntityRepositoryMock
                 .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
                 .Returns(entity);
@@ -559,7 +559,7 @@ namespace TreeStore.PsModule.Test
             Assert.Equal(@"TreeStore\TreeStore::kg:\Entities\e\t\p", ((string)result[0].Properties["PSPath"].Value));
             Assert.Equal(tag.Facet.Properties.Single().Name, result[0].Property<string>("Name"));
             Assert.Equal(tag.Facet.Properties.Single().Type, result[0].Property<FacetPropertyTypeValues>("ValueType"));
-            Assert.Equal(1, result[0].Property<int>("Value"));
+            Assert.Equal("1", result[0].Property<string>("Value"));
         }
 
         [Fact]
@@ -580,7 +580,7 @@ namespace TreeStore.PsModule.Test
 
             var entity = DefaultEntity(WithDefaultTag);
             var tag = entity.Tags.Single();
-            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+            entity.SetFacetProperty(tag.Facet.Properties.Single(), "1");
 
             this.EntityRepositoryMock
                 .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
@@ -604,7 +604,7 @@ namespace TreeStore.PsModule.Test
             Assert.Equal("TreeStore", result[0].Property<ProviderInfo>("PSProvider").Name);
             Assert.Equal("TreeStore", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
             Assert.Equal(@"TreeStore\TreeStore::kg:\Entities\e\t\p", ((string)result[0].Properties["PSPath"].Value));
-            Assert.Equal(1, result[0].Property<int>("Value"));
+            Assert.Equal("1", result[0].Property<string>("Value"));
             Assert.False(result[0].PropertyContains("name"));
             Assert.False(result[0].PropertyContains("id"));
             Assert.False(result[0].PropertyContains("valueType"));
@@ -628,7 +628,7 @@ namespace TreeStore.PsModule.Test
 
             var entity = DefaultEntity(WithDefaultTag);
             var tag = entity.Tags.Single();
-            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+            entity.SetFacetProperty(tag.Facet.Properties.Single(), "1");
             this.EntityRepositoryMock
                 .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
                 .Returns(entity);
@@ -682,7 +682,7 @@ namespace TreeStore.PsModule.Test
 
             var entity = DefaultEntity(WithDefaultTag);
             var tag = entity.Tags.Single();
-            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+            entity.SetFacetProperty(tag.Facet.Properties.Single(), "1");
             this.EntityRepositoryMock
                 .Setup(r => r.Upsert(entity))
                 .Returns(entity);
@@ -698,13 +698,13 @@ namespace TreeStore.PsModule.Test
                    .AddCommand("Set-ItemProperty")
                    .AddParameter("Path", @"kg:\Entities\e")
                    .AddParameter("Name", "t.p")
-                   .AddParameter("Value", 2);
+                   .AddParameter("Value", "2");
 
             var result = this.PowerShell.Invoke().ToArray();
 
             // ASSERT
 
-            Assert.Equal(2, entity.TryGetFacetProperty(tag.Facet.Properties.Single()).Item2);
+            Assert.Equal("2", entity.TryGetFacetProperty(tag.Facet.Properties.Single()).value);
             Assert.False(this.PowerShell.HadErrors);
             Assert.Empty(result);
         }
@@ -731,7 +731,7 @@ namespace TreeStore.PsModule.Test
 
             var entity = DefaultEntity(WithDefaultTag);
             var tag = entity.Tags.Single();
-            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+            entity.SetFacetProperty(tag.Facet.Properties.Single(), "1");
 
             this.EntityRepositoryMock
                 .Setup(r => r.Upsert(entity))
@@ -748,13 +748,13 @@ namespace TreeStore.PsModule.Test
                    .AddCommand("Set-ItemProperty")
                    .AddParameter("Path", @"kg:\Entities\e\t")
                    .AddParameter("Name", "p")
-                   .AddParameter("Value", 2);
+                   .AddParameter("Value", "2");
 
             var result = this.PowerShell.Invoke().ToArray();
 
             // ASSERT
 
-            Assert.Equal(2, entity.TryGetFacetProperty(tag.Facet.Properties.Single()).Item2);
+            Assert.Equal("2", entity.TryGetFacetProperty(tag.Facet.Properties.Single()).Item2);
             Assert.False(this.PowerShell.HadErrors);
             Assert.Empty(result);
         }
@@ -781,7 +781,7 @@ namespace TreeStore.PsModule.Test
 
             var entity = DefaultEntity(WithDefaultTag);
             var tag = entity.Tags.Single();
-            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+            entity.SetFacetProperty(tag.Facet.Properties.Single(), "1");
 
             this.EntityRepositoryMock
                 .Setup(r => r.Upsert(entity))
@@ -798,13 +798,13 @@ namespace TreeStore.PsModule.Test
                    .AddCommand("Set-ItemProperty")
                    .AddParameter("Path", @"kg:\Entities\e\t\p")
                    .AddParameter("Name", "Value")
-                   .AddParameter("Value", 2);
+                   .AddParameter("Value", "2");
 
             var result = this.PowerShell.Invoke().ToArray();
 
             // ASSERT
 
-            Assert.Equal(2, entity.TryGetFacetProperty(tag.Facet.Properties.Single()).Item2);
+            Assert.Equal("2", entity.TryGetFacetProperty(tag.Facet.Properties.Single()).Item2);
             Assert.False(this.PowerShell.HadErrors);
             Assert.Empty(result);
         }
@@ -834,7 +834,7 @@ namespace TreeStore.PsModule.Test
 
             var entity = DefaultEntity(WithDefaultTag);
             var tag = entity.Tags.Single();
-            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+            entity.SetFacetProperty(tag.Facet.Properties.Single(), "1");
             this.EntityRepositoryMock
                 .Setup(r => r.Upsert(entity))
                 .Returns(entity);
@@ -880,7 +880,7 @@ namespace TreeStore.PsModule.Test
 
             var entity = DefaultEntity(WithDefaultTag);
             var tag = entity.Tags.Single();
-            entity.SetFacetProperty(tag.Facet.Properties.Single(), 1);
+            entity.SetFacetProperty(tag.Facet.Properties.Single(), "1");
             this.EntityRepositoryMock
                 .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
                 .Returns(entity);

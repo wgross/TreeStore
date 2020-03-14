@@ -344,7 +344,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             this.ArrangeRootCategory(out var rootCategory);
 
             var entity = DefaultEntity(WithDefaultTag, WithEntityCategory(rootCategory));
-            entity.SetFacetProperty(entity.Tags.Single().Facet.Properties.Single(), 1);
+            entity.SetFacetProperty(entity.Tags.Single().Facet.Properties.Single(), "1");
 
             this.CategoryRepositoryMock // destination name is unused
                 .Setup(r => r.FindByCategoryAndName(rootCategory, "ee"))
@@ -397,7 +397,7 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Returns(subCategory);
 
             var entity = DefaultEntity(WithDefaultTag);
-            entity.SetFacetProperty(entity.Tags.Single().Facet.Properties.Single(), 1);
+            entity.SetFacetProperty(entity.Tags.Single().Facet.Properties.Single(), "1");
 
             this.CategoryRepositoryMock // destination name is unused
                 .Setup(r => r.FindByCategoryAndName(subCategory, resultName))
@@ -817,11 +817,11 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            new EntityNode(e).SetItemProperties(this.ProviderContextMock.Object, new PSNoteProperty("T.P", 2).Yield());
+            new EntityNode(e).SetItemProperties(this.ProviderContextMock.Object, new PSNoteProperty("T.P", "2").Yield());
 
             // ASSERT
 
-            Assert.Equal(2, e.TryGetFacetProperty(e.Tags.Single().Facet.Properties.Single()).value);
+            Assert.Equal("2", e.TryGetFacetProperty(e.Tags.Single().Facet.Properties.Single()).value);
         }
 
         [Theory]
@@ -892,7 +892,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ARRANGE
 
             var e = DefaultEntity(WithDefaultTag);
-            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), 1);
+            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), "1");
 
             // ACT
 
@@ -971,7 +971,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ARRANGE
 
             var e = DefaultEntity(WithDefaultTag);
-            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), 1);
+            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), "1");
 
             this.ProviderContextMock
                 .Setup(c => c.Persistence)
@@ -1001,7 +1001,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ARRANGE
 
             var e = DefaultEntity(WithDefaultTag);
-            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), 1);
+            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), "1");
 
             // ACT
 
@@ -1036,4 +1036,3 @@ namespace TreeStore.PsModule.Test.PathNodes
         #endregion IClearItemProperty
     }
 }
-;

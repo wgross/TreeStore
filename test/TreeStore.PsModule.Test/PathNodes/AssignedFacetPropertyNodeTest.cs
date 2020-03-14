@@ -54,7 +54,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ARRANGE
 
             var e = DefaultEntity(WithDefaultTag);
-            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), 2);
+            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), "2");
 
             // ACT
 
@@ -64,7 +64,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             Assert.Equal("p", result.Property<string>("Name"));
             Assert.Equal(TreeStoreItemType.AssignedFacetProperty, result.Property<TreeStoreItemType>("ItemType"));
-            Assert.Equal(2, result.Property<int>("Value"));
+            Assert.Equal("2", result.Property<string>("Value"));
             Assert.Equal(FacetPropertyTypeValues.String, result.Property<FacetPropertyTypeValues>("ValueType"));
             Assert.IsType<AssignedFacetPropertyNode.Item>(result.ImmediateBaseObject);
 
@@ -72,7 +72,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             Assert.Equal(TreeStoreItemType.AssignedFacetProperty, resultValue.ItemType);
             Assert.Equal("p", resultValue.Name);
-            Assert.Equal(2, resultValue.Value);
+            Assert.Equal("2", resultValue.Value);
             Assert.Equal(e.Tags.Single().Facet.Properties.Single().Type, resultValue.ValueType);
         }
 
@@ -88,7 +88,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ARRANGE
 
             var e = DefaultEntity(WithDefaultTag);
-            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), 2);
+            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), "2");
 
             this.ProviderContextMock
                 .Setup(c => c.Persistence)
@@ -105,7 +105,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ACT
 
             new AssignedFacetPropertyNode(this.PersistenceMock.Object, e, e.Tags.Single().Facet.Properties.Single())
-                .SetItemProperties(this.ProviderContextMock.Object, new PSNoteProperty(propertyName, 3).Yield());
+                .SetItemProperties(this.ProviderContextMock.Object, new PSNoteProperty(propertyName, "3").Yield());
 
             // ASSERT
             // value has changed, entity was stored
@@ -113,7 +113,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             var (has, value) = e.TryGetFacetProperty(e.Tags.Single().Facet.Properties.Single());
 
             Assert.True(has);
-            Assert.Equal(3, value);
+            Assert.Equal("3", value);
         }
 
         [Fact]
@@ -146,7 +146,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ARRANGE
 
             var e = DefaultEntity(WithDefaultTag);
-            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), 2);
+            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), "2");
 
             // ACT
 
@@ -157,7 +157,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // name and value are returned
 
             Assert.Equal(new[] { "Name", "Value", "ValueType", "ItemType" }, result.Select(p => p.Name));
-            Assert.Equal(new object[] { "p", 2, FacetPropertyTypeValues.String, TreeStoreItemType.AssignedFacetProperty }, result.Select(p => p.Value));
+            Assert.Equal(new object[] { "p", "2", FacetPropertyTypeValues.String, TreeStoreItemType.AssignedFacetProperty }, result.Select(p => p.Value));
         }
 
         [Theory]
@@ -168,7 +168,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ARRANGE
 
             var e = DefaultEntity(WithDefaultTag);
-            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), 2);
+            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), "2");
 
             // ACT
 
@@ -179,7 +179,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // value propert is returned
 
             Assert.Equal("Value", result.Single().Name);
-            Assert.Equal(2, result.Single().Value);
+            Assert.Equal("2", result.Single().Value);
         }
 
         #endregion IGetItemProperty
@@ -194,7 +194,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ARRANGE
 
             var e = DefaultEntity(WithDefaultTag);
-            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), 1);
+            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), "1");
 
             this.ProviderContextMock
                 .Setup(c => c.Persistence)

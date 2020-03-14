@@ -1,3 +1,6 @@
 [submodule "src/p2f"]
 	path = src/p2f
 	url = https://github.com/wgross/p2f.git
+[submodule "src/TreeStore.Core"]
+	path = src/TreeStore.Core
+	url = https://github.com/wgross/TreeStore.Core

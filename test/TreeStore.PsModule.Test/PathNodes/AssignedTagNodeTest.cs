@@ -71,7 +71,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ARRANGE
 
             var e = DefaultEntity(WithDefaultTag);
-            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), 1);
+            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), "1");
 
             // ACT
 
@@ -81,7 +81,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             Assert.Equal("t", result.Property<string>("Name"));
             Assert.Equal(TreeStoreItemType.AssignedTag, result.Property<TreeStoreItemType>("ItemType"));
-            Assert.Equal(1, result.Property<int>("p"));
+            Assert.Equal("1", result.Property<string>("p"));
             Assert.Equal("p", result.Property<string[]>("Properties").Single());
             Assert.IsType<AssignedTagNode.Item>(result.ImmediateBaseObject);
         }
@@ -211,7 +211,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ARRANGE
 
             var e = DefaultEntity(WithDefaultTag);
-            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), 1);
+            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), "1");
 
             // ACT
 
@@ -220,7 +220,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ASSERT
 
             Assert.Equal(new[] { "p", "Name", "ItemType", "Properties" }, result.Select(p => p.Name));
-            Assert.Equal(new object[] { 1, "t", TreeStoreItemType.AssignedTag, new string[] { "p" } }, result.Select(p => p.Value));
+            Assert.Equal(new object[] { "1", "t", TreeStoreItemType.AssignedTag, new string[] { "p" } }, result.Select(p => p.Value));
         }
 
         [Theory]
@@ -231,7 +231,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ARRANGE
 
             var e = DefaultEntity(WithDefaultTag);
-            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), 1);
+            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), "1");
 
             // ACT
 
@@ -291,11 +291,11 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ACT
 
             new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single())
-                .SetItemProperties(this.ProviderContextMock.Object, new PSNoteProperty(propertyName, 2).Yield());
+                .SetItemProperties(this.ProviderContextMock.Object, new PSNoteProperty(propertyName, "2").Yield());
 
             // ASSERT
 
-            Assert.Equal(2, e.TryGetFacetProperty(e.Tags.Single().Facet.Properties.Single()).value);
+            Assert.Equal("2", e.TryGetFacetProperty(e.Tags.Single().Facet.Properties.Single()).value);
         }
 
         [Fact]
@@ -349,7 +349,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ARRANGE
 
             var e = DefaultEntity(WithDefaultTag);
-            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), 1);
+            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), "1");
 
             this.ProviderContextMock
                 .Setup(c => c.Persistence)
@@ -379,7 +379,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ARRANGE
 
             var e = DefaultEntity(WithDefaultTag);
-            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), 1);
+            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), "1");
 
             // ACT
 

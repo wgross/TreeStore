@@ -153,9 +153,7 @@ namespace TreeStore.PsModule.PathNodes
                 var fp = this.assignedTag.Facet.Properties.SingleOrDefault(fp => fp.Name.Equals(p.Name, StringComparison.OrdinalIgnoreCase));
                 if (fp is null)
                     continue;
-                if (!fp.CanAssignValue(p.Value?.ToString() ?? null))
-                    throw new InvalidOperationException($"value='{p.Value}' cant be assigned to property(name='{p.Name}', type='{fp.Type}')");
-
+                
                 this.entity.SetFacetProperty(fp, p.Value);
             }
             providerContext.Persistence().Entities.Upsert(this.entity);

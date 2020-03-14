@@ -1,5 +1,5 @@
-﻿using TreeStore.Model.Base;
-using System;
+﻿using System;
+using TreeStore.Model.Base;
 
 namespace TreeStore.Model
 {
@@ -54,6 +54,40 @@ namespace TreeStore.Model
                 // string values are always possible
                 case FacetPropertyTypeValues.String:
                     return true;
+
+                default:
+                    return false;
+            }
+        }
+
+        public bool CanAssignValue(object? value)
+        {
+            if (value is null)
+                return true; // facet property is nullable
+
+            switch (this.Type)
+            {
+                case FacetPropertyTypeValues.Long:
+                    return typeof(long).IsAssignableFrom(value.GetType());
+
+                case FacetPropertyTypeValues.Double:
+                    return typeof(double).IsAssignableFrom(value.GetType());
+
+                case FacetPropertyTypeValues.Decimal:
+                    return typeof(decimal).IsAssignableFrom(value.GetType());
+
+                case FacetPropertyTypeValues.Guid:
+                    return typeof(Guid).IsAssignableFrom(value.GetType());
+
+                case FacetPropertyTypeValues.DateTime:
+                    return typeof(DateTime).IsAssignableFrom(value.GetType());
+
+                case FacetPropertyTypeValues.Bool:
+                    return typeof(bool).IsAssignableFrom(value.GetType());
+
+                // string values are always possible
+                case FacetPropertyTypeValues.String:
+                    return typeof(string).IsAssignableFrom(value.GetType());
 
                 default:
                     return false;
