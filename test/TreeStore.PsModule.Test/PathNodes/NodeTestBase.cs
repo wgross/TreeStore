@@ -1,8 +1,9 @@
-﻿using TreeStore.LiteDb;
-using TreeStore.Model;
-using Moq;
+﻿using Moq;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using TreeStore.LiteDb;
+using TreeStore.Model;
 
 namespace TreeStore.PsModule.Test.PathNodes
 {
@@ -30,6 +31,8 @@ namespace TreeStore.PsModule.Test.PathNodes
         }
 
         public void Dispose() => this.Mocks.VerifyAll();
+
+        public static IEnumerable<object[]> InvalidNameChars => System.IO.Path.GetInvalidFileNameChars().Select(c => new object[] { c });
 
         #region Default Tag
 

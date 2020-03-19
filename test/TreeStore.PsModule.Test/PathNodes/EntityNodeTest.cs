@@ -439,7 +439,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         [Theory]
         [InlineData("e-src", (string?)null, "e-src")]
         [InlineData("e-src", "e-dst", "e-dst")]
-        public void EntityNode_rejects_copying_itself_to_category_if_entity_name_already_exists(string initialName, string destinationName, string resultName)
+        public void EntityNode_copying_rejects_category_if_entity_name_already_exists(string initialName, string destinationName, string resultName)
         {
             // ARRANGE
 
@@ -480,6 +480,26 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ASSERT
 
             Assert.Equal($"Destination container contains already an entity with name '{resultName}'", result.Message);
+        }
+
+        [Theory]
+        [MemberData(nameof(InvalidNameChars))]
+        public void EntityNode_copying_rejects_invalid_name_chararcters(char invalidChar)
+        {
+            // ARRANGE
+
+            var entity = DefaultEntity(WithDefaultTag, WithEntityCategory(DefaultCategory()));
+            var entityContainer = new EntitiesNode();
+            var invalidName = new string("p".ToCharArray().Append(invalidChar).ToArray());
+            var node = new EntityNode(entity);
+
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(() => node.CopyItem(this.ProviderContextMock.Object, "e", invalidName, entityContainer));
+
+            // ASSERT
+
+            Assert.Equal($"entity(name='{invalidName}' wasn't copied: it contains invalid characters", result.Message);
         }
 
         #endregion ICopyItem
@@ -790,6 +810,26 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ASSERT
 
             Assert.Equal("e", entity.Name);
+        }
+
+        [Theory]
+        [MemberData(nameof(InvalidNameChars))]
+        public void EntityNode_renaming_rejects_invalid_name_chararcters(char invalidChar)
+        {
+            // ARRANGE
+
+            var category = DefaultCategory(c => c.Name = "c");
+            var entity = DefaultEntity(WithEntityCategory(category));
+            var invalidName = new string("p".ToCharArray().Append(invalidChar).ToArray());
+            var node = new EntityNode(entity);
+
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(() => node.RenameItem(this.ProviderContextMock.Object, "e", invalidName));
+
+            // ASSERT
+
+            Assert.Equal($"entity(name='{invalidName}' wasn't renamed: it contains invalid characters", result.Message);
         }
 
         #endregion IRenameItem

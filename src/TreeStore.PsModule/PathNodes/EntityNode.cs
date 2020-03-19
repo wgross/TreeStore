@@ -184,6 +184,9 @@ namespace TreeStore.PsModule.PathNodes
 
         public void CopyItem(IProviderContext providerContext, string sourceItemName, string? destinationItemName, PathNode destinationNode)
         {
+            if (destinationItemName != null)
+                Guard.Against.InvalidNameCharacters(destinationItemName, $"entity(name='{destinationItemName}' wasn't copied");
+
             var newEntity = new Entity(destinationItemName ?? sourceItemName, this.entity.Tags.ToArray());
             var persistence = providerContext.Persistence();
 
@@ -220,6 +223,8 @@ namespace TreeStore.PsModule.PathNodes
 
         public void RenameItem(IProviderContext providerContext, string path, string newName)
         {
+            Guard.Against.InvalidNameCharacters(newName, $"entity(name='{newName}' wasn't renamed");
+
             if (this.entity.Name.Equals(newName))
                 return;
 
@@ -331,8 +336,8 @@ namespace TreeStore.PsModule.PathNodes
             if (facetProperty is null)
                 return;
 
-            if(facetProperty.CanAssignValue(value))
-            this.entity.SetFacetProperty(facetProperty, value);
+            if (facetProperty.CanAssignValue(value))
+                this.entity.SetFacetProperty(facetProperty, value);
         }
 
         private ParameterAttribute ParameterAttribute()

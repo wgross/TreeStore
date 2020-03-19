@@ -12,19 +12,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         #region P2F node structure
 
         [Fact]
-        public void EntitiesNode_has_name_and_ItemMode()
-        {
-            // ACT
-
-            var result = new EntitiesNode();
-
-            // ASSERT
-
-            Assert.Equal("Entities", result.Name);
-        }
-
-        [Fact]
-        public void EntitiesNode_provides_Value()
+        public void EntitiesNode_has_name_and_IsContainer()
         {
             // ACT
 
@@ -35,6 +23,10 @@ namespace TreeStore.PsModule.Test.PathNodes
             Assert.Equal("Entities", result.Name);
             Assert.True(result.IsContainer);
         }
+
+        #endregion P2F node structure
+
+        #region IGetItem
 
         [Fact]
         public void EntitiesNodeValue_provides_Item()
@@ -52,7 +44,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             Assert.Equal("Entities", resultValue.Name);
         }
 
-        #endregion P2F node structure
+        #endregion IGetItem
 
         #region Resolve
 
@@ -566,6 +558,25 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ASSERT
 
             Assert.Equal("Name is already used by and item of type 'Category'", result.Message);
+        }
+
+        [Theory]
+        [MemberData(nameof(InvalidNameChars))]
+        public void EntitesNode_creating_item_rejects_invalid_chars(char invalidChar)
+        {
+            // ARRANGE
+
+            var invalidName = new string("p".ToCharArray().Append(invalidChar).ToArray());
+            var node = new EntitiesNode();
+
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(() => node.NewItem(this.ProviderContextMock.Object,
+                newItemName: invalidName, itemTypeName: nameof(TreeStoreItemType.Entity), newItemValue: null!));
+
+            // ASSERT
+
+            Assert.Equal($"entity(name='{invalidName}' wasn't created: it contains invalid characters", result.Message);
         }
 
         #endregion INewItem

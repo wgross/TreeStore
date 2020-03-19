@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using CodeOwls.PowerShell.Paths;
+using Moq;
 using System;
 using System.Linq;
 using TreeStore.Model;
@@ -12,23 +13,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         #region P2F node structure
 
         [Fact]
-        public void FacetPropertyNode_has_name_and_ItemMode()
-        {
-            // ARRANGE
-
-            var tag = DefaultTag(WithDefaultProperty);
-
-            // ACT
-
-            var result = new FacetPropertyNode(tag, tag.Facet.Properties.Single());
-
-            // ASSERT
-
-            Assert.Equal("p", result.Name);
-        }
-
-        [Fact]
-        public void FacetPropertyNode_provides_Value()
+        public void FacetPropertyNode_has_Name_and_IsContainer()
         {
             // ARRANGE
 
@@ -44,6 +29,10 @@ namespace TreeStore.PsModule.Test.PathNodes
             Assert.False(result.IsContainer);
         }
 
+        #endregion P2F node structure
+
+        #region IGetItem
+
         [Fact]
         public void FacetPropertyNodeValue_provides_Item()
         {
@@ -57,17 +46,16 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ASSERT
 
+            Assert.Equal(tag.Facet.Properties.Single().Id, result.Property<Guid>("Id"));
+            Assert.Equal(tag.Facet.Properties.Single().Name, result.Property<string>("Name"));
+            Assert.Equal(TreeStoreItemType.FacetProperty, result.Property<TreeStoreItemType>("ItemType"));
+            Assert.Equal(FacetPropertyTypeValues.String, result.Property<FacetPropertyTypeValues>("ValueType"));
             Assert.IsType<FacetPropertyNode.Item>(result.ImmediateBaseObject);
-
-            var resultValue = (FacetPropertyNode.Item)result.ImmediateBaseObject;
-
-            Assert.Equal(tag.Facet.Properties.Single().Id, resultValue.Id);
-            Assert.Equal("p", resultValue.Name);
-            Assert.Equal(tag.Facet.Properties.Single().Type, resultValue.ValueType);
-            Assert.Equal(TreeStoreItemType.FacetProperty, resultValue.ItemType);
         }
 
-        #endregion P2F node structure
+        #endregion IGetItem
+
+        #region IGetChildItems
 
         [Fact]
         public void FacetPropertyNode_has_no_children()
@@ -85,6 +73,10 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             Assert.Empty(result);
         }
+
+        #endregion IGetChildItems
+
+        #region IRemoveItem
 
         [Fact]
         public void FacetPropertyMode_removes_itself_from_Tag()
@@ -114,41 +106,9 @@ namespace TreeStore.PsModule.Test.PathNodes
             Assert.Empty(tag.Facet.Properties);
         }
 
-        //[Fact]
-        //public void FacetPropertyNodeItem_set_FacetProperty_name()
-        //{
-        //    // ARRANGE
+        #endregion IRemoveItem
 
-        //    var tag = DefaultTag(WithDefaultProperty);
-
-        //    // ACT
-
-        //    var item = new FacetPropertyNode(tag, tag.Facet.Properties.Single()).GetItemProvider().GetItem() as FacetPropertyNode.Item;
-        //    item!.Name = "changed";
-
-        //    // ASSERT
-
-        //    Assert.Equal("changed", tag.Facet.Properties.Single().Name);
-        //}
-
-        //[Fact]
-        //public void FacetPropertyNodeItem_set_FacetProperty_type()
-        //{
-        //    // ARRANGE
-
-        //    var tag = DefaultTag(WithDefaultProperty);
-
-        //    // ACT
-
-        //    var item = new FacetPropertyNode(tag, tag.Facet.Properties.Single()).GetItemProvider().GetItem();
-
-        //    as FacetPropertyNode.Item;
-        //    item!.ValueType = TreeStore.Model.FacetPropertyTypeValues.Bool;
-
-        //    // ASSERT
-
-        //    Assert.Equal(TreeStore.Model.FacetPropertyTypeValues.Bool, tag.Facet.Properties.Single().Type);
-        //}
+        #region ICopyItem
 
         [Fact]
         public void FacetPropertyNode_copies_to_tag_with_same_name()
@@ -183,7 +143,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         }
 
         [Fact]
-        public void FacetPropertyNode_copies_to_tag_with_new_name()
+        public void FacetPropertyNode_copies_with_new_name()
         {
             // ARRANGE
 
@@ -233,6 +193,52 @@ namespace TreeStore.PsModule.Test.PathNodes
             Assert.Equal("duplicate property name: p", result.Message);
         }
 
+        [Theory]
+        //[InlineData(null)]// prohibited by powershell
+        [InlineData(nameof(FacetPropertyNode.Item.Id))]
+        [InlineData(nameof(FacetPropertyNode.Item.Name))]
+        [InlineData(nameof(FacetPropertyNode.Item.ValueType))]
+        [InlineData(nameof(FacetPropertyNode.Item.ItemType))]
+        public void FacetPropertyNode_copying_rejects_internal_names(string propertyName)
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithoutProperty, WithProperty("p", FacetPropertyTypeValues.String), WithProperty("pp", FacetPropertyTypeValues.Long));
+
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(() =>
+                new FacetPropertyNode(tag, tag.Facet.Properties.First()).CopyItem(this.ProviderContextMock.Object, "p", propertyName, Mock.Of<PathNode>()));
+
+            // ASSERT
+
+            Assert.Equal($"facetProperty(name='{propertyName}') wasn't copied: name is reserved", result.Message);
+        }
+
+        [Theory]
+        [MemberData(nameof(InvalidNameChars))]
+        public void FacetPropertyNode_copying_rejects_invalid_characters(char invalidChar)
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty);
+            var invalidName = new string("p".ToCharArray().Append(invalidChar).ToArray());
+            var tagsContainer = new TagsNode();
+
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(() => new FacetPropertyNode(tag, tag.Facet.Properties.First())
+                .CopyItem(this.ProviderContextMock.Object, "p", invalidName, Mock.Of<PathNode>()));
+
+            // ASSERT
+
+            Assert.Equal($"facetProperty(name='{invalidName}' wasn't created: it contains invalid characters", result.Message);
+        }
+
+        #endregion ICopyItem
+
+        #region IRenameItem
+
         [Fact]
         public void FacetPropertyNode_renames_itself()
         {
@@ -264,7 +270,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         }
 
         [Fact]
-        public void FacetPropertyNode_renaming_doesnt_store_identical_name()
+        public void FacetPropertyNode_renaming_ignores_same_name()
         {
             // ARRANGE
 
@@ -280,7 +286,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         }
 
         [Fact]
-        public void FacetPropertyNode_renaming_fails_on_duplicate_name()
+        public void FacetPropertyNode_renaming_rejects_duplicate_name()
         {
             // ARRANGE
 
@@ -296,6 +302,50 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             Assert.Equal("rename failed: property name 'PP' must be unique.", result.Message);
         }
+
+        [Theory]
+        //[InlineData(null)]// prohibited by powershell
+        [InlineData(nameof(FacetPropertyNode.Item.Id))]
+        [InlineData(nameof(FacetPropertyNode.Item.Name))]
+        [InlineData(nameof(FacetPropertyNode.Item.ValueType))]
+        [InlineData(nameof(FacetPropertyNode.Item.ItemType))]
+        public void FacetPropertyNode_renaming_rejects_internal_names(string propertyName)
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty, WithProperty("pp", FacetPropertyTypeValues.Long));
+
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(() => new FacetPropertyNode(tag, tag.Facet.Properties.First())
+                .RenameItem(this.ProviderContextMock.Object, "p", propertyName));
+
+            // ASSERT
+
+            Assert.Equal($"facetProperty(name='{propertyName}') wasn't renamed: name is reserved", result.Message);
+        }
+
+        [Theory]
+        [MemberData(nameof(InvalidNameChars))]
+        public void FacetPropertyNode_renaming_rejects_invalid_characters(char invalidChar)
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty);
+            var invalidName = new string("p".ToCharArray().Append(invalidChar).ToArray());
+            var tagsContainer = new TagsNode();
+
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(() => new FacetPropertyNode(tag, tag.Facet.Properties.First())
+                .RenameItem(this.ProviderContextMock.Object, "p", invalidName));
+
+            // ASSERT
+
+            Assert.Equal($"facetProperty(name='{invalidName}' wasn't created: it contains invalid characters", result.Message);
+        }
+
+        #endregion IRenameItem
 
         #region IGetItemProperty
 

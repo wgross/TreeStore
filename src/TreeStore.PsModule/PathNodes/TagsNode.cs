@@ -1,5 +1,6 @@
 ﻿using CodeOwls.PowerShell.Paths;
 using CodeOwls.PowerShell.Provider.PathNodeProcessors;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -57,7 +58,15 @@ namespace TreeStore.PsModule.PathNodes
         public IEnumerable<string> NewItemTypeNames => "Tag".Yield();
 
         public PathNode NewItem(IProviderContext providerContext, string newItemChildPath, string? itemTypeName, object? newItemValue)
-            => new TagNode(providerContext.Persistence().Tags.Upsert(new Tag(Path.GetFileName(newItemChildPath))));
+        {
+            if (!newItemChildPath.EnsureValidName())
+                throw new InvalidOperationException($"tag(name='{newItemChildPath}' wasn't created: it contains invalid characters");
+
+            return new TagNode(providerContext
+                .Persistence()
+                .Tags
+                .Upsert(new Tag(Path.GetFileName(newItemChildPath))));
+        }
 
         #endregion INewItem
     }

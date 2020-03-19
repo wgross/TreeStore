@@ -12,6 +12,8 @@ namespace TreeStore.PsModule.PathNodes
         IRemoveItem, ICopyItem, IRenameItem,
         IGetItemProperty
     {
+        public static readonly string[] ForbiddenNames = { nameof(Item.Id), nameof(Item.Name), nameof(Item.ItemType), nameof(Item.ValueType) };
+
         public sealed class Item
         {
             private readonly FacetProperty facetProperty;
@@ -70,6 +72,12 @@ namespace TreeStore.PsModule.PathNodes
 
         public void CopyItem(IProviderContext providerContext, string sourceItemName, string? destinationItemName, PathNode destinationNode)
         {
+            if (destinationItemName is { } && !destinationItemName.EnsureValidName())
+                throw new InvalidOperationException($"facetProperty(name='{destinationItemName}' wasn't created: it contains invalid characters");
+
+            if (FacetPropertyNode.ForbiddenNames.Contains(destinationItemName, StringComparer.OrdinalIgnoreCase))
+                throw new InvalidOperationException($"facetProperty(name='{destinationItemName}') wasn't copied: name is reserved");
+
             if (destinationNode is TagNode destinationContainerNodeValue)
             {
                 destinationContainerNodeValue.AddProperty(providerContext, destinationItemName ?? this.facetProperty.Name, this.facetProperty.Type);
@@ -84,6 +92,12 @@ namespace TreeStore.PsModule.PathNodes
         {
             if (this.facetProperty.Name.Equals(newName))
                 return;
+
+            if (!newName.EnsureValidName())
+                throw new InvalidOperationException($"facetProperty(name='{newName}' wasn't created: it contains invalid characters");
+
+            if (FacetPropertyNode.ForbiddenNames.Contains(newName, StringComparer.OrdinalIgnoreCase))
+                throw new InvalidOperationException($"facetProperty(name='{newName}') wasn't renamed: name is reserved");
 
             if (this.tag.Facet.Properties.Any(p => p.Name.Equals(newName, StringComparison.OrdinalIgnoreCase)))
                 throw new InvalidOperationException($"rename failed: property name '{newName}' must be unique.");

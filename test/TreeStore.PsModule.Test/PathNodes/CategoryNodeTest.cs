@@ -356,7 +356,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         }
 
         [Fact]
-        public void CategoriesNode_creates_CategoryNodeValue()
+        public void CategoryNode_creates_category()
         {
             // ARRANGE
 
@@ -397,7 +397,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         }
 
         [Fact]
-        public void CategoriesNode_rejects_creating_CategoryNodeValue_with_duplicate_entity_name()
+        public void CategoryNode_creating_category_fails_on_duplicate_entity_name()
         {
             // ARRANGE
 
@@ -434,7 +434,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         }
 
         [Fact]
-        public void CategoriesNode_rejects_creating_CategoryNodeValue_with_duplicate_category_name()
+        public void CategoryNode_creating_category_fails_on_duplicate_category_name()
         {
             // ARRANGE
 
@@ -462,7 +462,24 @@ namespace TreeStore.PsModule.Test.PathNodes
             Assert.Equal($"Name is already used by and item of type '{nameof(TreeStoreItemType.Category)}'", result.Message);
         }
 
-        //todo: crerate entity with duplicate entity name
+        [Theory]
+        [MemberData(nameof(InvalidNameChars))]
+        public void CategoryNode_creating_rejects_invalid_name_chararcters(char invalidChar)
+        {
+            // ARRANGE
+
+            var category = DefaultCategory(c => c.Name = "c");
+            var invalidName = new string("p".ToCharArray().Append(invalidChar).ToArray());
+            var node = new CategoryNode(category);
+
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(() => node.NewItem(this.ProviderContextMock.Object, invalidName, itemTypeName: nameof(TreeStoreItemType.Category), newItemValue: null));
+
+            // ASSERT
+
+            Assert.Equal($"category(name='{invalidName}' wasn't created: it contains invalid characters", result.Message);
+        }
 
         #endregion INewItem
 
@@ -566,7 +583,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         [Theory]
         [InlineData("e-src", (string?)null, "e-src")]
         [InlineData("e-src", "e-dst", "e-dst")]
-        public void CategoryNode_rejects_copying_itself_to_category_if_entity_name_already_exists(string initialName, string destinationName, string resultName)
+        public void CategoryNode_copying_fails_if_entity_name_already_exists(string initialName, string destinationName, string resultName)
         {
             // ARRANGE
 
@@ -613,7 +630,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         [Theory]
         [InlineData("e-src", (string?)null, "e-src")]
         [InlineData("e-src", "e-dst", "e-dst")]
-        public void CategoryNode_rejects_copying_itself_to_category_if_category_name_already_exists(string initialName, string destinationName, string resultName)
+        public void CategoryNode_copying_fails_if_category_name_already_exists(string initialName, string destinationName, string resultName)
         {
             // ARRANGE
 
@@ -647,6 +664,26 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ASSERTS
 
             Assert.Equal($"Destination container contains already a category with name '{resultName}'", result.Message);
+        }
+
+        [Theory]
+        [MemberData(nameof(InvalidNameChars))]
+        public void CategoryNode_copying_rejects_invalid_name_chararcters(char invalidChar)
+        {
+            // ARRANGE
+
+            var category = DefaultCategory(c => c.Name = "c");
+            var invalidName = new string("p".ToCharArray().Append(invalidChar).ToArray());
+            var entitiesNode = new EntitiesNode();
+            var node = new CategoryNode(category);
+
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(() => node.CopyItem(this.ProviderContextMock.Object, "c", invalidName, entitiesNode));
+
+            // ASSERT
+
+            Assert.Equal($"category(name='{invalidName}' wasn't created: it contains invalid characters", result.Message);
         }
 
         #endregion ICopyItem
@@ -750,6 +787,26 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ASSERT
 
             Assert.Equal("c", category.Name);
+        }
+
+        [Theory]
+        [MemberData(nameof(InvalidNameChars))]
+        public void CategoryNode_renaming_rejects_invalid_name_chararcters(char invalidChar)
+        {
+            // ARRANGE
+
+            var category = DefaultCategory(c => c.Name = "c");
+            var invalidName = new string("p".ToCharArray().Append(invalidChar).ToArray());
+            var entitiesNode = new EntitiesNode();
+            var node = new CategoryNode(category);
+
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(() => node.RenameItem(this.ProviderContextMock.Object, "c", invalidName));
+
+            // ASSERT
+
+            Assert.Equal($"category(name='{invalidName}' wasn't renamed: it contains invalid characters", result.Message);
         }
 
         #endregion IRenameItem

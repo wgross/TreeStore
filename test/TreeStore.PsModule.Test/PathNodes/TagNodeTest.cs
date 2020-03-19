@@ -169,7 +169,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
         #endregion IGetItemProperty
 
-        #region INewItem - replace with INewItemProperty!
+        #region INewItem
 
         [Fact]
         public void TagNode_provides_NewItemTypeNames()
@@ -196,7 +196,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = new TagNode( tag).NewItemParameters;
+            var result = new TagNode(tag).NewItemParameters;
 
             // ASSERT
 
@@ -206,11 +206,11 @@ namespace TreeStore.PsModule.Test.PathNodes
         [Theory]
         [InlineData(null)]
         [InlineData("FacetProperty")]
-        public void TagNode_creates_new_FacetProperty(string itemTypeName)
+        public void TagNode_creates_FacetProperty(string itemTypeName)
         {
             // ARRANGE
 
-            var tag = DefaultTag(t => t.Facet.Properties.Clear());
+            var tag = DefaultTag(WithoutProperty);
 
             this.ProviderContextMock
                 .Setup(c => c.Persistence)
@@ -234,7 +234,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ACT
 
             var result = new TagNode(tag)
-                .NewItem(this.ProviderContextMock.Object, newItemChildPath: @"p", itemTypeName: itemTypeName, newItemValue: null);
+                .NewItem(this.ProviderContextMock.Object, newItemChildPath: "p", itemTypeName: itemTypeName, newItemValue: null);
 
             // ASSERT
 
@@ -243,7 +243,67 @@ namespace TreeStore.PsModule.Test.PathNodes
             Assert.Equal(FacetPropertyTypeValues.Bool, ((FacetPropertyNode.Item)result.GetItem(this.ProviderContextMock.Object).ImmediateBaseObject).ValueType);
         }
 
-        #endregion INewItem - replace with INewItemProperty!
+        [Theory]
+        //[InlineData(null)]// prohibited by powershell
+        [InlineData(nameof(FacetPropertyNode.Item.Id))]
+        [InlineData(nameof(FacetPropertyNode.Item.Name))]
+        [InlineData(nameof(FacetPropertyNode.Item.ValueType))]
+        [InlineData(nameof(FacetPropertyNode.Item.ItemType))]
+        public void TagNode_creating_FacetProperty_rejects_reserved_names(string propertyName)
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithoutProperty);
+
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(() => new TagNode(tag)
+                .NewItem(this.ProviderContextMock.Object, newItemChildPath: propertyName, itemTypeName: null, newItemValue: null));
+
+            // ASSERT
+
+            Assert.Equal($"facetProperty(name='{propertyName}') wasn't created: name is reserved", result.Message);
+        }
+
+        [Theory]
+        [InlineData("p")]
+        [InlineData("P")]
+        public void TagNode_creating_FacetProperty_rejects_duplicate_name(string propertyName)
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty);
+
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(() => new TagNode(tag)
+                .NewItem(this.ProviderContextMock.Object, newItemChildPath: propertyName, itemTypeName: null, newItemValue: null));
+
+            // ASSERT
+
+            Assert.Equal($"facetProperty(name='{propertyName}') wasn't created: name is duplicate", result.Message);
+        }
+
+        [Theory]
+        [MemberData(nameof(InvalidNameChars))]
+        public void TagNode_creating_Tag_rejects_invalid_characters(char invalidChar)
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty);
+            var invalidName = new string("p".ToCharArray().Append(invalidChar).ToArray());
+
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(() => new TagNode(tag)
+                .NewItem(this.ProviderContextMock.Object, newItemChildPath: invalidName, itemTypeName: null, newItemValue: null));
+
+            // ASSERT
+
+            Assert.Equal($"facetProperty(name='{invalidName}' wasn't created: it contains invalid characters", result.Message);
+        }
+
+        #endregion INewItem
 
         #region IRemoveItem
 
@@ -369,6 +429,26 @@ namespace TreeStore.PsModule.Test.PathNodes
             Assert.Equal(tag.Facet.Properties.Single().Type, createdTag!.Facet.Properties.Single().Type);
         }
 
+        [Theory]
+        [MemberData(nameof(InvalidNameChars))]
+        public void TagNode_copying_itself_rejects_invalid_characters(char invalidChar)
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty);
+            var invalidName = new string("t".ToCharArray().Append(invalidChar).ToArray());
+            var tagsContainer = new TagsNode();
+
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(() => new TagNode(tag)
+                .CopyItem(this.ProviderContextMock.Object, "t", invalidName, tagsContainer));
+
+            // ASSERT
+
+            Assert.Equal($"tag(name='{invalidName}' wasn't created: it contains invalid characters", result.Message);
+        }
+
         #endregion ICopyItem
 
         #region IRenameItem
@@ -417,6 +497,26 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ASSERT
 
             Assert.Equal("t", tag.Name);
+        }
+
+        [Theory]
+        [MemberData(nameof(InvalidNameChars))]
+        public void TagNode_renaming_rejects_invalid_characters(char invalidChar)
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty);
+            var invalidName = new string("t".ToCharArray().Append(invalidChar).ToArray());
+            var tagsContainer = new TagsNode();
+
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(() => new TagNode(tag)
+                .RenameItem(this.ProviderContextMock.Object, "t", invalidName));
+
+            // ASSERT
+
+            Assert.Equal($"tag(name='{invalidName}' wasn't created: it contains invalid characters", result.Message);
         }
 
         #endregion IRenameItem

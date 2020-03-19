@@ -98,8 +98,17 @@ namespace TreeStore.PsModule.PathNodes
 
         public object NewItemParameters => new NewFacetPropertyParameters();
 
-        public PathNode NewItem(IProviderContext providerContext, string newItemChildPath, string itemTypeName, object? newItemValue)
+        public PathNode NewItem(IProviderContext providerContext, string newItemChildPath, string? itemTypeName, object? newItemValue)
         {
+            if (!newItemChildPath.EnsureValidName())
+                throw new InvalidOperationException($"facetProperty(name='{newItemChildPath}' wasn't created: it contains invalid characters");
+
+            if (FacetPropertyNode.ForbiddenNames.Contains(newItemChildPath, StringComparer.OrdinalIgnoreCase))
+                throw new InvalidOperationException($"facetProperty(name='{newItemChildPath}') wasn't created: name is reserved");
+
+            if (this.tag.Facet.Properties.Any(p => p.Name.Equals(newItemChildPath, StringComparison.OrdinalIgnoreCase)))
+                throw new InvalidOperationException($"facetProperty(name='{newItemChildPath}') wasn't created: name is duplicate");
+
             var facetProperty = providerContext.DynamicParameters switch
             {
                 NewFacetPropertyParameters p => new FacetProperty(newItemChildPath, p.ValueType),
@@ -130,6 +139,9 @@ namespace TreeStore.PsModule.PathNodes
 
         public void CopyItem(IProviderContext providerContext, string sourceItemName, string destinationItemName, PathNode destinationNode)
         {
+            if (!destinationItemName.EnsureValidName())
+                throw new InvalidOperationException($"tag(name='{destinationItemName}' wasn't created: it contains invalid characters");
+
             var newTag = new Tag(destinationItemName);
             this.tag.Facet.Properties.ForEach(p => newTag.Facet.AddProperty(new FacetProperty(p.Name, p.Type)));
 
@@ -149,6 +161,9 @@ namespace TreeStore.PsModule.PathNodes
 
         public void RenameItem(IProviderContext providerContext, string path, string newName)
         {
+            if (!newName.EnsureValidName())
+                throw new InvalidOperationException($"tag(name='{newName}' wasn't created: it contains invalid characters");
+
             if (this.tag.Name.Equals(newName))
                 return;
 

@@ -87,6 +87,8 @@ namespace TreeStore.PsModule.PathNodes
 
         public PathNode NewItem(IProviderContext providerContext, string newItemName, string itemTypeName, object newItemValue)
         {
+            Guard.Against.InvalidNameCharacters(newItemName, $"category(name='{newItemName}' wasn't created");
+
             switch (itemTypeName ?? nameof(TreeStoreItemType.Entity))
             {
                 case nameof(TreeStoreItemType.Category):
@@ -154,6 +156,9 @@ namespace TreeStore.PsModule.PathNodes
 
         public void CopyItem(IProviderContext providerContext, string sourceItemName, string destinationItemName, PathNode destinationNode)
         {
+            if (destinationItemName != null)
+                Guard.Against.InvalidNameCharacters(destinationItemName, $"category(name='{destinationItemName}' wasn't created");
+
             var persistence = providerContext.Persistence();
 
             var newCategory = new Category(destinationItemName ?? sourceItemName);
@@ -187,7 +192,9 @@ namespace TreeStore.PsModule.PathNodes
 
         public void RenameItem(IProviderContext providerContext, string path, string newName)
         {
-            // this is explicitely not case insensitive. Renaminh to different cases is allowed,
+            Guard.Against.InvalidNameCharacters(newName, $"category(name='{newName}' wasn't renamed");
+
+            // this is explicitely not case insensitive. Renaming to different cases is allowed,
             // even if it has no effect to the the identification by name.
             if (this.category.Name.Equals(newName))
                 return;
