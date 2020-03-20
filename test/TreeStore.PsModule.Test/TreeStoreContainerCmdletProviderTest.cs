@@ -622,45 +622,6 @@ namespace TreeStore.PsModule.Test
 
         #endregion Get-ChildItem /Entities/<category-name>
 
-        #region Get-ChildItem /Entities/<entity-name>/<tag-name>
-
-        [Fact]
-        public void PowerShell_reads_assigned_properties_as_assigned_tag_children()
-        {
-            // ARRANGE
-
-            this.ArrangeEmptyRootCategory(out var rootCategory);
-
-            this.CategoryRepositoryMock
-                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
-                .Returns((Category?)null);
-
-            this.PersistenceMock
-                .Setup(p => p.Entities)
-                .Returns(this.EntityRepositoryMock.Object);
-
-            var entity = DefaultEntity(WithDefaultTag);
-            this.EntityRepositoryMock
-                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
-                .Returns(entity);
-
-            // ACT
-
-            this.PowerShell
-                .AddCommand("Get-ChildItem")
-                .AddParameter("Path", @"kg:\Entities\e\t");
-
-            var result = this.PowerShell.Invoke().ToArray();
-
-            // ASSERT
-
-            Assert.False(this.PowerShell.HadErrors);
-            Assert.Single(result);
-            Assert.Equal("p", result.Single().Property<string>("Name"));
-        }
-
-        #endregion Get-ChildItem /Entities/<entity-name>/<tag-name>
-
         #region Copy-Item /Tags/<name>
 
         [Fact]

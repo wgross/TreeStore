@@ -9,16 +9,14 @@ using TreeStore.Model;
 
 namespace TreeStore.PsModule.PathNodes
 {
-    public class AssignedTagNode : ContainerNode, IRemoveItem,
+    public class AssignedTagNode : LeafNode, IRemoveItem,
         IClearItemProperty, ISetItemProperty, IGetItemProperty
     {
-        private readonly ITreeStorePersistence model;
         private readonly Entity entity;
         private readonly Tag assignedTag;
 
-        public AssignedTagNode(ITreeStorePersistence model, Entity entity, Tag tag)
+        public AssignedTagNode(Entity entity, Tag tag)
         {
-            this.model = model;
             this.entity = entity;
             this.assignedTag = tag;
         }
@@ -47,18 +45,6 @@ namespace TreeStore.PsModule.PathNodes
 
         public override string Name => this.assignedTag.Name;
 
-        public override IEnumerable<PathNode> Resolve(IProviderContext providerContext, string? name)
-        {
-            if (name is null)
-                return this.GetChildNodes(providerContext);
-
-            var property = this.assignedTag.Facet.Properties.SingleOrDefault(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-            if (property is null)
-                return Enumerable.Empty<PathNode>();
-
-            return new AssignedFacetPropertyNode(providerContext.Persistence(), this.entity, property).Yield();
-        }
-
         #region IGetItem
 
         public override PSObject GetItem(IProviderContext providerContext)
@@ -77,13 +63,6 @@ namespace TreeStore.PsModule.PathNodes
         }
 
         #endregion IGetItem
-
-        #region IGetChildItem Members
-
-        public override IEnumerable<PathNode> GetChildNodes(IProviderContext providerContext)
-            => this.assignedTag.Facet.Properties.Select(p => new AssignedFacetPropertyNode(this.model, this.entity, p));
-
-        #endregion IGetChildItem Members
 
         #region IRemoveItem Members
 
@@ -153,7 +132,7 @@ namespace TreeStore.PsModule.PathNodes
                 var fp = this.assignedTag.Facet.Properties.SingleOrDefault(fp => fp.Name.Equals(p.Name, StringComparison.OrdinalIgnoreCase));
                 if (fp is null)
                     continue;
-                
+
                 this.entity.SetFacetProperty(fp, p.Value);
             }
             providerContext.Persistence().Entities.Upsert(this.entity);

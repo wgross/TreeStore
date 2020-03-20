@@ -286,7 +286,11 @@ namespace TreeStore.PsModule.Test
             Assert.Equal(@"TreeStore\TreeStore::kg:\Entities\e", ((string)result[0].Properties["PSPath"].Value));
             Assert.Equal(entity.Id, result[0].Property<Guid>("Id"));
             Assert.Equal(entity.Name, result[0].Property<string>("Name"));
-            Assert.Null(result[0].Property<long?>("t.p"));
+
+            var tagPsObject = result[0].Property<PSObject>("t");
+
+            Assert.NotNull(tagPsObject);
+            Assert.Null(tagPsObject.Property<long?>("p"));
         }
 
         [Fact]
@@ -514,151 +518,6 @@ namespace TreeStore.PsModule.Test
 
         #endregion Get-ItemProperty /Entities/<name>/<tag-name>
 
-        #region Get-ItemProperty /Entities/<name>/<tag-name>/<property-name>
-
-        [Fact]
-        public void PowerShell_retrieves_AssignedFacetProperty_properties()
-        {
-            // ARRANGE
-            // provide a tag and an entity using this tag
-
-            this.ArrangeEmptyRootCategory(out var rootCategory);
-
-            this.CategoryRepositoryMock
-                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
-                .Returns((Category?)null);
-
-            this.PersistenceMock
-                .Setup(m => m.Entities)
-                .Returns(this.EntityRepositoryMock.Object);
-
-            var entity = DefaultEntity(WithDefaultTag);
-            var tag = entity.Tags.Single();
-            entity.SetFacetProperty(tag.Facet.Properties.Single(), "1");
-            this.EntityRepositoryMock
-                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
-                .Returns(entity);
-
-            // ACT
-
-            this.PowerShell
-               .AddStatement()
-                   .AddCommand("Get-ItemProperty")
-                   .AddParameter("Path", @"kg:\Entities\e\t\p");
-
-            var result = this.PowerShell.Invoke().ToArray();
-
-            // ASSERT
-            // from facet property name and value are retrieved, Id is ignored
-
-            Assert.False(this.PowerShell.HadErrors);
-            Assert.Single(result);
-            Assert.IsType<ProviderInfo>(result[0].Property<ProviderInfo>("PSProvider"));
-            Assert.Equal("TreeStore", result[0].Property<ProviderInfo>("PSProvider").Name);
-            Assert.Equal("TreeStore", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
-            Assert.Equal(@"TreeStore\TreeStore::kg:\Entities\e\t\p", ((string)result[0].Properties["PSPath"].Value));
-            Assert.Equal(tag.Facet.Properties.Single().Name, result[0].Property<string>("Name"));
-            Assert.Equal(tag.Facet.Properties.Single().Type, result[0].Property<FacetPropertyTypeValues>("ValueType"));
-            Assert.Equal("1", result[0].Property<string>("Value"));
-        }
-
-        [Fact]
-        public void PowerShell_retrieves_single_AssignedFacetProperty_property_by_name()
-        {
-            // ARRANGE
-            // provide a tag and an entity using this tag
-
-            this.ArrangeEmptyRootCategory(out var rootCategory);
-
-            this.CategoryRepositoryMock
-                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
-                .Returns((Category?)null);
-
-            this.PersistenceMock
-                .Setup(m => m.Entities)
-                .Returns(this.EntityRepositoryMock.Object);
-
-            var entity = DefaultEntity(WithDefaultTag);
-            var tag = entity.Tags.Single();
-            entity.SetFacetProperty(tag.Facet.Properties.Single(), "1");
-
-            this.EntityRepositoryMock
-                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
-                .Returns(entity);
-
-            // ACT
-
-            this.PowerShell
-               .AddStatement()
-                   .AddCommand("Get-ItemProperty")
-                   .AddParameter("Path", @"kg:\Entities\e\t\p")
-                   .AddParameter("Name", "Value");
-
-            var result = this.PowerShell.Invoke().ToArray();
-
-            // ASSERT
-
-            Assert.False(this.PowerShell.HadErrors);
-            Assert.Single(result);
-            Assert.IsType<ProviderInfo>(result[0].Property<ProviderInfo>("PSProvider"));
-            Assert.Equal("TreeStore", result[0].Property<ProviderInfo>("PSProvider").Name);
-            Assert.Equal("TreeStore", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
-            Assert.Equal(@"TreeStore\TreeStore::kg:\Entities\e\t\p", ((string)result[0].Properties["PSPath"].Value));
-            Assert.Equal("1", result[0].Property<string>("Value"));
-            Assert.False(result[0].PropertyContains("name"));
-            Assert.False(result[0].PropertyContains("id"));
-            Assert.False(result[0].PropertyContains("valueType"));
-        }
-
-        [Fact]
-        public void PowerShell_retrieving_single_AssignedFacetProperty_property_by_unknown_name_returns_null()
-        {
-            // ARRANGE
-            // provide a tag and an entity using this tag
-
-            this.ArrangeEmptyRootCategory(out var rootCategory);
-
-            this.CategoryRepositoryMock
-                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
-                .Returns((Category?)null);
-
-            this.PersistenceMock
-                .Setup(m => m.Entities)
-                .Returns(this.EntityRepositoryMock.Object);
-
-            var entity = DefaultEntity(WithDefaultTag);
-            var tag = entity.Tags.Single();
-            entity.SetFacetProperty(tag.Facet.Properties.Single(), "1");
-            this.EntityRepositoryMock
-                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
-                .Returns(entity);
-
-            // ACT
-
-            this.PowerShell
-               .AddStatement()
-                   .AddCommand("Get-ItemProperty")
-                   .AddParameter("Path", @"kg:\Entities\e\t\p")
-                   .AddParameter("Name", "unknown");
-
-            var result = this.PowerShell.Invoke().ToArray();
-
-            // ASSERT
-
-            Assert.False(this.PowerShell.HadErrors);
-            Assert.Single(result);
-            Assert.IsType<ProviderInfo>(result[0].Property<ProviderInfo>("PSProvider"));
-            Assert.Equal("TreeStore", result[0].Property<ProviderInfo>("PSProvider").Name);
-            Assert.Equal("TreeStore", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
-            Assert.Equal(@"TreeStore\TreeStore::kg:\Entities\e\t\p", ((string)result[0].Properties["PSPath"].Value));
-            Assert.False(result[0].PropertyContains("Value"));
-            Assert.False(result[0].PropertyContains("name"));
-            Assert.False(result[0].PropertyContains("id"));
-            Assert.False(result[0].PropertyContains("valueType"));
-        }
-
-        #endregion Get-ItemProperty /Entities/<name>/<tag-name>/<property-name>
-
         #region Set-ItemProperty /Entities/<name>/<tag-name> -Name <property-name>, Set-ItemProperty /Entities/<name> -Name <tag-name>.<property-name>
 
         [Fact]
@@ -748,56 +607,6 @@ namespace TreeStore.PsModule.Test
                    .AddCommand("Set-ItemProperty")
                    .AddParameter("Path", @"kg:\Entities\e\t")
                    .AddParameter("Name", "p")
-                   .AddParameter("Value", "2");
-
-            var result = this.PowerShell.Invoke().ToArray();
-
-            // ASSERT
-
-            Assert.Equal("2", entity.TryGetFacetProperty(tag.Facet.Properties.Single()).Item2);
-            Assert.False(this.PowerShell.HadErrors);
-            Assert.Empty(result);
-        }
-
-        [Fact]
-        public void PowerShell_sets_AssignedFacetProperty_at_property()
-        {
-            // ARRANGE
-            // provide a tag and an entity using this tag
-
-            this.ArrangeEmptyRootCategory(out var rootCategory);
-
-            this.CategoryRepositoryMock
-                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
-                .Returns((Category?)null);
-
-            this.PersistenceMock
-                .Setup(m => m.Entities)
-                .Returns(this.EntityRepositoryMock.Object);
-
-            this.PersistenceMock
-                .Setup(m => m.Entities)
-                .Returns(this.EntityRepositoryMock.Object);
-
-            var entity = DefaultEntity(WithDefaultTag);
-            var tag = entity.Tags.Single();
-            entity.SetFacetProperty(tag.Facet.Properties.Single(), "1");
-
-            this.EntityRepositoryMock
-                .Setup(r => r.Upsert(entity))
-                .Returns(entity);
-
-            this.EntityRepositoryMock
-                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
-                .Returns(entity);
-
-            // ACT
-
-            this.PowerShell
-               .AddStatement()
-                   .AddCommand("Set-ItemProperty")
-                   .AddParameter("Path", @"kg:\Entities\e\t\p")
-                   .AddParameter("Name", "Value")
                    .AddParameter("Value", "2");
 
             var result = this.PowerShell.Invoke().ToArray();

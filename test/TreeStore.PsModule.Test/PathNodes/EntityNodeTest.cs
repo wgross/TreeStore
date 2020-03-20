@@ -311,7 +311,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         #region IGetItem
 
         [Fact]
-        public void EntityNodeValue_provides_Item()
+        public void EntityNode_provides_Item()
         {
             // ARRANGE
 
@@ -327,9 +327,13 @@ namespace TreeStore.PsModule.Test.PathNodes
             Assert.Equal(e.Id, result.Property<Guid>("Id"));
             Assert.Equal(e.Name, result.Property<string>("Name"));
             Assert.Equal(TreeStoreItemType.Entity, result.Property<TreeStoreItemType>("ItemType"));
-            Assert.Equal("1", result.Property<string>("t.p"));
             Assert.Equal("t.p", result.Property<string[]>("Properties").Single());
             Assert.IsType<EntityNode.Item>(result.ImmediateBaseObject);
+
+            var assignedTag = result.Property<PSObject>("t");
+
+            Assert.IsType<AssignedTagNode.Item>(assignedTag.ImmediateBaseObject);
+            Assert.Equal("1", assignedTag.Property<string>("p"));
         }
 
         #endregion IGetItem
@@ -941,12 +945,12 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ASSERT
             // name and faceto property hav eben retreved
 
-            Assert.Equal(new[] { "t.p", "Name", "Id", "ItemType", "Properties" }, result.Select(r => r.Name));
+            Assert.Equal(new[] { "t", "Name", "Id", "ItemType", "Properties" }, result.Select(r => r.Name));
         }
 
         [Theory]
         [InlineData("NAME")]
-        [InlineData("T.P")]
+        [InlineData("T")]
         public void EntityNode_retrieves_specified_property(string propertyName)
         {
             // ARRANGE

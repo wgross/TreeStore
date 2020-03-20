@@ -12,7 +12,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         #region P2F node structure
 
         [Fact]
-        public void AssignedTagNode_has_name_and_ItemMode()
+        public void AssignedTagNode_has_name_and_IsContainer()
         {
             // ARRANGE
 
@@ -20,45 +20,12 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single());
+            var result = new AssignedTagNode(e, e.Tags.Single());
 
             // ASSERT
 
             Assert.Equal("t", result.Name);
-        }
-
-        [Fact]
-        public void AssignedTagNode_provides_Value()
-        {
-            // ARRANGE
-
-            var e = DefaultEntity(WithDefaultTag);
-
-            // ACT
-
-            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single());
-
-            // ASSERT
-
-            Assert.Equal("t", result.Name);
-            Assert.True(result.IsContainer);
-        }
-
-        [Fact]
-        public void AssignedTagNode_retrieves_assigned_facet_properties_as_child_nodes()
-        {
-            // ARRANGE
-
-            var e = DefaultEntity(WithDefaultTag);
-
-            // ACT
-
-            var node = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single());
-            var result = node.GetChildNodes(this.ProviderContextMock.Object);
-
-            // ASSERT
-
-            Assert.Single(result);
+            Assert.False(result.IsContainer);
         }
 
         #endregion P2F node structure
@@ -75,7 +42,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).GetItem(this.ProviderContextMock.Object);
+            var result = new AssignedTagNode(e, e.Tags.Single()).GetItem(this.ProviderContextMock.Object);
 
             // ASSERT
 
@@ -87,60 +54,6 @@ namespace TreeStore.PsModule.Test.PathNodes
         }
 
         #endregion IGetItem
-
-        [Theory]
-        [InlineData("p")]
-        [InlineData("P")]
-        public void AssignedTagNode_resolves_property_name_as_AssignedFacetPropertyNode(string name)
-        {
-            // ARRANGE
-
-            var e = DefaultEntity(WithDefaultTag);
-
-            this.ProviderContextMock
-                .Setup(p => p.Persistence)
-                .Returns(this.PersistenceMock.Object);
-
-            // ACT
-
-            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).Resolve(this.ProviderContextMock.Object, name).Single();
-
-            // ASSERT
-
-            Assert.IsType<AssignedFacetPropertyNode>(result);
-        }
-
-        [Fact]
-        public void AssignedTagNode_resolves_unknown_property_name_as_empty_result()
-        {
-            // ARRANGE
-
-            var e = DefaultEntity(WithDefaultTag);
-
-            // ACT
-
-            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).Resolve(this.ProviderContextMock.Object, "unknown");
-
-            // ASSERT
-
-            Assert.Empty(result);
-        }
-
-        [Fact]
-        public void AssignedTagNode_resolves_null_tag_name_as_all_child_nodes()
-        {
-            // ARRANGE
-
-            var e = DefaultEntity(WithDefaultTag);
-
-            // ACT
-
-            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).Resolve(this.ProviderContextMock.Object, null);
-
-            // ASSERT
-
-            Assert.Single(result);
-        }
 
         #region IRemoveItem
 
@@ -165,7 +78,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).RemoveItem(this.ProviderContextMock.Object, "t");
+            new AssignedTagNode(e, e.Tags.Single()).RemoveItem(this.ProviderContextMock.Object, "t");
 
             // ARRANGE
 
@@ -193,7 +106,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).RemoveItem(this.ProviderContextMock.Object, "t");
+            new AssignedTagNode(e, e.Tags.Single()).RemoveItem(this.ProviderContextMock.Object, "t");
 
             // ARRANGE
             // property values aren't child items.
@@ -215,7 +128,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).GetItemProperties(this.ProviderContextMock.Object, propertyNames: Enumerable.Empty<string>());
+            var result = new AssignedTagNode(e, e.Tags.Single()).GetItemProperties(this.ProviderContextMock.Object, propertyNames: Enumerable.Empty<string>());
 
             // ASSERT
 
@@ -235,7 +148,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).GetItemProperties(this.ProviderContextMock.Object, propertyNames: new[] { propertyName });
+            var result = new AssignedTagNode(e, e.Tags.Single()).GetItemProperties(this.ProviderContextMock.Object, propertyNames: new[] { propertyName });
 
             // ASSERT
 
@@ -243,7 +156,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         }
 
         [Fact]
-        public void AssignedTagNodeValue_rertrieving_property_provides_parameter_with_completer()
+        public void AssignedTagNode_rertrieving_property_provides_parameter_with_completer()
         {
             // ARRANGE
 
@@ -251,7 +164,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = (RuntimeDefinedParameterDictionary)new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).GetItemPropertyParameters;
+            var result = (RuntimeDefinedParameterDictionary)new AssignedTagNode(e, e.Tags.Single()).GetItemPropertyParameters;
 
             // ASSERT
 
@@ -270,7 +183,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         [Theory]
         [InlineData("p")]
         [InlineData("P")]
-        public void AssignedTagNodeValue_sets_facet_property_value(string propertyName)
+        public void AssignedTagNode_sets_facet_property_value(string propertyName)
         {
             // ARRANGE
 
@@ -290,7 +203,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single())
+            new AssignedTagNode(e, e.Tags.Single())
                 .SetItemProperties(this.ProviderContextMock.Object, new PSNoteProperty(propertyName, "2").Yield());
 
             // ASSERT
@@ -299,7 +212,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         }
 
         [Fact]
-        public void AssignedTagNodeValue_setting_facet_property_value_rejects_wrong_type()
+        public void AssignedTagNode_setting_facet_property_value_rejects_wrong_type()
         {
             // ARRANGE
 
@@ -308,7 +221,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ACT
 
             var result = Assert.Throws<InvalidOperationException>(
-                () => new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).SetItemProperties(this.ProviderContextMock.Object, new PSNoteProperty("p", 2).Yield()));
+                () => new AssignedTagNode(e, e.Tags.Single()).SetItemProperties(this.ProviderContextMock.Object, new PSNoteProperty("p", 2).Yield()));
 
             // ASSERT
 
@@ -317,7 +230,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         }
 
         [Fact]
-        public void AssignedTagNodeValue_setting_facet_property_provides_parameter_with_completer()
+        public void AssignedTagNode_setting_facet_property_provides_parameter_with_completer()
         {
             // ARRANGE
 
@@ -325,7 +238,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = (RuntimeDefinedParameterDictionary)new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).SetItemPropertyParameters;
+            var result = (RuntimeDefinedParameterDictionary)new AssignedTagNode(e, e.Tags.Single()).SetItemPropertyParameters;
 
             // ASSERT
 
@@ -365,7 +278,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single())
+            new AssignedTagNode(e, e.Tags.Single())
                 .ClearItemProperty(this.ProviderContextMock.Object, propertyName.Yield());
 
             // ASSERT
@@ -383,7 +296,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single())
+            new AssignedTagNode(e, e.Tags.Single())
                 .ClearItemProperty(this.ProviderContextMock.Object, "unknown".Yield());
 
             // ASSERT
@@ -392,7 +305,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         }
 
         [Fact]
-        public void AssignedTagNodeValue_clearing_facet_property_provides_parameter_with_completer()
+        public void AssignedTagNode_clearing_facet_property_provides_parameter_with_completer()
         {
             // ARRANGE
 
@@ -400,7 +313,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = (RuntimeDefinedParameterDictionary)new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).ClearItemPropertyParameters;
+            var result = (RuntimeDefinedParameterDictionary)new AssignedTagNode(e, e.Tags.Single()).ClearItemPropertyParameters;
 
             // ASSERT
 

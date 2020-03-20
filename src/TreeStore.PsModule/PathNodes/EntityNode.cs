@@ -111,17 +111,25 @@ namespace TreeStore.PsModule.PathNodes
         public override PSObject GetItem(IProviderContext providerContext)
         {
             // create a spo wth all properties from Item
-            var pso = PSObject.AsPSObject(new Item(this.entity));
-            // append all dynamic properties as not properties
-            this.entity
-                .AllAssignedPropertyValues()
-                .Aggregate(pso, (pso, p) =>
-                {
-                    pso.Properties.Add(new PSNoteProperty($"{p.tagName}.{p.propertyName}", p.value));
-                    return pso;
-                });
+            return this.entity
+                .Tags
+                .Select(tag => (name: tag.Name, psobj: new AssignedTagNode(this.entity, tag).GetItem(providerContext)))
+                .Aggregate(PSObject.AsPSObject(new Item(this.entity)), (epso, tpso) =>
+                 {
+                     epso.Properties.Add(new PSNoteProperty(tpso.name, tpso.psobj));
+                     return epso;
+                 });
+        }
 
-            return pso;
+        private PSObject NewAssignedTagPsObject(Tag assignedTag)
+        {
+            return this.entity
+                .AllAssignedPropertyValues(assignedTag)
+                .Aggregate(new PSObject(), (o, p) =>
+                {
+                    o.Properties.Add(new PSNoteProperty(p.propertyName, p.value));
+                    return o;
+                });
         }
 
         #endregion IGetItem
@@ -131,7 +139,7 @@ namespace TreeStore.PsModule.PathNodes
         #region IGetChildNodes
 
         public override IEnumerable<PathNode> GetChildNodes(IProviderContext providerContext)
-            => this.entity.Tags.Select(t => new AssignedTagNode(providerContext.Persistence(), this.entity, t));
+            => this.entity.Tags.Select(t => new AssignedTagNode(this.entity, t));
 
         #endregion IGetChildNodes
 
@@ -143,7 +151,7 @@ namespace TreeStore.PsModule.PathNodes
             var tag = this.entity.Tags.SingleOrDefault(t => t.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
             if (tag is null)
                 return Enumerable.Empty<PathNode>();
-            return new AssignedTagNode(providerContext.Persistence(), this.entity, tag).Yield();
+            return new AssignedTagNode(this.entity, tag).Yield();
         }
 
         #region INewItem
@@ -157,13 +165,13 @@ namespace TreeStore.PsModule.PathNodes
                 throw new InvalidOperationException($"tag(name='{newItemChildPath}') doesn't exist.");
 
             if (this.entity.Tags.Contains(tag))
-                return new AssignedTagNode(providerContext.Persistence(), this.entity, tag);
+                return new AssignedTagNode(this.entity, tag);
 
             this.entity.AddTag(tag);
 
             providerContext.Persistence().Entities.Upsert(this.entity);
 
-            return new AssignedTagNode(providerContext.Persistence(), this.entity, tag);
+            return new AssignedTagNode(this.entity, tag);
         }
 
         #endregion INewItem

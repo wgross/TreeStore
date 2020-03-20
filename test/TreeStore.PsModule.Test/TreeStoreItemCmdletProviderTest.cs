@@ -418,51 +418,6 @@ namespace TreeStore.PsModule.Test
             Assert.True(this.PowerShell.HadErrors);
         }
 
-        [Fact]
-        public void PowerShell_retrieves_single_AssignedFacetProperty_by_name()
-        {
-            // ARRANGE
-            // provide a tag and an entity using this tag
-
-            this.ArrangeEmptyRootCategory(out var rootCategory);
-
-            this.CategoryRepositoryMock
-                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
-                .Returns((Category?)null);
-
-            this.PersistenceMock
-                .Setup(m => m.Entities)
-                .Returns(this.EntityRepositoryMock.Object);
-
-            var entity = DefaultEntity(WithDefaultTag);
-            var tag = entity.Tags.Single();
-            entity.SetFacetProperty(tag.Facet.Properties.Single(), "1");
-
-            this.EntityRepositoryMock
-                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
-                .Returns(entity);
-
-            // ACT
-
-            this.PowerShell
-               .AddStatement()
-                   .AddCommand("Get-Item")
-                   .AddParameter("Path", @"kg:\Entities\e\t\p");
-
-            var result = this.PowerShell.Invoke().ToArray();
-
-            // ASSERT
-
-            Assert.False(this.PowerShell.HadErrors);
-            Assert.Single(result);
-            Assert.IsType<ProviderInfo>(result[0].Property<ProviderInfo>("PSProvider"));
-            Assert.Equal("TreeStore", result[0].Property<ProviderInfo>("PSProvider").Name);
-            Assert.Equal("TreeStore", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
-            Assert.Equal(@"TreeStore\TreeStore::kg:\Entities\e\t\p", ((string)result[0].Properties["PSPath"].Value));
-            Assert.Equal(tag.Facet.Properties.Single().Name, result[0].Property<string>("Name"));
-            Assert.Equal("1", result[0].Property<string>("Value"));
-        }
-
         #endregion Get-Item /Entities/<entity-name>, Get-Item /Entities/<category-name>, /Entities/<name>/<tag-name>, /Entiites/<name>/<tag-name>/<property-name>
     }
 }
