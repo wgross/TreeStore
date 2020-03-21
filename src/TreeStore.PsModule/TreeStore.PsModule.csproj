@@ -20,6 +20,9 @@
     <ProjectReference Include="..\TreeStore.Model\TreeStore.Model.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="TreeStore.format.ps1xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="TreeStore.psd1">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

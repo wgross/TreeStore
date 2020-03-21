@@ -16,7 +16,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ARRANGE
 
-            var e = DefaultEntity(WithDefaultTag);
+            var e = DefaultEntity(WithAssignedDefaultTag);
 
             // ACT
 
@@ -32,7 +32,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ARRANGE
 
-            var e = DefaultEntity(WithDefaultTag);
+            var e = DefaultEntity(WithAssignedDefaultTag);
 
             // ACT
 
@@ -53,7 +53,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ARRANGE
 
-            var e = DefaultEntity(WithDefaultTag);
+            var e = DefaultEntity(WithAssignedDefaultTag);
             e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), "2");
 
             // ACT
@@ -87,7 +87,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ARRANGE
 
-            var e = DefaultEntity(WithDefaultTag);
+            var e = DefaultEntity(WithAssignedDefaultTag);
             e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), "2");
 
             this.ProviderContextMock
@@ -121,7 +121,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ARRANGE
 
-            var e = DefaultEntity(WithDefaultTag, e => e.Tags.Single().Facet.Properties.Single().Type = FacetPropertyTypeValues.Bool);
+            var e = DefaultEntity(WithAssignedDefaultTag, e => e.Tags.Single().Facet.Properties.Single().Type = FacetPropertyTypeValues.Bool);
 
             // ACT
 
@@ -145,7 +145,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ARRANGE
 
-            var e = DefaultEntity(WithDefaultTag);
+            var e = DefaultEntity(WithAssignedDefaultTag);
             e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), "2");
 
             // ACT
@@ -167,7 +167,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ARRANGE
 
-            var e = DefaultEntity(WithDefaultTag);
+            var e = DefaultEntity(WithAssignedDefaultTag);
             e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), "2");
 
             // ACT
@@ -193,7 +193,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ARRANGE
 
-            var e = DefaultEntity(WithDefaultTag);
+            var e = DefaultEntity(WithAssignedDefaultTag);
             e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), "1");
 
             this.ProviderContextMock

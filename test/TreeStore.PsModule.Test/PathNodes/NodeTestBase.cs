@@ -67,7 +67,9 @@ namespace TreeStore.PsModule.Test.PathNodes
             return tmp;
         }
 
-        protected void WithDefaultTag(Entity entity) => entity.Tags.Add(DefaultTag(WithDefaultProperty));
+        protected void WithAssignedDefaultTag(Entity entity) => entity.Tags.Add(DefaultTag(WithDefaultProperty));
+
+        protected Action<Entity> WithAssignedTag(Tag tag) => e => e.Tags.Add(tag);
 
         protected Action<Entity> WithDefaultPropertySet<V>(V value)
             => e => e.SetFacetProperty(e.Tags.First().Facet.Properties.First(), value);

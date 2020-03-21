@@ -68,13 +68,36 @@ namespace TreeStore.Model
             switch (this.Type)
             {
                 case FacetPropertyTypeValues.Long:
-                    return typeof(long).IsAssignableFrom(value.GetType());
+                    return value switch
+                    {
+                        // convertable
+                        int _ => true,
+                        short _ => true,
+                        // assignable
+                        _ => typeof(long).IsAssignableFrom(value.GetType())
+                    };
 
                 case FacetPropertyTypeValues.Double:
-                    return typeof(double).IsAssignableFrom(value.GetType());
+                    return value switch
+                    {
+                        // convertable
+                        float _ => true,
+                        // assignable
+                        _ => typeof(double).IsAssignableFrom(value.GetType())
+                    };
 
                 case FacetPropertyTypeValues.Decimal:
-                    return typeof(decimal).IsAssignableFrom(value.GetType());
+                    return value switch
+                    {
+                        // convertable
+                        float _ => true,
+                        double _ => true,
+                        short _ => true,
+                        int _ => true,
+                        long _ => true,
+                        // assignable
+                        _ => typeof(decimal).IsAssignableFrom(value.GetType())
+                    };
 
                 case FacetPropertyTypeValues.Guid:
                     return typeof(Guid).IsAssignableFrom(value.GetType());

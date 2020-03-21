@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Management.Automation;
+using System.Text;
 using TreeStore.Model;
 
 namespace TreeStore.PsModule.PathNodes
@@ -17,38 +18,6 @@ namespace TreeStore.PsModule.PathNodes
         INewItem, IRemoveItem, ICopyItem, IRenameItem, IMoveItem,
         IClearItemProperty, ISetItemProperty, IGetItemProperty
     {
-        public sealed class ItemProvider : ContainerItemProvider, IItemProvider
-        {
-            private readonly Entity entity;
-            private readonly ITreeStorePersistence model;
-
-            public ItemProvider(ITreeStorePersistence model, Entity entity)
-                : base(new Item(entity), entity.Name)
-            {
-                this.entity = entity;
-                this.model = model;
-            }
-
-            public IEnumerable<PSPropertyInfo> GetItemProperties(IEnumerable<string> propertyNames)
-            {
-                IEnumerable<PSNoteProperty> staticProperties()
-                {
-                    yield return new PSNoteProperty(nameof(Item.Id), this.entity.Id);
-                    yield return new PSNoteProperty(nameof(Item.Name), this.entity.Name);
-                }
-
-                IEnumerable<PSNoteProperty> assignedProperties() => this.entity
-                    .AllAssignedPropertyValues()
-                    .Select(p => new PSNoteProperty($"{p.tagName}.{p.propertyName}", p.value));
-
-                var allProperties = staticProperties().Union(assignedProperties());
-                if (propertyNames.Any())
-                    return allProperties.Where(p => propertyNames.Contains(p.Name, StringComparer.OrdinalIgnoreCase));
-                else
-                    return allProperties;
-            }
-        }
-
         #region Item - to be used in powershell pipe
 
         public sealed class Property
@@ -95,6 +64,42 @@ namespace TreeStore.PsModule.PathNodes
                 .SelectMany(t => t.Facet.Properties.AsEnumerable().Select(p => (t.Name, p)))
                 .Select(tnp => $"{tnp.Name}.{tnp.p.Name}")
                 .ToArray();
+
+            public string ToFormattedString()
+            {
+                var maxPropertyLength = 0;
+                foreach (var tag in this.entity.Tags)
+                {
+                    foreach (var p in tag.Facet.Properties)
+                    {
+                        maxPropertyLength = Math.Max(maxPropertyLength, p.Name.Length);
+                    }
+                }
+
+                var tagIndent = "  ";
+                var propertyIndent = "    ";
+                var builder = new StringBuilder().AppendLine(this.entity.Name);
+                foreach (var tag in this.entity.Tags)
+                {
+                    builder.Append(tagIndent).AppendLine(tag.Name);
+                    foreach (var p in tag.Facet.Properties)
+                    {
+                        builder.Append(propertyIndent).Append(p.Name.PadRight(maxPropertyLength)).Append(" : ");
+                        switch (this.entity.TryGetFacetProperty(p))
+                        {
+                            case var result when result.exists:
+                                builder.AppendLine(result.value?.ToString());
+                                break;
+
+                            default:
+                                builder.AppendLine();
+                                break;
+                        };
+                    }
+                }
+
+                return builder.ToString();
+            }
         }
 
         #endregion Item - to be used in powershell pipe
@@ -110,7 +115,7 @@ namespace TreeStore.PsModule.PathNodes
 
         public override PSObject GetItem(IProviderContext providerContext)
         {
-            // create a spo wth all properties from Item
+            // creates an PSObject wth all properties from Item
             return this.entity
                 .Tags
                 .Select(tag => (name: tag.Name, psobj: new AssignedTagNode(this.entity, tag).GetItem(providerContext)))
@@ -404,6 +409,11 @@ namespace TreeStore.PsModule.PathNodes
         private Category? SubCategory(ITreeStorePersistence persistence, Category category) => this.SubCategory(persistence, category, this.entity.Name);
 
         private Category? SubCategory(ITreeStorePersistence persistence, Category parentCategory, string name) => persistence.Categories.FindByCategoryAndName(parentCategory, name);
+
+        public RuntimeDefinedParameterDictionary ToFormattedString()
+        {
+            throw new NotImplementedException();
+        }
 
         #endregion Model Accessors
     }

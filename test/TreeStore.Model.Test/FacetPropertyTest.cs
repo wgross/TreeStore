@@ -56,9 +56,6 @@ namespace TreeStore.Model.Test
             // ACT & ASSERT
 
             // as string
-            Assert.True(entity.Tags.Single().Facet.Properties.Single().CanAssignValue(((decimal)1).ToString()));
-            Assert.True(entity.Tags.Single().Facet.Properties.Single().CanAssignValue(((long)1).ToString()));
-            Assert.True(entity.Tags.Single().Facet.Properties.Single().CanAssignValue(((double)1).ToString()));
             Assert.False(entity.Tags.Single().Facet.Properties.Single().CanAssignValue("text"));
             Assert.False(entity.Tags.Single().Facet.Properties.Single().CanAssignValue(Guid.NewGuid().ToString()));
             Assert.False(entity.Tags.Single().Facet.Properties.Single().CanAssignValue(true.ToString()));
@@ -82,10 +79,13 @@ namespace TreeStore.Model.Test
 
             // ACT
 
+            // as string
             Assert.True(entity.Tags.Single().Facet.Properties.Single().CanAssignValue("1"));
-            Assert.True(entity.Tags.Single().Facet.Properties.Single().CanAssignValue(((decimal)1).ToString()));
-            Assert.True(entity.Tags.Single().Facet.Properties.Single().CanAssignValue(((long)1).ToString()));
-            Assert.True(entity.Tags.Single().Facet.Properties.Single().CanAssignValue(((double)1).ToString()));
+
+            // as object
+            Assert.True(entity.Tags.Single().Facet.Properties.Single().CanAssignValue((object)(long)1));
+            Assert.True(entity.Tags.Single().Facet.Properties.Single().CanAssignValue((object)(int)1));
+            Assert.True(entity.Tags.Single().Facet.Properties.Single().CanAssignValue((object)(short)1));
         }
 
         [Fact]
@@ -141,9 +141,6 @@ namespace TreeStore.Model.Test
             // ACT & ASSERT
 
             // as string
-            Assert.True(entity.Tags.Single().Facet.Properties.Single().CanAssignValue(((decimal)1).ToString()));
-            Assert.True(entity.Tags.Single().Facet.Properties.Single().CanAssignValue(((long)1).ToString()));
-            Assert.True(entity.Tags.Single().Facet.Properties.Single().CanAssignValue(((double)1).ToString()));
             Assert.False(entity.Tags.Single().Facet.Properties.Single().CanAssignValue("text"));
             Assert.False(entity.Tags.Single().Facet.Properties.Single().CanAssignValue(Guid.NewGuid().ToString()));
             Assert.False(entity.Tags.Single().Facet.Properties.Single().CanAssignValue(true.ToString()));
@@ -152,7 +149,6 @@ namespace TreeStore.Model.Test
             // as object
             Assert.False(entity.Tags.Single().Facet.Properties.Single().CanAssignValue("text"));
             Assert.False(entity.Tags.Single().Facet.Properties.Single().CanAssignValue((object)(decimal)1));
-            Assert.True(entity.Tags.Single().Facet.Properties.Single().CanAssignValue((object)(double)1));
             Assert.False(entity.Tags.Single().Facet.Properties.Single().CanAssignValue((object)Guid.NewGuid()));
             Assert.False(entity.Tags.Single().Facet.Properties.Single().CanAssignValue((object)true));
             Assert.False(entity.Tags.Single().Facet.Properties.Single().CanAssignValue((object)DateTime.Now));
@@ -165,13 +161,15 @@ namespace TreeStore.Model.Test
 
             var entity = DefaultEntity(e => e.Tags.Single().Facet.Properties.Single().Type = FacetPropertyTypeValues.Double);
 
-            // ACT
+            // ACT & ASSERT
 
-            var result = entity.Tags.Single().Facet.Properties.Single().CanAssignValue("1.1");
+            // as string
+            Assert.True(entity.Tags.Single().Facet.Properties.Single().CanAssignValue("1.1"));
+            Assert.True(entity.Tags.Single().Facet.Properties.Single().CanAssignValue("1"));
 
-            // ASSERT
-
-            Assert.True(result);
+            // as object
+            Assert.True(entity.Tags.Single().Facet.Properties.Single().CanAssignValue((object)(double)1.1));
+            Assert.True(entity.Tags.Single().Facet.Properties.Single().CanAssignValue((object)(float)1.1));
         }
 
         [Fact]
@@ -184,9 +182,6 @@ namespace TreeStore.Model.Test
             // ACT & ASSERT
 
             // as string
-            Assert.True(entity.Tags.Single().Facet.Properties.Single().CanAssignValue(((decimal)1).ToString()));
-            Assert.True(entity.Tags.Single().Facet.Properties.Single().CanAssignValue(((long)1).ToString()));
-            Assert.True(entity.Tags.Single().Facet.Properties.Single().CanAssignValue(((double)1).ToString()));
             Assert.False(entity.Tags.Single().Facet.Properties.Single().CanAssignValue("text"));
             Assert.False(entity.Tags.Single().Facet.Properties.Single().CanAssignValue(Guid.NewGuid().ToString()));
             Assert.False(entity.Tags.Single().Facet.Properties.Single().CanAssignValue(true.ToString()));
@@ -194,8 +189,6 @@ namespace TreeStore.Model.Test
 
             // as object
             Assert.False(entity.Tags.Single().Facet.Properties.Single().CanAssignValue("text"));
-            Assert.True(entity.Tags.Single().Facet.Properties.Single().CanAssignValue((object)(decimal)1));
-            Assert.False(entity.Tags.Single().Facet.Properties.Single().CanAssignValue((object)(double)1));
             Assert.False(entity.Tags.Single().Facet.Properties.Single().CanAssignValue((object)Guid.NewGuid()));
             Assert.False(entity.Tags.Single().Facet.Properties.Single().CanAssignValue((object)true));
             Assert.False(entity.Tags.Single().Facet.Properties.Single().CanAssignValue((object)DateTime.Now));
@@ -208,13 +201,18 @@ namespace TreeStore.Model.Test
 
             var entity = DefaultEntity(e => e.Tags.Single().Facet.Properties.Single().Type = FacetPropertyTypeValues.Decimal);
 
-            // ACT
+            // ACT & ASSERT
 
-            var result = entity.Tags.Single().Facet.Properties.Single().CanAssignValue("1.1");
+            // as string
+            Assert.True(entity.Tags.Single().Facet.Properties.Single().CanAssignValue("1.1"));
 
-            // ASSERT
-
-            Assert.True(result);
+            // as object
+            Assert.True(entity.Tags.Single().Facet.Properties.Single().CanAssignValue((object)(decimal)1));
+            Assert.True(entity.Tags.Single().Facet.Properties.Single().CanAssignValue((object)(short)1));
+            Assert.True(entity.Tags.Single().Facet.Properties.Single().CanAssignValue((object)(int)1));
+            Assert.True(entity.Tags.Single().Facet.Properties.Single().CanAssignValue((object)(long)1));
+            Assert.True(entity.Tags.Single().Facet.Properties.Single().CanAssignValue((object)(float)1));
+            Assert.True(entity.Tags.Single().Facet.Properties.Single().CanAssignValue((object)(double)1));
         }
 
         [Fact]
@@ -286,7 +284,7 @@ namespace TreeStore.Model.Test
             Assert.False(entity.Tags.Single().Facet.Properties.Single().CanAssignValue((object)true));
             Assert.True(entity.Tags.Single().Facet.Properties.Single().CanAssignValue((object)DateTime.Now));
         }
-          
+
         [Fact]
         public void FacetProperty_DateTime_accepts_compatible_value()
         {
