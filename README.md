@@ -24,7 +24,7 @@ Import-Module TreeStore
 New-TreeStoreDrive -Name tree -TreeStorePath "c:\tmp\data.db"
 cd tree:
 ```
-[more TreeStore drives](https://github.com/wgross/TreeStore/wiki/New-TreeStoreDrive)
+[more about TreeStore drives...](https://github.com/wgross/TreeStore/wiki/New-TreeStoreDrive)
 
 ## Create a Tag
 A Tag defines a simple data structure composed of uniquely named properties. The name of the tag is also unique. To create Tag just create a new item in directory /Tags.
@@ -39,14 +39,14 @@ New-Item \Tags\example_tag -Name example_property -ValueType Long
 ```
 Supported property types are: Bool, DateTime, Decimal, Double, Guid, Long, String. Properties can be renamed or copyed/moved to another tag or removed from a tag with approriate powershell item cmdlets. Since facet properties can exist only with in a tag destinations outside of a tag are not allowed for copying or moving
 
-[more on Tags and Facet Properties](https://github.com/wgross/TreeStore/wiki/Tags)
+[more about Tags and Facet Properties...](https://github.com/wgross/TreeStore/wiki/Tags)
 
 ## Create an Entity
 An entity is the main item of a TreeStore file system. All entities are stored under the \Entities folder.
 ```powershell
 NewItem \Entities\example_entity
 ```
-[more on Entities](https://github.com/wgross/TreeStore/wiki/Entities)
+[more about Entities...](https://github.com/wgross/TreeStore/wiki/Entities)
 
 ## Assign Tag to an Entity
 
