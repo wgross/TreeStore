@@ -55,15 +55,19 @@ namespace TreeStore.PsModule.PathNodes
 
             public TreeStoreItemType ItemType => TreeStoreItemType.Entity;
 
-            private string[]? properties = null;
+            // todo: properties
 
-            public string[] Properties => this.properties ??= this.SelectAssignedProperties();
+            #region // properties collection
 
-            private string[] SelectAssignedProperties() => this.entity
-                .Tags
-                .SelectMany(t => t.Facet.Properties.AsEnumerable().Select(p => (t.Name, p)))
-                .Select(tnp => $"{tnp.Name}.{tnp.p.Name}")
-                .ToArray();
+            //private string[]? properties = null;
+            //public string[] Properties => this.properties ??= this.SelectAssignedProperties();
+            //private string[] SelectAssignedProperties() => this.entity
+            //    .Tags
+            //    .SelectMany(t => t.Facet.Properties.AsEnumerable().Select(p => (t.Name, p)))
+            //    .Select(tnp => $"{tnp.Name}.{tnp.p.Name}")
+            //    .ToArray();
+
+            #endregion // properties collection
 
             public string ToFormattedString()
             {
@@ -124,17 +128,6 @@ namespace TreeStore.PsModule.PathNodes
                      epso.Properties.Add(new PSNoteProperty(tpso.name, tpso.psobj));
                      return epso;
                  });
-        }
-
-        private PSObject NewAssignedTagPsObject(Tag assignedTag)
-        {
-            return this.entity
-                .AllAssignedPropertyValues(assignedTag)
-                .Aggregate(new PSObject(), (o, p) =>
-                {
-                    o.Properties.Add(new PSNoteProperty(p.propertyName, p.value));
-                    return o;
-                });
         }
 
         #endregion IGetItem
@@ -398,7 +391,7 @@ namespace TreeStore.PsModule.PathNodes
                 throw new InvalidOperationException($"Destination container contains already an entity with name '{destinationName}'");
         }
 
-        private Category? SiblingCategory(ITreeStorePersistence persistence, string name) => persistence.Categories.FindByCategoryAndName(this.entity.Category!, name);
+        private Category? SiblingCategory(ITreeStorePersistence persistence, string name) => persistence.Categories.FindByParentAndName(this.entity.Category!, name);
 
         private Entity? SiblingEntity(ITreeStorePersistence persistence, string name) => persistence.Entities.FindByCategoryAndName(this.entity.Category!, name);
 
@@ -408,7 +401,7 @@ namespace TreeStore.PsModule.PathNodes
 
         private Category? SubCategory(ITreeStorePersistence persistence, Category category) => this.SubCategory(persistence, category, this.entity.Name);
 
-        private Category? SubCategory(ITreeStorePersistence persistence, Category parentCategory, string name) => persistence.Categories.FindByCategoryAndName(parentCategory, name);
+        private Category? SubCategory(ITreeStorePersistence persistence, Category parentCategory, string name) => persistence.Categories.FindByParentAndName(parentCategory, name);
 
         public RuntimeDefinedParameterDictionary ToFormattedString()
         {

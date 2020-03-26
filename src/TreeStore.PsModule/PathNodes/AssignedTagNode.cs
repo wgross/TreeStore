@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Management.Automation;
+using System.Text;
 using TreeStore.Model;
 
 namespace TreeStore.PsModule.PathNodes
@@ -41,6 +42,34 @@ namespace TreeStore.PsModule.PathNodes
                 .Properties
                 .Select(p => p.Name)
                 .ToArray();
+
+            public string ToFormattedString()
+            {
+                var maxPropertyLength = 0;
+                foreach (var p in this.assignedTag.Facet.Properties)
+                {
+                    maxPropertyLength = Math.Max(maxPropertyLength, p.Name.Length);
+                }
+
+                var propertyIndent = "  ";
+                var builder = new StringBuilder().AppendLine(this.assignedTag.Name);
+                foreach (var p in this.assignedTag.Facet.Properties)
+                {
+                    builder.Append(propertyIndent).Append(p.Name.PadRight(maxPropertyLength)).Append(" : ");
+                    switch (this.entity.TryGetFacetProperty(p))
+                    {
+                        case var result when result.exists:
+                            builder.AppendLine(result.value?.ToString());
+                            break;
+
+                        default:
+                            builder.AppendLine();
+                            break;
+                    };
+                }
+
+                return builder.ToString();
+            }
         }
 
         public override string Name => this.assignedTag.Name;

@@ -11,13 +11,16 @@ namespace TreeStore.LiteDb
         static CategoryRepository()
         {
             BsonMapper.Global.Entity<Category>()
-                .DbRef(c => c.SubCategories, "categories")
-                .Ignore(c => c.Parent);
+                .DbRef(c => c.Parent, "categories");
         }
 
         public CategoryRepository(LiteRepository db)
-            : base(db, "categories")
+            : base(db, collectionName: "categories")
         {
+            db.Database
+                .GetCollection(CollectionName)
+                .EnsureIndex(field: nameof(Category.UniqueName), expression: $"$.{nameof(Category.UniqueName)}", unique: true);
+
             this.rootNode = new Lazy<Category>(() => this.FindRootCategory() ?? this.CreateRootCategory());
         }
 
@@ -25,51 +28,48 @@ namespace TreeStore.LiteDb
 
         private readonly Lazy<Category> rootNode;
 
-        public static Guid CategoryRootId { get; } = Guid.Parse("00000000-0000-0000-0000-000000000001");
-
         public Category Root() => this.rootNode.Value;
 
         // todo: abandon completely loaded root tree
-        private Category FindRootCategory() => this
-            .LiteCollection<Category>()
-            .FindById(CategoryRootId);
+        private Category FindRootCategory() => this.LiteRepository
+                .Query<Category>(this.CollectionName)
+                .Include(c => c.Parent)
+                .Where(c => c.Parent == null)
+                .FirstOrDefault();
 
-        private Category CreateRootCategory() => this.Upsert(new Category(string.Empty) { Id = CategoryRootId });
+        private Category CreateRootCategory()
+        {
+            var rootCategory = new Category(string.Empty);
+            this.LiteCollection<Category>().Upsert(rootCategory);
+            return rootCategory;
+        }
 
         #endregion There must be a persistent root
 
-        //public bool Delete(Category category, bool recurse = false)
-        //{
-        //    // check for children
-        //    if (this.FindByCategory(category).Any())
-        //        return false;
-
-        //    if (!this.LiteCollection<Category>().Delete(category.Id))
-        //        return false;
-
-        //    category.Parent.SubCategories.Remove(category);
-        //    this.Upsert(category.Parent);
-        //    return true;
-        //}
-
-        public Category FindById(Guid id) => this.Root().FindSubCategory(id);
+        public Category FindById(Guid id) => this.LiteCollection<Category>()
+            .Include(c => c.Parent)
+            .FindById(id);
 
         public Category Upsert(Category category)
         {
-            if (category.Parent is null && category.Id != CategoryRootId)
+            if (category.Parent is null)
                 throw new InvalidOperationException("Category must have parent.");
 
-            if (this.LiteCollection<Category>().Upsert(category))
-                if (category.Parent is { })
-                    this.Upsert(category.Parent);
+            this.LiteCollection<Category>().Upsert(category);
 
             return category;
         }
 
-        public Category? FindByCategoryAndName(Category category, string name)
-            => this.LiteCollection<Category>().IncludeAll(maxDepth: 1).FindById(category.Id)?.FindSubCategory(name, StringComparer.OrdinalIgnoreCase);
+        public Category? FindByParentAndName(Category category, string name) => this.FindByParent(category)
+            .SingleOrDefault(c => c.Name.Equals(name, StringComparison.OrdinalIgnoreCase)); // matched in result set
 
-        public IEnumerable<Category> FindByCategory(Category category)
-            => this.LiteCollection<Category>().IncludeAll(maxDepth: 1).FindById(category.Id)?.SubCategories ?? Enumerable.Empty<Category>();
+        public IEnumerable<Category> FindByParent(Category category)
+        {
+            return this.LiteRepository
+                .Query<Category>(this.CollectionName)
+                .Include(c => c.Parent)
+                .Where(c => c.Parent != null && c.Parent.Id == category.Id)
+                .ToArray();
+        }
     }
 }

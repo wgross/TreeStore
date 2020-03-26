@@ -1,6 +1,6 @@
-﻿using TreeStore.Model;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using TreeStore.Model;
 
 namespace TreeStore.LiteDb
 {
@@ -54,7 +54,7 @@ namespace TreeStore.LiteDb
                 this.entityRepository.Delete(entityToDelete);
             foreach (var categoryToDelete in categoriesToDelete)
                 this.DeleteCategoryInDb(categoryToDelete);
-            return this.DeleteTopMostCategory(category);
+            return this.DeleteCategoryInDb(category);
         }
 
         private void CollectItemsToDelete(Category category, List<Entity> entitiesToDelete, List<Category> categoriesToDelete)
@@ -71,34 +71,12 @@ namespace TreeStore.LiteDb
             }
         }
 
-        private bool DeleteTopMostCategory(Category category)
-        {
-            // delete the category item from the low level collection
-            if (this.DeleteCategoryInDb(category))
-            {
-                // remove the collection from the parent and update the database
-                category.Parent.SubCategories.Remove(category);
-                this.categoryRepository.Upsert(category.Parent);
-                return true;
-            }
-            return false;
-        }
+        private bool DeleteCategoryInDb(Category category) => this.categoryRepository.LiteCollection().Delete(category.Id);
 
-        private bool DeleteCategoryInDb(Category category)
-        {
-            // do low level delete lite repos directly...
-            if (!this.categoryRepository.LiteCollection().Delete(category.Id))
-                return false;
-            // if ok detach from the parent and upsert ist in the DB
-            category.Parent.SubCategories.Remove(category);
-            this.categoryRepository.LiteCollection<Category>().Upsert(category.Parent);
-            return true;
-        }
-
-        #endregion Delete Resurvivly
+        #endregion Delete Recursive
 
         private IEnumerable<Entity> SubEntites(Category category) => this.entityRepository.FindByCategory(category);
 
-        private IEnumerable<Category> SubCategories(Category category) => category.SubCategories;
+        private IEnumerable<Category> SubCategories(Category category) => this.categoryRepository.FindByParent(category);
     }
 }

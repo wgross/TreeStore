@@ -47,13 +47,12 @@ namespace TreeStore.PsModule.PathNodes
         {
             var persistence = providerContext.Persistence();
 
-            IEnumerable<PathNode> categories() => this.category
-                .SubCategories
-                .Where(c => c.Name.Equals(nodeName, StringComparison.InvariantCultureIgnoreCase))
+            IEnumerable<PathNode> categories() => SubCategory(persistence, nodeName)
+                .Yield()
                 .Select(c => new CategoryNode(c));
 
-            IEnumerable<PathNode> entities() => persistence.Entities.FindByCategory(this.category)
-                .Where(c => c.Name.Equals(nodeName, StringComparison.InvariantCultureIgnoreCase))
+            IEnumerable<PathNode> entities() => SubEntity(persistence, nodeName)
+                .Yield()
                 .Select(e => new EntityNode(e));
 
             return categories().Union(entities());
@@ -136,7 +135,10 @@ namespace TreeStore.PsModule.PathNodes
                 throw new InvalidOperationException($"Name is already used by and item of type '{nameof(TreeStoreItemType.Entity)}'");
             }
 
-            var entity = new Entity(newItemName);
+            var entity = new Entity(newItemName)
+            {
+                Category = this.category
+            };
 
             //todo: create entity with tag
             //switch (providerContext.DynamicParameters)
@@ -161,22 +163,20 @@ namespace TreeStore.PsModule.PathNodes
 
             var persistence = providerContext.Persistence();
 
-            var newCategory = new Category(destinationItemName ?? sourceItemName);
+            Category? parent = null;//newCategory = new Category(destinationItemName ?? sourceItemName);
             if (destinationNode is EntitiesNode)
             {
                 // dont add the category yet to its parent
-                newCategory.Parent = persistence.Categories.Root();
+                parent = persistence.Categories.Root();
             }
             else if (destinationNode is CategoryNode containerProvider)
             {
-                newCategory.Parent = persistence.Categories.FindById(containerProvider.Id);
+                parent = persistence.Categories.FindById(containerProvider.Id);
             }
 
-            this.EnsureUniqueDestinationName(persistence, newCategory.Parent!, newCategory.Name);
+            this.EnsureUniqueDestinationName(persistence, parent!, destinationItemName ?? sourceItemName);
 
-            // finalize the link
-            newCategory.Parent!.AddSubCategory(newCategory);
-            persistence.Categories.Upsert(newCategory);
+            persistence.CopyCategory(this.category, parent!, providerContext.Recurse);
         }
 
         #region IRemoveItem
@@ -199,10 +199,10 @@ namespace TreeStore.PsModule.PathNodes
             if (this.category.Name.Equals(newName))
                 return;
 
-            if (this.SiblingCategory(newName) is { })
-                return;
-
             var persistence = providerContext.Persistence();
+
+            if (this.SiblingCategory(persistence, newName) is { })
+                return;
 
             if (this.SiblingEntity(persistence, newName) is { })
                 return;
@@ -232,7 +232,7 @@ namespace TreeStore.PsModule.PathNodes
 
                 this.category.Name = movePathResolved;
                 destinationCategory.AddSubCategory(this.category);
-                persistence.Categories.Upsert(destinationCategory);
+                persistence.Categories.Upsert(this.category);
             }
         }
 
@@ -249,17 +249,19 @@ namespace TreeStore.PsModule.PathNodes
                 throw new InvalidOperationException($"Destination container contains already an entity with name '{destinationName}'");
         }
 
-        private IEnumerable<Category> SubCategories() => this.category.SubCategories;
-
         private IEnumerable<Entity> SubEntities(ITreeStorePersistence persistence) => persistence.Entities.FindByCategory(this.category);
 
         private Category? SubCategory(ITreeStorePersistence persistence, string name) => this.SubCategory(persistence, parentCategeory: this.category, name);
 
-        private Category? SubCategory(ITreeStorePersistence persistence, Category parentCategeory, string name) => persistence.Categories.FindByCategoryAndName(parentCategeory, name);
+        private Category? SubCategory(ITreeStorePersistence persistence, Category parentCategeory, string name) => persistence.Categories.FindByParentAndName(parentCategeory, name);
 
-        private IEnumerable<Category> SubCategories(ITreeStorePersistence persistence) => persistence.Categories.FindByCategory(this.category);
+        private IEnumerable<Category> SubCategories(ITreeStorePersistence persistence) => persistence.Categories.FindByParent(this.category);
 
-        private Category? SiblingCategory(string name) => this.category.Parent?.FindSubCategory(name, StringComparer.OrdinalIgnoreCase);
+        private Category? SiblingCategory(ITreeStorePersistence persistence, string name) => this.category.Parent switch
+        {
+            Category p when p != null => persistence.Categories.FindByParentAndName(p, name),
+            _ => null
+        };
 
         private Entity? SiblingEntity(ITreeStorePersistence persistence, string name) => persistence.Entities.FindByCategoryAndName(this.category.Parent!, name);
 

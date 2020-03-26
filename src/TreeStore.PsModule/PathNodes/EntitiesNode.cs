@@ -131,13 +131,13 @@ namespace TreeStore.PsModule.PathNodes
 
         #region Model Accessors
 
-        private static IEnumerable<Category> SubCategories(ITreeStorePersistence persistence) => persistence.Categories.FindByCategory(RootCategory(persistence));
+        private static IEnumerable<Category> SubCategories(ITreeStorePersistence persistence) => persistence.Categories.FindByParent(RootCategory(persistence));
 
         private static IEnumerable<Entity> Entities(ITreeStorePersistence persistence) => persistence.Entities.FindByCategory(RootCategory(persistence));
 
         private static Category RootCategory(ITreeStorePersistence persistence) => persistence.Categories.Root();
 
-        private static Category? SubCategory(ITreeStorePersistence persistence, string name) => persistence.Categories.FindByCategoryAndName(RootCategory(persistence), name);
+        private static Category? SubCategory(ITreeStorePersistence persistence, string name) => persistence.Categories.FindByParentAndName(RootCategory(persistence), name);
 
         private static Entity? SubEntity(ITreeStorePersistence persistence, string name) => persistence.Entities.FindByCategoryAndName(RootCategory(persistence), name);
 

@@ -47,7 +47,12 @@ namespace TreeStore.PsModule.PathNodes
 
             public TreeStoreItemType ItemType => TreeStoreItemType.Tag;
 
-            public string[] Properties => this.tag.Facet.Properties.Select(p => p.Name).ToArray();
+            #region // Properties
+
+            // todo: properties
+            //   public string[] Properties => this.tag.Facet.Properties.Select(p => p.Name).ToArray();
+            #endregion // Properties
+
         }
 
         #endregion Item - to be used in powershell pipe

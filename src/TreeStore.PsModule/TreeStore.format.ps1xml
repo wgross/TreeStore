@@ -20,5 +20,24 @@
 				</CustomEntries>
 			</CustomControl>
 		</View>
+    <View>
+      <Name>AssignedTagComplete</Name>
+      <ViewSelectedBy>
+        <TypeName>TreeStore.PsModule.PathNodes.AssignedTagNode+Item</TypeName>
+      </ViewSelectedBy>
+      <CustomControl>
+        <CustomEntries>
+          <CustomEntry>
+            <CustomItem>
+              <ExpressionBinding>
+                <ScriptBlock>
+                  $_.ToFormattedString()
+                </ScriptBlock>
+              </ExpressionBinding>
+            </CustomItem>
+          </CustomEntry>
+        </CustomEntries>
+      </CustomControl>
+    </View>
 	</ViewDefinitions>
 </Configuration>

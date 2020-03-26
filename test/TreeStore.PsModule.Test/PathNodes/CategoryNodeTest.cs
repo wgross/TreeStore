@@ -104,7 +104,8 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ARRANGE
 
-            var category = DefaultCategory(WithSubCategory(DefaultCategory(c => c.Name = "cc")));
+            var subcategory = DefaultCategory(c => c.Name = "cc");
+            var category = DefaultCategory(WithSubCategory(subcategory));
             var entity = DefaultEntity(e => e.Category = category);
 
             this.ProviderContextMock
@@ -116,8 +117,8 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Returns(this.CategoryRepositoryMock.Object);
 
             this.CategoryRepositoryMock
-                .Setup(p => p.FindByCategory(category))
-                .Returns(category.SubCategories);
+                .Setup(p => p.FindByParent(category))
+                .Returns(subcategory.Yield());
 
             this.PersistenceMock
                 .Setup(p => p.Entities)
@@ -161,8 +162,16 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Returns(this.EntityRepositoryMock.Object);
 
             this.EntityRepositoryMock
-                .Setup(r => r.FindByCategory(category))
-                .Returns(entity.Yield());
+                .Setup(r => r.FindByCategoryAndName(category, name))
+                .Returns(entity);
+
+            this.PersistenceMock
+                .Setup(p => p.Categories)
+                .Returns(this.CategoryRepositoryMock.Object);
+
+            this.CategoryRepositoryMock
+                .Setup(p => p.FindByParentAndName(category, name))
+                .Returns((Category?)null);
 
             var node = new CategoryNode(category);
 
@@ -182,7 +191,8 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ARRANGE
 
-            var category = DefaultCategory(WithSubCategory(DefaultCategory(c => c.Name = "cc")));
+            var subCategory = DefaultCategory(c => c.Name = "cc");
+            var category = DefaultCategory(WithSubCategory(subCategory));
 
             this.ProviderContextMock
                .Setup(p => p.Persistence)
@@ -192,9 +202,17 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Setup(p => p.Entities)
                 .Returns(this.EntityRepositoryMock.Object);
 
+            this.PersistenceMock
+                .Setup(p => p.Categories)
+                .Returns(this.CategoryRepositoryMock.Object);
+
+            this.CategoryRepositoryMock
+                .Setup(r => r.FindByParentAndName(category, name))
+                .Returns(subCategory);
+
             this.EntityRepositoryMock
-                .Setup(r => r.FindByCategory(category))
-                .Returns(Enumerable.Empty<Entity>());
+                .Setup(r => r.FindByCategoryAndName(category, name))
+                .Returns((Entity?)null);
 
             var node = new CategoryNode(category);
 
@@ -204,7 +222,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ASSERT
 
-            Assert.Equal(category.SubCategories.Single().Id, ((CategoryNode.Item)result.GetItem(this.ProviderContextMock.Object).ImmediateBaseObject).Id);
+            Assert.Equal(subCategory.Id, ((CategoryNode.Item)result.GetItem(this.ProviderContextMock.Object).ImmediateBaseObject).Id);
         }
 
         #endregion Resolve
@@ -234,7 +252,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         [Theory]
         [InlineData(null)]
         [InlineData(nameof(TreeStoreItemType.Entity))]
-        public void CategoryNode_creates_EntityNodeValue(string itemTypeName)
+        public void CategoryNode_creates_entity(string itemTypeName)
         {
             // ARRANGE
 
@@ -253,7 +271,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             var category = DefaultCategory();
             this.CategoryRepositoryMock
-                .Setup(r => r.FindByCategoryAndName(category, "Entity"))
+                .Setup(r => r.FindByParentAndName(category, "Entity"))
                 .Returns((Category?)null);
 
             this.PersistenceMock
@@ -264,8 +282,10 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Setup(r => r.FindByCategoryAndName(category, "Entity"))
                 .Returns((Entity?)null);
 
+            Entity createdEntity = null;
             this.EntityRepositoryMock
                 .Setup(r => r.Upsert(It.Is<Entity>(t => t.Name.Equals("Entity"))))
+                .Callback<Entity>(e => createdEntity = e)
                 .Returns<Entity>(e => e);
 
             var node = new CategoryNode(category);
@@ -277,6 +297,8 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ASSERT
 
             Assert.IsType<EntityNode>(result);
+            Assert.Equal("Entity", createdEntity!.Name);
+            Assert.Same(category, createdEntity!.Category);
         }
 
         [Fact]
@@ -299,7 +321,7 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Returns(this.CategoryRepositoryMock.Object);
 
             this.CategoryRepositoryMock
-                .Setup(r => r.FindByCategoryAndName(category, "Entity"))
+                .Setup(r => r.FindByParentAndName(category, "Entity"))
                 .Returns((Category?)null);
 
             this.PersistenceMock
@@ -341,7 +363,7 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Returns(this.CategoryRepositoryMock.Object);
 
             this.CategoryRepositoryMock
-                .Setup(r => r.FindByCategoryAndName(category, "Entity"))
+                .Setup(r => r.FindByParentAndName(category, "Entity"))
                 .Returns(DefaultCategory());
 
             var node = new CategoryNode(category);
@@ -370,7 +392,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             var category = DefaultCategory();
             this.CategoryRepositoryMock
-                .Setup(r => r.FindByCategoryAndName(category, "c"))
+                .Setup(r => r.FindByParentAndName(category, "c"))
                 .Returns((Category?)null);
 
             this.CategoryRepositoryMock
@@ -411,7 +433,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             var category = DefaultCategory();
             this.CategoryRepositoryMock
-                .Setup(r => r.FindByCategoryAndName(category, "c"))
+                .Setup(r => r.FindByParentAndName(category, "c"))
                 .Returns((Category?)null);
 
             this.PersistenceMock
@@ -448,7 +470,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             var category = DefaultCategory();
             this.CategoryRepositoryMock
-                .Setup(r => r.FindByCategoryAndName(category, "c"))
+                .Setup(r => r.FindByParentAndName(category, "c"))
                 .Returns(DefaultCategory());
 
             var node = new CategoryNode(category);
@@ -497,7 +519,7 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Returns(rootCategory);
 
             this.CategoryRepositoryMock // destination name is unused
-                .Setup(r => r.FindByCategoryAndName(rootCategory, "cc"))
+                .Setup(r => r.FindByParentAndName(rootCategory, "cc"))
                 .Returns((Category?)null);
 
             this.ProviderContextMock
@@ -512,22 +534,18 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Setup(r => r.FindByCategoryAndName(rootCategory, "cc"))
                 .Returns((Entity?)null);
 
-            Category? createdCategory = null;
-            this.CategoryRepositoryMock
-                .Setup(r => r.Upsert(It.IsAny<Category>()))
-                .Callback<Category>(c => createdCategory = c)
-                .Returns<Category>(c => c);
+            this.ProviderContextMock
+                .Setup(p => p.Recurse)
+                .Returns(false);
+
+            this.PersistenceMock
+                .Setup(p => p.CopyCategory(subCategory, rootCategory, false));
 
             var entityContainer = new EntitiesNode();
 
             // ACT
 
             new CategoryNode(subCategory).CopyItem(this.ProviderContextMock.Object, "c", "cc", entityContainer);
-
-            // ASSERT
-
-            Assert.Equal("cc", createdCategory!.Name);
-            Assert.Equal(rootCategory, createdCategory!.Parent);
         }
 
         [Theory]
@@ -546,7 +564,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             var category = DefaultCategory(c => rootCategory.AddSubCategory(c));
 
             this.CategoryRepositoryMock // destination name is unused
-                .Setup(r => r.FindByCategoryAndName(subCategory, resultName))
+                .Setup(r => r.FindByParentAndName(subCategory, resultName))
                 .Returns((Category?)null);
 
             this.ProviderContextMock
@@ -561,11 +579,12 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Setup(r => r.FindByCategoryAndName(subCategory, resultName))
                 .Returns((Entity?)null);
 
-            Category? createdCatagory = null;
-            this.CategoryRepositoryMock
-                .Setup(r => r.Upsert(It.IsAny<Category>()))
-                .Callback<Category>(c => createdCatagory = c)
-                .Returns<Category>(c => c);
+            this.ProviderContextMock
+                 .Setup(p => p.Recurse)
+                 .Returns(true);
+
+            this.PersistenceMock
+                .Setup(p => p.CopyCategory(category, subCategory, true));
 
             var categoryContainer = new CategoryNode(subCategory);
 
@@ -573,11 +592,6 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             new CategoryNode(category)
                 .CopyItem(this.ProviderContextMock.Object, initialName, destinationName, categoryContainer);
-
-            // ASSERT
-
-            Assert.Equal(resultName, createdCatagory!.Name);
-            Assert.Equal(subCategory, createdCatagory!.Parent);
         }
 
         [Theory]
@@ -602,7 +616,7 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Returns(this.CategoryRepositoryMock.Object);
 
             this.CategoryRepositoryMock
-                .Setup(r => r.FindByCategoryAndName(rootCategory, resultName))
+                .Setup(r => r.FindByParentAndName(rootCategory, resultName))
                 .Returns((Category?)null);
 
             this.PersistenceMock
@@ -649,7 +663,7 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Returns(this.CategoryRepositoryMock.Object);
 
             this.CategoryRepositoryMock
-                .Setup(r => r.FindByCategoryAndName(rootCategory, resultName))
+                .Setup(r => r.FindByParentAndName(rootCategory, resultName))
                 .Returns(DefaultCategory());
 
             var entitiesNode = new EntitiesNode();
@@ -712,6 +726,10 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Callback<Category>(c => renamedCategory = c)
                 .Returns(category);
 
+            this.CategoryRepositoryMock
+                .Setup(r => r.FindByParentAndName(parentCategory, "cc"))
+                .Returns((Category)null);
+
             this.PersistenceMock
                 .Setup(p => p.Entities)
                 .Returns(this.EntityRepositoryMock.Object);
@@ -752,14 +770,22 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Returns(this.EntityRepositoryMock.Object);
 
             this.EntityRepositoryMock
-                .Setup(p => p.FindByCategoryAndName(parentCategory, "e"))
+                .Setup(p => p.FindByCategoryAndName(parentCategory, existingName))
                 .Returns(entity);
+
+            this.PersistenceMock
+                .Setup(p => p.Categories)
+                .Returns(this.CategoryRepositoryMock.Object);
+
+            this.CategoryRepositoryMock
+                .Setup(r => r.FindByParentAndName(parentCategory, existingName))
+                .Returns((Category?)null);
 
             var categoryNode = new CategoryNode(category);
 
             // ACT
 
-            categoryNode.RenameItem(this.ProviderContextMock.Object, "c", "e");
+            categoryNode.RenameItem(this.ProviderContextMock.Object, "c", existingName);
 
             // ASSERT
 
@@ -774,15 +800,28 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ARRANGE
 
             var category = DefaultCategory(c => c.Name = "c");
+            var duplicateCategory = DefaultCategory(c => c.Name = existingName);
             var parentCategory = DefaultCategory(
                 WithSubCategory(category),
-                WithSubCategory(DefaultCategory(c => c.Name = existingName)));
+                WithSubCategory(duplicateCategory));
+
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.PersistenceMock
+                .Setup(p => p.Categories)
+                .Returns(this.CategoryRepositoryMock.Object);
+
+            this.CategoryRepositoryMock
+                .Setup(r => r.FindByParentAndName(parentCategory, existingName))
+                .Returns(duplicateCategory);
 
             var categoryNode = new CategoryNode(category);
 
             // ACT
 
-            categoryNode.RenameItem(this.ProviderContextMock.Object, "c", "cc");
+            categoryNode.RenameItem(this.ProviderContextMock.Object, "c", existingName);
 
             // ASSERT
 
@@ -860,14 +899,14 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Setup(p => p.Categories)
                 .Returns(this.CategoryRepositoryMock.Object);
 
-            var c = DefaultCategory();
+            var destination = DefaultCategory();
             var c2 = DefaultCategory(c => c.Name = initialName);
             this.CategoryRepositoryMock
-                .Setup(r => r.FindById(c.Id))
-                .Returns(c);
+                .Setup(r => r.FindById(destination.Id))
+                .Returns(destination);
 
             this.CategoryRepositoryMock
-                .Setup(r => r.FindByCategoryAndName(c, resultName))
+                .Setup(r => r.FindByParentAndName(destination, resultName))
                 .Returns((Category?)null);
 
             this.PersistenceMock
@@ -875,24 +914,23 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Returns(this.EntityRepositoryMock.Object);
 
             this.EntityRepositoryMock
-                .Setup(r => r.FindByCategoryAndName(c, resultName))
+                .Setup(r => r.FindByCategoryAndName(destination, resultName))
                 .Returns((Entity?)null);
 
             this.CategoryRepositoryMock
-                .Setup(r => r.Upsert(c))
+                .Setup(r => r.Upsert(c2))
                 .Returns<Category>(c => c);
 
-            var categoryNode = new CategoryNode(c);
+            var destinationNode = new CategoryNode(destination);
             var node = new CategoryNode(c2);
 
             // ACT
 
-            node.MoveItem(this.ProviderContextMock.Object, "", destinationName, categoryNode);
+            node.MoveItem(this.ProviderContextMock.Object, "", destinationName, destinationNode);
 
             // ASSERT
 
-            Assert.Equal(c, c2.Parent);
-            Assert.Contains(c2, c.SubCategories);
+            Assert.Equal(destination, c2.Parent);
             Assert.Equal(resultName, c2.Name);
         }
 
@@ -918,7 +956,7 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Returns(c);
 
             this.CategoryRepositoryMock
-                .Setup(r => r.FindByCategoryAndName(c, resultName))
+                .Setup(r => r.FindByParentAndName(c, resultName))
                 .Returns((Category?)null);
 
             this.PersistenceMock
@@ -964,7 +1002,7 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Returns(c);
 
             this.CategoryRepositoryMock
-                .Setup(r => r.FindByCategoryAndName(c, resultName))
+                .Setup(r => r.FindByParentAndName(c, resultName))
                 .Returns(DefaultCategory());
 
             var categoryNode = new CategoryNode(c);

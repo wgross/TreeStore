@@ -29,7 +29,7 @@ namespace TreeStore.PsModule
         /// <returns></returns>
         private static ITreeStorePersistence CreateLiteDbPersistenceFromPath(string driveRoot) => string.IsNullOrEmpty(driveRoot)
                 ? TreeStoreLiteDbPersistence.InMemory(TreeStoreMessageBus.Default)
-                : TreeStoreLiteDbPersistence.InFile(TreeStoreMessageBus.Default, $"FileName=driveRoot;Mode=Shared");
+                : TreeStoreLiteDbPersistence.InFile(TreeStoreMessageBus.Default, $"FileName={driveRoot};Mode=Shared");
 
         public TreeStoreCmdletProvider()
         {

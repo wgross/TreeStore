@@ -236,7 +236,7 @@ namespace TreeStore.PsModule.Test
             this.ArrangeEmptyRootCategory(out var rootCategory);
 
             this.CategoryRepositoryMock
-                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
+                .Setup(r => r.FindByParentAndName(rootCategory, "e"))
                 .Returns((Category?)null);
 
             this.PersistenceMock
@@ -278,7 +278,7 @@ namespace TreeStore.PsModule.Test
             this.ArrangeSubCategory(out var rootCategory, out var subCategory);
 
             this.CategoryRepositoryMock
-                .Setup(r => r.FindByCategoryAndName(rootCategory, subCategory.Name))
+                .Setup(r => r.FindByParentAndName(rootCategory, subCategory.Name))
                 .Returns(subCategory);
 
             // ACT
@@ -310,7 +310,7 @@ namespace TreeStore.PsModule.Test
             this.ArrangeEmptyRootCategory(out var rootCategory);
 
             this.CategoryRepositoryMock
-                .Setup(r => r.FindByCategoryAndName(rootCategory, "unknown"))
+                .Setup(r => r.FindByParentAndName(rootCategory, "unknown"))
                 .Returns((Category?)null);
 
             this.PersistenceMock
@@ -344,7 +344,7 @@ namespace TreeStore.PsModule.Test
             this.ArrangeEmptyRootCategory(out var rootCategory);
 
             this.CategoryRepositoryMock
-                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
+                .Setup(r => r.FindByParentAndName(rootCategory, "e"))
                 .Returns((Category?)null);
 
             var entity = DefaultEntity(WithDefaultTag);
@@ -389,7 +389,7 @@ namespace TreeStore.PsModule.Test
             this.ArrangeEmptyRootCategory(out var rootCategory);
 
             this.CategoryRepositoryMock
-                .Setup(r => r.FindByCategoryAndName(rootCategory, "e"))
+                .Setup(r => r.FindByParentAndName(rootCategory, "e"))
                 .Returns((Category?)null);
 
             var entity = DefaultEntity(WithDefaultTag);

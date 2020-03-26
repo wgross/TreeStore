@@ -11,8 +11,8 @@ namespace TreeStore.Model
 
         Category Upsert(Category entity);
 
-        Category? FindByCategoryAndName(Category category, string name);
+        Category? FindByParentAndName(Category category, string name);
 
-        IEnumerable<Category> FindByCategory(Category category);
+        IEnumerable<Category> FindByParent(Category category);
     }
 }

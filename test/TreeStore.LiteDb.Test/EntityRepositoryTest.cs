@@ -75,7 +75,7 @@ namespace TreeStore.LiteDb.Test
             // ASSERT
 
             // duplicate was rejected
-            Assert.Equal("Cannot insert duplicate key in unique index 'UniqueName'. The duplicate value is '\"e_00000000-0000-0000-0000-000000000001\"'.", result.Message);
+            Assert.Equal($"Cannot insert duplicate key in unique index 'UniqueName'. The duplicate value is '\"e_{this.CategoryRepository.Root().Id}\"'.", result.Message);
 
             // notification was sent only once
             this.EntityEventSource.Verify(s => s.Modified(It.IsAny<Entity>()), Times.Once());

@@ -1,4 +1,3 @@
-
 <#
 .SYNOPSIS
     Generated publish file for github.com/wgross dev workflow in 'dotnet-nearest'.
@@ -11,6 +10,7 @@
 .PARAMETER FromPath
     Specifies the path from where it is called (mandatory)
 #>
+[CmdletBinding()]
 param(
     [Parameter(Position=0)]
     [string]$Target,
@@ -28,18 +28,18 @@ param(
 )    
 
 # make the dotnet cmdlets available by default
-Import-Module -Name dotnet
+Import-Module -Name dotnet-cli-publish
 
 # react to the publish target
 switch($Target) {
     default {
         # publish the module
         $params =@{
-            Project = "$PSScriptRoot\src\TreeStore.PsModule\TreeStore.PsModule.csproj"
+            Path = "$PSScriptRoot\src\TreeStore.PsModule\TreeStore.PsModule.csproj"
             Destination = "$PSScriptRoot\TreeStore"
-            BuildConfiguration = $BuildConfiguration
+            PublishConfiguration = $BuildConfiguration
         }
-        Invoke-DotNetPublish @params 
+        Invoke-DotNetPublish @params -SelectProperties
         
         # create a file catalog from the publishing destination content
         # New-FileCatalog -CatalogFilePath "$PSScriptRoot\TreeStore\TreeStore.cat" -Path "$PSScriptRoot\TreeStore"

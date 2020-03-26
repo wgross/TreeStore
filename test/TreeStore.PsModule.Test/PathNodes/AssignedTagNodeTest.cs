@@ -326,5 +326,42 @@ namespace TreeStore.PsModule.Test.PathNodes
         }
 
         #endregion IClearItemProperty
+
+        #region ToFormattedString
+
+        [Fact]
+        public void AssignedTagNode_provides_formatted_string_view()
+        {
+            // ARRANGE
+
+            var e = DefaultEntity(
+                e => e.Id = Guid.Parse("4faacbce-d42d-4b3c-9a5f-706533d731ed"),
+                WithAssignedTag(DefaultTag(
+                    t => t.Name = "long_tag_name",
+                    WithDefaultProperty,
+                    WithProperty("long_property_name", FacetPropertyTypeValues.Long)
+                )));
+
+            e.SetFacetProperty("long_tag_name", "p", "test");
+            e.SetFacetProperty("long_tag_name", "long_property_name", 1);
+
+            var item = (AssignedTagNode.Item)new AssignedTagNode(e, e.Tags.Single()).GetItem(this.ProviderContextMock.Object).ImmediateBaseObject;
+
+            // ACT
+
+            var result = item.ToFormattedString();
+
+            // ASSERT
+
+            Assert.Equal(FormattedEntity, result);
+        }
+
+        public string FormattedEntity =>
+@"long_tag_name
+  p                  : test
+  long_property_name : 1
+";
+
+        #endregion ToFormattedString
     }
 }

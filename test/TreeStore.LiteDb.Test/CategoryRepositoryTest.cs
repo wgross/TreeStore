@@ -1,9 +1,8 @@
-﻿using Elementary.Compare;
-using TreeStore.Model;
-using LiteDB;
+﻿using LiteDB;
 using System;
 using System.IO;
 using System.Linq;
+using TreeStore.Model;
 using Xunit;
 using static TreeStore.LiteDb.Test.TestDataSources;
 
@@ -35,27 +34,17 @@ namespace TreeStore.LiteDb.Test
 
             Assert.NotNull(result);
             Assert.Empty(result.Name);
-            Assert.Equal(Guid.Parse("00000000-0000-0000-0000-000000000001"), result.Id);
 
-            var readRoot = this.categoriesCollection.FindById(result.Id);
+            // root was created
+            var resultInDb = this.categoriesCollection.FindById(result.Id);
 
-            Assert.NotNull(readRoot);
-        }
+            Assert.NotNull(resultInDb);
 
-        [Fact]
-        public void CategoryRepository_provides_persistent_root_with_same_transient_instance()
-        {
-            var root = this.repository.Root();
-
-            // ACT
-
-            var result1 = this.repository.Root();
-            var result2 = this.repository.FindById(root.Id);
-
-            // ASSERT
-
-            Assert.Same(root, result1);
-            Assert.Same(root, result2);
+            // the category document has expected content
+            Assert.Equal(result.Id, resultInDb["_id"].AsGuid);
+            Assert.Null(resultInDb["Name"].AsString);
+            Assert.False(resultInDb.ContainsKey("Parent"));
+            Assert.Equal("_<root>", resultInDb["UniqueName"].AsString);
         }
 
         #endregion Root
@@ -74,23 +63,24 @@ namespace TreeStore.LiteDb.Test
 
             // ACT
 
-            this.repository.Upsert(category);
+            var result = this.repository.Upsert(category);
 
             // ASSERT
 
+            Assert.Same(category, result);
+            Assert.NotEqual(Guid.Empty, result.Id);
+
             // category was created
-            var categoryInDb = this.categoriesCollection.FindById(category.Id);
+            var resultInDb = this.categoriesCollection.FindById(category.Id);
 
-            Assert.NotNull(categoryInDb);
-            Assert.Equal(category.Id, categoryInDb["_id"].AsGuid);
-            Assert.Equal(category.Name, categoryInDb["Name"].AsString);
-            Assert.False(categoryInDb.ContainsKey("Parent"));
+            Assert.NotNull(resultInDb);
 
-            // root has been updated
-            var rootInDb = this.categoriesCollection.FindById(this.repository.Root().Id);
-
-            Assert.Equal(category.Id, rootInDb["SubCategories"].AsArray[0].AsDocument["$id"].AsGuid);
-            Assert.Equal(this.repository.CollectionName, rootInDb["SubCategories"].AsArray[0].AsDocument["$ref"].AsString);
+            // the category document has expected content
+            Assert.Equal(category.Id, resultInDb["_id"].AsGuid);
+            Assert.Equal(category.Name, resultInDb["Name"].AsString);
+            Assert.Equal(this.repository.Root().Id, resultInDb["Parent"].AsDocument["$id"].AsGuid);
+            Assert.Equal(category.UniqueName, resultInDb["UniqueName"].AsString);
+            Assert.Equal("categories", resultInDb["Parent"].AsDocument["$ref"].AsString);
         }
 
         [Fact]
@@ -111,45 +101,36 @@ namespace TreeStore.LiteDb.Test
         }
 
         [Fact]
-        public void CategoryRepository_writes_and_reads_category_with_Facet()
+        public void CategoryRepository_writes_category_with_Facet()
         {
             // ARRANGE
 
-            var category = this.repository.Root();
+            var category = new Category("category");
+
+            this.repository.Root().AddSubCategory(category);
             category.AssignFacet(new Facet("facet", new FacetProperty("prop")));
 
             // ACT
 
-            this.repository.Upsert(category);
-            var result = this.repository.FindById(category.Id);
+            var result = this.repository.Upsert(category);
 
             // ASSERT
 
-            var comp = category.DeepCompare(result);
+            Assert.Same(category, result);
+            Assert.NotEqual(Guid.Empty, result.Id);
 
-            Assert.True(comp.AreEqual);
-        }
+            // category was created
+            var resultInDb = this.categoriesCollection.FindById(category.Id);
 
-        [Fact]
-        public void CategoryRepository_writes_and_reads_category_with_subcategory()
-        {
-            // ARRANGE
+            Assert.NotNull(resultInDb);
 
-            var category = this.repository.Root();
-            category.AddSubCategory(new Category("cat1"));
-
-            // ACT
-
-            this.repository.Upsert(category);
-            this.repository.Upsert(category.SubCategories.Single());
-            var result = this.repository.FindById(category.Id);
-
-            // ASSERT
-
-            var comp = category.DeepCompare(result);
-
-            // types are same and nothing was left out
-            Assert.True(comp.AreEqual);
+            // the category document has expected content
+            Assert.Equal(category.Id, resultInDb["_id"].AsGuid);
+            Assert.Equal(category.Name, resultInDb["Name"].AsString);
+            Assert.Equal(this.repository.Root().Id, resultInDb["Parent"].AsDocument["$id"].AsGuid);
+            Assert.Equal("categories", resultInDb["Parent"].AsDocument["$ref"].AsString);
+            Assert.Equal(category.UniqueName, resultInDb["UniqueName"].AsString);
+            Assert.True(resultInDb.ContainsKey("Facet")); // no further inspection. Feature isn't used.
         }
 
         #endregion Create
@@ -157,7 +138,7 @@ namespace TreeStore.LiteDb.Test
         #region Read
 
         [Fact]
-        public void CategoryRepository_reads_category_by_id()
+        public void CategoryRepository_reads_category_by_id_including_parent()
         {
             // ARRANGE
 
@@ -173,29 +154,9 @@ namespace TreeStore.LiteDb.Test
 
             // ASSERT
 
-            Assert.Same(category, result);
-        }
-
-        [Fact]
-        public void CategoryRepository_reads_category_by_id_with_subcategory()
-        {
-            // ARRANGE
-
-            var category = this.repository.Root();
-            category.AddSubCategory(new Category("cat1"));
-            this.repository.Upsert(category);
-            this.repository.Upsert(category.SubCategories.Single());
-
-            // ACT
-
-            var result = this.repository.FindById(category.Id);
-
-            // ASSERT
-
-            var comp = category.DeepCompare(result);
-
-            // types are same and nothing was left out
-            Assert.True(comp.AreEqual);
+            Assert.NotSame(category, result);
+            Assert.Equal(category.Id, result.Id);
+            Assert.Equal(this.repository.Root().Id, result.Parent.Id);
         }
 
         [Fact]
@@ -213,7 +174,7 @@ namespace TreeStore.LiteDb.Test
         [Theory]
         [InlineData("c")]
         [InlineData("C")]
-        public void CategoryRepository_reads_category_by_category_and_name(string name)
+        public void CategoryRepository_reads_category_by_parent_and_name(string name)
         {
             // ARRANGE
 
@@ -222,7 +183,7 @@ namespace TreeStore.LiteDb.Test
 
             // ACT
 
-            var result = this.repository.FindByCategoryAndName(this.repository.Root(), name);
+            var result = this.repository.FindByParentAndName(this.repository.Root(), name);
 
             // ASSERT
 
@@ -230,7 +191,7 @@ namespace TreeStore.LiteDb.Test
         }
 
         [Fact]
-        public void CategeoryRepository_reading_category_by_category_and_name_returns_null_on_unkown_id()
+        public void CategoryRepository_reading_category_by_parent_and_name_returns_null_on_unkown_id()
         {
             // ARRANGE
 
@@ -239,7 +200,7 @@ namespace TreeStore.LiteDb.Test
 
             // ACT
 
-            var result = this.repository.FindByCategoryAndName(new Category(), "name");
+            var result = this.repository.FindByParentAndName(new Category(), "name");
 
             // ASSERT
 
@@ -247,20 +208,44 @@ namespace TreeStore.LiteDb.Test
         }
 
         [Fact]
-        public void CategeoryRepository_reads_child_categoriesby_id()
+        public void CategoryRepository_reads_category_by_parent()
         {
             // ARRANGE
 
             var category = DefaultCategory(this.repository.Root());
             this.repository.Upsert(category);
+            var subcategory = DefaultCategory(category, c => c.Name = "sub");
+            category.AddSubCategory(subcategory);
+            this.repository.Upsert(subcategory);
 
             // ACT
 
-            var result = this.repository.FindByCategory(this.repository.Root());
+            var result = this.repository.FindByParent(this.repository.Root());
 
             // ASSERT
 
+            Assert.Equal(category.Name, result.Single().Name);
             Assert.Equal(category.Id, result.Single().Id);
+        }
+
+        [Fact]
+        public void CategoryRepository_reads_subcategory_by_parent()
+        {
+            // ARRANGE
+
+            var category = DefaultCategory(this.repository.Root(), c => c.Name = "cat");
+            this.repository.Upsert(category);
+            var subcategory = DefaultCategory(category, c => c.Name = "sub");
+            category.AddSubCategory(subcategory);
+            this.repository.Upsert(subcategory);
+
+            // ACT
+
+            var result = this.repository.FindByParent(category);
+
+            // ASSERT
+
+            Assert.Equal(subcategory.Id, result.Single().Id);
         }
 
         [Fact]
@@ -273,7 +258,7 @@ namespace TreeStore.LiteDb.Test
 
             // ACT
 
-            var result = this.repository.FindByCategory(new Category());
+            var result = this.repository.FindByParent(new Category());
 
             // ASSERT
 
@@ -281,82 +266,5 @@ namespace TreeStore.LiteDb.Test
         }
 
         #endregion Read
-
-        #region //Delete
-
-        //[Fact]
-        //public void CategoryRepository_deletes_empty_category()
-        //{
-        //    // ARRANGE
-
-        //    var category = DefaultCategory(this.repository.Root());
-        //    this.repository.Upsert(category);
-
-        //    // ACT
-
-        //    var result = this.repository.Delete(category);
-
-        //    // ASSERT
-
-        //    Assert.True(result);
-
-        //    // category was created
-        //    var categoryInDb = this.categoriesCollection.FindById(category.Id);
-
-        //    Assert.Null(categoryInDb);
-
-        //    // root has been updated
-        //    var rootInDb = this.categoriesCollection.FindById(this.repository.Root().Id);
-
-        //    Assert.Empty(rootInDb["SubCategories"].AsArray);
-        //}
-
-        //[Fact]
-        //public void CategoryRepository_rejects_deleting_nonempty_category()
-        //{
-        //    // ARRANGE
-
-        //    var category = this.repository.Upsert(DefaultCategory(this.repository.Root()));
-        //    this.repository.Upsert(DefaultCategory(category));
-
-        //    // ACT
-
-        //    var result = this.repository.Delete(category);
-
-        //    // ASSERT
-
-        //    Assert.False(result);
-
-        //    // category stil exists
-        //    Assert.NotNull(this.categoriesCollection.FindById(category.Id));
-        //}
-
-        //[Fact]
-        //public void CategoryRepository_deletes_category_recursively()
-        //{
-        //    // ARRANGE
-
-        //    var category = this.repository.Upsert(DefaultCategory(this.repository.Root()));
-        //    var subCategory = this.repository.Upsert(DefaultCategory(category));
-
-        //    // ACT
-
-        //    var result = this.repository.Delete(category, recurse: true); ;
-
-        //    // ASSERT
-
-        //    Assert.True(result);
-
-        //    // category and subcategeory are gone
-        //    Assert.Null(this.categoriesCollection.FindById(category.Id));
-        //    Assert.Null(this.categoriesCollection.FindById(subCategory.Id));
-
-        //    // root has been updated in DB
-        //    var rootInDb = this.categoriesCollection.FindById(this.repository.Root().Id);
-
-        //    Assert.Empty(rootInDb["SubCategories"].AsArray);
-        //}
-
-        #endregion //Delete
     }
 }

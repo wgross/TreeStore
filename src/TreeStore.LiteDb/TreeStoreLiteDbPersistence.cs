@@ -53,7 +53,22 @@ namespace TreeStore.LiteDb
 
         public bool DeleteCategory(Category category, bool recurse)
         {
-            return true;
+            var traverser = new CategoryRemovalTraverser((CategoryRepository)this.Categories, (EntityRepository)this.Entities);
+
+            if (recurse)
+                return traverser.DeleteRecursively(category);
+
+            return traverser.DeleteIfEmpty(category);
+        }
+
+        public void CopyCategory(Category source, Category destination, bool recurse)
+        {
+            var traverser = new CategoryCopyTraverser((CategoryRepository)this.Categories, (EntityRepository)this.Entities);
+
+            if (recurse)
+                traverser.CopyCategoryRecursively(source, destination);
+            else
+                traverser.CopyCategory(source, destination);
         }
 
         public void Dispose()
