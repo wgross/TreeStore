@@ -15,9 +15,9 @@ namespace TreeStore.LiteDb.Test
 
         public CategoryCopyTraverserTest()
         {
-            var tmp = new LiteRepositoryAdapater(new LiteRepository(new MemoryStream()));
-            this.entityRepository = new EntityRepository(tmp.LiteRepository, TreeStoreMessageBus.Default.Entities);
-            this.categoryRepository = new CategoryRepository(tmp.LiteRepository);
+            var tmp = new LiteRepository(new MemoryStream());
+            this.entityRepository = new EntityRepository(tmp, TreeStoreMessageBus.Default.Entities);
+            this.categoryRepository = new CategoryRepository(tmp);
             this.traverser = new CategoryCopyTraverser(this.categoryRepository, this.entityRepository);
         }
 

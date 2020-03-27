@@ -4,7 +4,7 @@
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="LiteDb" Version="4.1.4" />
+    <PackageReference Include="LiteDb" Version="5.0.5" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TreeStore.Messaging\TreeStore.Messaging.csproj" />

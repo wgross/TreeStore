@@ -1560,8 +1560,8 @@ namespace TreeStore.PsModule.Test
                 .Returns((Entity?)null);
 
             this.CategoryRepositoryMock
-                .Setup(r => r.Upsert(subCategory))
-                .Returns(subCategory);
+                .Setup(r => r.Upsert(subCategory2))
+                .Returns(subCategory2);
 
             // ACT
 
@@ -1611,9 +1611,9 @@ namespace TreeStore.PsModule.Test
                 .Returns((Entity?)null);
 
             this.CategoryRepositoryMock
-                .Setup(r => r.Upsert(subCategory))
-                .Returns(subCategory);
-
+                .Setup(r => r.Upsert(subCategory2))
+                .Returns(subCategory2);
+            
             // ACT
 
             this.PowerShell

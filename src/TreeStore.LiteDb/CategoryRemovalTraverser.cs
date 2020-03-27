@@ -71,7 +71,7 @@ namespace TreeStore.LiteDb
             }
         }
 
-        private bool DeleteCategoryInDb(Category category) => this.categoryRepository.LiteCollection().Delete(category.Id);
+        private bool DeleteCategoryInDb(Category category) => this.categoryRepository.LiteCollectionDocuments().Delete(category.Id);
 
         #endregion Delete Recursive
 

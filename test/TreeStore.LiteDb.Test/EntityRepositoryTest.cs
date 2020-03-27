@@ -12,7 +12,7 @@ namespace TreeStore.LiteDb.Test
     public class EntityRepositoryTest : LiteDbTestBase, IDisposable
     {
         private readonly RelationshipRepository relationshipRepository;
-        private readonly LiteCollection<BsonDocument> entities;
+        private readonly ILiteCollection<BsonDocument> entities;
 
         public EntityRepositoryTest()
         {
@@ -84,6 +84,20 @@ namespace TreeStore.LiteDb.Test
         }
 
         [Fact]
+        public void EntitiyRepository_writing_entity_rejects_missing_category()
+        {
+            // ARRANGE
+
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(() => this.EntityRepository.Upsert(DefaultEntity(WithoutCategory)));
+
+            // ASSERT
+
+            Assert.Equal("Entity must have category.", result.Message);
+        }
+
+        [Fact]
         public void EntitiyRepository_write_entity_with_duplicate_name_to_different_categories()
         {
             // ARRANGE
@@ -149,7 +163,7 @@ namespace TreeStore.LiteDb.Test
             // ASSERT
 
             Assert.True(result);
-            Assert.Throws<InvalidOperationException>(() => this.EntityRepository.FindById(entity.Id));
+            Assert.Null(this.EntityRepository.FindById(entity.Id));
         }
 
         [Fact]
@@ -281,6 +295,7 @@ namespace TreeStore.LiteDb.Test
             var tag2 = this.TagRepository.Upsert(DefaultTag(t => t.Name = "t2"));
 
             this.EntityEventSource.Setup(s => s.Modified(It.IsAny<Entity>()));
+
             var entity1 = this.EntityRepository.Upsert(DefaultEntity(e =>
             {
                 e.Name = "entity1";
@@ -332,7 +347,9 @@ namespace TreeStore.LiteDb.Test
 
             Assert.NotNull(readEntity);
             Assert.Equal(entity.Id, readEntity.AsDocument["_id"].AsGuid);
-            Assert.Equal(entity.Values[entity.Tags.Single().Facet.Properties.Single().Id.ToString()], readEntity["Values"].AsDocument[entity.Tags.Single().Facet.Properties.Single().Id.ToString()].RawValue);
+            Assert.Equal(
+                entity.Values[entity.Tags.Single().Facet.Properties.Single().Id.ToString()],
+                readEntity["Values"].AsDocument[entity.Tags.Single().Facet.Properties.Single().Id.ToString()].AsString);
             Assert.Equal(TagRepository.CollectionName, readEntity["Tags"].AsArray[0].AsDocument["$ref"].AsString);
         }
 
@@ -398,7 +415,7 @@ namespace TreeStore.LiteDb.Test
             Assert.NotNull(readEntity);
             Assert.Equal(entity.Id, readEntity.AsDocument["_id"].AsGuid);
             Assert.Equal(entity.Category.Id, readEntity["Category"].AsDocument["$id"].AsGuid);
-            Assert.Equal(this.CategoryRepository.CollectionName, readEntity["Category"].AsDocument["$ref"].AsString);
+            Assert.Equal(CategoryRepository.CollectionName, readEntity["Category"].AsDocument["$ref"].AsString);
         }
 
         [Fact]

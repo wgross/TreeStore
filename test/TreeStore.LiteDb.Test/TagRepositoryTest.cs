@@ -1,11 +1,11 @@
 ﻿using Elementary.Compare;
-using TreeStore.Messaging;
-using TreeStore.Model;
 using LiteDB;
 using Moq;
 using System;
 using System.IO;
 using System.Linq;
+using TreeStore.Messaging;
+using TreeStore.Model;
 using Xunit;
 
 namespace TreeStore.LiteDb.Test
@@ -15,7 +15,7 @@ namespace TreeStore.LiteDb.Test
         private readonly LiteRepository liteDb;
         private readonly Mock<IChangedMessageBus<ITag>> eventSource;
         private readonly TagRepository repository;
-        private readonly LiteCollection<BsonDocument> tags;
+        private readonly ILiteCollection<BsonDocument> tags;
         private readonly MockRepository mocks = new MockRepository(MockBehavior.Strict);
 
         public TagRepositoryTest()
@@ -26,10 +26,11 @@ namespace TreeStore.LiteDb.Test
             this.tags = this.liteDb.Database.GetCollection("tags");
         }
 
-        public void Dispose()
-        {
-            this.mocks.VerifyAll();
-        }
+#pragma warning disable CA1063 // Implement IDisposable Correctly
+
+        public void Dispose() => this.mocks.VerifyAll();
+
+#pragma warning restore CA1063 // Implement IDisposable Correctly
 
         [Fact]
         public void TagRepository_writes_Tag_to_repository()
@@ -153,15 +154,15 @@ namespace TreeStore.LiteDb.Test
         }
 
         [Fact]
-        public void TagRepository_finding_tag_by_id_throws_on_missing_tag()
+        public void TagRepository_finding_tag_by_id_returns_null()
         {
             // ACT
 
-            var result = Assert.Throws<InvalidOperationException>(() => this.repository.FindById(Guid.NewGuid()));
+            var result = this.repository.FindById(Guid.NewGuid());
 
             // ASSERT
 
-            Assert.NotNull(result);
+            Assert.Null(result);
         }
 
         [Fact]

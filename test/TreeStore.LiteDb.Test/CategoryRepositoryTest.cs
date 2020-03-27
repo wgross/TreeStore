@@ -12,7 +12,7 @@ namespace TreeStore.LiteDb.Test
     {
         private readonly LiteRepository liteDb;
         private readonly CategoryRepository repository;
-        private readonly LiteCollection<BsonDocument> categoriesCollection;
+        private readonly ILiteCollection<BsonDocument> categoriesCollection;
 
         public CategoryRepositoryTest()
         {

@@ -1,9 +1,8 @@
-﻿using TreeStore.Messaging;
-using TreeStore.Model;
-using LiteDB;
-using System;
+﻿using LiteDB;
 using System.Collections.Generic;
 using System.Linq;
+using TreeStore.Messaging;
+using TreeStore.Model;
 
 namespace TreeStore.LiteDb
 {
@@ -25,6 +24,11 @@ namespace TreeStore.LiteDb
             this.messageBus = messageBus;
         }
 
+        protected override ILiteCollection<Relationship> IncludeRelated(ILiteCollection<Relationship> from) => from
+            .Include(r => r.From)
+            .Include(r => r.To)
+            .Include(r => r.Tags);
+
         public override Relationship Upsert(Relationship relationship)
         {
             this.messageBus.Modified(base.Upsert(relationship));
@@ -44,23 +48,15 @@ namespace TreeStore.LiteDb
         public void Delete(IEnumerable<Relationship> relationships)
             => relationships.ToList().ForEach(r => this.Delete(r));
 
-        public override Relationship FindById(Guid id) => this.QueryAndInclude().SingleById(id);
+        public IEnumerable<Relationship> FindByEntity(Entity entity) => this.IncludeRelated(this.LiteCollection())
+            .Query()
+            .Where(r => r.From.Id.Equals(entity.Id) || r.To.Id.Equals(entity.Id))
+            .ToEnumerable();
 
-        public override IEnumerable<Relationship> FindAll() => this.QueryAndInclude().ToEnumerable();
-
-        public IEnumerable<Relationship> FindByEntity(Entity entity) => this.QueryAndInclude(q => q.Where(r => r.From.Id.Equals(entity.Id) || r.To.Id.Equals(entity.Id))).ToEnumerable();
-
-        public IEnumerable<Relationship> FindByTag(Tag tag) => this.QueryAndInclude(q => q.Where(r => r.Tags.Contains(tag))).ToEnumerable();
-
-        private LiteQueryable<Relationship> QueryAndInclude(Func<LiteQueryable<Relationship>, LiteQueryable<Relationship>> query = null)
-        {
-            if (query is null)
-                return QueryAndInclude(q => q);
-
-            return query(this.LiteRepository.Query<Relationship>(this.CollectionName))
-                .Include(r => r.Tags)
-                .Include(r => r.From)
-                .Include(r => r.To);
-        }
+        public IEnumerable<Relationship> FindByTag(Tag tag) => this.IncludeRelated(this.LiteCollection())
+            .Query()
+            // todo: optimize, needs index?
+            .Where(r => r.Tags.Contains(tag))
+            .ToEnumerable();
     }
 }

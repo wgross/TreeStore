@@ -19,7 +19,7 @@ namespace TreeStore.LiteDb.Test
         private readonly TagRepository tagRepository;
         private readonly CategoryRepository categoryRepository;
         private readonly RelationshipRepository relationshipRepository;
-        private readonly LiteCollection<BsonDocument> relationships;
+        private readonly ILiteCollection<BsonDocument> relationships;
 
         public RelationshipRepositoryTest()
         {
@@ -60,9 +60,9 @@ namespace TreeStore.LiteDb.Test
             Assert.NotNull(readRelationship);
             Assert.Equal(relationship.Id, readRelationship.AsDocument["_id"].AsGuid);
             Assert.Equal(relationship.From.Id, readRelationship["From"].AsDocument["$id"].AsGuid);
-            Assert.Equal(this.entityRepository.CollectionName, readRelationship["From"].AsDocument["$ref"].AsString);
+            Assert.Equal(EntityRepository.CollectionName, readRelationship["From"].AsDocument["$ref"].AsString);
             Assert.Equal(relationship.To.Id, readRelationship["To"].AsDocument["$id"].AsGuid);
-            Assert.Equal(this.entityRepository.CollectionName, readRelationship["To"].AsDocument["$ref"].AsString);
+            Assert.Equal(EntityRepository.CollectionName, readRelationship["To"].AsDocument["$ref"].AsString);
         }
 
         [Fact(Skip = "ignore relationships")]

@@ -1,8 +1,6 @@
-﻿using TreeStore.Model;
-using LiteDB;
+﻿using LiteDB;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using TreeStore.Model;
 
 namespace TreeStore.LiteDb
 {
@@ -10,6 +8,11 @@ namespace TreeStore.LiteDb
     {
         public FacetRepository(LiteRepository db) : base(db, "facets")
         {
+        }
+
+        protected override ILiteCollection<Facet> IncludeRelated(ILiteCollection<Facet> from)
+        {
+            throw new NotImplementedException();
         }
     }
 }
