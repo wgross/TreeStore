@@ -33,15 +33,17 @@ namespace TreeStore.PsModule.PathNodes
                 this.entity = entity;
             }
 
+            public Guid Id => this.assignedTag.Id;
+
             public string Name => this.assignedTag.Name;
 
             public TreeStoreItemType ItemType => TreeStoreItemType.AssignedTag;
 
-            public string[] Properties => this.assignedTag
-                .Facet
-                .Properties
-                .Select(p => p.Name)
-                .ToArray();
+            //public string[] Properties => this.assignedTag
+            //    .Facet
+            //    .Properties
+            //    .Select(p => p.Name)
+            //    .ToArray();
 
             public string ToFormattedString()
             {

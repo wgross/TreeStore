@@ -46,10 +46,11 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ASSERT
 
+            Assert.Equal(e.Tags.Single().Id, result.Property<Guid>("Id"));
             Assert.Equal("t", result.Property<string>("Name"));
             Assert.Equal(TreeStoreItemType.AssignedTag, result.Property<TreeStoreItemType>("ItemType"));
             Assert.Equal("1", result.Property<string>("p"));
-            Assert.Equal("p", result.Property<string[]>("Properties").Single());
+            //todo: properties // Assert.Equal("p", result.Property<string[]>("Properties").Single());
             Assert.IsType<AssignedTagNode.Item>(result.ImmediateBaseObject);
         }
 
@@ -132,8 +133,10 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ASSERT
 
-            Assert.Equal(new[] { "p", "Name", "ItemType", "Properties" }, result.Select(p => p.Name));
-            Assert.Equal(new object[] { "1", "t", TreeStoreItemType.AssignedTag, new string[] { "p" } }, result.Select(p => p.Value));
+            //todo: properties //Assert.Equal(new[] { "p", "Name", "ItemType", "Properties" }, result.Select(p => p.Name));
+            Assert.Equal(new[] { "p", "Id", "Name", "ItemType" }, result.Select(p => p.Name));
+            //todo: properties Assert.Equal(new object[] { "1", "t", TreeStoreItemType.AssignedTag, new string[] { "p" } }, result.Select(p => p.Value));
+            Assert.Equal(new object[] { "1", e.Tags.Single().Id, "t", TreeStoreItemType.AssignedTag }, result.Select(p => p.Value));
         }
 
         [Theory]
