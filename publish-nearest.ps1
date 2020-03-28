@@ -35,7 +35,7 @@ switch($Target) {
     default {
         # publish the module
         $params =@{
-            Path = "$PSScriptRoot\src\TreeStore.PsModule\TreeStore.PsModule.csproj"
+            FullName = "$PSScriptRoot\src\TreeStore.PsModule\TreeStore.PsModule.csproj"
             Destination = "$PSScriptRoot\TreeStore"
             PublishConfiguration = $BuildConfiguration
         }

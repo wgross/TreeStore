@@ -20,7 +20,7 @@ param(
     $FromPath
 )
 
-# make the dotnet cmdlets available by default
+Import-Module -Name dotnet-files
 Import-Module -Name dotnet-cli-test
 
  # add meta data to the pipe object
@@ -42,7 +42,7 @@ try {
                 "test/TreeStore.Messaging.Test"
                 "test/TreeStore.Model.Test"
                 "test/TreeStore.PsModule.Test"
-            ) | Get-DotnetProjectItem | Invoke-DotNetTest -SelectProperties
+            ) | Get-DotNetProjectItem | Invoke-DotNetTest -SelectProperties
         }
     }
 } finally {
