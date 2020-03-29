@@ -54,10 +54,16 @@ New-Item \Entities\example_entity -Name example_tag
 ```
 Now properties defined by the Tag can be filled with values. If the name of the tag isn't found in the \Tags folder the operation will fail.
 
-## Assign a value to an Entities Facet Property
+## Set/Get value of an Entities Facet Property
 A value can be assigned with the Set-ItemProperty cmdlet:
 ```powershell
-Set-ItemProperty -Path \Entites\e -Name p -Value 1
+Set-ItemProperty -Path \Entites\example_entity -Name example_property -Value 1
 ```
-Other Powershell Provider Cmdlet work analogous to their implementaion of a normal file system.
+The value can be read again using:
+```powershell
+Get-ItemPropertyValue -Path \Entites\example_entity -Name example_property
+
+1
+```
+
 
