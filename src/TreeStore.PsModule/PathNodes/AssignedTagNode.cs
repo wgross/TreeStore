@@ -175,7 +175,7 @@ namespace TreeStore.PsModule.PathNodes
 
         #region IGetItemProperty - argument completion only
 
-        public object GetItemPropertyParameters => this.BuildItemPropertyParameters(this.ValidateSetAttributeForGettable());
+        override public object GetItemPropertyParameters => this.BuildItemPropertyParameters(this.ValidateSetAttributeForGettable());
 
         private ValidateSetAttribute ValidateSetAttributeForGettable() => new ValidateSetAttribute(this.entity
             .AllAssignedPropertyValues(this.assignedTag)
