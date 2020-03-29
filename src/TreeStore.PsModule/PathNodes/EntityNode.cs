@@ -91,12 +91,12 @@ namespace TreeStore.PsModule.PathNodes
                         builder.Append(propertyIndent).Append(p.Name.PadRight(maxPropertyLength)).Append(" : ");
                         switch (this.entity.TryGetFacetProperty(p))
                         {
-                            case var result when result.exists:
+                            case var result when result.hasValue:
                                 builder.AppendLine(result.value?.ToString());
                                 break;
 
                             default:
-                                builder.AppendLine();
+                                builder.AppendLine("<no value>");
                                 break;
                         };
                     }

@@ -65,6 +65,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             Assert.Equal("p", result.Property<string>("Name"));
             Assert.Equal(TreeStoreItemType.AssignedFacetProperty, result.Property<TreeStoreItemType>("ItemType"));
             Assert.Equal("2", result.Property<string>("Value"));
+            Assert.True(result.Property<bool>("HasValue"));
             Assert.Equal(FacetPropertyTypeValues.String, result.Property<FacetPropertyTypeValues>("ValueType"));
             Assert.IsType<AssignedFacetPropertyNode.Item>(result.ImmediateBaseObject);
 
@@ -73,6 +74,36 @@ namespace TreeStore.PsModule.Test.PathNodes
             Assert.Equal(TreeStoreItemType.AssignedFacetProperty, resultValue.ItemType);
             Assert.Equal("p", resultValue.Name);
             Assert.Equal("2", resultValue.Value);
+            Assert.True(resultValue.HasValue);
+            Assert.Equal(e.Tags.Single().Facet.Properties.Single().Type, resultValue.ValueType);
+        }
+
+        [Fact]
+        public void AssignedFacetPropertyNode_provides_Item_without_value()
+        {
+            // ARRANGE
+
+            var e = DefaultEntity(WithAssignedDefaultTag);
+
+            // ACT
+
+            var result = new AssignedFacetPropertyNode(this.PersistenceMock.Object, e, e.Tags.Single().Facet.Properties.Single()).GetItem(this.ProviderContextMock.Object);
+
+            // ASSERT
+
+            Assert.Equal("p", result.Property<string>("Name"));
+            Assert.Equal(TreeStoreItemType.AssignedFacetProperty, result.Property<TreeStoreItemType>("ItemType"));
+            Assert.Null(result.Property<string>("Value"));
+            Assert.False(result.Property<bool>("HasValue"));
+            Assert.Equal(FacetPropertyTypeValues.String, result.Property<FacetPropertyTypeValues>("ValueType"));
+            Assert.IsType<AssignedFacetPropertyNode.Item>(result.ImmediateBaseObject);
+
+            var resultValue = (AssignedFacetPropertyNode.Item)result.ImmediateBaseObject;
+
+            Assert.Equal(TreeStoreItemType.AssignedFacetProperty, resultValue.ItemType);
+            Assert.Equal("p", resultValue.Name);
+            Assert.Null(resultValue.Value);
+            Assert.False(resultValue.HasValue);
             Assert.Equal(e.Tags.Single().Facet.Properties.Single().Type, resultValue.ValueType);
         }
 
@@ -133,7 +164,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // value hasn't changed
 
             Assert.NotNull(result);
-            Assert.False(e.TryGetFacetProperty(e.Tags.Single().Facet.Properties.Single()).exists);
+            Assert.False(e.TryGetFacetProperty(e.Tags.Single().Facet.Properties.Single()).hasValue);
         }
 
         #endregion ISetItemProperty
@@ -156,8 +187,8 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ASSERT
             // name and value are returned
 
-            Assert.Equal(new[] { "Name", "Value", "ValueType", "ItemType" }, result.Select(p => p.Name));
-            Assert.Equal(new object[] { "p", "2", FacetPropertyTypeValues.String, TreeStoreItemType.AssignedFacetProperty }, result.Select(p => p.Value));
+            Assert.Equal(new[] { "Name", "HasValue", "Value", "ValueType", "ItemType" }, result.Select(p => p.Name));
+            Assert.Equal(new object[] { "p", true, "2", FacetPropertyTypeValues.String, TreeStoreItemType.AssignedFacetProperty }, result.Select(p => p.Value));
         }
 
         [Theory]

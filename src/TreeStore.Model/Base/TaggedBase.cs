@@ -31,7 +31,7 @@ namespace TreeStore.Model.Base
             else throw new InvalidOperationException($"property(name='{facetProperty.Name}') doesn't accept value of type {typeof(T)}");
         }
 
-        public (bool exists, object? value) TryGetFacetProperty(FacetProperty facetProperty)
+        public (bool hasValue, object? value) TryGetFacetProperty(FacetProperty facetProperty)
             => (this.Values.TryGetValue(facetProperty.Id.ToString(), out var value), value);
     }
 }

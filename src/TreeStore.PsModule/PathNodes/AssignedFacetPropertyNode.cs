@@ -14,7 +14,7 @@ namespace TreeStore.PsModule.PathNodes
     /// </summary>
     public class AssignedFacetPropertyNode : LeafNode,
         IGetItem,
-        ISetItemProperty, IGetItemProperty, IClearItemProperty
+        ISetItemProperty, IClearItemProperty
     {
         public class Item
         {
@@ -29,14 +29,15 @@ namespace TreeStore.PsModule.PathNodes
 
             public string Name => this.assignedProperty.Name;
 
+            public bool HasValue => this.entity.TryGetFacetProperty(this.assignedProperty).hasValue;
+
             public object? Value
             {
-                get => this.entity.TryGetFacetProperty(this.assignedProperty).Item2;
+                get => this.entity.TryGetFacetProperty(this.assignedProperty).value;
                 set => this.entity.SetFacetProperty<object?>(this.assignedProperty, value);
             }
 
             public FacetPropertyTypeValues ValueType => this.assignedProperty.Type;
-
             public TreeStoreItemType ItemType => TreeStoreItemType.AssignedFacetProperty;
         }
 

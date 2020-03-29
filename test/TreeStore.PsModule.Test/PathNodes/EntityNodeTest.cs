@@ -890,7 +890,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ASSERT
 
-            Assert.False(e.TryGetFacetProperty(e.Tags.Single().Facet.Properties.Single()).exists);
+            Assert.False(e.TryGetFacetProperty(e.Tags.Single().Facet.Properties.Single()).hasValue);
         }
 
         [Fact]
@@ -1080,11 +1080,9 @@ namespace TreeStore.PsModule.Test.PathNodes
                 WithAssignedDefaultTag,
                 WithAssignedTag(DefaultTag(
                     t => t.Name = "long_tag_name",
-                    t =>
-                    {
-                        t.Facet.Properties.Single().Name = "long_property_name";
-                        t.Facet.Properties.Single().Type = FacetPropertyTypeValues.Long;
-                    }
+                    WithoutProperty,
+                    WithProperty("long_property_name", FacetPropertyTypeValues.Long),
+                    WithProperty("no_value", FacetPropertyTypeValues.DateTime)
                 )));
 
             e.SetFacetProperty("t", "p", "test");
@@ -1107,6 +1105,7 @@ namespace TreeStore.PsModule.Test.PathNodes
     p                  : test
   long_tag_name
     long_property_name : 1
+    no_value           : <no value>
 ";
 
         #endregion ToFormattedString
