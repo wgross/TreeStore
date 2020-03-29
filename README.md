@@ -6,10 +6,10 @@ Install from PSGallery:
 ```powershell
 Install-Module TreeStore -AllowPrerelease
 ```
-The module project targets netstandard 2.0 and is therefore compatible with PowerShell 5 and Powershell Core.
+The module project targets netstandard 2.0 and is therefore compatible with PowerShell 5 and PowerShell Core.
 
 ## Create a TreeStore file system.
-TreeStore provides its own cmdlet to create PSDrives for convenience. You can achive the same with New-PsDrive but filling the cmdlet-arguments is more straightforward using the custom cmdlet.
+TreeStore provides its own Ccmdlet to create PSDrives for convenience. You can achive the same with New-PsDrive but filling the cmdlet-arguments is more straightforward using the custom cmdlet.
 
 Create non-persistent (in memory) drive:
 ```powershell
@@ -48,19 +48,16 @@ NewItem \Entities\example_entity
 [more about Entities...](https://github.com/wgross/TreeStore/wiki/Entities)
 
 ## Assign Tag to an Entity
-
 To assign a Tag 't' to an existing entity 'e' just create a new item named like a tag under the entity:
 ```powershell
-New-Item \Entities\e -Name t
+New-Item \Entities\example_entity -Name example_tag
 ```
 Now properties defined by the Tag can be filled with values. If the name of the tag isn't found in the \Tags folder the operation will fail.
 
 ## Assign a value to an Entities Facet Property
-
 A value can be assigned with the Set-ItemProperty cmdlet:
 ```powershell
 Set-ItemProperty -Path \Entites\e -Name p -Value 1
 ```
-
 Other Powershell Provider Cmdlet work analogous to their implementaion of a normal file system.
 
