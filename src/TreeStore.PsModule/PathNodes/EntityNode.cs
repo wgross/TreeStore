@@ -154,6 +154,8 @@ namespace TreeStore.PsModule.PathNodes
 
         #region INewItem
 
+        public object NewItemParameters => new RuntimeDefinedParameterDictionary();
+
         public IEnumerable<string> NewItemTypeNames => "AssignedTag".Yield();
 
         public PathNode NewItem(IProviderContext providerContext, string newItemChildPath, string? itemTypeName, object? newItemValue)
@@ -176,6 +178,8 @@ namespace TreeStore.PsModule.PathNodes
 
         #region IRemoveItem
 
+        public object RemoveItemParameters => new RuntimeDefinedParameterDictionary();
+
         public void RemoveItem(IProviderContext providerContext, string path)
         {
             if (providerContext.Recurse)
@@ -187,6 +191,8 @@ namespace TreeStore.PsModule.PathNodes
         #endregion IRemoveItem
 
         #region ICopyItem
+
+        public object CopyItemParameters => new RuntimeDefinedParameterDictionary();
 
         public void CopyItem(IProviderContext providerContext, string sourceItemName, string? destinationItemName, PathNode destinationNode)
         {
@@ -227,6 +233,8 @@ namespace TreeStore.PsModule.PathNodes
 
         #region IRenameItem
 
+        public object RenameItemParameters => new RuntimeDefinedParameterDictionary();
+
         public void RenameItem(IProviderContext providerContext, string path, string newName)
         {
             Guard.Against.InvalidNameCharacters(newName, $"entity(name='{newName}' wasn't renamed");
@@ -248,6 +256,8 @@ namespace TreeStore.PsModule.PathNodes
         #endregion IRenameItem
 
         #region IMoveItem
+
+        public object MoveItemParameters => new RuntimeDefinedParameterDictionary();
 
         public void MoveItem(IProviderContext providerContext, string path, string? movePath, PathNode destinationNode)
         {
@@ -293,7 +303,7 @@ namespace TreeStore.PsModule.PathNodes
             if (string.IsNullOrEmpty(name))
                 return (null, null);
 
-            var splittedName = name.Split(".", 2, StringSplitOptions.RemoveEmptyEntries);
+            var splittedName = name.Split(new char[] { '.' }, 2, StringSplitOptions.RemoveEmptyEntries);
             if (splittedName.Length != 2)
                 return (null, null);
 
@@ -330,7 +340,7 @@ namespace TreeStore.PsModule.PathNodes
             if (string.IsNullOrEmpty(name))
                 return;
 
-            var splittedName = name.Split(".", 2, StringSplitOptions.RemoveEmptyEntries);
+            var splittedName = name.Split(new char[] { '.' }, 2, StringSplitOptions.RemoveEmptyEntries);
             if (splittedName.Length != 2)
                 return;
 
@@ -358,9 +368,9 @@ namespace TreeStore.PsModule.PathNodes
 
         #endregion ISetItemProperty
 
-        #region IGetItemProperty - dynamic parameters only
+        #region IGetItemProperty
 
-        public object GetItemPropertyParameters => this.BuildItemPropertyParameters(this.ValidateSetAttributeForGettable());
+        public override object GetItemPropertyParameters => this.BuildItemPropertyParameters(this.ValidateSetAttributeForGettable());
 
         private RuntimeDefinedParameterDictionary BuildItemPropertyParameters(ValidateSetAttribute validateSet)
         {
@@ -378,7 +388,7 @@ namespace TreeStore.PsModule.PathNodes
             .Union(new[] { "Id", "Name" })
             .ToArray());
 
-        #endregion IGetItemProperty - dynamic parameters only
+        #endregion IGetItemProperty
 
         #region Model Accessors
 
@@ -402,11 +412,6 @@ namespace TreeStore.PsModule.PathNodes
         private Category? SubCategory(ITreeStorePersistence persistence, Category category) => this.SubCategory(persistence, category, this.entity.Name);
 
         private Category? SubCategory(ITreeStorePersistence persistence, Category parentCategory, string name) => persistence.Categories.FindByParentAndName(parentCategory, name);
-
-        public RuntimeDefinedParameterDictionary ToFormattedString()
-        {
-            throw new NotImplementedException();
-        }
 
         #endregion Model Accessors
     }

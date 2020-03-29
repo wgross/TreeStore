@@ -72,6 +72,8 @@ namespace TreeStore.PsModule.PathNodes
 
         #region ISetItemProperty
 
+        public object SetItemPropertyParameters => new RuntimeDefinedParameterDictionary();
+
         public void SetItemProperties(IProviderContext providerContext, IEnumerable<PSPropertyInfo> properties)
         {
             // only the value property can be changed
@@ -91,6 +93,8 @@ namespace TreeStore.PsModule.PathNodes
         #endregion ISetItemProperty
 
         #region IClearItemProperty
+
+        public object ClearItemPropertyParameters => new RuntimeDefinedParameterDictionary();
 
         public void ClearItemProperty(IProviderContext providerContext, IEnumerable<string> propertyNames)
         {

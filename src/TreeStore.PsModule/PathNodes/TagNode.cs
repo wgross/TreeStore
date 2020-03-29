@@ -51,8 +51,8 @@ namespace TreeStore.PsModule.PathNodes
 
             // todo: properties
             //   public string[] Properties => this.tag.Facet.Properties.Select(p => p.Name).ToArray();
-            #endregion // Properties
 
+            #endregion // Properties
         }
 
         #endregion Item - to be used in powershell pipe
@@ -130,6 +130,8 @@ namespace TreeStore.PsModule.PathNodes
 
         #region IRemoveItem
 
+        public object RemoveItemParameters => new RuntimeDefinedParameterDictionary();
+
         public void RemoveItem(IProviderContext providerContext, string name)
         {
             if (providerContext.Recurse)
@@ -141,6 +143,8 @@ namespace TreeStore.PsModule.PathNodes
         #endregion IRemoveItem
 
         #region ICopyItem
+
+        public object CopyItemParameters => new RuntimeDefinedParameterDictionary();
 
         public void CopyItem(IProviderContext providerContext, string sourceItemName, string destinationItemName, PathNode destinationNode)
         {
@@ -163,6 +167,8 @@ namespace TreeStore.PsModule.PathNodes
         #endregion ICopyItem
 
         #region IRenameItem
+
+        public object RenameItemParameters => new RuntimeDefinedParameterDictionary();
 
         public void RenameItem(IProviderContext providerContext, string path, string newName)
         {

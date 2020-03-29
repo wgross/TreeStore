@@ -58,7 +58,9 @@ namespace TreeStore.PsModule.PathNodes
 
         #endregion IGetItem
 
-        #region IRemoveItem Members
+        #region IRemoveItem
+
+        public object RemoveItemParameters => new RuntimeDefinedParameterDictionary();
 
         public void RemoveItem(IProviderContext providerContext, string path)
         {
@@ -66,9 +68,11 @@ namespace TreeStore.PsModule.PathNodes
             providerContext.Persistence().Tags.Upsert(this.tag);
         }
 
-        #endregion IRemoveItem Members
+        #endregion IRemoveItem
 
-        #region ICopyItem Members
+        #region ICopyItem
+
+        public object CopyItemParameters => new RuntimeDefinedParameterDictionary();
 
         public void CopyItem(IProviderContext providerContext, string sourceItemName, string? destinationItemName, PathNode destinationNode)
         {
@@ -84,9 +88,11 @@ namespace TreeStore.PsModule.PathNodes
             }
         }
 
-        #endregion ICopyItem Members
+        #endregion ICopyItem
 
-        #region IRenameItem Members
+        #region IRenameItem
+
+        public object RenameItemParameters => new RuntimeDefinedParameterDictionary();
 
         public void RenameItem(IProviderContext providerContext, string path, string newName)
         {
@@ -107,6 +113,6 @@ namespace TreeStore.PsModule.PathNodes
             providerContext.Persistence().Tags.Upsert(this.tag);
         }
 
-        #endregion IRenameItem Members
+        #endregion IRenameItem
     }
 }

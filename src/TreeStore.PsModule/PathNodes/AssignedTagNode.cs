@@ -95,7 +95,9 @@ namespace TreeStore.PsModule.PathNodes
 
         #endregion IGetItem
 
-        #region IRemoveItem Members
+        #region IRemoveItem
+
+        public object RemoveItemParameters => new RuntimeDefinedParameterDictionary();
 
         public void RemoveItem(IProviderContext providerContext, string path)
         {
@@ -103,7 +105,7 @@ namespace TreeStore.PsModule.PathNodes
             providerContext.Persistence().Entities.Upsert(this.entity);
         }
 
-        #endregion IRemoveItem Members
+        #endregion IRemoveItem
 
         #region IClearItemProperty
 
@@ -173,7 +175,7 @@ namespace TreeStore.PsModule.PathNodes
 
         #region IGetItemProperty - argument completion only
 
-        public RuntimeDefinedParameterDictionary GetItemPropertyParameters => this.BuildItemPropertyParameters(this.ValidateSetAttributeForGettable());
+        public object GetItemPropertyParameters => this.BuildItemPropertyParameters(this.ValidateSetAttributeForGettable());
 
         private ValidateSetAttribute ValidateSetAttributeForGettable() => new ValidateSetAttribute(this.entity
             .AllAssignedPropertyValues(this.assignedTag)

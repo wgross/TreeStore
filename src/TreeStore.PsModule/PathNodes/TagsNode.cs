@@ -57,6 +57,8 @@ namespace TreeStore.PsModule.PathNodes
 
         public IEnumerable<string> NewItemTypeNames => "Tag".Yield();
 
+        public object NewItemParameters => new RuntimeDefinedParameterDictionary();
+
         public PathNode NewItem(IProviderContext providerContext, string newItemChildPath, string? itemTypeName, object? newItemValue)
         {
             if (!newItemChildPath.EnsureValidName())

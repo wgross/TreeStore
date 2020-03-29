@@ -82,6 +82,8 @@ namespace TreeStore.PsModule.PathNodes
 
         #region INewItem
 
+        public object NewItemParameters => new RuntimeDefinedParameterDictionary();
+
         public IEnumerable<string> NewItemTypeNames { get; } = new[] { nameof(TreeStoreItemType.Category), nameof(TreeStoreItemType.Entity) };
 
         public PathNode NewItem(IProviderContext providerContext, string newItemName, string itemTypeName, object newItemValue)
@@ -156,6 +158,10 @@ namespace TreeStore.PsModule.PathNodes
 
         #endregion INewItem
 
+        #region ICopyItem
+
+        public object CopyItemParameters => new RuntimeDefinedParameterDictionary();
+
         public void CopyItem(IProviderContext providerContext, string sourceItemName, string destinationItemName, PathNode destinationNode)
         {
             if (destinationItemName != null)
@@ -179,7 +185,11 @@ namespace TreeStore.PsModule.PathNodes
             persistence.CopyCategory(this.category, parent!, providerContext.Recurse);
         }
 
+        #endregion ICopyItem
+
         #region IRemoveItem
+
+        public object RemoveItemParameters => new RuntimeDefinedParameterDictionary();
 
         public void RemoveItem(IProviderContext providerContext, string path)
         {
@@ -189,6 +199,8 @@ namespace TreeStore.PsModule.PathNodes
         #endregion IRemoveItem
 
         #region IRenameItem
+
+        public object RenameItemParameters => new RuntimeDefinedParameterDictionary();
 
         public void RenameItem(IProviderContext providerContext, string path, string newName)
         {
@@ -215,6 +227,8 @@ namespace TreeStore.PsModule.PathNodes
         #endregion IRenameItem
 
         #region IMoveItem
+
+        public object MoveItemParameters => new RuntimeDefinedParameterDictionary();
 
         public void MoveItem(IProviderContext providerContext, string path, string? movePath, PathNode destinationNode)
         {
