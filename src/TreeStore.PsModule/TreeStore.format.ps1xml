@@ -2,7 +2,12 @@
 <Configuration>
 	<ViewDefinitions>
 		<View>
-			<Name>EntityComplete</Name>
+      <!--
+      entity
+        tag
+          property
+      -->
+			<Name>EntityFormatted</Name>
 			<ViewSelectedBy>
 				<TypeName>TreeStore.PsModule.PathNodes.EntityNode+Item</TypeName>
 			</ViewSelectedBy>
@@ -20,8 +25,12 @@
 				</CustomEntries>
 			</CustomControl>
 		</View>
+    <!--
+    tag
+      property
+    -->
     <View>
-      <Name>AssignedTagComplete</Name>
+      <Name>AssignedTagFormatted</Name>
       <ViewSelectedBy>
         <TypeName>TreeStore.PsModule.PathNodes.AssignedTagNode+Item</TypeName>
       </ViewSelectedBy>
@@ -38,6 +47,87 @@
           </CustomEntry>
         </CustomEntries>
       </CustomControl>
+    </View>
+    <!--
+    for each tag:
+    Name  ItemType (21)
+    -->
+    <View>
+      <Name>TagTableView</Name>
+      <ViewSelectedBy>
+        <TypeName>TreeStore.PsModule.PathNodes.TagNode+Item</TypeName>
+      </ViewSelectedBy>
+      <!--<GroupBy>
+        <Label>Tag</Label>
+        <PropertyName>PSParentPath</PropertyName>
+      </GroupBy>-->
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Width>21</Width>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>ItemType</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--
+    for each tag:
+    Name  ItemType (21)
+    -->
+    <View>
+      <Name>FacetPropertyTableView</Name>
+      <ViewSelectedBy>
+        <TypeName>TreeStore.PsModule.PathNodes.FacetPropertyNode+Item</TypeName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <Label>Tag</Label>
+        <PropertyName>PSParentPath</PropertyName>
+      </GroupBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Width>21</Width>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Width>21</Width>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>ValueType</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>ItemType</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
     </View>
 	</ViewDefinitions>
 </Configuration>
