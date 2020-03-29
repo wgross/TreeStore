@@ -2,12 +2,11 @@
 A powershell file system for storing simple structured data. Implementation of the file system provider relies heavily on an extended fork of [beefarinos p2f framework](https://github.com/beefarino/p2f). The fork can be found [here](https://github.com/wgross/p2f). 
 
 ## Installation
-
 Install from PSGallery:
-
 ```powershell
 Install-Module TreeStore -AllowPrerelease
 ```
+The module project targets netstandard 2.0 and is therefore compatible with PowerShell 5 and Powershell Core.
 
 ## Create a TreeStore file system.
 TreeStore provides its own cmdlet to create PSDrives for convenience. You can achive the same with New-PsDrive but filling the cmdlet-arguments is more straightforward using the custom cmdlet.
