@@ -27,7 +27,6 @@
             <ReferencedProperties>
               <Name>Name</Name>
               <Name>ItemType</Name>
-              <Name>Properties</Name>
             </ReferencedProperties>
           </PropertySet>
         </Members>
@@ -98,7 +97,6 @@
             <ReferencedProperties>
               <Name>Name</Name>
               <Name>ItemType</Name>
-              <Name>Properties</Name>
             </ReferencedProperties>
           </PropertySet>
         </Members>
