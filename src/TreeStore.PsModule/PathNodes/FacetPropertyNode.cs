@@ -64,8 +64,21 @@ namespace TreeStore.PsModule.PathNodes
 
         public void RemoveItem(IProviderContext providerContext, string path)
         {
+            var persistence = providerContext.Persistence();
+
+            if (!providerContext.Force)
+                if (persistence.Entities.FindByTag(this.tag).Any())
+                {
+                    providerContext.WriteError(
+                        new ErrorRecord(new InvalidOperationException($"Can't delete facetProperty(name='{this.facetProperty.Name}'): It is used by at least one entity. Use -Force to delete anyway."),
+                             errorId: "TagInUse",
+                             errorCategory: ErrorCategory.InvalidOperation,
+                             targetObject: this.GetItem(providerContext)));
+                    return;
+                }
+
             this.tag.Facet.RemoveProperty(this.facetProperty);
-            providerContext.Persistence().Tags.Upsert(this.tag);
+            persistence.Tags.Upsert(this.tag);
         }
 
         #endregion IRemoveItem

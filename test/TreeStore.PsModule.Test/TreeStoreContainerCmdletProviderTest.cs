@@ -1095,6 +1095,14 @@ namespace TreeStore.PsModule.Test
             var tag = DefaultTag(WithoutProperty);
 
             this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByTag(tag))
+                .Returns(Enumerable.Empty<Entity>());
+
+            this.PersistenceMock
                 .Setup(m => m.Tags)
                 .Returns(this.TagRepositoryMock.Object);
 
@@ -1126,6 +1134,14 @@ namespace TreeStore.PsModule.Test
             // ARRANGE
 
             var tag = DefaultTag(WithDefaultProperty);
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByTag(tag))
+                .Returns(Enumerable.Empty<Entity>());
 
             this.PersistenceMock
                 .Setup(m => m.Tags)
@@ -1164,6 +1180,14 @@ namespace TreeStore.PsModule.Test
             // ARRANGE
 
             var tag = DefaultTag(WithDefaultProperty);
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByTag(tag))
+                .Returns(Enumerable.Empty<Entity>());
 
             this.PersistenceMock
                 .Setup(m => m.Tags)
@@ -1495,7 +1519,6 @@ namespace TreeStore.PsModule.Test
                 .Setup(r => r.FindByCategoryAndName(rootCategory, "e-src"))
                 .Returns(entity);
 
-            
             this.EntityRepositoryMock
                 .Setup(r => r.FindByCategoryAndName(subCategory, "e-dst"))
                 .Returns((Entity?)null);
@@ -1613,7 +1636,7 @@ namespace TreeStore.PsModule.Test
             this.CategoryRepositoryMock
                 .Setup(r => r.Upsert(subCategory2))
                 .Returns(subCategory2);
-            
+
             // ACT
 
             this.PowerShell
@@ -1634,12 +1657,20 @@ namespace TreeStore.PsModule.Test
         #region Copy-Item /Tags/<name1>/<property-name> -Destination /Tags/<name2>
 
         [Fact]
-        public void PowerShell_movess_FacetProperty_to_other_tag()
+        public void PowerShell_moves_FacetProperty_to_other_tag()
         {
             // ARRANGE
 
             var sourceTag = DefaultTag(WithDefaultProperty);
             var destinationTag = DefaultTag(WithoutProperty, t => t.Name = "tt");
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByTag(sourceTag))
+                .Returns(Enumerable.Empty<Entity>());
 
             this.PersistenceMock
                 .Setup(m => m.Tags)
@@ -1685,6 +1716,14 @@ namespace TreeStore.PsModule.Test
 
             var sourceTag = DefaultTag(WithDefaultProperty);
             var destinationTag = DefaultTag(WithoutProperty, t => t.Name = "tt");
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByTag(sourceTag))
+                .Returns(Enumerable.Empty<Entity>());
 
             this.PersistenceMock
                 .Setup(m => m.Tags)

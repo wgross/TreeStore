@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Moq;
+using System;
 using System.Linq;
 using System.Management.Automation;
 using TreeStore.Model;
@@ -66,6 +67,10 @@ namespace TreeStore.PsModule.Test.PathNodes
             var e = DefaultEntity(WithAssignedDefaultTag);
 
             this.ProviderContextMock
+                .Setup(p => p.Force)
+                .Returns(true);
+
+            this.ProviderContextMock
                 .Setup(p => p.Persistence)
                 .Returns(this.PersistenceMock.Object);
 
@@ -94,6 +99,10 @@ namespace TreeStore.PsModule.Test.PathNodes
             var e = DefaultEntity(WithAssignedDefaultTag, WithDefaultPropertySet(value: "test"));
 
             this.ProviderContextMock
+               .Setup(p => p.Force)
+               .Returns(true);
+
+            this.ProviderContextMock
                 .Setup(p => p.Persistence)
                 .Returns(this.PersistenceMock.Object);
 
@@ -113,6 +122,24 @@ namespace TreeStore.PsModule.Test.PathNodes
             // property values aren't child items.
 
             Assert.Empty(e.Tags);
+            Assert.Empty(e.Values);
+        }
+
+        [Fact]
+        public void AssignedTagNode_removing_itself_with_properties_have_values_if_not_forced()
+        {
+            var entity = DefaultEntity(WithAssignedDefaultTag, WithDefaultPropertySet(value: "test"));
+
+            this.ProviderContextMock
+                .Setup(p => p.Force)
+                .Returns(false);
+
+            this.ProviderContextMock
+                .Setup(p => p.WriteError(It.IsAny<ErrorRecord>()));
+
+            // ACT
+
+            new AssignedTagNode(entity, entity.Tags.Single()).RemoveItem(this.ProviderContextMock.Object, "t");
         }
 
         #endregion IRemoveItem

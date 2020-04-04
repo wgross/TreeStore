@@ -228,6 +228,25 @@ namespace TreeStore.Model.Test
         }
 
         [Fact]
+        public void Entity_repves_Tag_with_assigned_values()
+        {
+            // ARRANGE
+
+            var facet = new Facet("facet", new FacetProperty("name"));
+            var tag = new Tag("tag", facet);
+            var entity = new Entity("e", tag);
+            entity.SetFacetProperty(entity.Facets().Single().Properties.Single(), "1");
+
+            // ACT
+
+            entity.RemoveTag(tag);
+
+            // ASSERT
+
+            Assert.Empty(entity.Values);
+        }
+
+        [Fact]
         public void Entity_clones_with_new_id()
         {
             // ARRANGE

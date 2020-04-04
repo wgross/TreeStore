@@ -134,10 +134,35 @@ namespace TreeStore.PsModule.PathNodes
 
         public void RemoveItem(IProviderContext providerContext, string name)
         {
-            if (providerContext.Recurse)
-                providerContext.Persistence().Tags.Delete(this.tag);
-            else if (!this.tag.Facet.Properties.Any())
-                providerContext.Persistence().Tags.Delete(this.tag);
+            var persistence = providerContext.Persistence();
+            var deleteTag = (
+                isUsed: persistence.Entities.FindByTag(this.tag).Any(),
+                hasProperties: this.tag.Facet.Properties.Any()
+            )
+            switch
+            {
+                // If the tag is used and has properrties, deletion will cause data loss.
+                (true, _) => this.RemoveItemInUse(providerContext),
+                (_, true) => providerContext.Recurse,
+                (_, false) => true
+            };
+            if (deleteTag)
+                persistence.Tags.Delete(this.tag);
+        }
+
+        private bool RemoveItemInUse(IProviderContext providerContext)
+        {
+            if (providerContext.Force)
+                return true;
+
+            // item is in use but -Force isn't specified
+            providerContext.WriteError(
+                new ErrorRecord(new InvalidOperationException($"Can't delete tag(name='{this.tag.Name}'): It is used by at least one entity. Use -Force to delete anyway."),
+                    errorId: "TagInUse",
+                    errorCategory: ErrorCategory.InvalidOperation,
+                    targetObject: this.GetItem(providerContext)));
+
+            return false;
         }
 
         #endregion IRemoveItem

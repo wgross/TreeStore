@@ -182,6 +182,18 @@ namespace TreeStore.PsModule.PathNodes
 
         public void RemoveItem(IProviderContext providerContext, string path)
         {
+            if (!providerContext.Force && this.entity.Values.Any())
+            {
+                // item has values but -Force isn't specified
+                providerContext.WriteError(
+                    new ErrorRecord(new InvalidOperationException($"Can't delete entity(name='{this.entity.Name}'): It is has property values. Use -Force to delete anyway."),
+                        errorId: "EntityHasData",
+                        errorCategory: ErrorCategory.InvalidOperation,
+                        targetObject: this.GetItem(providerContext)));
+
+                return;
+            }
+
             if (providerContext.Recurse)
                 providerContext.Persistence().Entities.Delete(this.entity);
             else if (!this.entity.Tags.Any())

@@ -22,6 +22,17 @@ namespace TreeStore.Model.Base
             this.Tags = this.Tags.Union(tag.Yield()).ToList();
         }
 
+        public void RemoveTag(Tag tag)
+        {
+            if (this.Tags.Remove(tag))
+            {
+                foreach (var property in tag.Facet.Properties)
+                {
+                    this.Values.Remove(property.Id.ToString());
+                }
+            }
+        }
+
         public Dictionary<string, object?> Values { get; set; } = new Dictionary<string, object?>();
 
         public void SetFacetProperty<T>(FacetProperty facetProperty, T value)

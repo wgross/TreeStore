@@ -1,6 +1,7 @@
 ﻿using Moq;
 using System;
 using System.Linq;
+using System.Management.Automation;
 using TreeStore.Model;
 using TreeStore.PsModule.PathNodes;
 using Xunit;
@@ -308,10 +309,8 @@ namespace TreeStore.PsModule.Test.PathNodes
 
         #region IRemoveItem
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void TagNode_removes_itself(bool recurse)
+        [Fact]
+        public void TagNode_removes_itself()
         {
             // ARRANGE
 
@@ -321,9 +320,13 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Setup(c => c.Persistence)
                 .Returns(this.PersistenceMock.Object);
 
-            this.ProviderContextMock
-                .Setup(p => p.Recurse)
-                .Returns(recurse);
+            this.PersistenceMock
+                .Setup(p => p.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByTag(tag))
+                .Returns(Enumerable.Empty<Entity>());
 
             this.PersistenceMock
                 .Setup(m => m.Tags)
@@ -344,7 +347,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ARRANGE
 
-            var tag = DefaultTag(WithoutProperty);
+            var tag = DefaultTag(WithDefaultProperty);
 
             this.ProviderContextMock
                 .Setup(c => c.Persistence)
@@ -353,6 +356,14 @@ namespace TreeStore.PsModule.Test.PathNodes
             this.ProviderContextMock
                 .Setup(p => p.Recurse)
                 .Returns(true);
+
+            this.PersistenceMock
+                .Setup(p => p.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByTag(tag))
+                .Returns(Enumerable.Empty<Entity>());
 
             this.PersistenceMock
                 .Setup(m => m.Tags)
@@ -365,10 +376,6 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ACT
 
             new TagNode(tag).RemoveItem(this.ProviderContextMock.Object, "t");
-
-            // ASSERT
-
-            Assert.Empty(tag.Facet.Properties);
         }
 
         [Fact]
@@ -382,6 +389,18 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Setup(p => p.Recurse)
                 .Returns(false);
 
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.PersistenceMock
+                .Setup(p => p.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByTag(tag))
+                .Returns(Enumerable.Empty<Entity>());
+
             // ACT
 
             new TagNode(tag).RemoveItem(this.ProviderContextMock.Object, "t");
@@ -389,6 +408,75 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ASSERT
 
             Assert.Single(tag.Facet.Properties);
+        }
+
+        [Fact]
+        public void TagNode_removing_itself_fails_if_tag_is_assigned_and_has_properties()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty);
+            var entity = DefaultEntity(WithAssignedTag(tag));
+
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.ProviderContextMock
+                .Setup(p => p.Force)
+                .Returns(false);
+
+            this.ProviderContextMock
+                .Setup(p => p.WriteError(It.IsAny<ErrorRecord>()));
+
+            this.PersistenceMock
+                .Setup(p => p.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByTag(tag))
+                .Returns(entity.Yield());
+
+            // ACT
+
+            new TagNode(tag).RemoveItem(this.ProviderContextMock.Object, "t");
+        }
+
+        [Fact]
+        public void TagNode_removes_forced_tag_if_assigned_and_has_properties()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty);
+            var entity = DefaultEntity(WithAssignedTag(tag));
+
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.ProviderContextMock
+                .Setup(p => p.Force)
+                .Returns(true);
+
+            this.PersistenceMock
+                .Setup(p => p.Tags)
+                .Returns(this.TagRepositoryMock.Object);
+
+            this.TagRepositoryMock
+                .Setup(r => r.Delete(tag))
+                .Returns(true);
+
+            this.PersistenceMock
+                .Setup(p => p.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByTag(tag))
+                .Returns(entity.Yield());
+
+            // ACT
+
+            new TagNode(tag).RemoveItem(this.ProviderContextMock.Object, "t");
         }
 
         #endregion IRemoveItem

@@ -121,6 +121,10 @@ namespace TreeStore.PsModule.Test.PathNodes
                 .Returns(this.PersistenceMock.Object);
 
             this.ProviderContextMock
+                .Setup(p => p.Force)
+                .Returns(false);
+
+            this.ProviderContextMock
                 .Setup(p => p.Recurse)
                 .Returns(recurse);
 
@@ -145,8 +149,12 @@ namespace TreeStore.PsModule.Test.PathNodes
             var entity = DefaultEntity(WithAssignedDefaultTag);
 
             this.ProviderContextMock
-              .Setup(c => c.Persistence)
-              .Returns(this.PersistenceMock.Object);
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.ProviderContextMock
+                .Setup(p => p.Force)
+                .Returns(false);
 
             this.ProviderContextMock
                 .Setup(p => p.Recurse)
@@ -173,8 +181,65 @@ namespace TreeStore.PsModule.Test.PathNodes
             var entity = DefaultEntity(WithAssignedDefaultTag);
 
             this.ProviderContextMock
+                .Setup(p => p.Force)
+                .Returns(false);
+
+            this.ProviderContextMock
                 .Setup(p => p.Recurse)
                 .Returns(false);
+
+            // ACT
+
+            new EntityNode(entity).RemoveItem(this.ProviderContextMock.Object, "t");
+        }
+
+        [Fact]
+        public void EntityNode_removes_itself_with_assigned_tags_and_data()
+        {
+            var entity = DefaultEntity(WithAssignedDefaultTag);
+            entity.SetFacetProperty(entity.Tags.Single().Facet.Properties.Single(), "data");
+
+            this.ProviderContextMock
+              .Setup(c => c.Persistence)
+              .Returns(this.PersistenceMock.Object);
+
+            this.ProviderContextMock
+                .Setup(p => p.Force)
+                .Returns(false);
+
+            this.ProviderContextMock
+                .Setup(p => p.Recurse)
+                .Returns(true);
+
+            this.ProviderContextMock
+                .Setup(p => p.Force)
+                .Returns(true);
+
+            this.PersistenceMock
+                .Setup(m => m.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.Delete(entity))
+                .Returns(true);
+
+            // ACT
+
+            new EntityNode(entity).RemoveItem(this.ProviderContextMock.Object, "t");
+        }
+
+        [Fact]
+        public void EntityNode_removing_itself_with_assigned_tags_and_data_fails_if_not_forced()
+        {
+            var entity = DefaultEntity(WithAssignedDefaultTag);
+            entity.SetFacetProperty(entity.Tags.Single().Facet.Properties.Single(), "data");
+
+            this.ProviderContextMock
+                .Setup(p => p.Force)
+                .Returns(false);
+
+            this.ProviderContextMock
+                .Setup(p => p.WriteError(It.IsAny<ErrorRecord>()));
 
             // ACT
 

@@ -101,7 +101,21 @@ namespace TreeStore.PsModule.PathNodes
 
         public void RemoveItem(IProviderContext providerContext, string path)
         {
-            this.entity.Tags.Remove(this.assignedTag);
+            if (!providerContext.Force)
+            {
+                if (this.assignedTag.Facet.Properties.Any(p => this.entity.Values.ContainsKey(p.Id.ToString())))
+                {
+                    providerContext.WriteError(
+                       new ErrorRecord(new InvalidOperationException($"Can't delete assigned tag(name='{this.assignedTag.Name}'): Its properties have values. Use -Force to delete anyway."),
+                           errorId: "PropertyHasData",
+                           errorCategory: ErrorCategory.InvalidOperation,
+                           targetObject: this.GetItem(providerContext)));
+
+                    return;
+                }
+            }
+
+            this.entity.RemoveTag(this.assignedTag);
             providerContext.Persistence().Entities.Upsert(this.entity);
         }
 

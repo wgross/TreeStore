@@ -194,8 +194,8 @@ namespace TreeStore.Model.Test
 
             this.multiTagQuery.Add(queryTag);
 
-            entity1.Tags.Remove(queryTag);
-            relationship.Tags.Remove(queryTag);
+            entity1.RemoveTag(queryTag);
+            relationship.RemoveTag(queryTag);
 
             // ACT
 
@@ -264,8 +264,8 @@ namespace TreeStore.Model.Test
             // ACT
             // Remove one query tag from entity and relationship to change their tagging
 
-            entity1.Tags.Remove(queryTag1);
-            relationship.Tags.Remove(queryTag1);
+            entity1.RemoveTag(queryTag1);
+            relationship.RemoveTag(queryTag1);
 
             var result_entity_removed = new List<Guid>();
             this.multiTagQuery.EntityRemoved = result_entity_removed.Add;
@@ -404,10 +404,10 @@ namespace TreeStore.Model.Test
             // ACT
             // Remove both tags from entity and relationship
 
-            entity1.Tags.Remove(queryTag1);
-            entity1.Tags.Remove(queryTag2);
-            relationship.Tags.Remove(queryTag1);
-            relationship.Tags.Remove(queryTag2);
+            entity1.RemoveTag(queryTag1);
+            entity1.RemoveTag(queryTag2);
+            relationship.RemoveTag(queryTag1);
+            relationship.RemoveTag(queryTag2);
 
             var result_entity = new List<Guid>();
             this.multiTagQuery.EntityRemoved = result_entity.Add;
