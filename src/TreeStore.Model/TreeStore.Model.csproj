@@ -8,6 +8,10 @@
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <OldToolsVersion>2.0</OldToolsVersion>
+    <Version>0.0.1</Version>
+    <Company>github/wgross</Company>
+    <Authors>github/wgross</Authors>
+    <Product>TreeStore</Product>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Elementary.Hierarchy" Version="2.1.1-alpha3" />

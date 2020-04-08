@@ -8,6 +8,9 @@
     <ApplicationIcon />
     <StartupObject />
     <AssemblyName>TreeStore</AssemblyName>
+    <Version>0.0.1</Version>
+    <Company>github.com/wgross</Company>
+    <Authors>github.com/wgross</Authors>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="PowerShellStandard.Library" Version="5.1.0" />
