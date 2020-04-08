@@ -13,10 +13,11 @@
 [CmdletBinding()]
 param(
     [Parameter(Position=0)]
+    [ValidateSet($null,"psgallery")]
     [string]$Target,
 
     [Parameter()]
-    [ValidateRange("Debug","Release")]
+    [ValidateSet("Debug","Release")]
     [string]$BuildConfiguration = "Debug",
 
     [Parameter()]
@@ -29,9 +30,16 @@ param(
 
 # make the dotnet cmdlets available by default
 Import-Module -Name dotnet-cli-publish
+Import-Module -Name PowerShellGet
 
 # react to the publish target
 switch($Target) {
+    "psgallery" {
+        if($null -eq $NuGetApiKey) { throw "Nuget api key missing" }
+
+        PowerShellGet\Publish-Module -Path $PSScriptRoot\TreeStore -NuGetApiKey $NuGetApiKey -Verbose
+    }
+        
     default {
         # publish the module
         $params =@{
