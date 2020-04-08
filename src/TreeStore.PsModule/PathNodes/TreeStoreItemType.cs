@@ -1,6 +1,6 @@
 ﻿namespace TreeStore.PsModule.PathNodes
 {
-    public enum KosmographItemType
+    public enum TreeStoreItemType
     {
         Entity,
         Tag,

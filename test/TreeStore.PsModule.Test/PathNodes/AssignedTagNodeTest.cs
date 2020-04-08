@@ -1,8 +1,9 @@
-﻿using TreeStore.Model;
-using TreeStore.PsModule.PathNodes;
+﻿using Moq;
 using System;
 using System.Linq;
 using System.Management.Automation;
+using TreeStore.Model;
+using TreeStore.PsModule.PathNodes;
 using Xunit;
 
 namespace TreeStore.PsModule.Test.PathNodes
@@ -12,177 +13,62 @@ namespace TreeStore.PsModule.Test.PathNodes
         #region P2F node structure
 
         [Fact]
-        public void AssignedTagNode_has_name_and_ItemMode()
+        public void AssignedTagNode_has_name_and_IsContainer()
         {
             // ARRANGE
 
-            var e = DefaultEntity(WithDefaultTag);
+            var e = DefaultEntity(WithAssignedDefaultTag);
 
             // ACT
 
-            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single());
+            var result = new AssignedTagNode(e, e.Tags.Single());
 
             // ASSERT
 
             Assert.Equal("t", result.Name);
-            Assert.Equal("+", result.ItemMode);
-        }
-
-        [Fact]
-        public void AssignedTagNode_provides_Value()
-        {
-            // ARRANGE
-
-            var e = DefaultEntity(WithDefaultTag);
-
-            // ACT
-
-            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).GetItemProvider();
-
-            // ASSERT
-
-            Assert.Equal("t", result.Name);
-            Assert.True(result.IsContainer);
-        }
-
-        [Fact]
-        public void AssignedTagNode_retrieves_assigned_facet_properties_as_child_nodes()
-        {
-            // ARRANGE
-
-            var e = DefaultEntity(WithDefaultTag);
-
-            // ACT
-
-            var node = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single());
-            var result = node.GetChildNodes(this.ProviderContextMock.Object);
-
-            // ASSERT
-
-            Assert.Single(result);
+            Assert.False(result.IsContainer);
         }
 
         #endregion P2F node structure
 
-        #region IGetItemProperties
+        #region IGetItem
 
         [Fact]
-        public void AssignedTagNode_provides_assigned_properties_with_values()
+        public void AssignedTagNode_provides_Item()
         {
             // ARRANGE
 
-            var e = DefaultEntity(WithDefaultTag);
-            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), 1);
+            var e = DefaultEntity(WithAssignedDefaultTag);
+            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), "1");
 
             // ACT
 
-            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).GetItemProvider().GetItemProperties(propertyNames: null);
+            var result = new AssignedTagNode(e, e.Tags.Single()).GetItem(this.ProviderContextMock.Object);
 
             // ASSERT
 
-            Assert.Equal("p", result.Single().Name);
-            Assert.Equal(1, result.Single().Value);
+            Assert.Equal(e.Tags.Single().Id, result.Property<Guid>("Id"));
+            Assert.Equal("t", result.Property<string>("Name"));
+            Assert.Equal(TreeStoreItemType.AssignedTag, result.Property<TreeStoreItemType>("ItemType"));
+            Assert.Equal("1", result.Property<string>("p"));
+            //todo: properties // Assert.Equal("p", result.Property<string[]>("Properties").Single());
+            Assert.IsType<AssignedTagNode.Item>(result.ImmediateBaseObject);
         }
+
+        #endregion IGetItem
+
+        #region IRemoveItem
 
         [Fact]
-        public void AssignedTagNode_provides_single_assigned_property_with_value()
+        public void AssignedTagNode_removes_itself()
         {
             // ARRANGE
 
-            var e = DefaultEntity(WithDefaultTag);
-            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), 1);
-
-            // ACT
-
-            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).GetItemProvider().GetItemProperties(propertyNames: new[] { "p" });
-
-            // ASSERT
-
-            Assert.Equal("p", result.Single().Name);
-            Assert.Equal(1, result.Single().Value);
-        }
-
-        [Fact]
-        public void AssignedTagNode_provides_assigned_properties_without_value()
-        {
-            // ARRANGE
-
-            var e = DefaultEntity(WithDefaultTag);
-
-            // ACT
-
-            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).GetItemProvider().GetItemProperties(propertyNames: null);
-
-            // ASSERT
-
-            Assert.Equal("p", result.Single().Name);
-            Assert.Null(result.Single().Value);
-        }
-
-        #endregion IGetItemProperties
-
-        [Theory]
-        [InlineData("p")]
-        [InlineData("P")]
-        public void AssignedTageNode_resolves_property_name_as_AssignedFacetPropertyNode(string name)
-        {
-            // ARRANGE
-
-            var e = DefaultEntity(WithDefaultTag);
+            var e = DefaultEntity(WithAssignedDefaultTag);
 
             this.ProviderContextMock
-                .Setup(p => p.Persistence)
-                .Returns(this.PersistenceMock.Object);
-
-            // ACT
-
-            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).Resolve(this.ProviderContextMock.Object, name).Single();
-
-            // ASSERT
-
-            Assert.IsType<AssignedFacetPropertyNode>(result);
-        }
-
-        [Fact]
-        public void AssignedTagNode_resolves_unkown_property_name_as_empty_result()
-        {
-            // ARRANGE
-
-            var e = DefaultEntity(WithDefaultTag);
-
-            // ACT
-
-            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).Resolve(this.ProviderContextMock.Object, "unknown");
-
-            // ASSERT
-
-            Assert.Empty(result);
-        }
-
-        [Fact]
-        public void AssignedTagNode_resolves_null_tag_name_as_all_child_nodes()
-        {
-            // ARRANGE
-
-            var e = DefaultEntity(WithDefaultTag);
-
-            // ACT
-
-            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).Resolve(this.ProviderContextMock.Object, null);
-
-            // ASSERT
-
-            Assert.Single(result);
-        }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void AssignedTagNode_removes_itself(bool recurse)
-        {
-            // ARRANGE
-
-            var e = DefaultEntity(WithDefaultTag);
+                .Setup(p => p.Force)
+                .Returns(true);
 
             this.ProviderContextMock
                 .Setup(p => p.Persistence)
@@ -198,22 +84,23 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var node = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single());
-            node.RemoveItem(this.ProviderContextMock.Object, "t", recurse);
+            new AssignedTagNode(e, e.Tags.Single()).RemoveItem(this.ProviderContextMock.Object, "t");
 
             // ARRANGE
 
             Assert.Empty(e.Tags);
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void AssignedTagNode_removes_itself_with_values(bool recurse)
+        [Fact]
+        public void AssignedTagNode_removes_itself_with_values()
         {
             // ARRANGE
 
-            var e = DefaultEntity(WithDefaultTag, WithDefaultPropertySet(value: "test"));
+            var e = DefaultEntity(WithAssignedDefaultTag, WithDefaultPropertySet(value: "test"));
+
+            this.ProviderContextMock
+               .Setup(p => p.Force)
+               .Returns(true);
 
             this.ProviderContextMock
                 .Setup(p => p.Persistence)
@@ -229,40 +116,112 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var node = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single());
-            node.RemoveItem(this.ProviderContextMock.Object, "t", recurse);
+            new AssignedTagNode(e, e.Tags.Single()).RemoveItem(this.ProviderContextMock.Object, "t");
 
             // ARRANGE
             // property values aren't child items.
 
             Assert.Empty(e.Tags);
+            Assert.Empty(e.Values);
         }
 
         [Fact]
-        public void AssignedTagNodeValue_provides_Item()
+        public void AssignedTagNode_removing_itself_with_properties_have_values_if_not_forced()
         {
-            // ARRANGE
+            var entity = DefaultEntity(WithAssignedDefaultTag, WithDefaultPropertySet(value: "test"));
 
-            var e = DefaultEntity(WithDefaultTag);
+            this.ProviderContextMock
+                .Setup(p => p.Force)
+                .Returns(false);
+
+            this.ProviderContextMock
+                .Setup(p => p.WriteError(It.IsAny<ErrorRecord>()));
 
             // ACT
 
-            var result = new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).GetItemProvider().GetItem() as AssignedTagNode.Item;
-
-            // ASSERT
-
-            Assert.NotNull(result);
-            Assert.Equal(e.Tags.Single().Name, result!.Name);
-            Assert.Equal(e.Tags.Single().Id, result!.Id);
-            Assert.Equal(KosmographItemType.AssignedTag, result!.ItemType);
+            new AssignedTagNode(entity, entity.Tags.Single()).RemoveItem(this.ProviderContextMock.Object, "t");
         }
 
+        #endregion IRemoveItem
+
+        #region IGetItemProperties
+
         [Fact]
-        public void AssignedTagNodeValue_sets_facet_property_value()
+        public void AssignedTagNode_retrieves_properties_with_values()
         {
             // ARRANGE
 
-            var e = DefaultEntity(WithDefaultTag);
+            var e = DefaultEntity(WithAssignedDefaultTag);
+            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), "1");
+
+            // ACT
+
+            var result = new AssignedTagNode(e, e.Tags.Single()).GetItemProperties(this.ProviderContextMock.Object, propertyNames: Enumerable.Empty<string>());
+
+            // ASSERT
+
+            //todo: properties //Assert.Equal(new[] { "p", "Name", "ItemType", "Properties" }, result.Select(p => p.Name));
+            Assert.Equal(new[] { "p", "Id", "Name", "ItemType" }, result.Select(p => p.Name));
+            //todo: properties Assert.Equal(new object[] { "1", "t", TreeStoreItemType.AssignedTag, new string[] { "p" } }, result.Select(p => p.Value));
+            Assert.Equal(new object[] { "1", e.Tags.Single().Id, "t", TreeStoreItemType.AssignedTag }, result.Select(p => p.Value));
+        }
+
+        [Theory]
+        [InlineData("NAME")]
+        [InlineData("P")]
+        public void AssignedTagNode_retrieves_specified_property_with_value(string propertyName)
+        {
+            // ARRANGE
+
+            var e = DefaultEntity(WithAssignedDefaultTag);
+            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), "1");
+
+            // ACT
+
+            var result = new AssignedTagNode(e, e.Tags.Single()).GetItemProperties(this.ProviderContextMock.Object, propertyNames: new[] { propertyName });
+
+            // ASSERT
+
+            Assert.Single(result);
+        }
+
+        [Fact]
+        public void AssignedTagNode_rertrieving_property_provides_parameter_with_completer()
+        {
+            // ARRANGE
+
+            var e = DefaultEntity(WithAssignedDefaultTag);
+
+            // ACT
+
+            var result = (RuntimeDefinedParameterDictionary)new AssignedTagNode(e, e.Tags.Single()).GetItemPropertyParameters;
+
+            // ASSERT
+
+            Assert.True(result.TryGetValue("TreeStorePropertyName", out var parameter));
+            Assert.Single(parameter!.Attributes.Where(a => a.GetType().Equals(typeof(ParameterAttribute))));
+
+            var resultValidateSet = (ValidateSetAttribute)parameter!.Attributes.Single(a => a.GetType().Equals(typeof(ValidateSetAttribute)));
+
+            Assert.Equal(new[] { "p", "Name" }, resultValidateSet.ValidValues);
+        }
+
+        #endregion IGetItemProperties
+
+        #region ISetItemProperties
+
+        [Theory]
+        [InlineData("p")]
+        [InlineData("P")]
+        public void AssignedTagNode_sets_facet_property_value(string propertyName)
+        {
+            // ARRANGE
+
+            var e = DefaultEntity(WithAssignedDefaultTag);
+
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
 
             this.PersistenceMock
                 .Setup(p => p.Entities)
@@ -274,42 +233,66 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).GetItemProvider().SetItemProperties(new PSNoteProperty("p", 2).Yield());
+            new AssignedTagNode(e, e.Tags.Single())
+                .SetItemProperties(this.ProviderContextMock.Object, new PSNoteProperty(propertyName, "2").Yield());
 
             // ASSERT
 
-            Assert.Equal(2, e.TryGetFacetProperty(e.Tags.Single().Facet.Properties.Single()).value);
+            Assert.Equal("2", e.TryGetFacetProperty(e.Tags.Single().Facet.Properties.Single()).value);
         }
 
         [Fact]
-        public void AssignedTagNodeValue_setting_facet_property_value_rejects_wrong_type()
+        public void AssignedTagNode_setting_facet_property_value_rejects_wrong_type()
         {
             // ARRANGE
 
-            var e = DefaultEntity(WithDefaultTag, e => e.Tags.Single().Facet.Properties.Single().Type = FacetPropertyTypeValues.Bool);
+            var e = DefaultEntity(WithAssignedDefaultTag, e => e.Tags.Single().Facet.Properties.Single().Type = FacetPropertyTypeValues.Bool);
 
             // ACT
 
             var result = Assert.Throws<InvalidOperationException>(
-                () => new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single()).GetItemProvider().SetItemProperties(new PSNoteProperty("p", 2).Yield()));
+                () => new AssignedTagNode(e, e.Tags.Single()).SetItemProperties(this.ProviderContextMock.Object, new PSNoteProperty("p", 2).Yield()));
 
             // ASSERT
 
             Assert.NotNull(result);
-            Assert.Null(e.TryGetFacetProperty(e.Tags.Single().Facet.Properties.Single()).value);
+            Assert.False(e.TryGetFacetProperty(e.Tags.Single().Facet.Properties.Single()).hasValue);
         }
 
-        #region ClearItemProperty
+        [Fact]
+        public void AssignedTagNode_setting_facet_property_provides_parameter_with_completer()
+        {
+            // ARRANGE
+
+            var e = DefaultEntity(WithAssignedDefaultTag);
+
+            // ACT
+
+            var result = (RuntimeDefinedParameterDictionary)new AssignedTagNode(e, e.Tags.Single()).SetItemPropertyParameters;
+
+            // ASSERT
+
+            Assert.True(result.TryGetValue("TreeStorePropertyName", out var parameter));
+            Assert.Single(parameter!.Attributes.Where(a => a.GetType().Equals(typeof(ParameterAttribute))));
+
+            var resultValidateSet = (ValidateSetAttribute)parameter!.Attributes.Single(a => a.GetType().Equals(typeof(ValidateSetAttribute)));
+
+            Assert.Equal("p", resultValidateSet.ValidValues.Single());
+        }
+
+        #endregion ISetItemProperties
+
+        #region IClearItemProperty
 
         [Theory]
         [InlineData("p")]
         [InlineData("P")]
-        public void ÁssignedTagNode_clears_assigned_tag_properties_by_name(string propertyName)
+        public void AssignedTagNode_clears_facet_property_value(string propertyName)
         {
             // ARRANGE
 
-            var e = DefaultEntity(WithDefaultTag);
-            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), 1);
+            var e = DefaultEntity(WithAssignedDefaultTag);
+            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), "1");
 
             this.ProviderContextMock
                 .Setup(c => c.Persistence)
@@ -325,7 +308,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single())
+            new AssignedTagNode(e, e.Tags.Single())
                 .ClearItemProperty(this.ProviderContextMock.Object, propertyName.Yield());
 
             // ASSERT
@@ -334,16 +317,16 @@ namespace TreeStore.PsModule.Test.PathNodes
         }
 
         [Fact]
-        public void AssignedTagNode_clearing_assigned_tag_properties_ignores_unknown_name()
+        public void AssignedTagNode_clearing_facet_property_value_ignores_unknown_name()
         {
             // ARRANGE
 
-            var e = DefaultEntity(WithDefaultTag);
-            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), 1);
+            var e = DefaultEntity(WithAssignedDefaultTag);
+            e.SetFacetProperty(e.Tags.Single().Facet.Properties.Single(), "1");
 
             // ACT
 
-            new AssignedTagNode(this.PersistenceMock.Object, e, e.Tags.Single())
+            new AssignedTagNode(e, e.Tags.Single())
                 .ClearItemProperty(this.ProviderContextMock.Object, "unknown".Yield());
 
             // ASSERT
@@ -351,6 +334,66 @@ namespace TreeStore.PsModule.Test.PathNodes
             Assert.Single(e.Values);
         }
 
-        #endregion ClearItemProperty
+        [Fact]
+        public void AssignedTagNode_clearing_facet_property_provides_parameter_with_completer()
+        {
+            // ARRANGE
+
+            var e = DefaultEntity(WithAssignedDefaultTag);
+
+            // ACT
+
+            var result = (RuntimeDefinedParameterDictionary)new AssignedTagNode(e, e.Tags.Single()).ClearItemPropertyParameters;
+
+            // ASSERT
+
+            Assert.True(result.TryGetValue("TreeStorePropertyName", out var parameter));
+            Assert.Single(parameter!.Attributes.Where(a => a.GetType().Equals(typeof(ParameterAttribute))));
+
+            var resultValidateSet = (ValidateSetAttribute)parameter!.Attributes.Single(a => a.GetType().Equals(typeof(ValidateSetAttribute)));
+
+            Assert.Equal("p", resultValidateSet.ValidValues.Single());
+        }
+
+        #endregion IClearItemProperty
+
+        #region ToFormattedString
+
+        [Fact]
+        public void AssignedTagNode_provides_formatted_string_view()
+        {
+            // ARRANGE
+
+            var e = DefaultEntity(
+                e => e.Id = Guid.Parse("4faacbce-d42d-4b3c-9a5f-706533d731ed"),
+                WithAssignedTag(DefaultTag(
+                    t => t.Name = "long_tag_name",
+                    WithDefaultProperty,
+                    WithProperty("long_property_name", FacetPropertyTypeValues.Long),
+                    WithProperty("no_value", FacetPropertyTypeValues.DateTime)
+                )));
+
+            e.SetFacetProperty("long_tag_name", "p", "test");
+            e.SetFacetProperty("long_tag_name", "long_property_name", 1);
+
+            var item = (AssignedTagNode.Item)new AssignedTagNode(e, e.Tags.Single()).GetItem(this.ProviderContextMock.Object).ImmediateBaseObject;
+
+            // ACT
+
+            var result = item.ToFormattedString();
+
+            // ASSERT
+
+            Assert.Equal(FormattedEntity, result);
+        }
+
+        public string FormattedEntity =>
+@"long_tag_name
+  p                  : test
+  long_property_name : 1
+  no_value           : <no value>
+";
+
+        #endregion ToFormattedString
     }
 }

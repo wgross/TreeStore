@@ -1,7 +1,8 @@
-﻿using TreeStore.Model;
-using Moq;
-using TreeStore.PsModule.PathNodes;
+﻿using Moq;
+using System;
 using System.Linq;
+using TreeStore.Model;
+using TreeStore.PsModule.PathNodes;
 using Xunit;
 
 namespace TreeStore.PsModule.Test.PathNodes
@@ -18,7 +19,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         #region P2F node structure
 
         [Fact]
-        public void TagsNode_has_name_and_ItemMode()
+        public void TagsNode_provides_Name_and_IsContainer()
         {
             // ACT
 
@@ -27,39 +28,34 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ASSERT
 
             Assert.Equal("Tags", result.Name);
-            Assert.Equal("+", result.ItemMode);
-        }
-
-        [Fact]
-        public void TagsNode_provides_Value()
-        {
-            // ACT
-
-            var result = new TagsNode().GetItemProvider();
-
-            // ASSERT
-
-            Assert.Equal("Tags", result.Name);
             Assert.True(result.IsContainer);
         }
+
+        #endregion P2F node structure
+
+        #region IGetItem
 
         [Fact]
         public void TagsNodeValue_provides_Item()
         {
             // ACT
 
-            var result = new TagsNode().GetItemProvider().GetItem() as TagsNode.Item;
+            var result = new TagsNode().GetItem(this.ProviderContextMock.Object);
 
             // ASSERT
 
-            Assert.Equal("Tags", result!.Name);
-            Assert.NotNull(result);
+            Assert.IsType<TagsNode.Item>(result.ImmediateBaseObject);
+
+            var resultValue = (TagsNode.Item)result.ImmediateBaseObject;
+
+            Assert.Equal("Tags", resultValue.Name);
         }
 
-        #endregion P2F node structure
+        #endregion IGetItem
+
+        #region IGetChildItems
 
         [Fact]
-
         public void TagsNode_retrieves_Tags_as_child_nodes()
         {
             // ARRANGE
@@ -114,6 +110,8 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             Assert.IsType<TagNode>(result.Single());
         }
+
+        #endregion IGetChildItems
 
         [Fact]
         public void TagsNode_retrieves_TagNode_by_name()
@@ -171,6 +169,8 @@ namespace TreeStore.PsModule.Test.PathNodes
             Assert.Empty(result);
         }
 
+        #region INewItem
+
         [Fact]
         public void TagsNode_provides_NewItemTypeNames()
         {
@@ -186,7 +186,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         [Theory]
         [InlineData(null)]
         [InlineData("Tag")]
-        public void TagsNode_creates_TagNodeValue(string itemTypeName)
+        public void TagsNode_creates_Tag(string itemTypeName)
         {
             // ARRANGE
 
@@ -205,11 +205,31 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ACT
 
             var result = new TagsNode()
-                .NewItem(this.ProviderContextMock.Object, newItemChildPath: @"Tags\t", itemTypeName: itemTypeName, newItemValue: null);
+                .NewItem(this.ProviderContextMock.Object, newItemChildPath: "t", itemTypeName: itemTypeName, newItemValue: null);
 
             // ASSERT
 
-            Assert.IsType<TagNode.ItemProvider>(result);
+            Assert.IsType<TagNode>(result);
         }
+
+        [Theory]
+        [MemberData(nameof(InvalidNameChars))]
+        public void TagsNode_creating_Tag_rejects_invalid_characters(char invalidChar)
+        {
+            // ARRAMGE
+
+            var invalidName = new string(@"Tags\t".ToCharArray().Append(invalidChar).ToArray());
+
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(() => new TagsNode()
+                .NewItem(this.ProviderContextMock.Object, newItemChildPath: invalidName, itemTypeName: null, newItemValue: null));
+
+            // ASSERT
+
+            Assert.Equal($"tag(name='{invalidName}' wasn't created: it contains invalid characters", result.Message);
+        }
+
+        #endregion INewItem
     }
 }

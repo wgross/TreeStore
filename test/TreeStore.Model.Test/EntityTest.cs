@@ -183,11 +183,29 @@ namespace TreeStore.Model.Test
 
             // ACT
 
-            entity.SetFacetProperty(entity.Facets().Single().Properties.Single(), 1);
+            entity.SetFacetProperty(entity.Facets().Single().Properties.Single(), "1");
 
             // ASSERT
 
-            Assert.Equal(1, entity.TryGetFacetProperty(facet.Properties.Single()).value);
+            Assert.Equal("1", entity.TryGetFacetProperty(facet.Properties.Single()).value);
+        }
+
+        [Fact]
+        public void Entity_setting_value_of_FacetProperty_fails_on_wrong_type()
+        {
+            // ARRANGE
+
+            var facet = new Facet("facet", new FacetProperty("name"));
+            var tag = new Tag("tag", facet);
+            var entity = new Entity("e", tag);
+
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(() => entity.SetFacetProperty(entity.Facets().Single().Properties.Single(), 1));
+
+            // ASSERT
+
+            Assert.Equal($"property(name='name') doesn't accept value of type {typeof(int)}", result.Message);
         }
 
         [Fact]
@@ -210,6 +228,25 @@ namespace TreeStore.Model.Test
         }
 
         [Fact]
+        public void Entity_repves_Tag_with_assigned_values()
+        {
+            // ARRANGE
+
+            var facet = new Facet("facet", new FacetProperty("name"));
+            var tag = new Tag("tag", facet);
+            var entity = new Entity("e", tag);
+            entity.SetFacetProperty(entity.Facets().Single().Properties.Single(), "1");
+
+            // ACT
+
+            entity.RemoveTag(tag);
+
+            // ASSERT
+
+            Assert.Empty(entity.Values);
+        }
+
+        [Fact]
         public void Entity_clones_with_new_id()
         {
             // ARRANGE
@@ -218,7 +255,7 @@ namespace TreeStore.Model.Test
             var tag = new Tag("tag", facet);
             var entity = new Entity();
             entity.AddTag(tag);
-            entity.SetFacetProperty(entity.Facets().Single().Properties.Single(), 1);
+            entity.SetFacetProperty(entity.Facets().Single().Properties.Single(), "1");
 
             // ACT
 

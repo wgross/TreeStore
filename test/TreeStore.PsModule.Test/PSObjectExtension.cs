@@ -13,10 +13,8 @@ namespace TreeStore.PsModule.Test
         public static bool PropertyContains(this PSObject obj, string name)
             => obj.Properties.Any(p => p.Name.Equals(name, System.StringComparison.OrdinalIgnoreCase));
 
-        public static object Property(this PSObject obj, string name)
-            => obj.Properties[name].Value;
+        public static object Property(this PSObject obj, string name) => obj.Properties[name].Value;
 
-        public static V Property<V>(this PSObject obj, string name)
-            => (V)obj.Properties[name].Value;
+        public static V Property<V>(this PSObject obj, string name) => (V)obj.Properties[name].Value;
     }
 }

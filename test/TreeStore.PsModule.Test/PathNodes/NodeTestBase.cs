@@ -1,8 +1,9 @@
-﻿using TreeStore.LiteDb;
-using TreeStore.Model;
-using Moq;
+﻿using Moq;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using TreeStore.LiteDb;
+using TreeStore.Model;
 
 namespace TreeStore.PsModule.Test.PathNodes
 {
@@ -30,6 +31,8 @@ namespace TreeStore.PsModule.Test.PathNodes
         }
 
         public void Dispose() => this.Mocks.VerifyAll();
+
+        public static IEnumerable<object[]> InvalidNameChars => System.IO.Path.GetInvalidFileNameChars().Select(c => new object[] { c });
 
         #region Default Tag
 
@@ -64,7 +67,9 @@ namespace TreeStore.PsModule.Test.PathNodes
             return tmp;
         }
 
-        protected void WithDefaultTag(Entity entity) => entity.Tags.Add(DefaultTag(WithDefaultProperty));
+        protected void WithAssignedDefaultTag(Entity entity) => entity.Tags.Add(DefaultTag(WithDefaultProperty));
+
+        protected Action<Entity> WithAssignedTag(Tag tag) => e => e.Tags.Add(tag);
 
         protected Action<Entity> WithDefaultPropertySet<V>(V value)
             => e => e.SetFacetProperty(e.Tags.First().Facet.Properties.First(), value);
@@ -116,7 +121,6 @@ namespace TreeStore.PsModule.Test.PathNodes
 
         protected static void AsRoot(Category category)
         {
-            category.Id = CategoryRepository.CategoryRootId;
             category.Parent = null;
             category.Name = string.Empty;
         }

@@ -1,7 +1,7 @@
-using TreeStore.Model.Base;
 using LiteDB;
 using System;
 using System.IO;
+using TreeStore.Model.Base;
 using Xunit;
 
 namespace TreeStore.LiteDb.Test
@@ -10,7 +10,7 @@ namespace TreeStore.LiteDb.Test
     {
         private readonly LiteRepository database;
         private readonly LiteDbRepositoryBase<TestEntity> repository;
-        private readonly LiteCollection<TestEntity> entities;
+        private readonly ILiteCollection<TestEntity> entities;
 
         private class TestEntity : NamedBase
         {
@@ -27,6 +27,8 @@ namespace TreeStore.LiteDb.Test
             public TestRepository(LiteRepository db)
                 : base(db, "entities")
             { }
+
+            protected override ILiteCollection<TestEntity> IncludeRelated(ILiteCollection<TestEntity> from) => from;
         }
 
         public LiteDbRepositoryTest()

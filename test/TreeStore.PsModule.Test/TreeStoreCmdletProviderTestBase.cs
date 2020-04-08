@@ -165,7 +165,6 @@ namespace TreeStore.PsModule.Test
 
         protected static void AsRoot(Category category)
         {
-            category.Id = CategoryRepository.CategoryRootId;
             category.Name = "";
             category.Parent = null;
         }

@@ -102,7 +102,6 @@ namespace TreeStore.LiteDb.Test
             Assert.True(result);
             Assert.Null(this.CategoryRepository.FindById(category.Id));
             Assert.Null(this.CategoryRepository.FindById(subCategory.Id));
-            Assert.Empty(this.CategoryRepository.Root().SubCategories);
         }
 
         [Fact]

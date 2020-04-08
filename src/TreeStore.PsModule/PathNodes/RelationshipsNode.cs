@@ -2,26 +2,24 @@
 using CodeOwls.PowerShell.Provider.PathNodeProcessors;
 using System;
 using System.Collections.Generic;
+using System.Management.Automation;
 
 namespace TreeStore.PsModule.PathNodes
 {
-    public sealed class RelationshipsNode : PathNode
+    public sealed class RelationshipsNode : ContainerNode
     {
-        public sealed class ItemProvider : ContainerItemProvider
-        {
-            public ItemProvider()
-                : base(new Item(), "Relationships")
-            { }
-        }
-
         public sealed class Item
         {
             public string Name => "Relationships";
         }
 
-        public override string ItemMode => "+";
-
         public override string Name => "Relationships";
+
+        #region IGetItem
+
+        public override PSObject GetItem(IProviderContext providerContext) => PSObject.AsPSObject(new Item());
+
+        #endregion IGetItem
 
         #region IGetChildItem Members
 
@@ -30,9 +28,7 @@ namespace TreeStore.PsModule.PathNodes
             throw new NotImplementedException();
         }
 
-        #endregion
-
-        public override IItemProvider GetItemProvider() => new ItemProvider();
+        #endregion IGetChildItem Members
 
         public override IEnumerable<PathNode> Resolve(IProviderContext providerContext, string name)
         {

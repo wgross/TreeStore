@@ -1,9 +1,9 @@
-﻿using TreeStore.Messaging;
-using TreeStore.Model;
-using LiteDB;
+﻿using LiteDB;
 using Moq;
 using System;
 using System.IO;
+using TreeStore.Messaging;
+using TreeStore.Model;
 
 namespace TreeStore.LiteDb.Test
 {
@@ -55,6 +55,8 @@ namespace TreeStore.LiteDb.Test
         public static void WithoutTags(Entity entity) => entity.Tags.Clear();
 
         public static Action<Entity> WithEntityCategory(Category c) => e => e.SetCategory(c);
+
+        public static void WithoutCategory(Entity e) => e.Category = null;
 
         #endregion Default Entity
 

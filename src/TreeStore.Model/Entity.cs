@@ -55,6 +55,8 @@ namespace TreeStore.Model
 
         public object Clone() => new Entity(this.Name, this.Tags.ToArray(), this.Values);
 
+       
+
         #endregion Entity has Categories
     }
 }

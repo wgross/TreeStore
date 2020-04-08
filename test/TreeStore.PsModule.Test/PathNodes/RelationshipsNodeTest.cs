@@ -3,7 +3,7 @@ using Xunit;
 
 namespace TreeStore.PsModule.Test.PathNodes
 {
-    public class RelationshipsNodeTest
+    public class RelationshipsNodeTest : NodeTestBase
     {
         #region P2F node structure
 
@@ -17,7 +17,6 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ASSERT
 
             Assert.Equal("Relationships", result.Name);
-            Assert.Equal("+", result.ItemMode);
         }
 
         [Fact]
@@ -25,7 +24,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ACT
 
-            var result = new RelationshipsNode().GetItemProvider();
+            var result = new RelationshipsNode();
 
             // ASSERT
 
@@ -38,12 +37,15 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ACT
 
-            var result = new RelationshipsNode().GetItemProvider().GetItem() as RelationshipsNode.Item;
+            var result = new RelationshipsNode().GetItem(this.ProviderContextMock.Object);
 
             // ASSERT
 
-            Assert.Equal("Relationships", result!.Name);
-            Assert.NotNull(result);
+            Assert.IsType<RelationshipsNode.Item>(result.ImmediateBaseObject);
+
+            var resultValue = (RelationshipsNode.Item)result.ImmediateBaseObject;
+
+            Assert.Equal("Relationships", resultValue.Name);
         }
 
         #endregion P2F node structure
@@ -53,13 +55,13 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ACT
 
-            var result = new RelationshipsNode().GetItemProvider();
+            var result = new RelationshipsNode();
 
             // ASSERT
 
             Assert.Equal("Relationships", result.Name);
             Assert.True(result.IsContainer);
-            Assert.IsType<RelationshipsNode.Item>(result.GetItem());
+            Assert.IsType<RelationshipsNode.Item>(result.GetItem(this.ProviderContextMock.Object).ImmediateBaseObject);
         }
     }
 }

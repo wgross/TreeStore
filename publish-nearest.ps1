@@ -1,4 +1,3 @@
-
 <#
 .SYNOPSIS
     Generated publish file for github.com/wgross dev workflow in 'dotnet-nearest'.
@@ -11,12 +10,14 @@
 .PARAMETER FromPath
     Specifies the path from where it is called (mandatory)
 #>
+[CmdletBinding()]
 param(
     [Parameter(Position=0)]
+    [ValidateSet($null,"psgallery")]
     [string]$Target,
 
     [Parameter()]
-    [ValidateRange("Debug","Release")]
+    [ValidateSet("Debug","Release")]
     [string]$BuildConfiguration = "Debug",
 
     [Parameter()]
@@ -28,18 +29,25 @@ param(
 )    
 
 # make the dotnet cmdlets available by default
-Import-Module -Name dotnet
+Import-Module -Name dotnet-cli-publish
+Import-Module -Name PowerShellGet
 
 # react to the publish target
 switch($Target) {
+    "psgallery" {
+        if($null -eq $NuGetApiKey) { throw "Nuget api key missing" }
+
+        PowerShellGet\Publish-Module -Path $PSScriptRoot\TreeStore -NuGetApiKey $NuGetApiKey -Verbose
+    }
+        
     default {
         # publish the module
         $params =@{
-            Project = "$PSScriptRoot\src\TreeStore.PsModule\TreeStore.PsModule.csproj"
+            FullName = "$PSScriptRoot\src\TreeStore.PsModule\TreeStore.PsModule.csproj"
             Destination = "$PSScriptRoot\TreeStore"
-            BuildConfiguration = $BuildConfiguration
+            PublishConfiguration = $BuildConfiguration
         }
-        Invoke-DotNetPublish @params 
+        dotnet-cli-publish\Invoke-DotNetPublish @params -SelectProperties
         
         # create a file catalog from the publishing destination content
         # New-FileCatalog -CatalogFilePath "$PSScriptRoot\TreeStore\TreeStore.cat" -Path "$PSScriptRoot\TreeStore"

@@ -1,4 +1,5 @@
 ﻿using Moq;
+using System;
 using System.Linq;
 using System.Management.Automation;
 using TreeStore.Model;
@@ -16,12 +17,11 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ACT
 
-            var result = new TagNode(this.PersistenceMock.Object, DefaultTag());
+            var result = new TagNode(DefaultTag());
 
             // ASSERT
 
             Assert.Equal("t", result.Name);
-            Assert.Equal("+", result.ItemMode);
         }
 
         [Fact]
@@ -29,13 +29,17 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ACT
 
-            var result = new TagNode(this.PersistenceMock.Object, DefaultTag()).GetItemProvider();
+            var result = new TagNode(DefaultTag());
 
             // ASSERT
 
             Assert.Equal("t", result.Name);
             Assert.True(result.IsContainer);
         }
+
+        #endregion P2F node structure
+
+        #region IGetItem
 
         [Fact]
         public void TagNodeValue_provides_Item()
@@ -46,25 +50,25 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = new TagNode(this.PersistenceMock.Object, tag).GetItemProvider().GetItem() as TagNode.Item;
+            var result = new TagNode(tag).GetItem(this.ProviderContextMock.Object);
 
             // ASSERT
 
-            Assert.Equal("t", result!.Name);
-            Assert.Equal(tag.Id, result!.Id);
-            Assert.Equal(KosmographItemType.Tag, result!.ItemType);
-            Assert.Equal(tag.Facet.Properties.Single().Name, result!.Properties.Single().Name);
-            Assert.Equal(tag.Facet.Properties.Single().Type, result!.Properties.Single().ValueType);
+            Assert.Equal(tag.Id, result.Property<Guid>("Id"));
+            Assert.Equal(tag.Name, result.Property<string>("Name"));
+            Assert.Equal(TreeStoreItemType.Tag, result.Property<TreeStoreItemType>("ItemType"));
+            //todo: properties //Assert.Equal("p", result.Property<string[]>("Properties").Single());
+            Assert.IsType<TagNode.Item>(result.ImmediateBaseObject);
         }
 
-        #endregion P2F node structure
+        #endregion IGetItem
 
         [Fact]
         public void TagNode_resolves_null_name_as_all_child_nodes()
         {
             // ACT
 
-            var result = new TagNode(this.PersistenceMock.Object, DefaultTag()).Resolve(this.ProviderContextMock.Object, name: null);
+            var result = new TagNode(DefaultTag()).Resolve(this.ProviderContextMock.Object, name: null);
 
             // ASSERT
 
@@ -76,7 +80,7 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ACT
 
-            var result = new TagNode(this.PersistenceMock.Object, DefaultTag()).Resolve(this.ProviderContextMock.Object, name: "p");
+            var result = new TagNode(DefaultTag()).Resolve(this.ProviderContextMock.Object, name: "p");
 
             // ASSERT
 
@@ -88,33 +92,33 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ACT
 
-            var result = new TagNode(this.PersistenceMock.Object, DefaultTag()).Resolve(this.ProviderContextMock.Object, name: "unknown");
+            var result = new TagNode(DefaultTag()).Resolve(this.ProviderContextMock.Object, name: "unknown");
 
             // ASSERT
 
             Assert.Empty(result);
         }
 
-        #region IGetChildItem Members
+        #region IGetChildItem
 
         [Fact]
         public void TagNode_retrieves_FacetProperties_as_child_nodes()
         {
             // ACT
 
-            var result = new TagNode(this.PersistenceMock.Object, DefaultTag()).GetChildNodes(this.ProviderContextMock.Object);
+            var result = new TagNode(DefaultTag()).GetChildNodes(this.ProviderContextMock.Object);
 
             // ASSERT
 
             Assert.Single(result);
         }
 
-        #endregion IGetChildItem Members
+        #endregion IGetChildItem
 
         #region IGetItemProperty
 
         [Fact]
-        public void TagNode_retrieves_Csharp_properties_as_ItemProperties()
+        public void TagNode_retrieves_properties_with_values()
         {
             // ARRANGE
 
@@ -122,19 +126,18 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = new TagNode(this.PersistenceMock.Object, tag)
-                .GetItemProvider().GetItemProperties(Enumerable.Empty<string>())
-                .ToArray();
+            var result = new TagNode(tag).GetItemProperties(this.ProviderContextMock.Object, Enumerable.Empty<string>());
 
             // ASSERT
 
-            Assert.Equal(3, result.Length);
+            //todo: properties //Assert.Equal(new[] { "Name", "Id", "ItemType", "Properties" }, result.Select(p => p.Name));
+            Assert.Equal(new[] { "Name", "Id", "ItemType" }, result.Select(p => p.Name));
         }
 
         [Theory]
         [InlineData("NAME")]
         [InlineData(nameof(Tag.Name))]
-        public void TagNode_retrieves_single_Csharp_property_by_name(string propertyName)
+        public void TagNode_retrieves_specified_property_with_value(string propertyName)
         {
             // ARRANGE
 
@@ -142,15 +145,12 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = new TagNode(this.PersistenceMock.Object, tag)
-                .GetItemProvider().GetItemProperties(propertyName.Yield())
-                .Single();
+            var result = new TagNode(tag).GetItemProperties(this.ProviderContextMock.Object, propertyName.Yield());
 
             // ASSERT
 
-            Assert.Equal(nameof(Tag.Name), result.Name);
-            Assert.Equal(tag.Name, result.Value);
-            Assert.Equal("System.String", result.TypeNameOfValue);
+            Assert.Equal(nameof(Tag.Name), result.Single().Name);
+            Assert.Equal(tag.Name, result.Single().Value);
         }
 
         [Fact]
@@ -162,8 +162,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = new TagNode(this.PersistenceMock.Object, tag)
-                .GetItemProvider().GetItemProperties("unknown".Yield());
+            var result = new TagNode(tag).GetItemProperties(this.ProviderContextMock.Object, "unknown".Yield());
 
             // ASSERT
 
@@ -172,35 +171,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
         #endregion IGetItemProperty
 
-        #region ISetItemProperty
-
-        [Fact]
-        public void TagNodeValue_sets_Tag_name()
-        {
-            // ARRANGE
-
-            var tag = DefaultTag();
-
-            this.PersistenceMock
-                .Setup(p => p.Tags)
-                .Returns(this.TagRepositoryMock.Object);
-
-            this.TagRepositoryMock
-                .Setup(r => r.Upsert(tag))
-                .Returns(tag);
-
-            // ACT
-
-            new TagNode(this.PersistenceMock.Object, tag).GetItemProvider().SetItemProperties(new PSNoteProperty("Name", "changed").Yield());
-
-            // ASSERT
-
-            Assert.Equal("changed", tag.Name);
-        }
-
-        #endregion ISetItemProperty
-
-        #region INewItem - replace with INewItemProperty!
+        #region INewItem
 
         [Fact]
         public void TagNode_provides_NewItemTypeNames()
@@ -211,7 +182,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = new TagNode(this.PersistenceMock.Object, tag).NewItemTypeNames;
+            var result = new TagNode(tag).NewItemTypeNames;
 
             // ASSERT
 
@@ -227,7 +198,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = new TagNode(this.PersistenceMock.Object, tag).NewItemParameters;
+            var result = new TagNode(tag).NewItemParameters;
 
             // ASSERT
 
@@ -237,11 +208,11 @@ namespace TreeStore.PsModule.Test.PathNodes
         [Theory]
         [InlineData(null)]
         [InlineData("FacetProperty")]
-        public void TagNode_creates_new_FacetProperty(string itemTypeName)
+        public void TagNode_creates_FacetProperty(string itemTypeName)
         {
             // ARRANGE
 
-            var tag = DefaultTag(t => t.Facet.Properties.Clear());
+            var tag = DefaultTag(WithoutProperty);
 
             this.ProviderContextMock
                 .Setup(c => c.Persistence)
@@ -264,24 +235,82 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var result = new TagNode(this.PersistenceMock.Object, tag)
-                .NewItem(this.ProviderContextMock.Object, newItemChildPath: @"p", itemTypeName: itemTypeName, newItemValue: null);
+            var result = new TagNode(tag)
+                .NewItem(this.ProviderContextMock.Object, newItemChildPath: "p", itemTypeName: itemTypeName, newItemValue: null);
 
             // ASSERT
 
-            Assert.IsType<FacetPropertyNode.ItemProvider>(result);
+            Assert.IsType<FacetPropertyNode>(result);
             Assert.Equal("p", result!.Name);
-            Assert.Equal(FacetPropertyTypeValues.Bool, ((FacetPropertyNode.Item)result.GetItem()).ValueType);
+            Assert.Equal(FacetPropertyTypeValues.Bool, ((FacetPropertyNode.Item)result.GetItem(this.ProviderContextMock.Object).ImmediateBaseObject).ValueType);
         }
 
-        #endregion INewItem - replace with INewItemProperty!
+        [Theory]
+        //[InlineData(null)]// prohibited by powershell
+        [InlineData(nameof(FacetPropertyNode.Item.Id))]
+        [InlineData(nameof(FacetPropertyNode.Item.Name))]
+        [InlineData(nameof(FacetPropertyNode.Item.ValueType))]
+        [InlineData(nameof(FacetPropertyNode.Item.ItemType))]
+        public void TagNode_creating_FacetProperty_rejects_reserved_names(string propertyName)
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithoutProperty);
+
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(() => new TagNode(tag)
+                .NewItem(this.ProviderContextMock.Object, newItemChildPath: propertyName, itemTypeName: null, newItemValue: null));
+
+            // ASSERT
+
+            Assert.Equal($"facetProperty(name='{propertyName}') wasn't created: name is reserved", result.Message);
+        }
+
+        [Theory]
+        [InlineData("p")]
+        [InlineData("P")]
+        public void TagNode_creating_FacetProperty_rejects_duplicate_name(string propertyName)
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty);
+
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(() => new TagNode(tag)
+                .NewItem(this.ProviderContextMock.Object, newItemChildPath: propertyName, itemTypeName: null, newItemValue: null));
+
+            // ASSERT
+
+            Assert.Equal($"facetProperty(name='{propertyName}') wasn't created: name is duplicate", result.Message);
+        }
+
+        [Theory]
+        [MemberData(nameof(InvalidNameChars))]
+        public void TagNode_creating_Tag_rejects_invalid_characters(char invalidChar)
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty);
+            var invalidName = new string("p".ToCharArray().Append(invalidChar).ToArray());
+
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(() => new TagNode(tag)
+                .NewItem(this.ProviderContextMock.Object, newItemChildPath: invalidName, itemTypeName: null, newItemValue: null));
+
+            // ASSERT
+
+            Assert.Equal($"facetProperty(name='{invalidName}' wasn't created: it contains invalid characters", result.Message);
+        }
+
+        #endregion INewItem
 
         #region IRemoveItem
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void TagNode_removes_itself(bool recurse)
+        [Fact]
+        public void TagNode_removes_itself()
         {
             // ARRANGE
 
@@ -290,6 +319,14 @@ namespace TreeStore.PsModule.Test.PathNodes
             this.ProviderContextMock
                 .Setup(c => c.Persistence)
                 .Returns(this.PersistenceMock.Object);
+
+            this.PersistenceMock
+                .Setup(p => p.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByTag(tag))
+                .Returns(Enumerable.Empty<Entity>());
 
             this.PersistenceMock
                 .Setup(m => m.Tags)
@@ -301,8 +338,8 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            new TagNode(this.PersistenceMock.Object, tag)
-                .RemoveItem(this.ProviderContextMock.Object, "t", recurse);
+            new TagNode(tag)
+                .RemoveItem(this.ProviderContextMock.Object, "t");
         }
 
         [Fact]
@@ -310,11 +347,23 @@ namespace TreeStore.PsModule.Test.PathNodes
         {
             // ARRANGE
 
-            var tag = DefaultTag(WithoutProperty);
+            var tag = DefaultTag(WithDefaultProperty);
 
             this.ProviderContextMock
                 .Setup(c => c.Persistence)
                 .Returns(this.PersistenceMock.Object);
+
+            this.ProviderContextMock
+                .Setup(p => p.Recurse)
+                .Returns(true);
+
+            this.PersistenceMock
+                .Setup(p => p.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByTag(tag))
+                .Returns(Enumerable.Empty<Entity>());
 
             this.PersistenceMock
                 .Setup(m => m.Tags)
@@ -326,12 +375,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            var node = new TagNode(this.PersistenceMock.Object, tag);
-            node.RemoveItem(this.ProviderContextMock.Object, "t", recurse: true);
-
-            // ASSERT
-
-            Assert.Empty(tag.Facet.Properties);
+            new TagNode(tag).RemoveItem(this.ProviderContextMock.Object, "t");
         }
 
         [Fact]
@@ -341,14 +385,98 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             var tag = DefaultTag(WithDefaultProperty);
 
+            this.ProviderContextMock
+                .Setup(p => p.Recurse)
+                .Returns(false);
+
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.PersistenceMock
+                .Setup(p => p.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByTag(tag))
+                .Returns(Enumerable.Empty<Entity>());
+
             // ACT
 
-            new TagNode(this.PersistenceMock.Object, tag)
-                .RemoveItem(this.ProviderContextMock.Object, "t", recurse: false);
+            new TagNode(tag).RemoveItem(this.ProviderContextMock.Object, "t");
 
             // ASSERT
 
             Assert.Single(tag.Facet.Properties);
+        }
+
+        [Fact]
+        public void TagNode_removing_itself_fails_if_tag_is_assigned_and_has_properties()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty);
+            var entity = DefaultEntity(WithAssignedTag(tag));
+
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.ProviderContextMock
+                .Setup(p => p.Force)
+                .Returns(false);
+
+            this.ProviderContextMock
+                .Setup(p => p.WriteError(It.IsAny<ErrorRecord>()));
+
+            this.PersistenceMock
+                .Setup(p => p.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByTag(tag))
+                .Returns(entity.Yield());
+
+            // ACT
+
+            new TagNode(tag).RemoveItem(this.ProviderContextMock.Object, "t");
+        }
+
+        [Fact]
+        public void TagNode_removes_forced_tag_if_assigned_and_has_properties()
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty);
+            var entity = DefaultEntity(WithAssignedTag(tag));
+
+            this.ProviderContextMock
+                .Setup(c => c.Persistence)
+                .Returns(this.PersistenceMock.Object);
+
+            this.ProviderContextMock
+                .Setup(p => p.Force)
+                .Returns(true);
+
+            this.PersistenceMock
+                .Setup(p => p.Tags)
+                .Returns(this.TagRepositoryMock.Object);
+
+            this.TagRepositoryMock
+                .Setup(r => r.Delete(tag))
+                .Returns(true);
+
+            this.PersistenceMock
+                .Setup(p => p.Entities)
+                .Returns(this.EntityRepositoryMock.Object);
+
+            this.EntityRepositoryMock
+                .Setup(r => r.FindByTag(tag))
+                .Returns(entity.Yield());
+
+            // ACT
+
+            new TagNode(tag).RemoveItem(this.ProviderContextMock.Object, "t");
         }
 
         #endregion IRemoveItem
@@ -380,14 +508,34 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            new TagNode(this.PersistenceMock.Object, tag)
-                .CopyItem(this.ProviderContextMock.Object, "t", "tt", tagsContainer.GetItemProvider(), recurse: false);
+            new TagNode(tag)
+                .CopyItem(this.ProviderContextMock.Object, "t", "tt", tagsContainer);
 
             // ASSERT
 
             Assert.Equal("tt", createdTag!.Name);
             Assert.Equal("p", createdTag!.Facet.Properties.Single().Name);
             Assert.Equal(tag.Facet.Properties.Single().Type, createdTag!.Facet.Properties.Single().Type);
+        }
+
+        [Theory]
+        [MemberData(nameof(InvalidNameChars))]
+        public void TagNode_copying_itself_rejects_invalid_characters(char invalidChar)
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty);
+            var invalidName = new string("t".ToCharArray().Append(invalidChar).ToArray());
+            var tagsContainer = new TagsNode();
+
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(() => new TagNode(tag)
+                .CopyItem(this.ProviderContextMock.Object, "t", invalidName, tagsContainer));
+
+            // ASSERT
+
+            Assert.Equal($"tag(name='{invalidName}' wasn't created: it contains invalid characters", result.Message);
         }
 
         #endregion ICopyItem
@@ -417,7 +565,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            new TagNode(this.PersistenceMock.Object, tag).RenameItem(this.ProviderContextMock.Object, "t", "tt");
+            new TagNode(tag).RenameItem(this.ProviderContextMock.Object, "t", "tt");
 
             // ASSERT
 
@@ -433,11 +581,31 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             // ACT
 
-            new TagNode(this.PersistenceMock.Object, tag).RenameItem(this.ProviderContextMock.Object, "t", "t");
+            new TagNode(tag).RenameItem(this.ProviderContextMock.Object, "t", "t");
 
             // ASSERT
 
             Assert.Equal("t", tag.Name);
+        }
+
+        [Theory]
+        [MemberData(nameof(InvalidNameChars))]
+        public void TagNode_renaming_rejects_invalid_characters(char invalidChar)
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty);
+            var invalidName = new string("t".ToCharArray().Append(invalidChar).ToArray());
+            var tagsContainer = new TagsNode();
+
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(() => new TagNode(tag)
+                .RenameItem(this.ProviderContextMock.Object, "t", invalidName));
+
+            // ASSERT
+
+            Assert.Equal($"tag(name='{invalidName}' wasn't created: it contains invalid characters", result.Message);
         }
 
         #endregion IRenameItem

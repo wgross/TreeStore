@@ -55,11 +55,11 @@ namespace TreeStore.Model.Test
 
             // ACT
 
-            relationship.SetFacetProperty(relationship.Tags.Single().Facet.Properties.Single(), 1);
+            relationship.SetFacetProperty(relationship.Tags.Single().Facet.Properties.Single(), "1");
 
             // ASSERT
 
-            Assert.Equal(1, relationship.TryGetFacetProperty(facet.Properties.Single()).Item2);
+            Assert.Equal("1", relationship.TryGetFacetProperty(facet.Properties.Single()).Item2);
         }
 
         [Fact]

@@ -1,72 +1,81 @@
-﻿using TreeStore.Model;
-using LiteDB;
+﻿using LiteDB;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TreeStore.Model;
 
 namespace TreeStore.LiteDb
 {
-    public class CategoryRepository : LiteDbRepositoryBase, ICategoryRepository
+    public class CategoryRepository : LiteDbRepositoryBase<Category>, ICategoryRepository
     {
+        public const string CollectionName = "categories";
+
         static CategoryRepository()
         {
             BsonMapper.Global.Entity<Category>()
-                .DbRef(c => c.SubCategories, "categories")
-                .Ignore(c => c.Parent);
+                .DbRef(c => c.Parent, "categories");
         }
 
         public CategoryRepository(LiteRepository db)
-            : base(db, "categories")
+            : base(db, collectionName: CollectionName)
         {
+            db.Database
+                .GetCollection(CollectionName)
+                .EnsureIndex(
+                    name: nameof(Category.UniqueName),
+                    expression: $"$.{nameof(Category.UniqueName)}",
+                    unique: true);
+
             this.rootNode = new Lazy<Category>(() => this.FindRootCategory() ?? this.CreateRootCategory());
         }
+
+        protected override ILiteCollection<Category> IncludeRelated(ILiteCollection<Category> from) => from.Include(c => c.Parent);
+
+        private ILiteQueryable<Category> QueryRelated() => this.LiteCollection().Query().Include(c => c.Parent);
 
         #region There must be a persistent root
 
         private readonly Lazy<Category> rootNode;
-        public static Guid CategoryRootId { get; } = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
         public Category Root() => this.rootNode.Value;
 
         // todo: abandon completely loaded root tree
-        private Category FindRootCategory() => this.LiteCollection<Category>().IncludeAll(maxDepth: 10).FindById(CategoryRootId);
+        private Category FindRootCategory() => this.LiteRepository
+                .Query<Category>(CollectionName)
+                .Include(c => c.Parent)
+                .Where(c => c.Parent == null)
+                .FirstOrDefault();
 
-        private Category CreateRootCategory() => this.Upsert(new Category(string.Empty) { Id = CategoryRootId });
+        private Category CreateRootCategory()
+        {
+            var rootCategory = new Category(string.Empty);
+            this.LiteCollection().Upsert(rootCategory);
+            return rootCategory;
+        }
 
         #endregion There must be a persistent root
 
-        //public bool Delete(Category category, bool recurse = false)
-        //{
-        //    // check for children
-        //    if (this.FindByCategory(category).Any())
-        //        return false;
-
-        //    if (!this.LiteCollection<Category>().Delete(category.Id))
-        //        return false;
-
-        //    category.Parent.SubCategories.Remove(category);
-        //    this.Upsert(category.Parent);
-        //    return true;
-        //}
-
-        public Category FindById(Guid id) => this.Root().FindSubCategory(id);
-
-        public Category Upsert(Category category)
+        public override Category Upsert(Category category)
         {
-            if (category.Parent is null && category.Id != CategoryRootId)
+            if (category.Parent is null)
                 throw new InvalidOperationException("Category must have parent.");
 
-            if (this.LiteCollection<Category>().Upsert(category))
-                if (category.Parent is { })
-                    this.Upsert(category.Parent);
-
-            return category;
+            return base.Upsert(category);
         }
 
-        public Category? FindByCategoryAndName(Category category, string name)
-            => this.LiteCollection<Category>().IncludeAll(maxDepth: 1).FindById(category.Id)?.FindSubCategory(name, StringComparer.OrdinalIgnoreCase);
+        public Category? FindByParentAndName(Category category, string name)
+        {
+            return this
+                .FindByParent(category)
+                // matched in result set, could be mathed to expression
+                .SingleOrDefault(c => c.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+        }
 
-        public IEnumerable<Category> FindByCategory(Category category)
-            => this.LiteCollection<Category>().IncludeAll(maxDepth: 1).FindById(category.Id)?.SubCategories ?? Enumerable.Empty<Category>();
+        public IEnumerable<Category> FindByParent(Category category)
+        {
+            return this.QueryRelated()
+                .Where(c => c.Parent != null && c.Parent.Id == category.Id)
+                .ToArray();
+        }
     }
 }

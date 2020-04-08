@@ -1,6 +1,6 @@
-﻿using TreeStore.Messaging;
+﻿using LiteDB;
+using TreeStore.Messaging;
 using TreeStore.Model;
-using LiteDB;
 
 namespace TreeStore.LiteDb
 {
@@ -15,10 +15,15 @@ namespace TreeStore.LiteDb
         {
             repo.Database
                 .GetCollection(CollectionName)
-                .EnsureIndex(field: nameof(Tag.Name), expression: $"LOWER($.{nameof(Tag.Name)})", unique: true);
+                .EnsureIndex(
+                    name: nameof(Tag.Name),
+                    expression: $"LOWER($.{nameof(Tag.Name)})",
+                    unique: true);
 
             this.eventSource = eventSource;
         }
+
+        protected override ILiteCollection<Tag> IncludeRelated(ILiteCollection<Tag> from) => from;
 
         public override Tag Upsert(Tag entity)
         {
@@ -36,6 +41,9 @@ namespace TreeStore.LiteDb
             return false;
         }
 
-        public Tag FindByName(string name) => this.LiteRepository.Query<Tag>(CollectionName).Where(t => t.Name.Equals(name)).FirstOrDefault();
+        public Tag FindByName(string name) => this.LiteCollection()
+            .Query()
+            .Where(t => t.Name.Equals(name))
+            .FirstOrDefault();
     }
 }

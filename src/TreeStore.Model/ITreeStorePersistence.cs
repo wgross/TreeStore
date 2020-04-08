@@ -1,5 +1,5 @@
-﻿using TreeStore.Messaging;
-using System;
+﻿using System;
+using TreeStore.Messaging;
 
 namespace TreeStore.Model
 {
@@ -16,5 +16,7 @@ namespace TreeStore.Model
         IRelationshipRepository Relationships { get; }
 
         bool DeleteCategory(Category category, bool recurse);
+
+        void CopyCategory(Category category, Category parent, bool recurse);
     }
 }

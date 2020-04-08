@@ -1,26 +1,19 @@
 ﻿using CodeOwls.PowerShell.Paths;
 using CodeOwls.PowerShell.Provider.PathNodeProcessors;
-using TreeStore.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Management.Automation;
+using TreeStore.Model;
 
 namespace TreeStore.PsModule.PathNodes
 {
-    public sealed class CategoryNode : PathNode,
-        // item capabilities
+    /// <summary>
+    /// Categorizes a set of <see cref="EntityNode"/>. Has no accessible properties ecept the C# ones.
+    /// </summary>
+    public sealed class CategoryNode : ContainerNode,
         IGetChildItem, INewItem, IRemoveItem, ICopyItem, IRenameItem, IMoveItem
     {
-        public sealed class ItemProvider : ContainerItemProvider, IItemProvider
-        {
-            public ItemProvider(Category category)
-                : base(new Item(category), category.Name)
-            {
-            }
-
-            public Guid Id => ((Item)this.GetItem()).Id;
-        }
-
         public sealed class Item
         {
             private Category category;
@@ -34,66 +27,75 @@ namespace TreeStore.PsModule.PathNodes
 
             public string Name => this.category.Name;
 
-            public KosmographItemType ItemType => KosmographItemType.Category;
+            public TreeStoreItemType ItemType => TreeStoreItemType.Category;
         }
 
-        private readonly ITreeStorePersistence persistence;
         private readonly Category category;
 
-        public CategoryNode(ITreeStorePersistence persistence, Category category)
+        public CategoryNode(Category category)
         {
-            this.persistence = persistence;
             this.category = category;
         }
 
+        public Guid Id => this.category.Id;
+
         public override string Name => this.category.Name;
 
-        #region PathNode Members
+        #region PathNode
 
         public override IEnumerable<PathNode> Resolve(IProviderContext providerContext, string nodeName)
         {
             var persistence = providerContext.Persistence();
 
-            IEnumerable<PathNode> categories() => this.category
-                .SubCategories
-                .Where(c => c.Name.Equals(nodeName, StringComparison.InvariantCultureIgnoreCase))
-                .Select(c => new CategoryNode(persistence, c));
+            IEnumerable<PathNode> categories() => SubCategory(persistence, nodeName)
+                .Yield()
+                .Select(c => new CategoryNode(c));
 
-            IEnumerable<PathNode> entities() => persistence.Entities.FindByCategory(this.category)
-                .Where(c => c.Name.Equals(nodeName, StringComparison.InvariantCultureIgnoreCase))
-                .Select(e => new EntityNode(persistence, e));
+            IEnumerable<PathNode> entities() => SubEntity(persistence, nodeName)
+                .Yield()
+                .Select(e => new EntityNode(e));
 
             return categories().Union(entities());
         }
 
-        #endregion PathNode Members
+        #endregion PathNode
 
-        #region IGetChildItem Members
+        #region IGetItem
+
+        public override PSObject GetItem(IProviderContext providerContext) => PSObject.AsPSObject(new Item(this.category));
+
+        #endregion IGetItem
+
+        #region IGetChildItem
 
         override public IEnumerable<PathNode> GetChildNodes(IProviderContext context)
         {
             var persistence = context.Persistence();
 
-            IEnumerable<PathNode> entities() => SubEntities(persistence).Select(e => new EntityNode(persistence, e));
-            IEnumerable<PathNode> categories() => SubCategories(persistence).Select(c => new CategoryNode(persistence, c));
+            IEnumerable<PathNode> entities() => SubEntities(persistence).Select(e => new EntityNode(e));
+            IEnumerable<PathNode> categories() => SubCategories(persistence).Select(c => new CategoryNode(c));
 
             return categories().Union(entities());
         }
 
-        #endregion IGetChildItem Members
+        #endregion IGetChildItem
 
-        #region INewItem Members
+        #region INewItem
 
-        public IEnumerable<string> NewItemTypeNames { get; } = new[] { nameof(KosmographItemType.Category), nameof(KosmographItemType.Entity) };
+        public object NewItemParameters => new RuntimeDefinedParameterDictionary();
 
-        public IItemProvider NewItem(IProviderContext providerContext, string newItemName, string itemTypeName, object newItemValue)
+        public IEnumerable<string> NewItemTypeNames { get; } = new[] { nameof(TreeStoreItemType.Category), nameof(TreeStoreItemType.Entity) };
+
+        public PathNode NewItem(IProviderContext providerContext, string newItemName, string itemTypeName, object newItemValue)
         {
-            switch (itemTypeName ?? nameof(KosmographItemType.Entity))
+            Guard.Against.InvalidNameCharacters(newItemName, $"category(name='{newItemName}' wasn't created");
+
+            switch (itemTypeName ?? nameof(TreeStoreItemType.Entity))
             {
-                case nameof(KosmographItemType.Category):
+                case nameof(TreeStoreItemType.Category):
                     return NewCategory(providerContext, newItemName);
 
-                case nameof(KosmographItemType.Entity):
+                case nameof(TreeStoreItemType.Entity):
                     return NewEntity(providerContext, newItemName);
 
                 default:
@@ -101,41 +103,44 @@ namespace TreeStore.PsModule.PathNodes
             }
         }
 
-        private IItemProvider NewCategory(IProviderContext providerContext, string newItemName)
+        private PathNode NewCategory(IProviderContext providerContext, string newItemName)
         {
             var persistence = providerContext.Persistence();
 
             if (SubCategory(persistence, newItemName) is { })
             {
-                throw new InvalidOperationException($"Name is already used by and item of type '{nameof(KosmographItemType.Category)}'");
+                throw new InvalidOperationException($"Name is already used by and item of type '{nameof(TreeStoreItemType.Category)}'");
             }
 
             if (SubEntity(persistence, newItemName) is { })
             {
-                throw new InvalidOperationException($"Name is already used by and item of type '{nameof(KosmographItemType.Entity)}'");
+                throw new InvalidOperationException($"Name is already used by and item of type '{nameof(TreeStoreItemType.Entity)}'");
             }
 
             var subCategory = new Category(newItemName);
 
             this.category.AddSubCategory(subCategory);
 
-            return new CategoryNode(persistence, persistence.Categories.Upsert(subCategory)).GetItemProvider();
+            return new CategoryNode(persistence.Categories.Upsert(subCategory));
         }
 
-        private IItemProvider NewEntity(IProviderContext providerContext, string newItemName)
+        private PathNode NewEntity(IProviderContext providerContext, string newItemName)
         {
             var persistence = providerContext.Persistence();
             if (SubCategory(persistence, newItemName) is { })
             {
-                throw new InvalidOperationException($"Name is already used by and item of type '{nameof(KosmographItemType.Category)}'");
+                throw new InvalidOperationException($"Name is already used by and item of type '{nameof(TreeStoreItemType.Category)}'");
             }
 
             if (SubEntity(persistence, newItemName) is { })
             {
-                throw new InvalidOperationException($"Name is already used by and item of type '{nameof(KosmographItemType.Entity)}'");
+                throw new InvalidOperationException($"Name is already used by and item of type '{nameof(TreeStoreItemType.Entity)}'");
             }
 
-            var entity = new Entity(newItemName);
+            var entity = new Entity(newItemName)
+            {
+                Category = this.category
+            };
 
             //todo: create entity with tag
             //switch (providerContext.DynamicParameters)
@@ -148,55 +153,68 @@ namespace TreeStore.PsModule.PathNodes
             //        break;
             //}
 
-            return new EntityNode(providerContext.Persistence(), providerContext.Persistence().Entities.Upsert(entity)).GetItemProvider();
+            return new EntityNode(providerContext.Persistence().Entities.Upsert(entity));
         }
 
-        #endregion INewItem Members
+        #endregion INewItem
 
-        public void CopyItem(IProviderContext providerContext, string sourceItemName, string destinationItemName, IItemProvider destinationProvider, bool recurse)
+        #region ICopyItem
+
+        public object CopyItemParameters => new RuntimeDefinedParameterDictionary();
+
+        public void CopyItem(IProviderContext providerContext, string sourceItemName, string destinationItemName, PathNode destinationNode)
         {
-            var persistennce = providerContext.Persistence();
+            if (destinationItemName != null)
+                Guard.Against.InvalidNameCharacters(destinationItemName, $"category(name='{destinationItemName}' wasn't created");
 
-            var newCategory = new Category(destinationItemName ?? sourceItemName);
-            if (destinationProvider is EntitiesNode.ItemProvider)
+            var persistence = providerContext.Persistence();
+
+            Category? parent = null;//newCategory = new Category(destinationItemName ?? sourceItemName);
+            if (destinationNode is EntitiesNode)
             {
                 // dont add the category yet to its parent
-                newCategory.Parent = persistennce.Categories.Root();
+                parent = persistence.Categories.Root();
             }
-            else if (destinationProvider is CategoryNode.ItemProvider containerProvider)
+            else if (destinationNode is CategoryNode containerProvider)
             {
-                newCategory.Parent = persistennce.Categories.FindById(containerProvider.Id);
+                parent = persistence.Categories.FindById(containerProvider.Id);
             }
 
-            this.EnsureUniqueDestinationName(persistennce, newCategory.Parent!, newCategory.Name);
+            this.EnsureUniqueDestinationName(persistence, parent!, destinationItemName ?? sourceItemName);
 
-            // finalize the link
-            newCategory.Parent!.AddSubCategory(newCategory);
-            persistence.Categories.Upsert(newCategory);
+            persistence.CopyCategory(this.category, parent!, providerContext.Recurse);
         }
 
-        #region IRemoveItem Members
+        #endregion ICopyItem
 
-        public void RemoveItem(IProviderContext providerContext, string path, bool recurse)
+        #region IRemoveItem
+
+        public object RemoveItemParameters => new RuntimeDefinedParameterDictionary();
+
+        public void RemoveItem(IProviderContext providerContext, string path)
         {
-            providerContext.Persistence().DeleteCategory(this.category, recurse);
+            providerContext.Persistence().DeleteCategory(this.category, providerContext.Recurse);
         }
 
-        #endregion IRemoveItem Members
+        #endregion IRemoveItem
 
-        #region IRenameItem Members
+        #region IRenameItem
+
+        public object RenameItemParameters => new RuntimeDefinedParameterDictionary();
 
         public void RenameItem(IProviderContext providerContext, string path, string newName)
         {
-            // this is explicitely not case insensitive. Renaminh to different cases is allowed,
+            Guard.Against.InvalidNameCharacters(newName, $"category(name='{newName}' wasn't renamed");
+
+            // this is explicitely not case insensitive. Renaming to different cases is allowed,
             // even if it has no effect to the the identification by name.
             if (this.category.Name.Equals(newName))
                 return;
 
-            if (this.SiblingCategory(newName) is { })
-                return;
-
             var persistence = providerContext.Persistence();
+
+            if (this.SiblingCategory(persistence, newName) is { })
+                return;
 
             if (this.SiblingEntity(persistence, newName) is { })
                 return;
@@ -206,16 +224,18 @@ namespace TreeStore.PsModule.PathNodes
             persistence.Categories.Upsert(this.category);
         }
 
-        #endregion IRenameItem Members
+        #endregion IRenameItem
 
-        #region IMoveItem Members
+        #region IMoveItem
 
-        public IItemProvider MoveItem(IProviderContext providerContext, string path, string? movePath, IItemProvider destinationProvider)
+        public object MoveItemParameters => new RuntimeDefinedParameterDictionary();
+
+        public void MoveItem(IProviderContext providerContext, string path, string? movePath, PathNode destinationNode)
         {
-            if (destinationProvider is CategoryNode.ItemProvider categoryProvider)
+            if (destinationNode is CategoryNode categoryNode)
             {
                 var persistence = providerContext.Persistence();
-                var destinationCategory = persistence.Categories.FindById(categoryProvider.Id);
+                var destinationCategory = persistence.Categories.FindById(categoryNode.Id);
                 var movePathResolved = movePath ?? this.category.Name;
 
                 if (SubCategory(persistence, destinationCategory, movePathResolved) is { })
@@ -226,14 +246,11 @@ namespace TreeStore.PsModule.PathNodes
 
                 this.category.Name = movePathResolved;
                 destinationCategory.AddSubCategory(this.category);
-                persistence.Categories.Upsert(destinationCategory);
+                persistence.Categories.Upsert(this.category);
             }
-            return this.GetItemProvider();
         }
 
-        #endregion IMoveItem Members
-
-        public override IItemProvider GetItemProvider() => new ItemProvider(this.category);
+        #endregion IMoveItem
 
         #region Model Accessors
 
@@ -246,17 +263,19 @@ namespace TreeStore.PsModule.PathNodes
                 throw new InvalidOperationException($"Destination container contains already an entity with name '{destinationName}'");
         }
 
-        private IEnumerable<Category> SubCategories() => this.category.SubCategories;
-
         private IEnumerable<Entity> SubEntities(ITreeStorePersistence persistence) => persistence.Entities.FindByCategory(this.category);
 
         private Category? SubCategory(ITreeStorePersistence persistence, string name) => this.SubCategory(persistence, parentCategeory: this.category, name);
 
-        private Category? SubCategory(ITreeStorePersistence persistence, Category parentCategeory, string name) => persistence.Categories.FindByCategoryAndName(parentCategeory, name);
+        private Category? SubCategory(ITreeStorePersistence persistence, Category parentCategeory, string name) => persistence.Categories.FindByParentAndName(parentCategeory, name);
 
-        private IEnumerable<Category> SubCategories(ITreeStorePersistence persistence) => persistence.Categories.FindByCategory(this.category);
+        private IEnumerable<Category> SubCategories(ITreeStorePersistence persistence) => persistence.Categories.FindByParent(this.category);
 
-        private Category? SiblingCategory(string name) => this.category.Parent?.FindSubCategory(name, StringComparer.OrdinalIgnoreCase);
+        private Category? SiblingCategory(ITreeStorePersistence persistence, string name) => this.category.Parent switch
+        {
+            Category p when p != null => persistence.Categories.FindByParentAndName(p, name),
+            _ => null
+        };
 
         private Entity? SiblingEntity(ITreeStorePersistence persistence, string name) => persistence.Entities.FindByCategoryAndName(this.category.Parent!, name);
 

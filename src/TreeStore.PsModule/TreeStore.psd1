@@ -60,10 +60,10 @@ PowerShellVersion = '5.1'
 # ScriptsToProcess = @()
 
 # Type files (.ps1xml) to be loaded when importing this module
-TypesToProcess = "TreeStore.types.ps1xml"
+TypesToProcess = @("TreeStore.types.ps1xml")
 
 # Format files (.ps1xml) to be loaded when importing this module
-# FormatsToProcess = @()
+FormatsToProcess = @("TreeStore.format.ps1xml")
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
 # NestedModules = "TreeStore.PsModule.dll"
@@ -108,13 +108,10 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @"
-0.0.1-alpha4 : 
- - Tags don't present their facet properties as item properties anymore (could hide tag property with same name)
- - A function is created for TreeStore drives to switch to drive easily
-0.0.1-alpha3 : new cmdlet to create TreeStore drives
+0.0.1: feature set complete
 "@
         # Prerelease string of this module
-        Prerelease = 'alpha004'
+        #Prerelease = 'alpha004'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         RequireLicenseAcceptance = $false

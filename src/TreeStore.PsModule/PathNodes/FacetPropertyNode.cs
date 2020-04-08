@@ -1,21 +1,18 @@
 ﻿using CodeOwls.PowerShell.Paths;
 using CodeOwls.PowerShell.Provider.PathNodeProcessors;
-using TreeStore.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Management.Automation;
+using TreeStore.Model;
 
 namespace TreeStore.PsModule.PathNodes
 {
-    public class FacetPropertyNode : PathNode, IRemoveItem, ICopyItem, IRenameItem
+    public class FacetPropertyNode : LeafNode,
+        IRemoveItem, ICopyItem, IRenameItem,
+        IGetItemProperty
     {
-        public sealed class ItemProvider : LeafItemProvider
-        {
-            public ItemProvider(FacetPropertyNode node)
-                : base(new Item(node.facetProperty), node.Name)
-            {
-            }
-        }
+        public static readonly string[] ForbiddenNames = { nameof(Item.Id), nameof(Item.Name), nameof(Item.ItemType), nameof(Item.ValueType) };
 
         public sealed class Item
         {
@@ -34,13 +31,9 @@ namespace TreeStore.PsModule.PathNodes
                 set => this.facetProperty.Name = value;
             }
 
-            public FacetPropertyTypeValues ValueType
-            {
-                get => this.facetProperty.Type;
-                set => this.facetProperty.Type = value;
-            }
+            public FacetPropertyTypeValues ValueType => this.facetProperty.Type;
 
-            public KosmographItemType ItemType => KosmographItemType.FacetProperty;
+            public TreeStoreItemType ItemType => TreeStoreItemType.FacetProperty;
         }
 
         private readonly FacetProperty facetProperty;
@@ -54,43 +47,76 @@ namespace TreeStore.PsModule.PathNodes
 
         public override string Name => this.facetProperty.Name;
 
-        public override string ItemMode => "+";
-
-        public override IItemProvider GetItemProvider() => new ItemProvider(this);
-
         public override IEnumerable<PathNode> Resolve(IProviderContext providerContext, string name)
         {
             throw new NotImplementedException();
         }
 
-        #region IRemoveItem Members
+        #region IGetItem
 
-        public void RemoveItem(IProviderContext providerContext, string path, bool recurse)
+        public override PSObject GetItem(IProviderContext providerContext) => PSObject.AsPSObject(new Item(this.facetProperty));
+
+        #endregion IGetItem
+
+        #region IRemoveItem
+
+        public object RemoveItemParameters => new RuntimeDefinedParameterDictionary();
+
+        public void RemoveItem(IProviderContext providerContext, string path)
         {
+            var persistence = providerContext.Persistence();
+
+            if (!providerContext.Force)
+                if (persistence.Entities.FindByTag(this.tag).Any())
+                {
+                    providerContext.WriteError(
+                        new ErrorRecord(new InvalidOperationException($"Can't delete facetProperty(name='{this.facetProperty.Name}'): It is used by at least one entity. Use -Force to delete anyway."),
+                             errorId: "TagInUse",
+                             errorCategory: ErrorCategory.InvalidOperation,
+                             targetObject: this.GetItem(providerContext)));
+                    return;
+                }
+
             this.tag.Facet.RemoveProperty(this.facetProperty);
-            providerContext.Persistence().Tags.Upsert(this.tag);
+            persistence.Tags.Upsert(this.tag);
         }
 
-        #endregion IRemoveItem Members
+        #endregion IRemoveItem
 
-        #region ICopyItem Members
+        #region ICopyItem
 
-        public void CopyItem(IProviderContext providerContext, string sourceItemName, string? destinationItemName, IItemProvider destinationContainer, bool recurse)
+        public object CopyItemParameters => new RuntimeDefinedParameterDictionary();
+
+        public void CopyItem(IProviderContext providerContext, string sourceItemName, string? destinationItemName, PathNode destinationNode)
         {
-            if (destinationContainer is TagNode.ItemProvider destinationContainerNodeValue)
+            if (destinationItemName is { } && !destinationItemName.EnsureValidName())
+                throw new InvalidOperationException($"facetProperty(name='{destinationItemName}' wasn't created: it contains invalid characters");
+
+            if (FacetPropertyNode.ForbiddenNames.Contains(destinationItemName, StringComparer.OrdinalIgnoreCase))
+                throw new InvalidOperationException($"facetProperty(name='{destinationItemName}') wasn't copied: name is reserved");
+
+            if (destinationNode is TagNode destinationContainerNodeValue)
             {
                 destinationContainerNodeValue.AddProperty(providerContext, destinationItemName ?? this.facetProperty.Name, this.facetProperty.Type);
             }
         }
 
-        #endregion ICopyItem Members
+        #endregion ICopyItem
 
-        #region IRenameItem Members
+        #region IRenameItem
+
+        public object RenameItemParameters => new RuntimeDefinedParameterDictionary();
 
         public void RenameItem(IProviderContext providerContext, string path, string newName)
         {
             if (this.facetProperty.Name.Equals(newName))
                 return;
+
+            if (!newName.EnsureValidName())
+                throw new InvalidOperationException($"facetProperty(name='{newName}' wasn't created: it contains invalid characters");
+
+            if (FacetPropertyNode.ForbiddenNames.Contains(newName, StringComparer.OrdinalIgnoreCase))
+                throw new InvalidOperationException($"facetProperty(name='{newName}') wasn't renamed: name is reserved");
 
             if (this.tag.Facet.Properties.Any(p => p.Name.Equals(newName, StringComparison.OrdinalIgnoreCase)))
                 throw new InvalidOperationException($"rename failed: property name '{newName}' must be unique.");
@@ -100,6 +126,6 @@ namespace TreeStore.PsModule.PathNodes
             providerContext.Persistence().Tags.Upsert(this.tag);
         }
 
-        #endregion IRenameItem Members
+        #endregion IRenameItem
     }
 }

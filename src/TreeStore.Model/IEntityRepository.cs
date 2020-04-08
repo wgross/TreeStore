@@ -8,8 +8,6 @@ namespace TreeStore.Model
 
         IEnumerable<Entity> FindByCategory(Category category);
 
-        Entity? FindByName(string name);
-
         Entity? FindByCategoryAndName(Category category, string name);
     }
 }

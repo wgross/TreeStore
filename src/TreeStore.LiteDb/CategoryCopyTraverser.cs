@@ -15,21 +15,24 @@ namespace TreeStore.LiteDb
 
         public void CopyCategory(Category src, Category dst)
         {
+            var srcClone = CloneWithNewId(src);
+            dst.AddSubCategory(srcClone);
+            this.categoryRepository.Upsert(srcClone);
+        }
+
+        public void CopyCategoryRecursively(Category src, Category dst)
+        {
             // copy the top most src as child of the dst
             var srcClone = CloneWithNewId(src);
             dst.AddSubCategory(srcClone);
             this.categoryRepository.Upsert(srcClone);
-            this.categoryRepository.Upsert(dst);
             // descend n src and continue wioth sub categories
-            foreach (var srcChild in src.SubCategories)
-            {
-                CopyCategory(srcChild, srcClone);
-            }
+            foreach (var srcChild in this.categoryRepository.FindByParent(src))
+                this.CopyCategoryRecursively(srcChild, srcClone);
+
             // copy all enities in src to dst
             foreach (var srcEntity in this.entityRepository.FindByCategory(src))
-            {
-                CopyEntity(srcEntity, srcClone);
-            }
+                this.CopyEntity(srcEntity, srcClone);
         }
 
         private void CopyEntity(Entity srcEntity, Category dstCategory)

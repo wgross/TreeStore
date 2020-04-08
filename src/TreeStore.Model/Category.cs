@@ -1,8 +1,8 @@
 ﻿using Elementary.Hierarchy.Generic;
-using TreeStore.Model.Base;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TreeStore.Model.Base;
 
 namespace TreeStore.Model
 {
@@ -19,11 +19,8 @@ namespace TreeStore.Model
         public Category(string name, Facet ownFacet, params Category[] subcategories)
             : base(name, ownFacet)
         {
-            this.SubCategories = subcategories.Select(c =>
-            {
+            foreach (var c in subcategories)
                 c.Parent = this;
-                return c;
-            }).ToList();
         }
 
         #region Category owns a facet
@@ -39,36 +36,27 @@ namespace TreeStore.Model
 
         #region Category is hierarchical
 
-        public List<Category> SubCategories
-        {
-            get => this.subCategories;
-            set
-            {
-                value.ForEach(c => c.Parent = this);
-                this.subCategories = value;
-            }
-        }
-
-        private List<Category> subCategories = new List<Category>();
-
         public Category? Parent { get; set; }
 
         public void AddSubCategory(Category subcategory)
         {
             subcategory.Parent = this;
-            this.SubCategories = this.SubCategories.Union(new[] { subcategory }).ToList();
         }
+
+        #region Category has a unique within the parenet catagory
+
+        public string UniqueName
+        {
+            get => $"{this.Name.ToLower()}_{this.Parent?.Id.ToString() ?? "<root>"}";
+            set { }
+        }
+
+        #endregion Category has a unique within the parenet catagory
 
         public void DetachSubCategory(Category subcategory)
         {
             subcategory.Parent = null;
-            this.SubCategories = this.SubCategories.Except(new[] { subcategory }).ToList();
         }
-
-        public Category FindSubCategory(Guid id) => this.DescendantsAndSelf(c => c.SubCategories, depthFirst: true, maxDepth: 10).FirstOrDefault(c => c.Id == id);
-
-        public Category FindSubCategory(string name, IEqualityComparer<string> nameComparer)
-            => this.Children<Category>(c => c.SubCategories).FirstOrDefault(c => nameComparer.Equals(c.Name, name));
 
         public object Clone() => new Category(this.Name);
 

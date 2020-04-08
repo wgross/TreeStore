@@ -22,12 +22,27 @@ namespace TreeStore.Model.Base
             this.Tags = this.Tags.Union(tag.Yield()).ToList();
         }
 
-        public Dictionary<string, object?> Values { get; set; } = new Dictionary<string, object>();
+        public void RemoveTag(Tag tag)
+        {
+            if (this.Tags.Remove(tag))
+            {
+                foreach (var property in tag.Facet.Properties)
+                {
+                    this.Values.Remove(property.Id.ToString());
+                }
+            }
+        }
+
+        public Dictionary<string, object?> Values { get; set; } = new Dictionary<string, object?>();
 
         public void SetFacetProperty<T>(FacetProperty facetProperty, T value)
-            => this.Values[facetProperty.Id.ToString()] = value;
+        {
+            if (facetProperty.CanAssignValue(value))
+                this.Values[facetProperty.Id.ToString()] = value;
+            else throw new InvalidOperationException($"property(name='{facetProperty.Name}') doesn't accept value of type {typeof(T)}");
+        }
 
-        public (bool exists, object? value) TryGetFacetProperty(FacetProperty facetProperty)
+        public (bool hasValue, object? value) TryGetFacetProperty(FacetProperty facetProperty)
             => (this.Values.TryGetValue(facetProperty.Id.ToString(), out var value), value);
     }
 }

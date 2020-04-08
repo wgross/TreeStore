@@ -1,7 +1,7 @@
-﻿using TreeStore.Messaging;
-using LiteDB;
+﻿using LiteDB;
 using System.IO;
 using System.Linq;
+using TreeStore.Messaging;
 using Xunit;
 using static TreeStore.LiteDb.Test.TestDataSources;
 
@@ -15,9 +15,9 @@ namespace TreeStore.LiteDb.Test
 
         public CategoryCopyTraverserTest()
         {
-            var tmp = new LiteRepositoryAdapater(new LiteRepository(new MemoryStream()));
-            this.entityRepository = new EntityRepository(tmp.LiteRepository, TreeStoreMessageBus.Default.Entities);
-            this.categoryRepository = new CategoryRepository(tmp.LiteRepository);
+            var tmp = new LiteRepository(new MemoryStream());
+            this.entityRepository = new EntityRepository(tmp, TreeStoreMessageBus.Default.Entities);
+            this.categoryRepository = new CategoryRepository(tmp);
             this.traverser = new CategoryCopyTraverser(this.categoryRepository, this.entityRepository);
         }
 
@@ -32,16 +32,17 @@ namespace TreeStore.LiteDb.Test
 
             // ACT
 
-            this.traverser.CopyCategory(src, dst);
+            this.traverser.CopyCategoryRecursively(src, dst);
 
             // ASSERT
 
-            var srcRead = this.categoryRepository.FindById(src.Id);
-            var dstRead = this.categoryRepository.FindById(dst.Id);
+            var assert_src = this.categoryRepository.FindById(src.Id);
+            var assert_dst = this.categoryRepository.FindById(dst.Id);
+            var assert_dst_children = this.categoryRepository.FindByParent(dst);
 
-            Assert.Equal(src.Name, dstRead.SubCategories.Single().Name);
-            Assert.NotEqual(src.Id, dstRead.SubCategories.Single().Id);
-            Assert.Equal(root.Id, srcRead.Parent.Id);
+            Assert.Equal(src.Name, assert_dst_children.Single().Name);
+            Assert.NotEqual(src.Id, assert_dst_children.Single().Id);
+            Assert.Equal(root.Id, assert_src.Parent.Id);
         }
 
         [Fact]
@@ -56,20 +57,18 @@ namespace TreeStore.LiteDb.Test
 
             // ACT
 
-            this.traverser.CopyCategory(src, dst);
+            this.traverser.CopyCategoryRecursively(src, dst);
 
             // ASSERT
 
-            var src_read = this.categoryRepository.FindById(src.Id);
-            var dst_read = this.categoryRepository.FindById(dst.Id);
+            var assert_dst_children = this.categoryRepository.FindByParent(dst);
+            var assert_dst_src = this.categoryRepository.FindById(assert_dst_children.Single().Id);
+            var assert_dst_src_children = this.categoryRepository.FindByParent(assert_dst_src);
 
-            Assert.Equal(src.Name, dst_read.SubCategories.Single().Name);
-            Assert.NotEqual(src.Id, src_read.SubCategories.Single().Id);
-
-            var dst_src_read = this.categoryRepository.FindById(dst_read.SubCategories.Single().Id);
-
-            Assert.Equal(src_sub.Name, dst_src_read.SubCategories.Single().Name);
-            Assert.NotEqual(src_sub.Id, dst_src_read.SubCategories.Single().Id);
+            Assert.Equal(src.Name, assert_dst_src.Name);
+            Assert.NotEqual(src.Id, assert_dst_src.Id);
+            Assert.Equal(src_sub.Name, assert_dst_src_children.Single().Name);
+            Assert.NotEqual(src_sub.Id, assert_dst_src_children.Single().Id);
         }
 
         [Fact]
@@ -84,16 +83,42 @@ namespace TreeStore.LiteDb.Test
 
             // ACT
 
+            this.traverser.CopyCategoryRecursively(src, dst);
+
+            // ASSERT
+
+            var assert_src = this.categoryRepository.FindById(src.Id);
+            var assert_dst_src = this.categoryRepository.FindByParentAndName(dst, src.Name);
+            var assert_dst_src_entity = this.entityRepository.FindByCategoryAndName(assert_dst_src, src_entity.Name);
+
+            Assert.Equal(src_entity.Name, assert_dst_src_entity.Name);
+            Assert.NotEqual(src_entity.Id, assert_dst_src_entity.Id);
+        }
+
+        [Fact]
+        public void CategoryCopyTraverser_copies_category_without_items()
+        {
+            // ARRANGE
+
+            var root = this.categoryRepository.Root();
+            var src = this.categoryRepository.Upsert(DefaultCategory(root, c => c.Name = "src"));
+            var src_sub = this.categoryRepository.Upsert(DefaultCategory(src, c => c.Name = "src-sub"));
+            var dst = this.categoryRepository.Upsert(DefaultCategory(root, c => c.Name = "dst"));
+
+            // ACT
+
             this.traverser.CopyCategory(src, dst);
 
             // ASSERT
 
-            var srcRead = this.categoryRepository.FindById(src.Id);
-            var dst_src_read = this.categoryRepository.FindByCategoryAndName(dst, src.Name);
-            var dst_src_entity_read = this.entityRepository.FindByCategoryAndName(dst_src_read, src_entity.Name);
+            var assert_src = this.categoryRepository.FindById(src.Id);
+            var assert_src_sub = this.categoryRepository.FindByParent(src);
+            var assert_dst = this.categoryRepository.FindById(dst.Id);
+            var assert_dst_children = this.categoryRepository.FindByParent(dst);
+            var assert_dst_src_children = this.categoryRepository.FindByParent(assert_dst_children.Single());
 
-            Assert.Equal(src_entity.Name, dst_src_entity_read.Name);
-            Assert.NotEqual(src_entity.Id, dst_src_entity_read.Id);
+            Assert.Equal(src.Name, assert_dst_children.Single().Name);
+            Assert.Empty(assert_dst_src_children);
         }
     }
 }
