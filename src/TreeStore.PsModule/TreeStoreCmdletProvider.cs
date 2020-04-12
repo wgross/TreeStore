@@ -14,6 +14,8 @@ namespace TreeStore.PsModule
     [CmdletProvider(TreeStoreCmdletProvider.Id, ProviderCapabilities.None)]
     public class TreeStoreCmdletProvider : Provider
     {
+        public static readonly string[] ReservedNodeNames = { ".tags", ".entities", ".properties", ".relationships" };
+
         #region Construction and initialization of this instance
 
         /// <summary>

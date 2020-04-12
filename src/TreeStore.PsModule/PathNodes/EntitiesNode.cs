@@ -71,6 +71,7 @@ namespace TreeStore.PsModule.PathNodes
         public PathNode NewItem(IProviderContext providerContext, string newItemName, string itemTypeName, object newItemValue)
         {
             Guard.Against.InvalidNameCharacters(newItemName, $"entity(name='{newItemName}' wasn't created");
+            Guard.Against.InvalidReservedNodeNames(newItemName, $"entity(name='{newItemName}' wasn't created");
 
             switch (itemTypeName ?? nameof(TreeStoreItemType.Entity))
             {
