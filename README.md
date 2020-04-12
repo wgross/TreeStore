@@ -4,7 +4,7 @@ A powershell file system for storing simple structured data. Implementation of t
 ## Installation
 Install from PSGallery:
 ```powershell
-Install-Module TreeStore -AllowPrerelease
+Install-Module TreeStore 
 ```
 The module project targets netstandard 2.0 and is therefore compatible with PowerShell 5 and PowerShell Core.
 
