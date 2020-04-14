@@ -1,5 +1,6 @@
 ﻿using Moq;
 using System;
+using System.IO;
 using System.Linq;
 using System.Management.Automation;
 using TreeStore.Model;
@@ -154,19 +155,29 @@ namespace TreeStore.PsModule.Test.PathNodes
         }
 
         [Fact]
-        public void TagNode_retrieveing_single_FacetProperty_by_name_ignores_unknown_name()
+        public void TagNode_retrieving_unknown_property_creates_IOException()
         {
             // ARRANGE
 
+            ErrorRecord? errorRecord = null;
+            this.ProviderContextMock
+                .Setup(p => p.WriteError(It.IsAny<ErrorRecord>()))
+                .Callback<ErrorRecord>(e => errorRecord = e);
+
             var tag = DefaultTag(WithDefaultProperty);
+            var node = new TagNode(tag);
 
             // ACT
 
-            var result = new TagNode(tag).GetItemProperties(this.ProviderContextMock.Object, "unknown".Yield());
+            var result = node
+                .GetItemProperties(this.ProviderContextMock.Object, propertyNames: new[] { "unknown" })
+                .ToArray();
 
             // ASSERT
 
             Assert.Empty(result);
+            Assert.IsType<IOException>(errorRecord!.Exception);
+            Assert.Equal("The property unknown does not exist or was not found.", errorRecord!.Exception.Message);
         }
 
         #endregion IGetItemProperty

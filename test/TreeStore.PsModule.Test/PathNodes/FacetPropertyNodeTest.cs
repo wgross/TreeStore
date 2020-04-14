@@ -1,6 +1,7 @@
 ﻿using CodeOwls.PowerShell.Paths;
 using Moq;
 using System;
+using System.IO;
 using System.Linq;
 using System.Management.Automation;
 using TreeStore.Model;
@@ -463,6 +464,33 @@ namespace TreeStore.PsModule.Test.PathNodes
 
             Assert.Equal("Id", result.Single().Name);
             Assert.Equal(facetProperty.Id, result.Single().Value);
+        }
+
+        [Fact]
+        public void FacetProperty_retrieving_unknown_property_creates_IOException()
+        {
+            // ARRANGE
+
+            ErrorRecord? errorRecord = null;
+            this.ProviderContextMock
+                .Setup(p => p.WriteError(It.IsAny<ErrorRecord>()))
+                .Callback<ErrorRecord>(e => errorRecord = e);
+
+            var tag = DefaultTag();
+            var facetProperty = tag.Facet.Properties.First();
+            var node = new FacetPropertyNode(tag, facetProperty);
+
+            // ACT
+
+            var result = node
+                .GetItemProperties(this.ProviderContextMock.Object, propertyNames: new[] { "unknown" })
+                .ToArray();
+
+            // ASSERT
+
+            Assert.Empty(result);
+            Assert.IsType<IOException>(errorRecord!.Exception);
+            Assert.Equal("The property unknown does not exist or was not found.", errorRecord!.Exception.Message);
         }
 
         #endregion IGetItemProperty
