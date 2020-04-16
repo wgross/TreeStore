@@ -4,7 +4,7 @@ A powershell file system for storing simple structured data. Implementation of t
 ## Installation
 Install from PSGallery:
 ```powershell
-Install-Module TreeStore -AllowPrerelease
+Install-Module TreeStore 
 ```
 The module project targets netstandard 2.0 and is therefore compatible with PowerShell 5 and PowerShell Core.
 
@@ -57,11 +57,11 @@ Now properties defined by the Tag can be filled with values. If the name of the 
 ## Set/Get value of an Entities Facet Property
 A value can be assigned with the Set-ItemProperty cmdlet:
 ```powershell
-Set-ItemProperty -Path \Entities\example_entity -Name example_property -Value 1
+Set-ItemProperty -Path \Entities\example_entity\example_tag -Name example_property -Value 1
 ```
 The value can be read again using:
 ```powershell
-Get-ItemPropertyValue -Path \Entities\example_entity -Name example_property
+Get-ItemPropertyValue -Path \Entities\example_entity\example_tag -Name example_property
 
 1
 ```
