@@ -33,6 +33,7 @@ Import-Module -Name dotnet-cli-publish
 Import-Module -Name PowerShellGet
 
 # react to the publish target
+"Target: $Target"|Write-Verbose
 switch($Target) {
     "psgallery" {
         if($null -eq $NuGetApiKey) { throw "Nuget api key missing" }

@@ -503,6 +503,44 @@ namespace TreeStore.PsModule.Test.PathNodes
             Assert.Equal($"category(name='{invalidName}' wasn't created: it contains invalid characters", result.Message);
         }
 
+        [Theory]
+        [MemberData(nameof(InvalidNodeNames))]
+        public void CategoryNode_creating_item_rejects_entity_with_reserved_name(string nodeName)
+        {
+            // ARRANGE
+
+            var category = DefaultCategory(c => c.Name = "c");
+            var node = new CategoryNode(category);
+
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(() => node.NewItem(this.ProviderContextMock.Object,
+                newItemName: nodeName, itemTypeName: nameof(TreeStoreItemType.Entity), newItemValue: null!));
+
+            // ASSERT
+
+            Assert.Equal($"category(name='{nodeName}' wasn't created: Name '{nodeName}' is reserved for future use.", result.Message);
+        }
+
+        [Theory]
+        [MemberData(nameof(InvalidNodeNames))]
+        public void CategoryNode_creating_item_rejects_category_with_reserved_name(string nodeName)
+        {
+            // ARRANGE
+
+            var category = DefaultCategory(c => c.Name = "c");
+            var node = new CategoryNode(category);
+
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(() => node.NewItem(this.ProviderContextMock.Object,
+                newItemName: nodeName, itemTypeName: nameof(TreeStoreItemType.Category), newItemValue: null!));
+
+            // ASSERT
+
+            Assert.Equal($"category(name='{nodeName}' wasn't created: Name '{nodeName}' is reserved for future use.", result.Message);
+        }
+
         #endregion INewItem
 
         #region ICopyItem

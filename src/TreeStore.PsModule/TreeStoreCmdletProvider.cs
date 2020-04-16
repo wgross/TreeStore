@@ -14,6 +14,8 @@ namespace TreeStore.PsModule
     [CmdletProvider(TreeStoreCmdletProvider.Id, ProviderCapabilities.None)]
     public class TreeStoreCmdletProvider : Provider
     {
+        public static readonly string[] ReservedNodeNames = { ".tags", ".entities", ".properties", ".relationships" };
+
         #region Construction and initialization of this instance
 
         /// <summary>
@@ -29,7 +31,7 @@ namespace TreeStore.PsModule
         /// <returns></returns>
         private static ITreeStorePersistence CreateLiteDbPersistenceFromPath(string driveRoot) => string.IsNullOrEmpty(driveRoot)
                 ? TreeStoreLiteDbPersistence.InMemory(TreeStoreMessageBus.Default)
-                : TreeStoreLiteDbPersistence.InFile(TreeStoreMessageBus.Default, $"FileName={driveRoot};Mode=Shared");
+                : TreeStoreLiteDbPersistence.InFile(TreeStoreMessageBus.Default, $"FileName={driveRoot};Connection=Shared");
 
         public TreeStoreCmdletProvider()
         {

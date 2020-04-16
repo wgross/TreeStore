@@ -103,27 +103,27 @@ namespace TreeStore.PsModule.PathNodes
 
         public object NewItemParameters => new NewFacetPropertyParameters();
 
-        public PathNode NewItem(IProviderContext providerContext, string newItemChildPath, string? itemTypeName, object? newItemValue)
+        public PathNode NewItem(IProviderContext providerContext, string newItemName, string? itemTypeName, object? newItemValue)
         {
-            if (!newItemChildPath.EnsureValidName())
-                throw new InvalidOperationException($"facetProperty(name='{newItemChildPath}' wasn't created: it contains invalid characters");
+            Guard.Against.InvalidNameCharacters(newItemName, $"facetProperty(name='{newItemName}' wasn't created");
+            Guard.Against.InvalidReservedNodeNames(newItemName, $"facetProperty(name='{newItemName}' wasn't created");
 
-            if (FacetPropertyNode.ForbiddenNames.Contains(newItemChildPath, StringComparer.OrdinalIgnoreCase))
-                throw new InvalidOperationException($"facetProperty(name='{newItemChildPath}') wasn't created: name is reserved");
+            if (FacetPropertyNode.ForbiddenNames.Contains(newItemName, StringComparer.OrdinalIgnoreCase))
+                throw new InvalidOperationException($"facetProperty(name='{newItemName}') wasn't created: name is reserved");
 
-            if (this.tag.Facet.Properties.Any(p => p.Name.Equals(newItemChildPath, StringComparison.OrdinalIgnoreCase)))
-                throw new InvalidOperationException($"facetProperty(name='{newItemChildPath}') wasn't created: name is duplicate");
+            if (this.tag.Facet.Properties.Any(p => p.Name.Equals(newItemName, StringComparison.OrdinalIgnoreCase)))
+                throw new InvalidOperationException($"facetProperty(name='{newItemName}') wasn't created: name is duplicate");
 
             var facetProperty = providerContext.DynamicParameters switch
             {
-                NewFacetPropertyParameters p => new FacetProperty(newItemChildPath, p.ValueType),
-                _ => new FacetProperty(newItemChildPath)
+                NewFacetPropertyParameters p => new FacetProperty(newItemName, p.ValueType),
+                _ => new FacetProperty(newItemName)
             };
 
             this.tag.Facet.AddProperty(facetProperty);
             providerContext.Persistence().Tags.Upsert(this.tag);
 
-            return this.GetChildNodes(providerContext).Single(fp => fp.Name.Equals(newItemChildPath));
+            return this.GetChildNodes(providerContext).Single(fp => fp.Name.Equals(newItemName));
         }
 
         #endregion INewItem

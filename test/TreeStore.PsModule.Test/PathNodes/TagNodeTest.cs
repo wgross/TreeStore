@@ -1,5 +1,6 @@
 ﻿using Moq;
 using System;
+using System.IO;
 using System.Linq;
 using System.Management.Automation;
 using TreeStore.Model;
@@ -154,19 +155,29 @@ namespace TreeStore.PsModule.Test.PathNodes
         }
 
         [Fact]
-        public void TagNode_retrieveing_single_FacetProperty_by_name_ignores_unknown_name()
+        public void TagNode_retrieving_unknown_property_creates_IOException()
         {
             // ARRANGE
 
+            ErrorRecord? errorRecord = null;
+            this.ProviderContextMock
+                .Setup(p => p.WriteError(It.IsAny<ErrorRecord>()))
+                .Callback<ErrorRecord>(e => errorRecord = e);
+
             var tag = DefaultTag(WithDefaultProperty);
+            var node = new TagNode(tag);
 
             // ACT
 
-            var result = new TagNode(tag).GetItemProperties(this.ProviderContextMock.Object, "unknown".Yield());
+            var result = node
+                .GetItemProperties(this.ProviderContextMock.Object, propertyNames: new[] { "unknown" })
+                .ToArray();
 
             // ASSERT
 
             Assert.Empty(result);
+            Assert.IsType<IOException>(errorRecord!.Exception);
+            Assert.Equal("The property unknown does not exist or was not found.", errorRecord!.Exception.Message);
         }
 
         #endregion IGetItemProperty
@@ -236,7 +247,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ACT
 
             var result = new TagNode(tag)
-                .NewItem(this.ProviderContextMock.Object, newItemChildPath: "p", itemTypeName: itemTypeName, newItemValue: null);
+                .NewItem(this.ProviderContextMock.Object, newItemName: "p", itemTypeName: itemTypeName, newItemValue: null);
 
             // ASSERT
 
@@ -260,7 +271,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ACT
 
             var result = Assert.Throws<InvalidOperationException>(() => new TagNode(tag)
-                .NewItem(this.ProviderContextMock.Object, newItemChildPath: propertyName, itemTypeName: null, newItemValue: null));
+                .NewItem(this.ProviderContextMock.Object, newItemName: propertyName, itemTypeName: null, newItemValue: null));
 
             // ASSERT
 
@@ -279,7 +290,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ACT
 
             var result = Assert.Throws<InvalidOperationException>(() => new TagNode(tag)
-                .NewItem(this.ProviderContextMock.Object, newItemChildPath: propertyName, itemTypeName: null, newItemValue: null));
+                .NewItem(this.ProviderContextMock.Object, newItemName: propertyName, itemTypeName: null, newItemValue: null));
 
             // ASSERT
 
@@ -288,7 +299,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
         [Theory]
         [MemberData(nameof(InvalidNameChars))]
-        public void TagNode_creating_Tag_rejects_invalid_characters(char invalidChar)
+        public void TagNode_creating_FacetProperty_rejects_invalid_characters(char invalidChar)
         {
             // ARRANGE
 
@@ -298,11 +309,30 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ACT
 
             var result = Assert.Throws<InvalidOperationException>(() => new TagNode(tag)
-                .NewItem(this.ProviderContextMock.Object, newItemChildPath: invalidName, itemTypeName: null, newItemValue: null));
+                .NewItem(this.ProviderContextMock.Object, newItemName: invalidName, itemTypeName: null, newItemValue: null));
 
             // ASSERT
 
             Assert.Equal($"facetProperty(name='{invalidName}' wasn't created: it contains invalid characters", result.Message);
+        }
+
+        [Theory]
+        [MemberData(nameof(InvalidNodeNames))]
+        public void TagsNode_creating_FacetProperty_rejects_reserved_name(string nodeName)
+        {
+            // ARRANGE
+
+            var tag = DefaultTag(WithDefaultProperty);
+            var node = new TagNode(tag);
+
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(() => node.NewItem(this.ProviderContextMock.Object,
+                newItemName: nodeName, itemTypeName: nameof(TreeStoreItemType.Entity), newItemValue: null!));
+
+            // ASSERT
+
+            Assert.Equal($"facetProperty(name='{nodeName}' wasn't created: Name '{nodeName}' is reserved for future use.", result.Message);
         }
 
         #endregion INewItem

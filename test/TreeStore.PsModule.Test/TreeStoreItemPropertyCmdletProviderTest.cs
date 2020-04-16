@@ -88,7 +88,7 @@ namespace TreeStore.PsModule.Test
         }
 
         [Fact]
-        public void PowerShell_retrieving_Tag_properties_returns_null_for_unknown_property()
+        public void PowerShell_retrieving_unknown_Tag_property_causes_error()
         {
             // ARRANGE
             // provide the top level containers
@@ -114,14 +114,9 @@ namespace TreeStore.PsModule.Test
             var result = this.PowerShell.Invoke().ToArray();
 
             // ASSERT
-            // result contains all properties
 
-            Assert.False(this.PowerShell.HadErrors);
-            Assert.Single(result);
-            Assert.IsType<ProviderInfo>(result[0].Property<ProviderInfo>("PSProvider"));
-            Assert.Equal("TreeStore", result[0].Property<ProviderInfo>("PSProvider").Name);
-            Assert.Equal("TreeStore", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
-            Assert.Equal(@"TreeStore\TreeStore::kg:\Tags\t", ((string)result[0].Properties["PSPath"].Value));
+            Assert.True(this.PowerShell.HadErrors);
+            Assert.Empty(result);
         }
 
         #endregion Get-ItemProperty /Tags/<name>
@@ -206,7 +201,7 @@ namespace TreeStore.PsModule.Test
         }
 
         [Fact]
-        public void PowerShell_retrieving_FacetProperty_property_returns_null_for_unknown_property()
+        public void PowerShell_retrieving_unknown_FacetProperty_property_causes_error()
         {
             // ARRANGE
             // provide the top level containers
@@ -233,12 +228,8 @@ namespace TreeStore.PsModule.Test
 
             // ASSERT
 
-            Assert.False(this.PowerShell.HadErrors);
-            Assert.Single(result);
-            Assert.IsType<ProviderInfo>(result[0].Property<ProviderInfo>("PSProvider"));
-            Assert.Equal("TreeStore", result[0].Property<ProviderInfo>("PSProvider").Name);
-            Assert.Equal("TreeStore", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
-            Assert.Equal(@"TreeStore\TreeStore::kg:\Tags\t\p", ((string)result[0].Properties["PSPath"].Value));
+            Assert.True(this.PowerShell.HadErrors);
+            Assert.Empty(result);
         }
 
         #endregion Get-ItemProperty /Tags/<name>/<property-name>
@@ -338,7 +329,7 @@ namespace TreeStore.PsModule.Test
         }
 
         [Fact]
-        public void PowerShell_retrieving_Entity_property_returns_null_fort_unkown_property()
+        public void PowerShell_retrieving_unknown_Entity_property_causes_error()
         {
             // ARRANGE
             // provide a tag and an entity using this tag
@@ -371,12 +362,8 @@ namespace TreeStore.PsModule.Test
 
             // ASSERT
 
-            Assert.False(this.PowerShell.HadErrors);
-            Assert.Single(result);
-            Assert.IsType<ProviderInfo>(result[0].Property<ProviderInfo>("PSProvider"));
-            Assert.Equal("TreeStore", result[0].Property<ProviderInfo>("PSProvider").Name);
-            Assert.Equal("TreeStore", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
-            Assert.Equal(@"TreeStore\TreeStore::kg:\Entities\e", ((string)result[0].Properties["PSPath"].Value));
+            Assert.True(this.PowerShell.HadErrors);
+            Assert.Empty(result);
         }
 
         #endregion Get-ItemProperty /Entities/<name>
@@ -474,7 +461,7 @@ namespace TreeStore.PsModule.Test
         }
 
         [Fact]
-        public void PowerShell_retrieves_single_AssignedTag_property_by_unknown_name_returns_null()
+        public void PowerShell_retrieving_unknown_AssignedTag_property_causes_error()
         {
             // ARRANGE
             // provide a tag and an entity using this tag
@@ -508,12 +495,8 @@ namespace TreeStore.PsModule.Test
 
             // ASSERT
 
-            Assert.False(this.PowerShell.HadErrors);
-            Assert.Single(result);
-            Assert.IsType<ProviderInfo>(result[0].Property<ProviderInfo>("PSProvider"));
-            Assert.Equal("TreeStore", result[0].Property<ProviderInfo>("PSProvider").Name);
-            Assert.Equal("TreeStore", result[0].Property<ProviderInfo>("PSProvider").ModuleName);
-            Assert.Equal(@"TreeStore\TreeStore::kg:\Entities\e\t", ((string)result[0].Properties["PSPath"].Value));
+            Assert.True(this.PowerShell.HadErrors);
+            Assert.Empty(result);
         }
 
         #endregion Get-ItemProperty /Entities/<name>/<tag-name>

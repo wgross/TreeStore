@@ -205,7 +205,7 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ACT
 
             var result = new TagsNode()
-                .NewItem(this.ProviderContextMock.Object, newItemChildPath: "t", itemTypeName: itemTypeName, newItemValue: null);
+                .NewItem(this.ProviderContextMock.Object, newItemName: "t", itemTypeName: itemTypeName, newItemValue: null);
 
             // ASSERT
 
@@ -214,7 +214,7 @@ namespace TreeStore.PsModule.Test.PathNodes
 
         [Theory]
         [MemberData(nameof(InvalidNameChars))]
-        public void TagsNode_creating_Tag_rejects_invalid_characters(char invalidChar)
+        public void TagsNode_creating_tag_rejects_invalid_characters(char invalidChar)
         {
             // ARRAMGE
 
@@ -223,11 +223,29 @@ namespace TreeStore.PsModule.Test.PathNodes
             // ACT
 
             var result = Assert.Throws<InvalidOperationException>(() => new TagsNode()
-                .NewItem(this.ProviderContextMock.Object, newItemChildPath: invalidName, itemTypeName: null, newItemValue: null));
+                .NewItem(this.ProviderContextMock.Object, newItemName: invalidName, itemTypeName: null, newItemValue: null));
 
             // ASSERT
 
             Assert.Equal($"tag(name='{invalidName}' wasn't created: it contains invalid characters", result.Message);
+        }
+
+        [Theory]
+        [MemberData(nameof(InvalidNodeNames))]
+        public void TagsNode_creating_tag_rejects_reserved_name(string nodeName)
+        {
+            // ARRANGE
+
+            var node = new TagsNode();
+
+            // ACT
+
+            var result = Assert.Throws<InvalidOperationException>(() => node.NewItem(this.ProviderContextMock.Object,
+                newItemName: nodeName, itemTypeName: nameof(TreeStoreItemType.Entity), newItemValue: null!));
+
+            // ASSERT
+
+            Assert.Equal($"tag(name='{nodeName}' wasn't created: Name '{nodeName}' is reserved for future use.", result.Message);
         }
 
         #endregion INewItem
