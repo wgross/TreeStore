@@ -8,7 +8,7 @@
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <OldToolsVersion>2.0</OldToolsVersion>
-    <Version>0.0.1</Version>
+    <Version>0.0.2</Version>
     <Company>github/wgross</Company>
     <Authors>github/wgross</Authors>
     <Product>TreeStore</Product>

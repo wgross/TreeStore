@@ -12,7 +12,7 @@
 RootModule = 'TreeStore.Dll'
 
 # Version number of this module.
-ModuleVersion = '0.0.1'
+ModuleVersion = '0.0.2'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Core')
@@ -109,6 +109,11 @@ PrivateData = @{
         # ReleaseNotes of this module
         ReleaseNotes = @"
 0.0.1: feature set complete
+0.0.2:  
+ - [Fix] Navigation function is exported to same scope as drive
+ - [Fix] Upgrade to LiteDbV5 broke shared db access 
+ - [Breaking] retrieving unknown property causes error similar to file system provider
+ - [Breaking] reject node names reserved for internal use: .tags, .entities, .properties, .relationships
 "@
         # Prerelease string of this module
         #Prerelease = 'alpha004'
