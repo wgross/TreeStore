@@ -57,8 +57,15 @@ namespace TreeStore.PsModule.Cmdlets
             }
 
             // Create function to switch to the drive
-            if (!this.SessionState.InvokeProvider.Item.Exists($@"Function:\{this.Name}:"))
-                this.SessionState.InvokeProvider.Item.Set($@"Function:\{this.Name}:", ScriptBlock.Create("Set-Location $MyInvocation.MyCommand.Name"));
+            if (!this.SessionState.InvokeProvider.Item.Exists($@"Function:\{this.NavigationFunctionName}:"))
+                this.SessionState.InvokeProvider.Item.Set($@"Function:\{this.NavigationFunctionName}:", ScriptBlock.Create("Set-Location $MyInvocation.MyCommand.Name"));
         }
+
+        /// <summary>
+        /// The navigations function visibility should match the drives visibility.
+        /// </summary>
+        private string NavigationFunctionName => string.IsNullOrEmpty(this.Scope)
+            ? this.Name
+            : $"{this.Scope}:{this.Name}";
     }
 }
