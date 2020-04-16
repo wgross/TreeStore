@@ -8,7 +8,7 @@
     <ApplicationIcon />
     <StartupObject />
     <AssemblyName>TreeStore</AssemblyName>
-    <Version>0.0.1</Version>
+    <Version>0.0.2</Version>
     <Company>github.com/wgross</Company>
     <Authors>github.com/wgross</Authors>
   </PropertyGroup>
