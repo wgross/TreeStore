@@ -15,7 +15,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Elementary.Hierarchy" Version="2.1.1-alpha3" />
-    <PackageReference Include="litedb" Version="5.0.5" />
+    <PackageReference Include="litedb" Version="5.0.13" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TreeStore.Messaging\TreeStore.Messaging.csproj" />
